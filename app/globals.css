@@ -2,9 +2,42 @@
 
 :root {
   color-scheme: light;
-  --background: #F8FAFF;
-  --foreground: #0F172A;
-  --muted: #64748B;
+  --brand-navy: #102a43;
+  --brand-navy-strong: #0b2239;
+  --brand-blue: #1677ff;
+  --brand-blue-strong: #0b5fd7;
+  --brand-coral: #f05a47;
+  --brand-coral-strong: #d94332;
+  --brand-gold: #f5b942;
+  --brand-gold-strong: #9a6500;
+  --warm-canvas: #f7f5f0;
+  --sky-surface: #eaf4ff;
+  --background: var(--warm-canvas);
+  --surface: #ffffff;
+  --surface-subtle: var(--sky-surface);
+  --foreground: #102a43;
+  --muted: #627d98;
+  --border: #cbd9e6;
+  --success: #2e9b6f;
+  --warning: #9a6500;
+  --danger: #c63d32;
+  --focus: #1677ff;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: clamp(2.25rem, 5vw, 3.75rem);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+  --shadow-sm: 0 10px 30px -20px rgb(16 42 67 / 0.28);
+  --shadow-md: 0 26px 70px -38px rgb(16 42 67 / 0.34);
 }
 
 * {
@@ -23,6 +56,22 @@ body {
   font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
 
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 button,
 input,
 textarea,
@@ -36,5 +85,5 @@ img {
 }
 
 ::selection {
-  background: rgba(212, 162, 58, 0.25);
+  background: rgb(240 90 71 / 0.22);
 }

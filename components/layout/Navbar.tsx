@@ -1,8 +1,10 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import Button from "@/components/ui/Button";
+import ButtonLink from "@/components/ui/ButtonLink";
 import Container from "@/components/ui/Container";
+import BrandMark from "@/components/evolusa/BrandMark";
+import { brand } from "@/config/brand";
 
 const links = [
   { label: "Inicio", href: "#home" },
@@ -38,27 +40,10 @@ export default function Navbar() {
 
         <a
           href="#home"
-          className="text-3xl font-extrabold tracking-tight transition-colors duration-300"
+          className="transition-colors duration-300"
+          aria-label="EVOLUSA — Inicio"
         >
-          <span
-            className={
-              scrolled ? "text-[#0D1B3D]" : "text-white"
-            }
-          >
-            PROS
-          </span>
-
-          <span className="text-[#D4A23A]">
-            360
-          </span>
-
-          <span
-            className={
-              scrolled ? "text-[#0D1B3D]" : "text-white"
-            }
-          >
-            ERA
-          </span>
+          <BrandMark theme={scrolled ? "light" : "dark"} />
         </a>
 
         {/* MENU */}
@@ -81,15 +66,11 @@ export default function Navbar() {
 
         {/* BOTON */}
 
-        <a
-          href="https://wa.me/17866041733"
-          target="_blank"
-          rel="noopener noreferrer"
+        <ButtonLink
+          href={brand.contact.whatsappLink}
         >
-          <Button>
-            Agenda Gratis
-          </Button>
-        </a>
+          {brand.cta.primary}
+        </ButtonLink>
       </Container>
     </header>
   );

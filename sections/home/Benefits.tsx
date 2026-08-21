@@ -1,4 +1,5 @@
 import Section from "@/components/ui/Section";
+import { brand } from "@/config/brand";
 import {
   BadgeCheck,
   Users,
@@ -36,7 +37,7 @@ export default function Benefits() {
       <div className="mx-auto max-w-3xl text-center">
 
         <span className="text-sm font-semibold uppercase tracking-[.35em] text-[#D4A23A]">
-          ¿POR QUÉ PROS360ERA?
+          ¿POR QUÉ {brand.name}?
         </span>
 
         <h2 className="mt-5 text-5xl font-extrabold leading-tight text-white">

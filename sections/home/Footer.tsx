@@ -1,66 +1,9 @@
+import Link from "next/link";
+import BrandMark from "@/components/evolusa/BrandMark";
 import Container from "@/components/ui/Container";
-import { Mail, Phone } from "lucide-react";
+
+const footerLinks = [{ label: "Etapas", href: "#stage-selector" }, { label: "Journey", href: "#journey" }, { label: "Servicios", href: "#stage-services" }, { label: "Roadmap", href: "#roadmap" }, { label: "Preguntas", href: "#faq" }] as const;
 
 export default function Footer() {
-  return (
-    <footer className="bg-[#081329] text-white">
-      <Container className="py-20">
-        <div className="grid gap-14 lg:grid-cols-4">
-          <div>
-            <h2 className="text-3xl font-bold">
-              PROS<span className="text-[#D4A23A]">360</span>ERA
-            </h2>
-
-            <p className="mt-6 leading-8 text-slate-400">
-              Ayudamos a inmigrantes y emprendedores a construir, proteger y
-              hacer crecer sus negocios en Estados Unidos.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold">Servicios</h3>
-
-            <ul className="mt-6 space-y-4 text-slate-400">
-              <li>Creación de Empresas</li>
-              <li>Taxes &amp; Bookkeeping</li>
-              <li>Notary</li>
-              <li>Seguros</li>
-              <li>Marketing Digital</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold">Empresa</h3>
-
-            <ul className="mt-6 space-y-4 text-slate-400">
-              <li>Nosotros</li>
-              <li>Preguntas Frecuentes</li>
-              <li>Contacto</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold">Contacto</h3>
-
-            <div className="mt-6 space-y-5">
-              <div className="flex items-center gap-3">
-                <Phone size={18} className="text-[#D4A23A]" />
-                <span>(786) 604-1733</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Mail size={18} className="text-[#D4A23A]" />
-                <span>hola@pros360era.com</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 border-t border-white/10 pt-8 text-center text-sm text-slate-500">
-          © {new Date().getFullYear()} PROS360ERA MULTISERVICES. Todos los
-          derechos reservados.
-        </div>
-      </Container>
-    </footer>
-  );
+  return <footer className="bg-[var(--brand-navy-strong)] text-white"><Container className="py-14"><div className="grid gap-10 md:grid-cols-2 md:items-start"><div><BrandMark theme="dark" showTagline /><p className="mt-5 max-w-xl leading-7 text-slate-400">Una plataforma de progreso y orientación en español para identificar y organizar tu próximo paso en Estados Unidos.</p></div><nav className="md:justify-self-end" aria-label="Navegación de pie de página"><ul className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm text-slate-300">{footerLinks.map((item) => <li key={item.href}><Link href={item.href} className="hover:text-white">{item.label}</Link></li>)}</ul></nav></div><div className="mt-12 border-t border-white/10 pt-6 text-xs leading-5 text-slate-500"><p>EVOLUSA no es una agencia gubernamental. La orientación general no sustituye asesoría profesional. Datos legales y canales de contacto pendientes de verificación.</p><p className="mt-3">© {new Date().getFullYear()} EVOLUSA. Nombre legal por confirmar.</p></div></Container></footer>;
 }

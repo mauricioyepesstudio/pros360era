@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { brand } from "@/config/brand";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -10,8 +11,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "PROS360ERA Multiservices",
-  description: "Landing premium para servicios legales, fiscales y de negocio en Estados Unidos.",
+  title: brand.displayName,
+  description: brand.description,
 };
 
 interface RootLayoutProps {

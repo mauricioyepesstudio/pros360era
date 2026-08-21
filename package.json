@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:roadmap": "node --test tests/roadmap.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

@@ -1,83 +1,8 @@
 import { ChevronDown } from "lucide-react";
+import Heading from "@/components/ui/Heading";
 import Section from "@/components/ui/Section";
-
-const faqs = [
-  {
-    question: "¿Qué servicios ofrece PROS360ERA?",
-    answer:
-      "Creación de empresas, impuestos, ITIN, notarización, seguros, marketing digital y consultoría empresarial.",
-  },
-  {
-    question: "¿Atienden completamente en español?",
-    answer:
-      "Sí. Todo nuestro equipo brinda atención en español durante cada etapa del proceso.",
-  },
-  {
-    question: "¿Necesito una cita?",
-    answer:
-      "Sí. Recomendamos agendar una consulta gratuita para conocer tu caso y ofrecerte la mejor solución.",
-  },
-  {
-    question: "¿Atienden empresas ya existentes?",
-    answer:
-      "Sí. Ayudamos tanto a nuevos emprendedores como a empresas establecidas.",
-  },
-];
+import { homeFaqs } from "@/data/home/faqs";
 
 export default function FAQ() {
-  return (
-    <Section
-      className="bg-[#F8FAFC] py-28"
-      id="faq"
-    >
-      <div className="mx-auto max-w-3xl text-center">
-
-        <span className="inline-block rounded-full bg-[#D4A23A]/10 px-5 py-2 text-sm font-semibold text-[#D4A23A]">
-          Preguntas Frecuentes
-        </span>
-
-        <h2 className="mt-6 text-5xl font-bold text-[#0D1B3D]">
-          Resolvemos tus dudas.
-        </h2>
-
-        <p className="mt-6 text-xl leading-9 text-slate-600">
-          Antes de comenzar, estas son las preguntas que recibimos con mayor frecuencia.
-        </p>
-
-      </div>
-
-      <div className="mx-auto mt-20 max-w-5xl space-y-5">
-
-        {faqs.map((faq) => (
-
-          <div
-            key={faq.question}
-            className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg"
-          >
-
-            <div className="flex items-center justify-between">
-
-              <h3 className="text-xl font-semibold text-[#0D1B3D]">
-                {faq.question}
-              </h3>
-
-              <ChevronDown
-                size={22}
-                className="text-[#D4A23A]"
-              />
-
-            </div>
-
-            <p className="mt-5 leading-8 text-slate-600">
-              {faq.answer}
-            </p>
-
-          </div>
-
-        ))}
-
-      </div>
-
-    </Section>
-  );
+  return <Section id="faq" labelledBy="faq-title"><Heading id="faq-title" eyebrow="Preguntas frecuentes">Claridad antes de avanzar</Heading><p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">Respuestas directas sobre el producto, sus límites y cómo maneja tus próximos pasos.</p><div className="mt-10 max-w-4xl divide-y divide-[var(--border)] border-y border-[var(--border)]">{homeFaqs.map((faq) => <details key={faq.question} className="group py-2"><summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 py-4 font-semibold text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">{faq.question}<ChevronDown aria-hidden="true" className="shrink-0 text-[var(--brand-gold-strong)] transition group-open:rotate-180" size={20} /></summary><p className="max-w-3xl pb-6 pr-10 leading-7 text-[var(--muted)]">{faq.answer}</p></details>)}</div></Section>;
 }

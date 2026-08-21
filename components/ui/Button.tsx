@@ -1,4 +1,5 @@
-import { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { cn } from "@/lib/cn";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
@@ -11,20 +12,19 @@ export default function Button({
   className = "",
   ...props
 }: ButtonProps) {
-  const base =
-    "inline-flex items-center justify-center rounded-3xl px-6 py-3 text-sm font-semibold tracking-[0.02em] transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A23A]/40";
+  const base = "inline-flex min-h-11 items-center justify-center rounded-[var(--radius-pill)] px-6 py-3 text-sm font-semibold tracking-[0.02em] transition disabled:cursor-not-allowed disabled:opacity-50";
 
   const styles = {
     primary:
-      "bg-[#D4A23A] text-[#0D1B3D] shadow-[0_26px_60px_-30px_rgba(212,162,58,0.95)] hover:-translate-y-0.5 hover:shadow-[0_32px_80px_-40px_rgba(212,162,58,0.9)]",
+      "bg-[var(--brand-coral)] text-white shadow-[var(--shadow-sm)] hover:bg-[var(--brand-coral-strong)]",
     secondary:
-      "border border-slate-200 bg-slate-950/95 text-white hover:bg-slate-950",
+      "border border-[var(--border)] bg-[var(--brand-navy)] text-white hover:bg-[var(--brand-navy-strong)]",
     ghost:
       "text-white hover:bg-white/10",
   };
 
   return (
-    <button className={`${base} ${styles[variant]} ${className}`} {...props}>
+    <button className={cn(base, styles[variant], className)} {...props}>
       {children}
     </button>
   );
