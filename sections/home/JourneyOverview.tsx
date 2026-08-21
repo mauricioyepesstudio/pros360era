@@ -1,13 +1,32 @@
 import Link from "next/link";
-import { ArrowRight, Compass, FolderCheck, Rocket, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Heading from "@/components/ui/Heading";
 import Section from "@/components/ui/Section";
-import { isServicePublishable } from "@/data/compliance/claims";
+import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import { journeyStages } from "@/data/journey/stages";
-import { enabledServices } from "@/data/services/services";
-
-const icons = { Compass, FolderCheck, Rocket, ShieldCheck, TrendingUp, Sparkles };
 
 export default function JourneyOverview() {
-  return <Section id="journey" labelledBy="journey-title"><Heading id="journey-title" eyebrow="EVOLUSA Journey">Un camino que crece contigo</Heading><p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">Puedes empezar en cualquier etapa. Cada una organiza un objetivo, opciones disponibles y una lógica sencilla para continuar.</p><ol className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{journeyStages.map((stage) => { const Icon = icons[stage.icon]; const available = enabledServices.filter((service) => service.stageIds.some((stageId) => stageId === stage.id) && isServicePublishable(service.category, false) && !service.requiresVerification); const next = journeyStages.find((item) => item.id === stage.recommendedNextStage); return <li key={stage.id} className="flex flex-col rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-sm)]"><div className="flex items-center justify-between"><span className="text-sm font-bold text-[var(--brand-gold-strong)]">{String(stage.order).padStart(2, "0")}</span><Icon aria-hidden="true" className="text-[var(--brand-navy)]" size={27} /></div><h3 className="mt-5 text-2xl font-bold text-[var(--brand-navy)]">{stage.shortLabel}</h3><p className="mt-3 leading-7 text-[var(--muted)]">{stage.description}</p><div className="mt-5 border-t border-[var(--border)] pt-5"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Objetivo</p><p className="mt-2 text-sm leading-6 text-slate-700">{stage.primaryGoal}</p></div><div className="mt-4"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Opciones disponibles</p><p className="mt-2 text-sm leading-6 text-slate-700">{available.length > 0 ? available.map((service) => service.shortName).join(" · ") : "Recursos educativos y orientación de etapa"}</p><p className="mt-1 text-xs text-[var(--muted)]">{stage.resourceIds.length} recurso educativo relacionado</p></div><div className="mt-auto pt-6"><p className="text-xs text-[var(--muted)]">{next ? `Siguiente etapa sugerida: ${next.shortLabel}` : "Siguiente paso: definir una nueva meta"}</p><Link href="#stage-selector" className="mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--brand-gold-strong)] hover:underline">{stage.cta.label}<ArrowRight aria-hidden="true" className="ml-2" size={17} /></Link></div></li>; })}</ol></Section>;
+  return (
+    <Section id="journey" labelledBy="journey-title">
+      <Heading id="journey-title" eyebrow="EVOLUSA Journey">Un camino que crece contigo</Heading>
+      <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)]">Puedes empezar en cualquier etapa. Cada una organiza un objetivo claro y una lógica sencilla para continuar.</p>
+      <div className="mt-14 hidden sm:block">
+        <EvolusaPath />
+      </div>
+      <ol className="mt-12 grid gap-x-8 gap-y-10 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
+        {journeyStages.map((stage) => (
+          <li key={stage.id} className="border-t border-[var(--border)] pt-5">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--brand-blue)]">
+              {String(stage.order).padStart(2, "0")} · {stage.shortLabel}
+            </p>
+            <p className="mt-3 leading-7 text-[var(--muted)]">{stage.primaryGoal}</p>
+            <Link href="#stage-selector" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-blue)]">
+              {stage.cta.label}
+              <ArrowRight aria-hidden className="ml-2" size={16} />
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </Section>
+  );
 }

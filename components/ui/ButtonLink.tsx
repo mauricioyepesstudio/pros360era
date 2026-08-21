@@ -10,7 +10,7 @@ type ButtonLinkProps = Omit<ComponentProps<typeof Link>, "className"> & {
 
 export default function ButtonLink({ children, className, variant = "primary", ...props }: ButtonLinkProps) {
   const variants = {
-    primary: "bg-[var(--brand-coral)] text-white shadow-[0_14px_30px_-18px_rgb(240_90_71_/_0.9)] hover:bg-[var(--brand-coral-strong)]",
+    primary: "bg-[var(--brand-blue)] text-white shadow-[0_14px_30px_-18px_rgb(23_92_211_/_0.55)] hover:bg-[var(--brand-blue-strong)]",
     secondary: "border border-[var(--border)] bg-[var(--brand-navy)] text-white hover:bg-[var(--brand-navy-strong)]",
     ghost: "text-[var(--brand-navy)] hover:bg-[var(--surface-subtle)]",
   };

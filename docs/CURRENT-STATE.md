@@ -1,36 +1,104 @@
 # EVOLUSA — Current State
 
-Snapshot as of the Phase 2.5 end-to-end validation milestone (real Supabase project, real auth, real persistence, **verified live in a browser**, not just code-reviewed). This file is a point-in-time summary — trust `git log` and the code over this if they disagree later.
+Authoritative handoff snapshot. Trust `git log` and the code over this if they ever disagree — this file is updated at milestone/checkpoint boundaries, not continuously.
 
-## What's real and verified
+## PROJECT
 
-- **Public marketing site**: fully wired (`app/page.tsx`), unaffected by this phase. Verified live: loads correctly on `localhost:3002`.
-- **Supabase project**: `ovialqdazxkekvqqgdiu` ("InMigration", repurposed as the EVOLUSA production backend), org `eaxhsobbvufhnybrpozs` (EVOLUSA), region `us-west-2`, free plan.
-- **Schema + RLS**: 4 migrations applied (`supabase/migrations/0001`–`0004`), `get_advisors` clean (0 findings).
-- **Full real user lifecycle — walked through live in a browser this phase**: signup → (email-confirmation workaround, see below) → login → complete onboarding → answers persist to the real profile/onboarding tables → dashboard reflects the persisted stage/business-status/employment via the deterministic roadmap engine → completed a real roadmap task (persisted) → added a real life event (persisted) → logged out → logged back in → **all state was still there**, verified after a full server round-trip, not just client-side cache.
-- **Cross-user RLS isolation — verified twice, against real live data**: a different authenticated identity's `SELECT`/`UPDATE`/`DELETE` against the real test user's real profile/roadmap_items/life_events rows all had zero effect (RLS filtered them out silently; one cross-user `INSERT` attempt was hard-rejected with an explicit `42501` policy violation). All test data was created, exercised, and then fully deleted — the project is back to 0 rows everywhere.
-- **Protected routes**: verified live — an unauthenticated request to `/dashboard` redirects to `/login?next=/dashboard` before any protected content renders.
-- **Auth settings**: confirmed via Supabase's own public GoTrue `/auth/v1/settings` endpoint — `mailer_autoconfirm: false` (confirmation genuinely required), `disable_signup: false`, only the `email` provider enabled (no socials, as required).
-- **Tests/CI**: `npm test` runs all 7 tests, lint/tsc/build all clean, `.github/workflows/ci.yml` gates PRs.
+EVOLUSA
 
-## What's deliberately not done yet
+## REPOSITORY
 
-- **Custom SMTP** for reliable production email volume — Supabase's default mailer is rate-limited (hit twice this session) and this session's test signup required a same-database confirmation workaround rather than a real inbox click. See [EVOLUSA-AUTH-TESTING.md](./EVOLUSA-AUTH-TESTING.md) for the exact blocker and what production SMTP setup requires.
-- **Wiring the assistant to a real provider** — typed foundation only, by design.
-- **Onboarding → deterministic rules engine mismatch**: the public `OnboardingFlow` component collects its own answer shape and picks a result stage directly from the user's self-reported stage choice — it does not call `lib/roadmap/rules.ts`'s deterministic engine (that engine is only used by the separate, unused `lib/roadmap/generateRoadmap.ts` path). The account-side roadmap (`lib/account/roadmap-engine.ts`, used by `/dashboard` and `/roadmap`) *is* deterministic and rule-based, and this phase's live test confirmed it correctly reflects onboarding-derived profile fields (business status, employment, selected needs all showed up exactly as chosen). This pre-existing architectural split predates this phase and wasn't part of the requested scope to unify — flagging it here so it's a visible, tracked gap rather than a silent one.
-- **Goals collection**: the onboarding UI doesn't currently collect `UserGoal`-shaped data, so `user_goals` stays empty until a UI is built for it.
+`mauricioyepesstudio/pros360era`
 
-## Key files to know
+## ACTIVE BRANCH
+
+`feat/evolusa-migration`
+
+## LOCAL PORT
+
+`3002` (`npm run dev` runs `next dev --port 3002` — always this port, never 3000/3001)
+
+## LAST COMPLETED MILESTONE
+
+End-of-day portable handoff checkpoint, covering: the real Supabase account backend (Phase 2), its live end-to-end validation (Phase 2.5), and the Premium Public Experience V1 redesign of Header/Hero/StageSelector/Core Belief/Journey/Roadmap Preview.
+
+## WHAT IS FUNCTIONAL NOW
+
+- Public marketing home page (`app/page.tsx`) — new premium visual system on Header/Hero/StageSelector/Core Belief/Journey/Roadmap Preview; Services/HowItWorks/Trust/FAQ/CTA/Footer sections unchanged from before this round (still on the old gold-accented styling — see `EVOLUSA-LAUNCH-CHECKLIST.md` follow-ups).
+- Public onboarding flow (`/onboarding`) — works anonymously, no account required, hands off answers to a signed-in account on first login via `sessionStorage` + `OnboardingSync`.
+- Real Supabase email/password auth: signup, login, logout, session restoration, protected-route redirect (`proxy.ts`), Spanish error states.
+- Real per-user persistence: profile, roadmap item completion, life events all read/write through `lib/account/persistence.ts` and `app/(account)/actions.ts`, verified live end-to-end (see `EVOLUSA-AUTH-TESTING.md`).
+- Dashboard/Roadmap/Profile pages (`app/(account)/...`) show real signed-in user data, falling back to preview data only when signed out or Supabase is unconfigured.
+
+## SUPABASE
+
+- **Organization**: EVOLUSA (`eaxhsobbvufhnybrpozs`) — separate from BELONG Labs; never touch BELONG's org or its `belong-platform` project.
+- **Project ref**: `ovialqdazxkekvqqgdiu` (repurposed from its default name "InMigration" — this is the real EVOLUSA backend now)
+- **Region**: `us-west-2` — kept as-is for MVP; free to move to `us-east-1` later if South Florida latency matters enough (see `EVOLUSA-DATABASE.md`), but that means a new project since Supabase can't change region in place.
+- **Migrations status**: 4 applied (`0001` schema, `0002` RLS, `0003` profile auto-provisioning trigger, `0004` advisor fixes) — `supabase/migrations/` in this repo matches exactly what's live.
+- **Auth status**: real email/password auth working; `mailer_autoconfirm: false` (confirmation genuinely required); default built-in mailer is rate-limited — custom SMTP is the next real blocker for production signup volume (see `EVOLUSA-AUTH-TESTING.md`).
+- **RLS status**: enabled on all 8 tables, owner-only policies, verified live twice with real cross-user isolation tests (zero cross-user read/write leakage, confirmed at the database level — see `EVOLUSA-SECURITY.md`).
+- **Zero secrets in documentation** — every doc in this repo references the project ref/org id (not secret) but never the anon key or any credential value.
+
+## CURRENT VISUAL STATUS
+
+Premium Experience V1 shipped on Header, Hero, StageSelector, Core Belief (new section), Journey (now features the reusable `EvolusaPath` component), and Roadmap Preview. New design tokens in `app/globals.css` (Deep Navy / Progress Blue / EVOL USA Red / Warm White / Educational Sky / Progress Green / Muted). A real accessibility bug was caught and fixed this round: Progress Blue text directly on Deep Navy measured 2.94:1 contrast (fails WCAG AA); a lighter `--brand-blue-on-dark` tint (7.2:1) now covers every blue-on-navy text usage. StageServices, HowItWorks, TrustAndTransparency, FAQ, CTA, and Footer were intentionally left untouched and still show the old gold accent — a visible, tracked seam, not an oversight.
+
+## CURRENT ACCOUNT STATUS
+
+Real auth end-to-end, code-complete and live-verified once via a pre-confirmed throwaway test account (workaround needed because the default mailer can't be organically tested without a real inbox — see `EVOLUSA-AUTH-TESTING.md` for exactly why and how). No real production users exist yet.
+
+## CURRENT BACKEND STATUS
+
+Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-clean. Persistence functions (`lib/account/persistence.ts`) and server actions (`app/(account)/actions.ts`) are wired into the dashboard/roadmap/profile pages and the onboarding-to-account handoff.
+
+## TEST STATUS
+
+`npm test` — 7/7 pass (deterministic roadmap engine + account roadmap engine tests). Lint and `tsc --noEmit` clean.
+
+## BUILD STATUS
+
+`npm run build` clean. `/dashboard`, `/roadmap`, `/profile` are dynamically rendered (session-aware, as expected); everything else is static.
+
+## CURRENT BLOCKERS
+
+- Custom SMTP not configured — production signup volume needs a provider decision (Resend recommended — see `EVOLUSA-LAUNCH-CHECKLIST.md` and the SMTP recommendation in conversation history).
+- Auth email templates are still Supabase's English defaults, not Spanish.
+- Business/legal facts still placeholders in `config/brand.ts` (legal name, phone, email, WhatsApp, website, hours) — blocks compliant public copy, not code.
+- No Vercel project currently connected to this repository (confirmed via the Vercel API this session — only unrelated `taxmind-ai`/`taxmind-mvp` projects exist in the connected account). No preview deployment exists to inspect.
+
+## NEXT EXACT TASK
+
+Extend the Premium Experience V1 token/Path system down through the remaining home sections (StageServices, HowItWorks, TrustAndTransparency, FAQ, CTA, Footer) so the whole home page reads as one consistent system instead of a redesigned top half + unchanged bottom half.
+
+## FILES/AREAS MOST RELEVANT TO NEXT TASK
 
 | Concern | File |
 | --- | --- |
+| Design tokens | `app/globals.css` |
+| Shared primitives already updated | `components/ui/{Button,ButtonLink,Heading,ProgressStep}.tsx` |
+| Reusable path motif | `components/evolusa/EvolusaPath.tsx` |
+| Sections still on old styling | `sections/home/{StageServices,HowItWorks,TrustAndTransparency,FAQ,CTA,Footer}.tsx` |
 | Supabase env/client/server | `lib/supabase/{env,client,server}.ts` |
 | Route protection | `proxy.ts` |
 | Persistence functions | `lib/account/persistence.ts` |
-| Server actions (roadmap/life-events/onboarding sync) | `app/(account)/actions.ts` |
-| Real auth UI | `components/account/AuthFoundation.tsx` |
+| Server actions | `app/(account)/actions.ts` |
 | Migrations (source of truth for what's applied) | `supabase/migrations/0001`–`0004` |
 
-## Related docs
+## IMPORTANT DECISIONS
 
-[EVOLUSA-DATABASE.md](./EVOLUSA-DATABASE.md) · [EVOLUSA-SECURITY.md](./EVOLUSA-SECURITY.md) · [EVOLUSA-ACCOUNT-ARCHITECTURE.md](./EVOLUSA-ACCOUNT-ARCHITECTURE.md) · [EVOLUSA-AUTH-TESTING.md](./EVOLUSA-AUTH-TESTING.md) · [EVOLUSA-LAUNCH-CHECKLIST.md](./EVOLUSA-LAUNCH-CHECKLIST.md) · [EVOLUSA-AI-TEAM.md](./EVOLUSA-AI-TEAM.md)
+- Primary CTA color is Progress Blue, not the EVOL USA Red — red is deliberately restrained to the brand mark and rare accents (per the approved creative direction).
+- `InMigration` was repurposed as the real EVOLUSA backend rather than creating a new Supabase project, because the account had already hit Supabase's 2-free-projects-per-owner limit.
+- Onboarding's answer collection intentionally does not call the separate deterministic `lib/roadmap/rules.ts` engine — that's a pre-existing architectural split, tracked, not fixed this round (see "What's deliberately not done yet" history in git blame of this file).
+
+## DO NOT TOUCH / SAFETY NOTES
+
+- Never touch BELONG Labs org or the `belong-platform` Supabase project.
+- Never touch `mauricio-portfolio`, `marketing-ai-platform`, `meta-ads-deploy`, or any other repository.
+- Never merge this branch to `main`, push anywhere but `origin feat/evolusa-migration`, or deploy without explicit approval.
+- Never commit `.env.local` or any Supabase credential value — `.env.example` holds placeholder names only.
+- Don't flip any regulated service category (`data/compliance/claims.ts`) to enabled/direct without verified real-world credentials — that's a business decision, not an engineering one.
+
+## HOME-COMPUTER RESUME STEPS
+
+See [HOME-SETUP.md](./HOME-SETUP.md) for the full executable process.

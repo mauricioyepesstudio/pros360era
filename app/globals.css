@@ -2,26 +2,37 @@
 
 :root {
   color-scheme: light;
-  --brand-navy: #102a43;
-  --brand-navy-strong: #0b2239;
-  --brand-blue: #1677ff;
-  --brand-blue-strong: #0b5fd7;
-  --brand-coral: #f05a47;
-  --brand-coral-strong: #d94332;
+  /* EVOLUSA premium system — Deep Navy, Progress Blue, EVOL USA Red,
+     Warm White, Educational Sky, Progress Green, Muted Text.
+     Blue carries primary interactive hierarchy; red is reserved for the
+     brand mark and restrained, meaningful accents; green is reserved for
+     completion/progress states only. --brand-gold is kept defined (legacy
+     value) so sections outside this phase's scope keep rendering, but no
+     new work in this phase uses it. */
+  --brand-navy: #071a2b;
+  --brand-navy-strong: #04101c;
+  --brand-blue: #175cd3;
+  --brand-blue-strong: #0f3f94;
+  /* Lighter tint of Progress Blue for text on dark (navy) backgrounds —
+     --brand-blue itself is only ~2.9:1 against Deep Navy, which fails
+     WCAG AA; this variant is ~7.2:1. */
+  --brand-blue-on-dark: #6ea8f5;
+  --brand-coral: #e63946;
+  --brand-coral-strong: #c22532;
   --brand-gold: #f5b942;
   --brand-gold-strong: #9a6500;
-  --warm-canvas: #f7f5f0;
-  --sky-surface: #eaf4ff;
+  --warm-canvas: #fcfcf9;
+  --sky-surface: #eaf3ff;
   --background: var(--warm-canvas);
   --surface: #ffffff;
   --surface-subtle: var(--sky-surface);
-  --foreground: #102a43;
-  --muted: #627d98;
-  --border: #cbd9e6;
-  --success: #2e9b6f;
+  --foreground: #071a2b;
+  --muted: #65758b;
+  --border: #d7e1ec;
+  --success: #16865c;
   --warning: #9a6500;
   --danger: #c63d32;
-  --focus: #1677ff;
+  --focus: #175cd3;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;

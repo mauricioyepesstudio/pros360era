@@ -16,7 +16,7 @@ export default function Button({
 
   const styles = {
     primary:
-      "bg-[var(--brand-coral)] text-white shadow-[var(--shadow-sm)] hover:bg-[var(--brand-coral-strong)]",
+      "bg-[var(--brand-blue)] text-white shadow-[var(--shadow-sm)] hover:bg-[var(--brand-blue-strong)]",
     secondary:
       "border border-[var(--border)] bg-[var(--brand-navy)] text-white hover:bg-[var(--brand-navy-strong)]",
     ghost:

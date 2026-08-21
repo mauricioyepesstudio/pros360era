@@ -1,6 +1,7 @@
 import SiteHeader from "@/components/layout/SiteHeader";
 import Hero from "@/sections/home/Hero";
 import StageSelector from "@/sections/home/StageSelector";
+import CoreBelief from "@/sections/home/CoreBelief";
 import JourneyOverview from "@/sections/home/JourneyOverview";
 import StageServices from "@/sections/home/StageServices";
 import RoadmapPreview from "@/sections/home/RoadmapPreview";
@@ -18,6 +19,7 @@ export default function Home() {
       <main className="bg-slate-50 text-slate-950">
         <Hero />
         <StageSelector />
+        <CoreBelief />
         <JourneyOverview />
         <StageServices />
         <RoadmapPreview />
