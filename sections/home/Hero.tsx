@@ -1,67 +1,79 @@
+"use client";
+
+import { useRef } from "react";
 import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Container from "@/components/ui/Container";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
-
-/**
- * Abstract, editorial composition standing in for real photography (see
- * docs — the previous stock "happy family at sunset" image was replaced
- * deliberately; it read as generic multiservices stock, not the premium/
- * professional-optimism direction). This panel is self-contained and can
- * be swapped for real editorial photography later without touching layout.
- */
-function HeroComposition() {
-  return (
-    <div aria-hidden className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-[var(--brand-navy)] via-[#0c2740] to-[var(--brand-blue-strong)] lg:block">
-      <div className="absolute -right-16 -top-16 size-72 rounded-full bg-[var(--brand-blue)]/30 blur-3xl" />
-      <div className="absolute -bottom-20 -left-10 size-64 rounded-full bg-[var(--brand-coral)]/15 blur-3xl" />
-      <svg viewBox="0 0 320 400" className="absolute inset-0 size-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="60" y1="340" x2="260" y2="60" stroke="white" strokeOpacity="0.18" strokeWidth="1.5" strokeDasharray="2 8" strokeLinecap="round" />
-        {[
-          { x: 60, y: 340, r: 6, fill: "white", opacity: 0.9 },
-          { x: 100, y: 284, r: 5, fill: "white", opacity: 0.55 },
-          { x: 140, y: 228, r: 5, fill: "white", opacity: 0.55 },
-          { x: 180, y: 172, r: 5, fill: "white", opacity: 0.55 },
-          { x: 220, y: 116, r: 5, fill: "white", opacity: 0.55 },
-          { x: 260, y: 60, r: 7, fill: "#E63946", opacity: 1 },
-        ].map((node, i) => (
-          <circle key={i} cx={node.x} cy={node.y} r={node.r} fill={node.fill} opacity={node.opacity} />
-        ))}
-      </svg>
-      <p className="absolute bottom-7 left-7 right-7 text-sm font-semibold uppercase tracking-[0.14em] text-white/60">Tu camino, en progreso</p>
-    </div>
-  );
-}
+import PhotoSlot from "@/components/evolusa/PhotoSlot";
 
 export default function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+
+  // Parallax-lite: the photo drifts and scales very slightly as the hero
+  // scrolls past — never enough to feel like scroll-hijacking.
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+  // The Path's fill reads as "continuing" through the hero's scroll range —
+  // the same thread that will resolve into the plan below.
+  const pathProgress = useTransform(scrollYProgress, [0, 0.85], [0.02, 1]);
+
   return (
-    <section id="home" aria-labelledby="hero-title" className="relative overflow-hidden bg-[var(--brand-navy)] text-white">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(80%_60%_at_15%_0%,rgba(23,92,211,0.22),transparent_60%)]" />
-      <Container className="grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:py-28">
-        <div className="max-w-2xl">
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-[var(--brand-blue-on-dark)]">Bienvenido a tu próxima etapa</p>
-          <h1 id="hero-title" className="mt-6 text-balance text-[clamp(2.5rem,6.5vw,4.25rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">
-            Llegaste a USA.
-            <br />
-            Ahora, <span className="text-[var(--brand-blue-on-dark)]">evoluciona</span>.
+    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative h-screen min-h-[560px] overflow-hidden">
+      <motion.div style={{ y: imageY, scale: imageScale }} className="absolute inset-0">
+        <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" />
+      </motion.div>
+
+      {/* Scrim confined to the text-safety zone only — more sky stays exposed above it. */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/70 to-transparent" />
+
+      <Container className="relative flex h-full flex-col justify-end pb-10 sm:pb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="max-w-2xl text-white"
+        >
+          <h1 id="hero-title" className="text-balance leading-[1.0] tracking-[-0.03em]">
+            <span className="block text-[clamp(2rem,5vw,3rem)] font-medium text-white/85">TU SUEÑO</span>
+            <span className="block text-[clamp(2.5rem,6.5vw,4.5rem)] font-extrabold">TIENE UN</span>
+            <span className="block text-[clamp(2.5rem,6.5vw,4.5rem)] font-extrabold">CAMINO.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-white/85 sm:text-xl">Construir una nueva vida tiene muchos pasos. EVOLUSA te ayuda a entender dónde estás, qué hacer ahora y cómo seguir avanzando con claridad.</p>
-          <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <motion.span
+            aria-hidden
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+            className="mt-2 block h-1.5 w-28 origin-left rounded-full bg-[var(--brand-red)]"
+          />
+          <p className="mt-5 text-lg font-semibold text-[var(--brand-blue-on-dark)] sm:text-xl">
+            EVOLUSA te ayuda a convertirlo en un plan.
+          </p>
+          <p className="mt-2 max-w-md text-sm leading-6 text-white/70 sm:text-base">
+            Desde establecerte hasta emprender, proteger lo que construyes y seguir creciendo.
+          </p>
+          <div className="mt-7">
             <ButtonLink href="/onboarding">
-              Descubre tu camino
+              Descubrir mi camino
               <ArrowRight aria-hidden className="ml-2" size={18} />
             </ButtonLink>
-            <Link href="/login" className="inline-flex min-h-11 items-center font-semibold text-white/90 underline decoration-white/40 underline-offset-4 transition hover:text-white hover:decoration-white">
-              Ya tengo cuenta — continuar mi progreso
-              <ArrowRight aria-hidden className="ml-2" size={16} />
+            <Link href="/login" className="ml-6 inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+              Ya tengo cuenta
             </Link>
           </div>
-          <div className="mt-12 max-w-xl">
-            <EvolusaPath theme="dark" />
-          </div>
-        </div>
-        <HeroComposition />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="mt-12 w-full"
+        >
+          <EvolusaPath theme="dark" activeId="LLEGA" scrollProgress={pathProgress} />
+        </motion.div>
       </Container>
     </section>
   );

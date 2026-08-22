@@ -1,10 +1,11 @@
+import { MotionConfig } from "framer-motion";
 import SiteHeader from "@/components/layout/SiteHeader";
 import Hero from "@/sections/home/Hero";
 import StageSelector from "@/sections/home/StageSelector";
-import CoreBelief from "@/sections/home/CoreBelief";
+import ProductReveal from "@/sections/home/ProductReveal";
 import JourneyOverview from "@/sections/home/JourneyOverview";
+import LifeStory from "@/sections/home/LifeStory";
 import StageServices from "@/sections/home/StageServices";
-import RoadmapPreview from "@/sections/home/RoadmapPreview";
 import HowItWorks from "@/sections/home/HowItWorks";
 import TrustAndTransparency from "@/sections/home/TrustAndTransparency";
 import FAQ from "@/sections/home/FAQ";
@@ -13,16 +14,16 @@ import Footer from "@/sections/home/Footer";
 
 export default function Home() {
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <SiteHeader />
 
-      <main className="bg-slate-50 text-slate-950">
+      <main className="bg-[var(--background)] text-[var(--foreground)]">
         <Hero />
         <StageSelector />
-        <CoreBelief />
+        <ProductReveal />
         <JourneyOverview />
+        <LifeStory />
         <StageServices />
-        <RoadmapPreview />
         <HowItWorks />
         <TrustAndTransparency />
         <FAQ />
@@ -30,6 +31,6 @@ export default function Home() {
       </main>
 
       <Footer />
-    </>
+    </MotionConfig>
   );
 }

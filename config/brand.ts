@@ -44,16 +44,19 @@ export const brand = {
     linkedin: "",
   },
 
+  // Reference only — the live CSS custom properties in app/globals.css
+  // (--evolusa-navy, --evolusa-red, --brand-blue, etc.) are the source of
+  // truth actually used by components. Kept here in sync for anyone
+  // reading brand.ts directly instead of the stylesheet.
   colors: {
-    navy: "#102A43",
-    blue: "#1677FF",
-    coral: "#F05A47",
-    gold: "#F5B942",
-    warmCanvas: "#F7F5F0",
-    skySurface: "#EAF4FF",
-    growthGreen: "#2E9B6F",
-    textDark: "#102A43",
-    muted: "#627D98",
+    navy: "#061B3A",
+    red: "#F20D24",
+    blue: "#2563EB",
+    warmCanvas: "#FAFAF8",
+    skySurface: "#EFF6FF",
+    growthGreen: "#2E8B57",
+    textDark: "#061B3A",
+    muted: "#64748B",
   },
 
   cta: {

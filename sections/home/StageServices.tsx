@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowRight, BookOpen, BriefcaseBusiness, CheckCircle2, Megaphone } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Heading from "@/components/ui/Heading";
@@ -63,10 +64,8 @@ export default function StageServices() {
               tabIndex={selected ? 0 : -1}
               onClick={() => setSelectedStageId(stage.id)}
               className={cn(
-                "min-h-16 rounded-[var(--radius-md)] border px-3 py-3 text-left transition focus-visible:z-10 sm:min-h-20 sm:px-4",
-                selected
-                  ? "border-[var(--brand-blue)] bg-[var(--brand-navy)] text-white shadow-[var(--shadow-sm)]"
-                  : "border-[var(--border)] bg-white text-[var(--brand-navy)] hover:border-[var(--brand-blue)] hover:bg-white/80",
+                "min-h-16 rounded-[var(--radius-md)] px-3 py-3 text-left transition focus-visible:z-10 sm:min-h-20 sm:px-4",
+                selected ? "bg-[var(--brand-navy)] text-white" : "bg-white/60 text-[var(--brand-navy)] hover:bg-white",
               )}
             >
               <span className={cn("block text-[11px] font-bold tracking-wider", selected ? "text-sky-200" : "text-[var(--brand-blue)]")}>{String(stage.order).padStart(2, "0")}</span>
@@ -76,7 +75,7 @@ export default function StageServices() {
         })}
       </div>
 
-      <div id="stage-services-panel" role="tabpanel" aria-labelledby={`services-tab-${selectedStage.slug}`} className="mt-6 rounded-[var(--radius-lg)] border border-[var(--border)] bg-white/65 p-5 shadow-[var(--shadow-sm)] sm:p-7 lg:p-8">
+      <div id="stage-services-panel" role="tabpanel" aria-labelledby={`services-tab-${selectedStage.slug}`} className="mt-8">
         <div className="grid gap-6 border-b border-[var(--border)] pb-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.65fr)] lg:items-end">
           <div>
             <p className="text-sm font-bold text-[var(--brand-blue)]">Etapa {String(selectedStage.order).padStart(2, "0")}</p>
@@ -90,22 +89,26 @@ export default function StageServices() {
         </div>
 
         {stageServices.length > 0 ? (
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-6 divide-y divide-[var(--border)]">
             {stageServices.map((service) => {
               const Icon = categoryIcons[service.category as keyof typeof categoryIcons] ?? BriefcaseBusiness;
               return (
-                <article key={service.id} className="flex h-full flex-col rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)] sm:p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-blue-50 text-[var(--brand-blue)]"><Icon aria-hidden="true" size={21} /></span>
-                    <StatusBadge status="complete" className="text-right">{fulfillmentLabels[service.fulfillmentType]}</StatusBadge>
+                <li key={service.id} className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:gap-6">
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--sky-surface)] text-[var(--brand-blue)]"><Icon aria-hidden="true" size={21} /></span>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <h4 className="text-lg font-bold text-[var(--brand-navy)]">{service.name}</h4>
+                      <StatusBadge status="complete">{fulfillmentLabels[service.fulfillmentType]}</StatusBadge>
+                    </div>
+                    <p className="mt-1 leading-6 text-[var(--muted)]">{service.summary}</p>
                   </div>
-                  <h4 className="mt-5 text-xl font-bold text-[var(--brand-navy)]">{service.name}</h4>
-                  <p className="mt-3 flex-1 leading-7 text-[var(--muted)]">{service.summary}</p>
-                  <ButtonLink href="#roadmap" variant="ghost" className="mt-5 justify-start px-0 text-[var(--brand-blue)]">Incluir en mi Roadmap<ArrowRight aria-hidden="true" className="ml-2" size={17} /></ButtonLink>
-                </article>
+                  <Link href="#roadmap" aria-label={`Incluir ${service.name} en mi Roadmap`} className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-[var(--brand-red)] hover:underline">
+                    Incluir<ArrowRight aria-hidden="true" className="ml-1.5" size={16} />
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ul>
         ) : (
           <div className="mt-6 flex flex-col gap-5 rounded-[var(--radius-lg)] border border-dashed border-[var(--border)] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex gap-4">

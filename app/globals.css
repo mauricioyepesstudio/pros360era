@@ -2,37 +2,57 @@
 
 :root {
   color-scheme: light;
-  /* EVOLUSA premium system — Deep Navy, Progress Blue, EVOL USA Red,
-     Warm White, Educational Sky, Progress Green, Muted Text.
-     Blue carries primary interactive hierarchy; red is reserved for the
-     brand mark and restrained, meaningful accents; green is reserved for
-     completion/progress states only. --brand-gold is kept defined (legacy
-     value) so sections outside this phase's scope keep rendering, but no
-     new work in this phase uses it. */
-  --brand-navy: #071a2b;
-  --brand-navy-strong: #04101c;
-  --brand-blue: #175cd3;
-  --brand-blue-strong: #0f3f94;
-  /* Lighter tint of Progress Blue for text on dark (navy) backgrounds —
-     --brand-blue itself is only ~2.9:1 against Deep Navy, which fails
-     WCAG AA; this variant is ~7.2:1. */
-  --brand-blue-on-dark: #6ea8f5;
-  --brand-coral: #e63946;
-  --brand-coral-strong: #c22532;
+  /* ===== EVOLUSA OFFICIAL BRAND TOKENS (V1 brand system) =====
+     Source of truth: owner-approved EVOLUSA identity board. These three
+     raw values are the only place the official hex codes are written —
+     every other token below derives from them. Do not hardcode these
+     hex values anywhere else in the codebase; reference the tokens.
+     Note: the identity board's swatches read #061B3A / #F20D24, which is
+     what's used here — slightly different from an earlier verbal brief
+     (#06183A / #F20024); the board image is the authoritative source. */
+  --evolusa-navy: #061b3a;
+  --evolusa-red: #f20d24;
+  --evolusa-white: #ffffff;
+
+  /* Semantic brand tokens, derived from the raw values above. */
+  --brand-navy: var(--evolusa-navy);
+  --brand-navy-strong: #040f22;
+  /* EVOLUSA Vivid Red is now the primary brand/action/emphasis color —
+     it no longer competes with blue for CTA hierarchy. Kept under both
+     names: --brand-red is the correct name for new code; --brand-coral
+     is preserved as a compatibility alias so existing account-side call
+     sites (OnboardingFlow, AuthFoundation, RoadmapBoard, dashboard) pick
+     up the official red automatically without needing individual edits. */
+  --brand-red: var(--evolusa-red);
+  --brand-red-strong: #c4001a;
+  --brand-coral: var(--brand-red);
+  --brand-coral-strong: var(--brand-red-strong);
+
+  /* Clear Blue is retained ONLY for functional, non-CTA roles: journey
+     progress fill, selected/active path state, informational badges,
+     subtle interactive feedback. Never the primary brand CTA color. */
+  --brand-blue: #2563eb;
+  --brand-blue-strong: #1d4ed8;
+  /* Lighter tint of Clear Blue for body-text-sized text on dark (navy)
+     backgrounds — raw --brand-blue on Ink Navy is ~3.45:1, which clears
+     the 3:1 large-text/UI-component minimum but fails the 4.5:1 body-text
+     minimum; this tint is ~9.9:1. */
+  --brand-blue-on-dark: #93c5fd;
   --brand-gold: #f5b942;
   --brand-gold-strong: #9a6500;
-  --warm-canvas: #fcfcf9;
-  --sky-surface: #eaf3ff;
+  --warm-canvas: #fafaf8;
+  --sky-surface: #eff6ff;
+  --stone-surface: #f2f0ea;
   --background: var(--warm-canvas);
   --surface: #ffffff;
   --surface-subtle: var(--sky-surface);
-  --foreground: #071a2b;
-  --muted: #65758b;
-  --border: #d7e1ec;
-  --success: #16865c;
+  --foreground: var(--brand-navy);
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --success: #2e8b57;
   --warning: #9a6500;
-  --danger: #c63d32;
-  --focus: #175cd3;
+  --danger: var(--brand-red);
+  --focus: #2563eb;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -96,5 +116,5 @@ img {
 }
 
 ::selection {
-  background: rgb(240 90 71 / 0.22);
+  background: rgb(242 13 36 / 0.2);
 }
