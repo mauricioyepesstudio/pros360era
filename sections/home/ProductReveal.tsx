@@ -49,7 +49,7 @@ function Marker({ variant }: { variant: "check" | "dot" | "ring" }) {
  */
 export default function ProductReveal() {
   return (
-    <section id="roadmap" aria-labelledby="product-reveal-title" className="bg-[var(--brand-navy)] py-24 text-white sm:py-36">
+    <section id="roadmap" aria-labelledby="product-reveal-title" className="bg-[var(--brand-navy)] pb-24 pt-14 text-white sm:pb-32 sm:pt-20">
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 16 }}

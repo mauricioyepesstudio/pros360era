@@ -9,6 +9,8 @@ type PhotoSlotProps = {
   /** Placeholder tone when no tempSrc exists yet. "luminous" for the Hero (never dark). */
   tone?: "luminous" | "navy" | "blue";
   priority?: boolean;
+  /** Overrides the registry's objectPosition for this render only — e.g. a desktop-only crop that shouldn't apply on mobile. */
+  objectPosition?: string;
 };
 
 const placeholderTones: Record<NonNullable<PhotoSlotProps["tone"]>, string> = {
@@ -23,7 +25,7 @@ const placeholderTones: Record<NonNullable<PhotoSlotProps["tone"]>, string> = {
  * slot id. Swap a slot's tempSrc there to ship a real photo; nothing here
  * or in the calling section needs to change.
  */
-export default function PhotoSlot({ id, className, tone = "luminous", priority = false }: PhotoSlotProps) {
+export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition }: PhotoSlotProps) {
   const slot = photoSlots[id];
 
   if (slot.tempSrc) {
@@ -35,7 +37,7 @@ export default function PhotoSlot({ id, className, tone = "luminous", priority =
           fill
           priority={priority}
           sizes="(min-width: 1024px) 50vw, 100vw"
-          style={{ objectFit: "cover", objectPosition: slot.objectPosition ?? "center" }}
+          style={{ objectFit: "cover", objectPosition: objectPosition ?? slot.objectPosition ?? "center" }}
         />
       </div>
     );

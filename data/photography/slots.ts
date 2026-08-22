@@ -28,9 +28,9 @@ export const photoSlots = {
     purpose: "Hero — full-viewport aspirational 'possibility' moment. Must read luminous and optimistic, never dark or moody.",
     aspectRatio: "21/11",
     tempSrc: "/images/hero/hero-family.webp",
-    objectPosition: "center 18%",
+    objectPosition: "center 26%",
     finalReplacementRequired: true,
-    note: "TEMPORARY per V4 direction ('no placeholder gradient in Hero'). This is a staged/posed stock genre with a generic skyline backdrop — placeholder-quality, not a final brand asset. Priority #1 for the real photography shoot. Crop raised (center 18%) per V1 brand direction to expose more sky above the readability scrim.",
+    note: "TEMPORARY per V4 direction ('no placeholder gradient in Hero'). This is a staged/posed stock genre with a generic skyline backdrop — placeholder-quality, not a final brand asset. Priority #1 for the real photography shoot. This is the MOBILE/default crop — Hero.tsx overrides objectPosition to '68% 30%' plus a ~1.2x scale at the lg breakpoint only, shifting focus toward the family and reducing sky on desktop, without applying that same zoom/shift to mobile's much narrower, more vertical crop window (where it risked pushing the children out of frame).",
   },
   arrival: {
     id: "arrival",
