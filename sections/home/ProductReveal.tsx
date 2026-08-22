@@ -1,9 +1,10 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Container from "@/components/ui/Container";
-import ButtonLink from "@/components/ui/ButtonLink";
 import { generateRoadmap } from "@/lib/roadmap/generateRoadmap";
+import { cn } from "@/lib/cn";
 
 const preview = generateRoadmap({
   hasBusiness: "yes",
@@ -16,93 +17,96 @@ const preview = generateRoadmap({
 });
 
 const groups = [
-  { key: "completed" as const, label: "Hoy", items: preview.completed.slice(0, 1), marker: "check" as const },
-  { key: "now" as const, label: "Siguiente", items: preview.now.slice(0, 2), marker: "dot" as const },
-  { key: "upcoming" as const, label: "Después", items: preview.upcoming.slice(0, 3), marker: "ring" as const },
+  { key: "completed" as const, label: "Hoy", items: preview.completed.slice(0, 1), marker: "check" as const, badge: "bg-[var(--brand-red)] text-white" },
+  { key: "now" as const, label: "Siguiente", items: preview.now.slice(0, 2), marker: "ring" as const, badge: "bg-white/10 text-white/80" },
+  { key: "upcoming" as const, label: "Después", items: preview.upcoming.slice(0, 2), marker: "empty" as const, badge: "bg-white/10 text-white/60" },
 ];
 
-function Marker({ variant }: { variant: "check" | "dot" | "ring" }) {
+function Marker({ variant }: { variant: "check" | "ring" | "empty" }) {
   if (variant === "check") {
     return (
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--success)] text-white">
-        <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      <span className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-red)] text-white">
+        <svg viewBox="0 0 16 16" className="size-3.5" fill="none">
+          <path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </span>
     );
   }
-  if (variant === "dot") {
+  if (variant === "ring") {
     return (
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-[var(--brand-blue-on-dark)]">
-        <span className="size-3 rounded-full bg-[var(--brand-blue-on-dark)]" />
+      <span className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-[var(--brand-red)] bg-[var(--brand-navy)]">
+        <span className="size-2 rounded-full bg-[var(--brand-red)]" />
       </span>
     );
   }
-  return <span className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-white/25" />;
+  return <span className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-white/25 bg-[var(--brand-navy)]" />;
 }
 
 /**
- * The Product Reveal — merges the former CoreBelief editorial statement and
- * RoadmapPreview into one full-width narrative moment: the dream becomes a
- * plan. Same visual language that opened in the Hero (thin line, marker
- * states), scaled up to be the page's strongest moment, not a small
- * centered card in empty space. `id="roadmap"` is preserved — StageSelector,
- * StageServices, and CTA all link to `#roadmap`.
+ * The Product Reveal — "TU PLAN EVOLUSA": a compact bordered panel (not a
+ * full-bleed section) that sits immediately below the Hero/Path, matching
+ * the approved reference exactly. Real generateRoadmap() data drives every
+ * column — including each item's `description`, which the RoadmapItem type
+ * already carries but earlier rounds didn't render.
+ *
+ * Mobile/tablet only (see app/page.tsx) — desktop uses the visual-lock
+ * image instead, which bakes this same panel's appearance into the
+ * reference screenshot. `id="roadmap"` stays here unchanged (mobile's
+ * existing, working behavior is left untouched); on desktop, `#roadmap`
+ * links (StageSelector, StageServices, CTA, and the locked image's own
+ * header nav) target this same id but it's inside a `lg:hidden` element
+ * there, so those links won't auto-scroll on desktop — an accepted,
+ * low-severity gap for this temporary lock, since the desktop panel is
+ * already fully visible in the static image without needing to scroll.
  */
 export default function ProductReveal() {
   return (
-    <section id="roadmap" aria-labelledby="product-reveal-title" className="bg-[var(--brand-navy)] pb-24 pt-14 text-white sm:pb-32 sm:pt-20">
+    <section id="roadmap" aria-labelledby="product-reveal-title" className="bg-[var(--brand-navy)] px-6 pb-16 pt-6 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="max-w-4xl"
-        >
-          <p id="product-reveal-title" className="text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.02em]">
-            No necesitas resolverlo todo hoy.
-          </p>
-          <p className="mt-4 text-balance text-2xl font-semibold leading-tight text-white/60 sm:text-3xl">
-            Necesitas saber qué sigue.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
-          className="mt-16 sm:mt-24"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-white sm:p-8 lg:p-10"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--brand-blue-on-dark)]">Tu plan EVOLUSA</p>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_2.3fr] lg:gap-12">
+            <div>
+              <p id="product-reveal-title" className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--brand-red)]">
+                Tu plan EVOLUSA
+              </p>
+              <p className="mt-3 text-balance text-2xl font-extrabold leading-tight sm:text-3xl">No necesitas resolverlo todo hoy.</p>
+              <p className="mt-2 text-base text-white/50">Necesitas saber qué sigue.</p>
+            </div>
 
-          <div className="relative mt-10 grid gap-12 sm:grid-cols-3 sm:gap-8">
-            {/* connecting progression line, desktop only */}
-            <span aria-hidden className="absolute inset-x-0 top-4 hidden h-px bg-white/15 sm:block" />
-            {groups.map((group, i) => (
-              <motion.div
-                key={group.key}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: 0.15 * i, ease: "easeOut" }}
-                className="relative"
-              >
-                <p className="text-sm font-bold uppercase tracking-[0.14em] text-white/50">{group.label}</p>
-                <ul className="mt-5 space-y-5">
-                  {group.items.map((item) => (
-                    <li key={item.id} className="flex items-start gap-4">
-                      <Marker variant={group.marker} />
-                      <span className={group.key === "upcoming" ? "text-lg text-white/55" : "text-xl font-semibold text-white"}>{item.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
+            <div className="grid gap-8 sm:grid-cols-3 sm:gap-6">
+              {groups.map((group) => (
+                <div key={group.key}>
+                  <span className={cn("inline-flex rounded-[var(--radius-pill)] px-3 py-1 text-xs font-bold uppercase tracking-wide", group.badge)}>{group.label}</span>
+                  <ul className="relative mt-4 space-y-4">
+                    {group.items.length > 1 && (
+                      <span aria-hidden className="absolute left-3 top-3 bottom-3 w-px -translate-x-1/2 bg-white/15" />
+                    )}
+                    {group.items.map((item) => (
+                      <li key={item.id} className="flex items-start gap-3">
+                        <Marker variant={group.marker} />
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-white">{item.title}</p>
+                          <p className="mt-0.5 text-xs leading-5 text-white/45">{item.description}</p>
+                        </div>
+                        <ChevronRight aria-hidden className="mt-1 shrink-0 text-white/25" size={16} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <p className="mt-12 max-w-2xl text-xs leading-5 text-white/45">{preview.disclaimer}</p>
-          <div className="mt-8">
-            <ButtonLink href="#stage-selector">Comenzar por mi etapa</ButtonLink>
+          <div className="mt-8 border-t border-white/10 pt-5">
+            <p className="text-xs leading-5 text-white/45">
+              <span className="underline">EVOLUSA</span> ofrece orientación educativa y operacional. Los servicios regulados permanecen fuera del catálogo hasta verificar proveedor, alcance y requisitos.
+            </p>
           </div>
         </motion.div>
       </Container>

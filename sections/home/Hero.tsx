@@ -28,20 +28,29 @@ export default function Hero() {
   }, []);
 
   // Parallax-lite: the photo drifts and scales very slightly as the hero
-  // scrolls past — never enough to feel like scroll-hijacking. On desktop,
-  // the base scale starts above 1 (rather than growing from 1) so the
-  // family/skyline read larger and more dominant within the crop from the
-  // first frame; mobile keeps the original subtle scale.
+  // scrolls past — never enough to feel like scroll-hijacking.
+  //
+  // IMPORTANT: earlier rounds stacked an extra manual zoom (1.18–1.24) on
+  // TOP of object-fit:cover, which already scales the image up to fill the
+  // container based on the aspect-ratio mismatch between the source photo
+  // (1536x1024, ~1.5:1) and a typical wide Hero container (~1.7–2:1) —
+  // cover-fit alone already crops significantly. The extra transform-scale
+  // was compounding into an over-zoomed, miscalibrated crop, not fixing the
+  // "family too small" problem. Verified by direct pixel-region comparison
+  // against the approved reference: this IS the same source photograph
+  // (same pose, same skyline, same railing) — the reference is not a
+  // different, unreachable composition. Base scale now stays at 1 (cover's
+  // own scaling does the work); only object-position moves the crop window.
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], isDesktop ? [1.18, 1.24] : [1, 1.06]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], isDesktop ? [1, 1.04] : [1, 1.06]);
   // The Path's fill reads as "continuing" through the hero's scroll range —
   // the same thread that will resolve into the plan below.
   const pathProgress = useTransform(scrollYProgress, [0, 0.85], [0.02, 1]);
 
   return (
-    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative h-[clamp(680px,88vh,900px)] overflow-hidden">
+    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative h-[clamp(820px,94vh,1000px)] overflow-hidden">
       <motion.div style={{ y: imageY, scale: imageScale }} className="absolute inset-0">
-        <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition={isDesktop ? "68% 30%" : undefined} />
+        <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition={isDesktop ? "76% 28%" : undefined} />
       </motion.div>
 
       {/* Scrim confined to the text-safety zone only — sized so sky stays visible above it. */}
@@ -66,30 +75,40 @@ export default function Hero() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="max-w-2xl text-white lg:flex lg:flex-1 lg:flex-col lg:justify-center"
         >
-          <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.035em]">
-            <span className="block text-[clamp(2.25rem,5.5vw,3.25rem)] font-medium text-white/85">TU SUEÑO</span>
-            <span className="block text-[clamp(3rem,7.5vw,5.5rem)] font-extrabold">TIENE UN</span>
-            <span className="block text-[clamp(3rem,7.5vw,5.5rem)] font-extrabold">CAMINO.</span>
+          <h1 id="hero-title" className="text-balance leading-[0.92] tracking-[-0.035em]">
+            <span className="block text-[clamp(2.5rem,6vw,3.75rem)] font-medium text-white/85">TU SUEÑO</span>
+            <span className="block text-[clamp(3.25rem,8vw,6.25rem)] font-extrabold">TIENE UN</span>
+            <span className="block text-[clamp(3.25rem,8vw,6.25rem)] font-extrabold">CAMINO.</span>
           </h1>
-          <motion.span
+          <motion.svg
             aria-hidden
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
-            className="mt-3 block h-1.5 w-28 origin-left rounded-full bg-[var(--brand-red)]"
-          />
-          <p className="mt-4 text-lg font-semibold text-[var(--brand-blue-on-dark)] sm:text-xl">
-            EVOLUSA te ayuda a convertirlo en un plan.
+            viewBox="0 0 260 24"
+            className="mt-3 h-5 w-56 sm:w-64"
+            fill="none"
+          >
+            <motion.path
+              d="M4 16C40 8 90 6 130 12C170 18 220 10 256 8"
+              stroke="var(--brand-red)"
+              strokeWidth="9"
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.7, delay: 0.5, ease: "easeOut" }}
+            />
+          </motion.svg>
+          <p className="mt-4 text-lg font-semibold sm:text-xl">
+            <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
           <p className="mt-2 max-w-md text-sm leading-6 text-white/70 sm:text-base">
             Desde establecerte hasta emprender, proteger lo que construyes y seguir creciendo.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex items-center">
             <ButtonLink href="/onboarding">
               Descubrir mi camino
               <ArrowRight aria-hidden className="ml-2" size={18} />
             </ButtonLink>
-            <Link href="/login" className="ml-6 inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+            <span aria-hidden className="mx-4 h-6 w-px bg-white/25" />
+            <Link href="/login" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               Ya tengo cuenta
             </Link>
           </div>

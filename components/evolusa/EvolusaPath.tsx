@@ -85,8 +85,8 @@ export default function EvolusaPath({ activeId, theme = "light", className, scro
               className={cn(
                 "relative z-10 flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300",
                 isActive
-                  ? cn("size-4", activeColor, "border-[var(--brand-red)]")
-                  : cn("size-[0.6rem]", isPast ? fillColor : dotIdle, isPast && (dark ? "border-[var(--brand-blue-on-dark)]" : "border-[var(--brand-blue)]")),
+                  ? cn("size-5", activeColor, "border-[var(--brand-red)] shadow-[0_0_0_6px_rgba(242,13,36,0.25)]")
+                  : cn("size-3", isPast ? fillColor : dotIdle, isPast && (dark ? "border-[var(--brand-blue-on-dark)]" : "border-[var(--brand-blue)]")),
               )}
             />
             <span

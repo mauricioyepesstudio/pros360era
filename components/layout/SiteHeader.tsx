@@ -44,9 +44,9 @@ export default function SiteHeader() {
       {!scrolled && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-black/30 to-transparent" />
       )}
-      <Container className="flex min-h-16 items-center justify-between gap-4">
+      <Container className="flex min-h-24 items-center justify-between gap-4">
         <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="shrink-0">
-          <BrandMark size="md" theme={scrolled ? "light" : "dark"} />
+          <BrandMark size="lg" theme={scrolled ? "light" : "dark"} />
         </Link>
         <nav className="hidden items-center gap-7 xl:flex" aria-label="Navegación principal">
           {navigation.map((item) => (

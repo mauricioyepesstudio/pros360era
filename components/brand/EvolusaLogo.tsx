@@ -6,7 +6,7 @@ export type EvolusaLogoSize = "header" | "compact" | "document" | "app";
 const heightBySize: Record<EvolusaLogoSize, number> = {
   compact: 22,
   header: 30,
-  document: 34,
+  document: 40,
   app: 48,
 };
 
