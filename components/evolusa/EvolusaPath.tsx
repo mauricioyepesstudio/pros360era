@@ -22,6 +22,83 @@ type EvolusaPathProps = {
   scrollProgress?: MotionValue<number>;
 };
 
+type PathTokens = {
+  dark: boolean;
+  trackColor: string;
+  fillColor: string;
+  activeColor: string;
+  labelColor: string;
+  dotIdle: string;
+};
+
+/**
+ * Node/Row are declared at module scope (not inside EvolusaPath's render
+ * body) so their identity stays stable across renders — nested function
+ * components get a new identity every render, which resets any state they
+ * hold and trips eslint-plugin-react-hooks's static-components rule.
+ * Shared per-render styling is threaded through as one `tokens` object
+ * rather than five separate props.
+ */
+function Node({ stage, index, activeId, activeIndex, tokens }: { stage: JourneyStage; index: number; activeId?: StageId; activeIndex: number; tokens: PathTokens }) {
+  const { dark, activeColor, fillColor, dotIdle, labelColor } = tokens;
+  const isActive = stage.id === activeId;
+  const isPast = activeIndex >= 0 && index < activeIndex;
+  return (
+    <li key={stage.id} aria-current={isActive ? "step" : undefined} className="relative flex flex-1 flex-col items-center gap-3 text-center">
+      <span
+        aria-hidden
+        className={cn(
+          "relative z-10 flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300",
+          isActive
+            ? cn("size-5", activeColor, "border-[var(--brand-red)] shadow-[0_0_0_6px_rgba(242,13,36,0.25)]")
+            : cn("size-3", isPast ? fillColor : dotIdle, isPast && (dark ? "border-[var(--brand-blue-on-dark)]" : "border-[var(--brand-blue)]")),
+        )}
+      />
+      <span className={cn("text-xs font-semibold uppercase tracking-wide transition-colors", isActive ? (dark ? "text-white" : "text-[var(--brand-navy)]") : labelColor)}>
+        {stage.shortLabel}
+      </span>
+    </li>
+  );
+}
+
+function Row({
+  stages,
+  fillFrom,
+  fillTo,
+  activeId,
+  activeIndex,
+  showFill,
+  tokens,
+}: {
+  stages: readonly JourneyStage[];
+  fillFrom: number;
+  fillTo: number;
+  activeId?: StageId;
+  activeIndex: number;
+  showFill: boolean;
+  tokens: PathTokens;
+}) {
+  const { trackColor, fillColor } = tokens;
+  // Row-local progress: how far the active index has advanced within this row's span.
+  const span = fillTo - fillFrom;
+  const rowProgress = activeIndex < fillFrom ? 0 : activeIndex >= fillTo ? 1 : (activeIndex - fillFrom) / span;
+  return (
+    <ol className="relative flex gap-0">
+      <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[0.5rem] h-px", trackColor)} />
+      {showFill && (
+        <span
+          aria-hidden
+          className={cn("absolute left-[8.3%] top-[0.5rem] h-px transition-all duration-700 ease-out", fillColor)}
+          style={{ width: `calc(83.4% * ${rowProgress})` }}
+        />
+      )}
+      {stages.map((stage, i) => (
+        <Node key={stage.id} stage={stage} index={fillFrom + i} activeId={activeId} activeIndex={activeIndex} tokens={tokens} />
+      ))}
+    </ol>
+  );
+}
+
 /**
  * The EVOLUSA Path — a product system, not a decorative road illustration:
  * six milestone nodes on a line whose fill communicates real progress up to
@@ -38,83 +115,44 @@ export default function EvolusaPath({ activeId, theme = "light", className, scro
   const activeIndex = journeyStages.findIndex((stage) => stage.id === activeId);
   const total = journeyStages.length;
 
-  const trackColor = dark ? "bg-white/15" : "bg-[var(--border)]";
-  const fillColor = dark ? "bg-[var(--brand-blue-on-dark)]" : "bg-[var(--brand-blue)]";
-  const activeColor = "bg-[var(--brand-red)]";
-  const labelColor = dark ? "text-white/80" : "text-[var(--muted)]";
-  const dotIdle = dark ? "border-white/35 bg-[var(--brand-navy)]" : "border-[var(--border)] bg-[var(--surface)]";
+  const tokens: PathTokens = {
+    dark,
+    trackColor: dark ? "bg-white/15" : "bg-[var(--border)]",
+    fillColor: dark ? "bg-[var(--brand-blue-on-dark)]" : "bg-[var(--brand-blue)]",
+    activeColor: "bg-[var(--brand-red)]",
+    labelColor: dark ? "text-white/80" : "text-[var(--muted)]",
+    dotIdle: dark ? "border-white/35 bg-[var(--brand-navy)]" : "border-[var(--border)] bg-[var(--surface)]",
+  };
   const showFill = scrollProgress !== undefined || activeIndex >= 0;
-
-  function Node({ stage, index }: { stage: JourneyStage; index: number }) {
-    const isActive = stage.id === activeId;
-    const isPast = activeIndex >= 0 && index < activeIndex;
-    return (
-      <li key={stage.id} aria-current={isActive ? "step" : undefined} className="relative flex flex-1 flex-col items-center gap-3 text-center">
-        <span
-          aria-hidden
-          className={cn(
-            "relative z-10 flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300",
-            isActive
-              ? cn("size-5", activeColor, "border-[var(--brand-red)] shadow-[0_0_0_6px_rgba(242,13,36,0.25)]")
-              : cn("size-3", isPast ? fillColor : dotIdle, isPast && (dark ? "border-[var(--brand-blue-on-dark)]" : "border-[var(--brand-blue)]")),
-          )}
-        />
-        <span className={cn("text-xs font-semibold uppercase tracking-wide transition-colors", isActive ? (dark ? "text-white" : "text-[var(--brand-navy)]") : labelColor)}>
-          {stage.shortLabel}
-        </span>
-      </li>
-    );
-  }
-
-  function Row({ stages, fillFrom, fillTo }: { stages: readonly JourneyStage[]; fillFrom: number; fillTo: number }) {
-    // Row-local progress: how far the active index has advanced within this row's span.
-    const span = fillTo - fillFrom;
-    const rowProgress = activeIndex < fillFrom ? 0 : activeIndex >= fillTo ? 1 : (activeIndex - fillFrom) / span;
-    return (
-      <ol className="relative flex gap-0">
-        <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[0.5rem] h-px", trackColor)} />
-        {showFill && (
-          <span
-            aria-hidden
-            className={cn("absolute left-[8.3%] top-[0.5rem] h-px transition-all duration-700 ease-out", fillColor)}
-            style={{ width: `calc(83.4% * ${rowProgress})` }}
-          />
-        )}
-        {stages.map((stage, i) => (
-          <Node key={stage.id} stage={stage} index={fillFrom + i} />
-        ))}
-      </ol>
-    );
-  }
 
   return (
     <div className={cn("relative", className)} aria-label="El camino EVOLUSA">
       {/* sm+ : one continuous row of 6, with optional live scroll-linked fill */}
       <ol className="relative hidden sm:flex">
-        <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[0.5rem] h-px", trackColor)} />
+        <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[0.5rem] h-px", tokens.trackColor)} />
         {showFill &&
           (scrollProgress ? (
             <motion.span
               aria-hidden
-              className={cn("absolute left-[8.3%] top-[0.5rem] h-px origin-left", fillColor)}
+              className={cn("absolute left-[8.3%] top-[0.5rem] h-px origin-left", tokens.fillColor)}
               style={{ width: "83.4%", scaleX: scrollProgress }}
             />
           ) : (
             <span
               aria-hidden
-              className={cn("absolute left-[8.3%] top-[0.5rem] h-px transition-all duration-700 ease-out", fillColor)}
+              className={cn("absolute left-[8.3%] top-[0.5rem] h-px transition-all duration-700 ease-out", tokens.fillColor)}
               style={{ width: `calc(83.4% * ${total > 1 ? Math.max(activeIndex, 0) / (total - 1) : 0})` }}
             />
           ))}
         {journeyStages.map((stage, index) => (
-          <Node key={stage.id} stage={stage} index={index} />
+          <Node key={stage.id} stage={stage} index={index} activeId={activeId} activeIndex={activeIndex} tokens={tokens} />
         ))}
       </ol>
 
       {/* below sm: two rows of 3 */}
       <div className="flex flex-col gap-6 sm:hidden">
-        <Row stages={journeyStages.slice(0, 3)} fillFrom={0} fillTo={3} />
-        <Row stages={journeyStages.slice(3, 6)} fillFrom={3} fillTo={6} />
+        <Row stages={journeyStages.slice(0, 3)} fillFrom={0} fillTo={3} activeId={activeId} activeIndex={activeIndex} showFill={showFill} tokens={tokens} />
+        <Row stages={journeyStages.slice(3, 6)} fillFrom={3} fillTo={6} activeId={activeId} activeIndex={activeIndex} showFill={showFill} tokens={tokens} />
       </div>
     </div>
   );
