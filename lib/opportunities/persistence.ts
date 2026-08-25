@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { ConsentDataCategory, IntentReadiness, Opportunity } from "@/data/opportunities/types";
+import type { ConsentDataCategory, DeclineReason, IntentReadiness, Opportunity } from "@/data/opportunities/types";
 import type { ConsultationMode } from "@/data/professional/types";
 
 /**
@@ -93,5 +93,62 @@ export async function consentAndRouteOpportunity(opportunityId: string, dataCate
     p_data_categories: dataCategories,
   });
 
+  return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const, result: data as Opportunity | null };
+}
+
+/**
+ * Milestone 04B — the three lifecycle transition RPCs. Same shape as the
+ * two above: no service-role key, no direct table write, every mutation
+ * delegated to a SECURITY DEFINER function in
+ * 0008_evolusa_opportunity_lifecycle_v1.sql that re-verifies the caller's
+ * exact authority before touching anything.
+ */
+
+/** Professional-only — see 0008's mark_opportunity_contacted for the exact ownership/state/expiry checks. */
+export async function markOpportunityContacted(opportunityId: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { saved: false as const, reason: "SUPABASE_NOT_CONFIGURED" as const };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { saved: false as const, reason: "NOT_SIGNED_IN" as const };
+
+  const { data, error } = await supabase.rpc("mark_opportunity_contacted", { p_opportunity_id: opportunityId });
+  return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const, result: data as Opportunity | null };
+}
+
+/** Member-only — see 0008's complete_opportunity. The professional has no equivalent action; see docs/EVOLUSA-OPPORTUNITY-LIFECYCLE.md. */
+export async function completeOpportunity(opportunityId: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { saved: false as const, reason: "SUPABASE_NOT_CONFIGURED" as const };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { saved: false as const, reason: "NOT_SIGNED_IN" as const };
+
+  const { data, error } = await supabase.rpc("complete_opportunity", { p_opportunity_id: opportunityId });
+  return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const, result: data as Opportunity | null };
+}
+
+/**
+ * Either party — the SQL function derives declined_by from which identity
+ * auth.uid() actually matches (the opportunity's member, or its matched
+ * professional's owning user) rather than trusting a client-supplied actor
+ * label, and rejects a reason that doesn't belong to whichever actor it
+ * resolved. See lib/opportunities/lifecycle.ts#isValidDeclineReason for the
+ * client-side mirror used to disable invalid options in a future UI.
+ */
+export async function declineOpportunity(opportunityId: string, reason: DeclineReason) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { saved: false as const, reason: "SUPABASE_NOT_CONFIGURED" as const };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { saved: false as const, reason: "NOT_SIGNED_IN" as const };
+
+  const { data, error } = await supabase.rpc("decline_opportunity", { p_opportunity_id: opportunityId, p_reason: reason });
   return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const, result: data as Opportunity | null };
 }

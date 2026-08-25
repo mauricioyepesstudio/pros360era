@@ -20,6 +20,40 @@ export const opportunityStatuses = ["CREATED", "ROUTED", "CONTACTED", "COMPLETED
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
 
 /**
+ * Milestone 04B: EXPIRED stays in this union as a dormant, never-persisted
+ * value — no RPC writes it and no migration mutates a row's stored status
+ * to it. It exists only so getEffectiveStatus() (lib/opportunities/
+ * lifecycle.ts) can return it as a display-time derivation from
+ * `status === 'ROUTED' && expiresAt <= now()`, per the explicit "a read
+ * should remain a read" decision — see docs/EVOLUSA-OPPORTUNITY-LIFECYCLE.md.
+ */
+export type EffectiveOpportunityStatus = OpportunityStatus;
+
+export const declinedByValues = ["MEMBER", "PROFESSIONAL"] as const;
+export type DeclinedBy = (typeof declinedByValues)[number];
+
+/**
+ * Actor-scoped, not one shared ambiguous enum — a professional and a member
+ * decline for structurally different reasons, and mixing them into one flat
+ * list would let either party pick a reason that doesn't describe their own
+ * situation (e.g., a professional selecting "no longer needed," a member's
+ * reason). Enforced both here (TypeScript) and in the database CHECK
+ * constraint + decline_opportunity's own validation — the same
+ * defense-in-depth layering already used everywhere else in this project.
+ * OTHER exists per actor so analytics can still distinguish "professional
+ * had some other reason" from "member had some other reason" without a
+ * freeform text field.
+ */
+export const declineReasonsByActor = {
+  PROFESSIONAL: ["AT_CAPACITY", "OUTSIDE_SCOPE", "UNREACHABLE", "OTHER"],
+  MEMBER: ["FOUND_HELP_ELSEWHERE", "NO_LONGER_NEEDED", "NOT_A_FIT", "OTHER"],
+} as const satisfies Record<DeclinedBy, readonly string[]>;
+
+export type ProfessionalDeclineReason = (typeof declineReasonsByActor)["PROFESSIONAL"][number];
+export type MemberDeclineReason = (typeof declineReasonsByActor)["MEMBER"][number];
+export type DeclineReason = ProfessionalDeclineReason | MemberDeclineReason;
+
+/**
  * What a ConsentReceipt records permission FOR — never the values
  * themselves. CONTACT_PHONE was removed in the Milestone 04A hardening
  * pass: nothing in the current schema collects a phone number anywhere
@@ -66,6 +100,13 @@ export type Opportunity = {
   organicMatchScore: number | null;
   createdAt: string;
   routedAt: string | null;
+  /** Set once, at ROUTED time, to routedAt + 7 days. Never recomputed, never extended — see docs/EVOLUSA-OPPORTUNITY-LIFECYCLE.md's Expiration section. */
+  expiresAt: string | null;
+  contactedAt: string | null;
+  completedAt: string | null;
+  declinedAt: string | null;
+  declinedBy: DeclinedBy | null;
+  declineReason: DeclineReason | null;
 };
 
 export type ConsentReceipt = {
