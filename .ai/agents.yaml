@@ -1,0 +1,32 @@
+version: 1
+project: pros360era
+manifest: .ai/PROJECT_MANIFEST.yaml
+orchestrator:
+  max_parallel_tasks: 4
+  requires_review: true
+  must_validate_project_identity: true
+  stop_on_boundary_violation: true
+agents:
+  - {id: product, area: execution, autonomy: L1, can_write: true}
+  - {id: ux, area: execution, autonomy: L1, can_write: true}
+  - {id: frontend, area: execution, autonomy: L1, can_write: true}
+  - {id: backend, area: execution, autonomy: L1, can_write: true}
+  - {id: supabase, area: execution, autonomy: L1, can_write: true}
+  - {id: security, area: assurance, autonomy: L0, can_write: false}
+  - {id: compliance, area: assurance, autonomy: L0, can_write: false}
+  - {id: qa, area: assurance, autonomy: L0, can_write: false}
+  - {id: growth, area: execution, autonomy: L1, can_write: true}
+  - {id: reviewer, area: assurance, autonomy: L0, can_write: false}
+policies:
+  autonomous_execution: false
+  default_external_action: blocked
+  default_production_write: blocked
+  cross_project_write: blocked
+  secret_access: blocked
+  destructive_operation: blocked
+  merge: owner-approval
+  production_deploy: owner-approval
+  public_publish: owner-approval
+  paid_spend: owner-approval
+  require_independent_reviewer: true
+  proof_required_for_done: true
