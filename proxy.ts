@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile"];
+const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", "/conexiones", "/panel-profesional"];
 
 /**
  * Refreshes the Supabase session cookie on every request and gates the
@@ -55,5 +55,12 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/roadmap/:path*", "/assistant/:path*", "/profile/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/roadmap/:path*",
+    "/assistant/:path*",
+    "/profile/:path*",
+    "/conexiones/:path*",
+    "/panel-profesional/:path*",
+  ],
 };

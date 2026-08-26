@@ -1,5 +1,12 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { ConsentDataCategory, DeclineReason, IntentReadiness, Opportunity } from "@/data/opportunities/types";
+import type {
+  ConsentDataCategory,
+  DeclineReason,
+  IntentReadiness,
+  MemberOpportunityView,
+  Opportunity,
+  ProfessionalOpportunityView,
+} from "@/data/opportunities/types";
 import type { ConsultationMode } from "@/data/professional/types";
 
 /**
@@ -151,4 +158,104 @@ export async function declineOpportunity(opportunityId: string, reason: DeclineR
 
   const { data, error } = await supabase.rpc("decline_opportunity", { p_opportunity_id: opportunityId, p_reason: reason });
   return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const, result: data as Opportunity | null };
+}
+
+/**
+ * Milestone 04C — the member's own read of /conexiones. A plain RLS-scoped
+ * select, not a new RPC: 0007 already grants authenticated SELECT on
+ * opportunities under the "select_own_opportunities" policy
+ * (member_id = auth.uid()), so no new grant or migration is needed for this
+ * read. Filtered to ROUTED-or-later for the same reason
+ * get_my_routed_opportunities() filters the same way — a bare CREATED row
+ * (need submitted, not yet consented/routed) isn't a "connection" yet and
+ * has nothing meaningful to show here.
+ */
+export async function getMyOpportunities(): Promise<MemberOpportunityView[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("opportunities")
+    .select("*")
+    .in("status", ["ROUTED", "CONTACTED", "COMPLETED", "DECLINED"])
+    .order("created_at", { ascending: false });
+
+  const opportunityIds = (data ?? []).map((row) => row.id as string);
+  const { data: receiptRows } =
+    opportunityIds.length > 0
+      ? await supabase.from("consent_receipts").select("opportunity_id, data_categories").in("opportunity_id", opportunityIds)
+      : { data: [] as { opportunity_id: string; data_categories: ConsentDataCategory[] }[] };
+
+  const categoriesByOpportunityId = new Map<string, ConsentDataCategory[]>();
+  for (const receipt of receiptRows ?? []) {
+    categoriesByOpportunityId.set(receipt.opportunity_id, receipt.data_categories ?? []);
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    memberId: row.member_id,
+    needId: row.need_id,
+    professionalCategory: row.professional_category,
+    state: row.state,
+    city: row.city,
+    preferredConsultationMode: row.preferred_consultation_mode,
+    readiness: row.readiness,
+    status: row.status,
+    matchedProfessionalProfileId: row.matched_professional_profile_id,
+    organicMatchScore: row.organic_match_score,
+    createdAt: row.created_at,
+    routedAt: row.routed_at,
+    expiresAt: row.expires_at,
+    contactedAt: row.contacted_at,
+    completedAt: row.completed_at,
+    declinedAt: row.declined_at,
+    declinedBy: row.declined_by,
+    declineReason: row.decline_reason,
+    consentedDataCategories: categoriesByOpportunityId.get(row.id) ?? [],
+  }));
+}
+
+/**
+ * Milestone 04C — the professional's own read of /panel-profesional/oportunidades.
+ * Thin wrapper over get_my_routed_opportunities(), mapped snake_case ->
+ * camelCase into ProfessionalOpportunityView. Never queries professional_profiles,
+ * profiles, or auth.users directly from this file — the RPC is the only
+ * source, and it alone is responsible for gating every field by consent.
+ */
+export async function getMyRoutedOpportunitiesForProfessional(): Promise<ProfessionalOpportunityView[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase.rpc("get_my_routed_opportunities");
+
+  return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
+    opportunityId: row.opportunity_id as string,
+    needId: (row.need_id as string | null) ?? null,
+    status: row.status as ProfessionalOpportunityView["status"],
+    effectiveStatus: row.effective_status as ProfessionalOpportunityView["effectiveStatus"],
+    readiness: row.readiness as ProfessionalOpportunityView["readiness"],
+    city: (row.city as string | null) ?? null,
+    state: (row.state as string | null) ?? null,
+    memberName: (row.member_name as string | null) ?? null,
+    contactEmail: (row.contact_email as string | null) ?? null,
+    consentedDataCategories: (row.consented_data_categories as ConsentDataCategory[] | null) ?? [],
+    createdAt: row.created_at as string,
+    routedAt: (row.routed_at as string | null) ?? null,
+    expiresAt: (row.expires_at as string | null) ?? null,
+    contactedAt: (row.contacted_at as string | null) ?? null,
+    completedAt: (row.completed_at as string | null) ?? null,
+    declinedAt: (row.declined_at as string | null) ?? null,
+    declinedBy: (row.declined_by as ProfessionalOpportunityView["declinedBy"]) ?? null,
+    declineReason: (row.decline_reason as ProfessionalOpportunityView["declineReason"]) ?? null,
+  }));
 }

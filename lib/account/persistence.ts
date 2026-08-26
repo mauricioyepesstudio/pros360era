@@ -13,6 +13,28 @@ import type { RoadmapCategory, UserGoal, UserProfile } from "@/data/account/type
  * session via createSupabaseServerClient, so RLS enforces ownership.
  */
 
+/**
+ * Milestone 04C — the only place this repo reads profiles.role from a
+ * client-facing code path, used solely to gate the professional-facing
+ * /panel-profesional route in the account layout. Degrades to "MEMBER"
+ * (never "PROFESSIONAL") whenever Supabase isn't configured or the caller
+ * is signed out, matching every other function in this file's safe-default
+ * convention — an unconfigured/signed-out request must never be treated as
+ * a professional.
+ */
+export async function getCurrentRole(): Promise<"MEMBER" | "PROFESSIONAL" | "ADMIN"> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return "MEMBER";
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return "MEMBER";
+
+  const { data } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  return (data?.role as "MEMBER" | "PROFESSIONAL" | "ADMIN" | undefined) ?? "MEMBER";
+}
+
 export async function getCurrentProfile(): Promise<UserProfile> {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return previewProfile;

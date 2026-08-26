@@ -2,6 +2,8 @@
 
 Milestone 04B. Live, hardened, and authorization-tested — `supabase/migrations/0008_evolusa_opportunity_lifecycle_v1.sql`. Extends the Milestone 04A Opportunity Engine ([EVOLUSA-LEAD-OPPORTUNITY-ENGINE.md](./EVOLUSA-LEAD-OPPORTUNITY-ENGINE.md)) past `ROUTED` with the four transitions a real connection actually needs: confirmed contact, member-confirmed completion, decline (either party), and effective (never persisted) expiration.
 
+**Milestone 04C** ([EVOLUSA-OPPORTUNITY-EXPERIENCE.md](./EVOLUSA-OPPORTUNITY-EXPERIENCE.md)) builds the member and professional UI on top of everything below — no schema or RPC changes, only new reads/wrappers over what already exists here.
+
 ## State machine
 
 ```

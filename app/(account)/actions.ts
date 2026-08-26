@@ -8,7 +8,13 @@ import {
   saveOnboardingResponse,
   updateProfileFields,
 } from "@/lib/account/persistence";
+import {
+  completeOpportunity,
+  declineOpportunity,
+  markOpportunityContacted,
+} from "@/lib/opportunities/persistence";
 import type { RoadmapCategory, UserProfile } from "@/data/account/types";
+import type { DeclineReason } from "@/data/opportunities/types";
 
 export async function completeRoadmapItemAction(catalogItemId: string) {
   const result = await completeRoadmapItem(catalogItemId);
@@ -45,4 +51,31 @@ export async function syncOnboardingAction(
   revalidatePath("/profile");
   revalidatePath("/roadmap");
   return { onboardingResult, profileResult };
+}
+
+/**
+ * Milestone 04C — thin wrappers over the Milestone 04B lifecycle RPCs.
+ * These do not re-check who is allowed to call them: mark_opportunity_contacted,
+ * complete_opportunity, and decline_opportunity (0008) each re-verify the
+ * caller's exact authority from auth.uid() themselves and reject anything
+ * else. This file's only job is to invoke the right RPC and revalidate the
+ * pages that read its result — the database remains the sole authority.
+ */
+export async function markContactedAction(opportunityId: string) {
+  const result = await markOpportunityContacted(opportunityId);
+  revalidatePath("/panel-profesional/oportunidades");
+  return result;
+}
+
+export async function completeOpportunityAction(opportunityId: string) {
+  const result = await completeOpportunity(opportunityId);
+  revalidatePath("/conexiones");
+  return result;
+}
+
+export async function declineOpportunityAction(opportunityId: string, reason: DeclineReason) {
+  const result = await declineOpportunity(opportunityId, reason);
+  revalidatePath("/conexiones");
+  revalidatePath("/panel-profesional/oportunidades");
+  return result;
 }

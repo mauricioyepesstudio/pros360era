@@ -109,6 +109,48 @@ export type Opportunity = {
   declineReason: DeclineReason | null;
 };
 
+/**
+ * Milestone 04C: the member's own /conexiones read — the raw Opportunity
+ * row plus the data categories they themselves consented to at ROUTED time
+ * (from consent_receipts, which the member already has RLS read access to
+ * via "select_own_consent_receipts", 0007). Shown back to the member as
+ * "lo que autorizaste compartir" — never gated further, since it's the
+ * member's own consent record about their own data.
+ */
+export type MemberOpportunityView = Opportunity & {
+  consentedDataCategories: readonly ConsentDataCategory[];
+};
+
+/**
+ * Milestone 04C: the shape a professional actually reads, mapped from
+ * get_my_routed_opportunities()'s output columns (0008). Distinct from
+ * Opportunity — this is a redacted, consent-gated projection, never the raw
+ * table row, and several fields (needId, memberName, contactEmail, city,
+ * state) are nullable specifically because they're null whenever the
+ * corresponding ConsentDataCategory wasn't granted, not because the data is
+ * missing.
+ */
+export type ProfessionalOpportunityView = {
+  opportunityId: string;
+  needId: string | null;
+  status: OpportunityStatus;
+  effectiveStatus: EffectiveOpportunityStatus;
+  readiness: IntentReadiness;
+  city: string | null;
+  state: string | null;
+  memberName: string | null;
+  contactEmail: string | null;
+  consentedDataCategories: readonly ConsentDataCategory[];
+  createdAt: string;
+  routedAt: string | null;
+  expiresAt: string | null;
+  contactedAt: string | null;
+  completedAt: string | null;
+  declinedAt: string | null;
+  declinedBy: DeclinedBy | null;
+  declineReason: DeclineReason | null;
+};
+
 export type ConsentReceipt = {
   id: string;
   opportunityId: string;
