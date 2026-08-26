@@ -3,9 +3,9 @@ project:
   id: pros360era
   name: PROS360ERA / EVOLUSA
   repository: mauricioyepesstudio/pros360era
+  visibility: public
   canonical_path_windows: C:\\Projects\\pros360era
   ai_ops_worktree_windows: C:\\AI-OPS\\pros360era
-
 git:
   canonical_branch: feat/evolusa-migration
   canonical_commit_at_registration: 8faf65f545e648d8fa296dc2827701b7299a2395
@@ -13,40 +13,42 @@ git:
   production_branch: null
   merge_requires_owner_approval: true
   force_push: blocked
-
 runtime:
   framework: nextjs
-  local_port: null
-  local_port_status: requires-verification
-
+  reserved_local_port: 3002
+  dev_command: npm run dev
+  build_command: npm run build
+  lint_command: npm run lint
+  test_command: npm test
 services:
   supabase:
     project_ref: null
-    status: requires-verification
+    status: not-linked-locally
+    env_contract_present: true
     production_migration_requires_owner_approval: true
     destructive_operation: blocked
   vercel:
     project_id: null
-    status: requires-verification
+    org_id: null
+    status: not-linked-locally
     production_deploy_requires_owner_approval: true
-
+verification:
+  deterministic:
+    - npm run lint
+    - npm test
+    - npm run build
 boundaries:
   allowed_repository: mauricioyepesstudio/pros360era
-  forbidden_projects:
-    - belong
-    - mauricio-portfolio
-    - marketing-ai-platform
+  forbidden_projects: [belong, mauricio-portfolio, marketing-ai-platform]
   cross_project_write: blocked
   secrets_read: blocked
-  external_publish: owner-approval
   legal_claim_publish: owner-approval
   client_data_access: blocked
-
 activation:
   state: registry-only
   autonomous_execution: false
-  required_before_activation:
-    - service identities verified
-    - deterministic validation commands recorded
-    - security review passes
-    - owner approves activation
+  blockers:
+    - Supabase identity unresolved
+    - Vercel identity unresolved
+    - production branch unresolved
+    - migrations require local validation and security review
