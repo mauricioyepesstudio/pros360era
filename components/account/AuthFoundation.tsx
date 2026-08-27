@@ -9,7 +9,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 function translateAuthError(message: string): string {
   const known: [pattern: RegExp, spanish: string][] = [
     [/invalid login credentials/i, "Correo o contraseña incorrectos."],
-    [/user already registered/i, "Ya existe una cuenta con este correo. Intenta entrar."],
     [/password should be at least/i, "La contraseña debe tener al menos 6 caracteres."],
     [/email not confirmed/i, "Confirma tu correo antes de entrar. Revisa tu bandeja de entrada."],
     [/email address ".*" is invalid|unable to validate email/i, "Ese correo no parece válido."],
@@ -41,6 +40,12 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       if (signup) {
         const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
         if (signUpError) {
+          if (/user already registered/i.test(signUpError.message)) {
+            // Never disclose account existence via the signup response — show the
+            // same "check your email" state a genuine new signup would get.
+            setConfirmationSent(true);
+            return;
+          }
           setError(translateAuthError(signUpError.message));
           return;
         }
