@@ -1,8 +1,8 @@
 export const howItWorksSteps = [
-  { number: "01", title: "Cuéntanos dónde estás", description: "Selecciona tu etapa y responde unas preguntas breves, sin compartir información sensible innecesaria." },
-  { number: "02", title: "Descubre tu camino", description: "Recibe una guía inicial con lo completado, lo que requiere atención ahora y lo que puede seguir después." },
-  { number: "03", title: "Conoce opciones relevantes", description: "Te mostramos servicios y recursos relacionados con tu etapa y quién puede proporcionarlos." },
-  { number: "04", title: "Avanza con claridad", description: "Elige una acción informada y conserva una visión sencilla de lo que puede seguir." },
+  { number: "01", title: "Cuéntanos dónde estás", description: "Selecciona tu etapa — llegar, establecerte o hacer crecer tu negocio — y responde unas preguntas breves, sin compartir información sensible innecesaria." },
+  { number: "02", title: "Descubre tu camino completo", description: "Documentos, vivienda, crédito, transporte, estructura de negocio, EIN o cuándo conviene una asesoría legal con un profesional autorizado: recibe una guía clara de lo que ya lograste, lo que necesita atención ahora y lo que sigue después." },
+  { number: "03", title: "Conoce quién te puede ayudar", description: "Para cada paso te decimos si es información oficial, orientación de EVOLUSA, o si conviene un profesional autorizado — y te conectamos con la opción correcta." },
+  { number: "04", title: "Avanza con un aliado que te acompaña", description: "Elige una acción informada en cada etapa, con EVOLUSA como guía constante para evolucionar en Estados Unidos." },
 ] as const;
 
 export const trustPrinciples = [
