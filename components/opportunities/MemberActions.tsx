@@ -51,7 +51,7 @@ export default function MemberActions({ effectiveStatus, onConfirmCompletion, on
           </button>
         )}
         {actions.includes("DECLINE") && <DeclineDialog actor="MEMBER" onConfirm={async (reason) => { await onDecline(reason); }} />}
-        {actions.includes("START_NEW_SEARCH") && <ButtonLink href="/roadmap">Buscar otra opción</ButtonLink>}
+        {actions.includes("START_NEW_SEARCH") && <ButtonLink href="/conexiones/nueva">Buscar otra opción</ButtonLink>}
       </div>
     </div>
   );

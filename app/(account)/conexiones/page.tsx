@@ -19,8 +19,8 @@ export default async function ConexionesPage() {
           <p className="mx-auto mt-2 max-w-md leading-6 text-[var(--muted)]">
             Cuando encontremos una opción compatible, podrás seguir su progreso aquí.
           </p>
-          <ButtonLink href="/roadmap" className="mt-5">
-            Descubrir mi próximo paso
+          <ButtonLink href="/conexiones/nueva" className="mt-5">
+            Buscar una opción compatible
           </ButtonLink>
         </div>
       ) : (

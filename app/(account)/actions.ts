@@ -10,11 +10,14 @@ import {
 } from "@/lib/account/persistence";
 import {
   completeOpportunity,
+  consentAndRouteOpportunity,
+  createQualifiedOpportunity,
   declineOpportunity,
   markOpportunityContacted,
 } from "@/lib/opportunities/persistence";
 import type { RoadmapCategory, UserProfile } from "@/data/account/types";
-import type { DeclineReason } from "@/data/opportunities/types";
+import type { ConsentDataCategory, DeclineReason, IntentReadiness } from "@/data/opportunities/types";
+import type { ConsultationMode } from "@/data/professional/types";
 
 export async function completeRoadmapItemAction(catalogItemId: string) {
   const result = await completeRoadmapItem(catalogItemId);
@@ -77,5 +80,35 @@ export async function declineOpportunityAction(opportunityId: string, reason: De
   const result = await declineOpportunity(opportunityId, reason);
   revalidatePath("/conexiones");
   revalidatePath("/panel-profesional/oportunidades");
+  return result;
+}
+
+/**
+ * Milestone 04D — step 1 of the previously-missing "start an opportunity"
+ * flow (see docs/EVOLUSA-OPPORTUNITY-EXPERIENCE.md's "What remains
+ * deferred"). Thin wrapper, same shape as every other action in this file:
+ * createQualifiedOpportunity (lib/opportunities/persistence.ts) is the one
+ * that actually calls the SECURITY DEFINER RPC and re-derives every
+ * authoritative field server-side — this action never sees or forwards
+ * anything beyond what the member typed into the form.
+ */
+export async function createOpportunityAction(
+  needId: string,
+  city: string | null,
+  preferredConsultationMode: ConsultationMode,
+  readiness: IntentReadiness,
+) {
+  return createQualifiedOpportunity(needId, city, preferredConsultationMode, readiness);
+}
+
+/**
+ * Milestone 04D — step 2. No professionalProfileId parameter, matching
+ * consentAndRouteOpportunity's own signature: the only professional that
+ * can ever be consented to is the one create_qualified_opportunity already
+ * matched and stored on the opportunity row itself.
+ */
+export async function consentAndRouteOpportunityAction(opportunityId: string, dataCategories: readonly ConsentDataCategory[]) {
+  const result = await consentAndRouteOpportunity(opportunityId, dataCategories);
+  revalidatePath("/conexiones");
   return result;
 }

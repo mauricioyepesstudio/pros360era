@@ -1,4 +1,5 @@
-import type { ConsentDataCategory, DeclineReason, EffectiveOpportunityStatus } from "./types";
+import type { ConsentDataCategory, DeclineReason, EffectiveOpportunityStatus, IntentReadiness } from "./types";
+import type { ConsultationMode } from "@/data/professional/types";
 
 /**
  * Milestone 04C: user-facing Spanish copy per effective status, for both
@@ -68,3 +69,21 @@ export const declineReasonLabels: Record<DeclineReason, string> = {
   NOT_A_FIT: "No era la opción adecuada",
   OTHER: "Otra razón",
 };
+
+/**
+ * Milestone 04D — options for the new "start an opportunity" form
+ * (components/opportunities/NewOpportunityFlow.tsx). Same pattern as every
+ * other label map in this file: pure data, no JSX, reusable by both the
+ * form and any future summary view.
+ */
+export const consultationModeOptions: readonly { value: ConsultationMode; label: string; description?: string }[] = [
+  { value: "VIRTUAL", label: "Virtual", description: "Videollamada o llamada telefónica." },
+  { value: "IN_PERSON", label: "Presencial", description: "Prefieres reunirte en persona." },
+  { value: "BOTH", label: "Cualquiera de las dos", description: "Virtual o presencial, lo que sea más conveniente." },
+];
+
+export const intentReadinessOptions: readonly { value: IntentReadiness; label: string; description?: string }[] = [
+  { value: "EXPLORING", label: "Explorando opciones", description: "Todavía estás conociendo qué existe." },
+  { value: "CONSIDERING", label: "Considerándolo en serio", description: "Ya tienes claro lo que necesitas." },
+  { value: "READY_TO_ACT", label: "Listo/a para actuar", description: "Quieres avanzar lo antes posible." },
+];
