@@ -179,7 +179,7 @@ No Critical or High severity issues were found.
 | P0-1 | Legal/business placeholders in `config/brand.ts` (`legalName: "Por confirmar"`, phone/email/WhatsApp/website/hours all null) | `config/brand.ts:4,20,24,27-30` | Owner (business decision, not engineering) |
 | P0-2 | Custom SMTP not configured — default mailer rate-limits after ~1-2 signups/hour | `docs/EVOLUSA-LAUNCH-CHECKLIST.md:7`, reconfirmed still open (unverifiable live, not contradicted by anything found) | Owner + engineering |
 | P0-3 | Auth email templates still English defaults on a Spanish-first product | `docs/EVOLUSA-LAUNCH-CHECKLIST.md:8` | Engineering (Supabase dashboard) |
-| P0-4 | Email-enumeration leak in signup error message (Finding S-1) | `components/account/AuthFoundation.tsx:12` | frontend-engineer |
+| P0-4 | ~~Email-enumeration leak in signup error message (Finding S-1)~~ — **FIXED**, commit `5dceafe` | `components/account/AuthFoundation.tsx` | frontend-engineer |
 | P0-5 | Confirm the real deployment target actually has both Supabase env vars set, or the entire auth gate silently no-ops (Finding S-3) | `proxy.ts` env-presence branch | Owner/DevOps, pre-deploy checklist item |
 
 ### P1 — Should resolve before broad/public launch

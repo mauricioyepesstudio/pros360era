@@ -1,5 +1,5 @@
 -- EVOLUSA Phase 2 — Row Level Security.
--- NOT YET APPLIED. Must be reviewed by security-reviewer before `apply_migration`.
+-- Applied and live-verified — see docs/EVOLUSA-AUTH-TESTING.md / docs/EVOLUSA-SECURITY.md.
 -- Default posture: a user can access only rows where user_id = auth.uid().
 -- No broad authenticated-read policies on personal data anywhere below.
 
