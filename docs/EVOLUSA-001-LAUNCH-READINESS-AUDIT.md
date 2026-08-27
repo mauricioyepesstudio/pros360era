@@ -181,6 +181,7 @@ No Critical or High severity issues were found.
 | P0-3 | Auth email templates still English defaults on a Spanish-first product | `docs/EVOLUSA-LAUNCH-CHECKLIST.md:8` | Engineering (Supabase dashboard) |
 | P0-4 | ~~Email-enumeration leak in signup error message (Finding S-1)~~ — **FIXED**, commit `5dceafe` | `components/account/AuthFoundation.tsx` | frontend-engineer |
 | P0-5 | Confirm the real deployment target actually has both Supabase env vars set, or the entire auth gate silently no-ops (Finding S-3) | `proxy.ts` env-presence branch | Owner/DevOps, pre-deploy checklist item |
+| P0-6 | **Delete leftover throwaway test data from the live production Supabase project** — a professional row `qa-throwaway-professional-20260825` (Orlando, FL) is currently live and publicly readable through `professional_profiles_public`, alongside the real professional Daniela Torres. This contradicts every "cleanup verified" claim in `docs/CURRENT-STATE.md` for prior live-testing sessions. Found 2026-08-27 while building the `/profesionales` directory page (see Addendum below). Requires Supabase access this session does not have — owner or a Supabase-connected session must delete this row. | Live `professional_profiles_public` view, slug `qa-throwaway-professional-20260825` | Owner / operator with Supabase access |
 
 ### P1 — Should resolve before broad/public launch
 
@@ -264,3 +265,18 @@ No claim is made here about how much revenue this would generate or how fast —
 **Verdict: APPROVED WITH CORRECTIONS** — three citation-precision corrections (CI trigger wording, a disclosure-function line range, and a testimonial-quote attribution) were identified and have been applied above; no finding was retracted, no severity was changed, and no new material risk was found. The reviewer additionally noted one further doc-staleness artifact (a stale "NOT YET APPLIED" header comment in `supabase/migrations/0002_evolusa_rls_policies.sql:1-2`, same root cause as Findings D-1/D-4), folded into backlog item 5 (P1-3) above.
 
 **Status**: `DONE` — audit complete, independently reviewed and approved, no product source code changed.
+
+---
+
+## Addendum (2026-08-27, post-audit follow-up work) — Live test data found in production
+
+While implementing P1-4 (wiring an inbound link to `/profesionales/[slug]`, previously an orphan route per Finding Q-1), a new `/profesionales` directory page was built reading the same `professional_profiles_public` view the existing profile page already used. Running it against the real dev environment (`.env.local`, which points at the live EVOLUSA Supabase project) surfaced **two** public professional rows, not one:
+
+- `daniela-torres-marketing` — the known, intentional live demo professional.
+- `qa-throwaway-professional-20260825` (Orlando, FL, `BUSINESS_MARKETING`, `es`) — **not previously known to this session**, and not mentioned as a currently-live row anywhere in `docs/CURRENT-STATE.md`. The date embedded in the slug suggests it was created two days before this discovery.
+
+This row was already technically public (RLS/grants on `professional_profiles_public` permit anonymous reads of any approved row; nothing about it depends on the new directory page), but it was previously only reachable by guessing or already knowing its exact slug. The new `/profesionales` directory page makes it directly discoverable to any visitor, which is why this was caught now rather than remaining an invisible loose end.
+
+**This was not created or approved by this session** — no throwaway professional was created, no live Supabase write occurred, and no Supabase project was linked at any point in this engagement. This is pre-existing data found via a read-only query using the same anon-key pattern every other page in this codebase already uses.
+
+**Action needed**: an operator with Supabase access should confirm whether this row is still needed for any in-progress work and, if not, delete it (and verify cleanup the same way prior milestones in `CURRENT-STATE.md` document: row counts back to exactly the expected baseline). Tracked as P0-6 above. The `/profesionales` directory page itself was still shipped — it doesn't create this exposure, only reveals a pre-existing one, and withholding a real audit-driven fix would not have reduced the actual risk.
