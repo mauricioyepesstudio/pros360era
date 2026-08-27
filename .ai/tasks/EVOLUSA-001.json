@@ -1,0 +1,66 @@
+{
+  "id": "EVOLUSA-001",
+  "title": "Audit launch readiness and revenue path",
+  "project": "pros360era",
+  "status": "queued",
+  "owner_agent": "product",
+  "reviewer_agent": "reviewer",
+  "objective": "Audit the complete EVOLUSA product against its documented MVP, launch checklist, technical architecture, compliance boundaries, and fastest credible path to first revenue. Produce a prioritized, evidence-backed execution plan without modifying production, running migrations, accessing secrets, publishing content, spending money, or contacting users.",
+  "dependencies": [],
+  "allowed_paths": [
+    ".ai/**",
+    "app/**",
+    "components/**",
+    "config/**",
+    "data/**",
+    "docs/**",
+    "lib/**",
+    "public/**",
+    "sections/**",
+    "supabase/migrations/**",
+    "tests/**",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    ".github/workflows/**",
+    ".env.example"
+  ],
+  "acceptance_criteria": [
+    "Current implemented product surface is mapped to documented MVP and launch checklist requirements.",
+    "All launch blockers are classified by product, UX, frontend, backend, database, security, compliance, growth, infrastructure, and operations.",
+    "Each finding cites repository evidence by file path and, when applicable, verification output.",
+    "A prioritized execution backlog identifies critical path, dependencies, risk, responsible agent, acceptance criteria, and revenue relevance.",
+    "A first-revenue plan defines target customer, offer, pricing hypothesis, acquisition channel, conversion event, and measurable launch metrics without making unsupported legal or regulatory claims.",
+    "No production change, migration, secret access, external publication, paid spend, outreach, merge, or deployment occurs.",
+    "Independent security, compliance, QA, and reviewer verdicts are recorded before completion."
+  ],
+  "verification_commands": [
+    "npm run lint",
+    "npm test",
+    "npm run build"
+  ],
+  "evidence_required": [
+    "docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md",
+    "Repository file-path evidence for every critical finding",
+    "Lint output",
+    "Test output",
+    "Build output",
+    "Independent security review",
+    "Independent compliance review",
+    "Independent QA review",
+    "Final reviewer verdict"
+  ],
+  "evidence": [],
+  "rollback_note": null,
+  "escalation_triggers": [
+    "A required repository, branch, service identity, credential, budget, production target, or legal interpretation is unknown.",
+    "Any step would require modifying or applying Supabase migrations.",
+    "Any step would require linking or deploying to Vercel or Supabase.",
+    "Any step would require secrets, client data, public publishing, outreach, spend, payments, permissions, merge, or production access.",
+    "Existing documentation conflicts materially with implemented behavior."
+  ],
+  "risk_level": "medium",
+  "external_actions": [],
+  "production_impact": false,
+  "review_verdict": "pending"
+}
