@@ -1,0 +1,38 @@
+{
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: Supabase (project referenced via ovialqdazxkekvqqgdiu.supabase.co, used from this repo)",
+      "**Repository visibility**: not queryable here — assume private per shipped default (remote is github.com/mauricioyepesstudio/pros360era)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: .env.local (gitignored); NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are the only values permitted client-side per repo docs; .env.example must stay placeholder-only",
+      "**Default / protected branches**: main is default; repo docs (git-safe-workflow skill) require working on feat/evolusa-migration or a branch off it, never directly on main — branch protection itself not queryable via gh",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo (github.com/mauricioyepesstudio/pros360era) and its remote only — no additional orgs configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: ovialqdazxkekvqqgdiu.supabase.co (Supabase project host contacted from this project's transcripts)",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: .env.local and any Supabase service-role key (server-only, must read from process.env, never client-side or committed); per repo docs, never collect SSN, passport numbers, immigration case details, medical information, bank credentials, or government passwords anywhere in this product; regulated-category compliance claims data (data/compliance/claims.ts) requires business sign-off audience before flipping verification status",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace/host/container with `prod`/`production` as a whole word or segment; also the separate BELONG Supabase project (org jdkrwvlkmwvstbufzucs, project belong-platform) is explicitly out of scope for this repo per repo docs — never point this repo's code at it or run migrations/SQL against it",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod`/`production` as a whole word or segment; Supabase project/org/branch creation, and destructive Supabase operations (delete_branch, reset_branch, restore_project, dropping tables/columns with data) require explicit user approval in chat per repo docs",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (Next.js/React/Supabase web app, EVOLUSA product)",
+      "**Trusted repo**: ~/pros360era (github.com/mauricioyepesstudio/pros360era) — this repo and its origin remote only; visibility not confirmed, treat as private per shipped default",
+      "**Org-specific CLIs**: None configured",
+      "**Trusted repo qualifier**: routine work under feat/evolusa-migration (or branches created off it) in this repo only, per repo git-safe-workflow skill"
+    ],
+    "allow": [],
+    "soft_deny": [
+      "$defaults",
+      "Bash(git push:*) in ~/pros360era when not on feat/evolusa-migration or a branch derived from it",
+      "Bash(supabase db push:*) / Bash(supabase migration up:*) against any project other than this repo's own Supabase project",
+      "Bash(git merge:*) into main in ~/pros360era"
+    ],
+    "hard_deny": []
+  }
+}
