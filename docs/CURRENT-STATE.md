@@ -20,7 +20,9 @@ EVOLUSA
 
 ## LAST COMPLETED MILESTONE
 
-**Milestone 04C — Opportunity Experience, built on the verified Milestone 04B lifecycle.** Two new authenticated routes — `/conexiones` (member) and `/panel-profesional/oportunidades` (professional) — turn the Opportunity Engine + Lifecycle into a real guided UI, with zero new schema or RPCs. See "Milestone 04C status: DONE" below and [EVOLUSA-OPPORTUNITY-EXPERIENCE.md](./EVOLUSA-OPPORTUNITY-EXPERIENCE.md) for full detail.
+**Milestone 04D — Start/Rematch Experience.** `/conexiones/nueva` is the first real UI for `create_qualified_opportunity`/`consent_and_route_opportunity` (0007) — until now those RPCs had only ever been called directly during live testing. A member picks a Need, city, consultation mode, and readiness; on a match, a per-category consent checklist routes the opportunity. No new SQL, no new RLS. Both previously-dead "start over" links (`/conexiones`'s empty state, `MemberActions`'s "Buscar otra opción") now point here instead of `/roadmap`. See "Milestone 04D status: DONE" below.
+
+Prior: Milestone 04C — Opportunity Experience, built on the verified Milestone 04B lifecycle. Two authenticated routes — `/conexiones` (member) and `/panel-profesional/oportunidades` (professional) — turned the Opportunity Engine + Lifecycle into a real guided UI, with zero new schema or RPCs. See "Milestone 04C status: DONE" below and [EVOLUSA-OPPORTUNITY-EXPERIENCE.md](./EVOLUSA-OPPORTUNITY-EXPERIENCE.md) for full detail.
 
 Prior: Milestone 04B — Opportunity Lifecycle, live and authorization-tested. `ROUTED → CONTACTED → COMPLETED`, with `DECLINED` as an alternate terminal outcome from either party and an explicit, never-persisted `expires_at` boundary, live in the EVOLUSA Supabase project on top of Milestone 04A's Opportunity Engine. See "Milestone 04B status: LIVE" below and [EVOLUSA-OPPORTUNITY-LIFECYCLE.md](./EVOLUSA-OPPORTUNITY-LIFECYCLE.md).
 
@@ -39,7 +41,7 @@ Earlier still: end-of-day portable handoff checkpoint, covering the real Supabas
 - [EVOLUSA-LEAD-OPPORTUNITY-ENGINE.md](./EVOLUSA-LEAD-OPPORTUNITY-ENGINE.md) — Milestone 04: Opportunity lifecycle, consent receipts, routing, trust/anti-abuse threat model, minimum data-model decision, security red-team.
 - [EVOLUSA-REGULATORY-POLICY.md](./EVOLUSA-REGULATORY-POLICY.md) — Milestone 04: category × jurisdiction regulatory contract, monetization guardrails, "trust is never for sale."
 
-**Everything above except Milestone 01/03/04A/04B/04C (below) is still design-only.** The three Milestone 04 docs describe the full target architecture; Milestone 04A, 04B, and 04C (below) implement a deliberately narrow, live slice of it (`opportunities`/`consent_receipts` + 7 RPCs total, `BUSINESS_MARKETING`/`FL` only, lifecycle through `ROUTED → CONTACTED → COMPLETED`/`DECLINED`, now with a real member and professional UI at `/conexiones` and `/panel-profesional/oportunidades`) — the rest (`platform_events`, `SHARED_MAX_3`, sponsored placement, ML, regulated categories, any UI for *creating* a new opportunity) remains design-only exactly as documented. Treat the undelivered parts of this section like the rest of `docs/` before Phase 2 was implemented: a plan to build against, not a status report.
+**Everything above except Milestone 01/03/04A/04B/04C/04D (below) is still design-only.** The three Milestone 04 docs describe the full target architecture; Milestones 04A–04D (below) implement a deliberately narrow, live slice of it (`opportunities`/`consent_receipts` + 7 RPCs total, `BUSINESS_MARKETING`/`FL` only, full lifecycle `CREATED → ROUTED → CONTACTED → COMPLETED`/`DECLINED`, now with a real member and professional UI at `/conexiones`, `/conexiones/nueva`, and `/panel-profesional/oportunidades`) — the rest (`platform_events`, `SHARED_MAX_3`, sponsored placement, ML, regulated categories) remains design-only exactly as documented. Treat the undelivered parts of this section like the rest of `docs/` before Phase 2 was implemented: a plan to build against, not a status report.
 
 ### Milestone 01 status: LIVE — applied, hardened, and authorization-tested
 
@@ -71,7 +73,9 @@ Earlier still: end-of-day portable handoff checkpoint, covering the real Supabas
 
 **Daniela Torres remains unverified**: `is_approved = true`, `identity_verified = false`, zero rows in `professional_verifications` for her — confirmed both before and after the migration, untouched throughout. Verifying her is a separate, explicit, owner-authorized operator action (see the runbook in `0006`'s trailing comments), not a side effect of this migration.
 
-Not yet built: the Verified badge UI (discussed at design level during Milestone 03 but not implemented — no component, no rendering of `identity_verified` anywhere in `ProfessionalProfileView`), any admin UI, self-service professional signup, Match/Appointments/Reviews/EvolUSAia.
+**Correction (found during the 2026-08-27 launch-readiness audit, docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md Finding D-2): the line below was wrong.** `components/professional/VerifiedBadge.tsx` exists, is imported and rendered in `ProfessionalProfileView.tsx`, and is safe as built (renders nothing when `identityVerified` is `false`, which is Daniela's real current state). It shipped at some point after this section was originally written, without this file being updated — treat any "not yet built" claim about it, here or in `EVOLUSA-PROFESSIONAL-NETWORK.md`, as stale.
+
+Not yet built: any admin UI, self-service professional signup, Match/Appointments/Reviews/EvolUSAia.
 
 ### Milestone 04A status: LIVE — Qualified Opportunity Engine, hardened and authorization-tested
 
@@ -103,7 +107,7 @@ Not yet built: `platform_events`, `SHARED_MAX_3` routing, sponsored placement, a
 
 **Currently authoritative visual state**: exactly what's committed at `HEAD` (last Home-affecting commit `4cb087b`) — the fixed-artboard desktop `HeroArtboard` + mobile-only `Hero` split, unchanged. The uncommitted cluster above is not live in any built/deployed sense and was never staged.
 
-**Next exact milestone (Home cluster only)**: resolve the Home-cluster disposition with Mauricio directly (keep as the new direction / revert to `4cb087b`'s approved state / view live first) before any further Home work. This is unrelated to and does not block Milestone 04B below, which touches no Home files.
+**Correction (found during the 2026-08-27 audit, Finding D-3): the paragraph above is stale.** The commit immediately after this one, `b8c5171` ("fix(evolusa): restore clean build and reconcile visual worktree"), left the tree matching exactly this pre-cluster baseline — `PhotoSlot.tsx` has no `objectPositionClassName` prop, `StageSelector.tsx` takes no `className` prop, `Hero`/`HeroArtboard` still show the old split. In other words, the cluster was not "left entirely alone" as this section still claimed — it was effectively reverted by the time `b8c5171` landed. Whether that revert was a deliberate decision or incidental cleanup is not confirmed by anything in git history alone (see the audit's Open Question 1); either way, this is no longer an open decision blocking Home work — the tree already reflects one clear, committed state.
 
 ### Milestone 04B status: LIVE — Opportunity Lifecycle, hardened and authorization-tested
 
@@ -147,30 +151,39 @@ Two new authenticated routes turn the Milestone 04A/04B backend into a real UI: 
 
 **Live verification**: both new routes were confirmed live (dev server on port 3002) to correctly redirect an unauthenticated visitor to `/login?next=...` via the widened `proxy.ts` protected-prefix list. No throwaway live users were created and no real account was signed into for this milestone — verification relied on the 8 new unit tests plus this one unauthenticated redirect check, per the explicit "prefer unit/integration boundaries first" instruction for this milestone.
 
-**NEXT EXACT TASK: Milestone 04D — Start / Rematch Experience.** Build the UI that actually calls `create_qualified_opportunity`/`consent_and_route_opportunity` (gap A above) — the create/consent flow has never had one. Independent of, and not blocked by, the still-unresolved Home visual cluster below.
+### Milestone 04D status: DONE — Start/Rematch Experience
+
+`app/(account)/conexiones/nueva/page.tsx` (server) + `components/opportunities/NewOpportunityFlow.tsx` (client) close gap A from Milestone 04C: there is now a real UI for both `create_qualified_opportunity` and `consent_and_route_opportunity`. Two new server actions in `app/(account)/actions.ts` — `createOpportunityAction`, `consentAndRouteOpportunityAction` — are thin wrappers with the exact same shape as the existing 04C action wrappers; neither performs its own authorization check, since the RPCs themselves remain the sole authority, unchanged from 0007.
+
+**No schema, RLS, or RPC change.** The form collects only genuine user input (need, optional city, consultation mode, readiness) and a consent-category checklist restricted to the fixed five-value `ConsentDataCategory` enum — no freeform field, no professional-selection input. Gap B from Milestone 04C remains open by design: the member still never sees the matched professional's name or a link to their public profile, since `professional_profiles_public` still doesn't expose a joinable identifier back to `matched_professional_profile_id` (0005's SECURITY BOUNDARY) — resolving that is still a schema decision, not something this milestone should do incidentally. The "compatible match" copy shown after a successful match is the same static, always-true-once-matched sentence already used in `/conexiones`'s `ROUTED` state (`data/opportunities/copy.ts`), not a fetched detail — `organic_match_score` and any professional-specific data still never reach a Client Component.
+
+**Verification**: `npm run lint`/`npx tsc --noEmit`/`npm test` (35/35)/`npm run build` all clean. Live-checked in a browser against the real dev environment: the unauthenticated case was previously verified for other `/conexiones/*` routes via the shared `proxy.ts` prefix match (no separate re-check needed, since `/conexiones/nueva` falls under the existing `/conexiones` protected prefix). The authenticated render was confirmed against a real, already-signed-in session found in the dev browser — the form was visually confirmed to render correctly, but was deliberately never submitted, to avoid writing real data to production Supabase under a real account without being explicitly asked to.
+
+Not yet built: any UI-level rate limiting, a real professional-identity reveal (gap B above), notifications when a new opportunity is created, and everything else already listed as deferred in Milestone 04C.
 
 ## WHAT IS FUNCTIONAL NOW
 
-- Public marketing home page (`app/page.tsx`) — new premium visual system on Header/Hero/StageSelector/Core Belief/Journey/Roadmap Preview; Services/HowItWorks/Trust/FAQ/CTA/Footer sections unchanged from before this round (still on the old gold-accented styling — see `EVOLUSA-LAUNCH-CHECKLIST.md` follow-ups).
+- Public marketing home page (`app/page.tsx`) — Premium Experience V1 tokens now cover the whole page, not just the top half. **Correction (2026-08-27 audit, Finding D-1): the previous claim that StageServices/HowItWorks/TrustAndTransparency/FAQ/CTA/Footer were "unchanged... still on the old gold accent" was stale and false as of the audit** — all six were independently grepped and confirmed to use the current token set (`var(--brand-navy)`, `var(--brand-blue)`, etc.), not the legacy gold. Whoever did that migration and when is not recorded anywhere in this file; treat it as done.
+- Public professional directory (`/profesionales`) and profile pages (`/profesionales/[slug]`) — reads `professional_profiles_public` directly, linked from the footer.
 - Public onboarding flow (`/onboarding`) — works anonymously, no account required, hands off answers to a signed-in account on first login via `sessionStorage` + `OnboardingSync`.
-- Real Supabase email/password auth: signup, login, logout, session restoration, protected-route redirect (`proxy.ts`), Spanish error states.
+- Real Supabase email/password auth: signup, login, logout, session restoration, protected-route redirect (`proxy.ts`), Spanish error states. Signup no longer leaks account existence via its error message (fixed 2026-08-27 per the audit's Finding S-1).
 - Real per-user persistence: profile, roadmap item completion, life events all read/write through `lib/account/persistence.ts` and `app/(account)/actions.ts`, verified live end-to-end (see `EVOLUSA-AUTH-TESTING.md`).
-- Dashboard/Roadmap/Profile pages (`app/(account)/...`) show real signed-in user data, falling back to preview data only when signed out or Supabase is unconfigured.
-- `/conexiones` (member) and `/panel-profesional/oportunidades` (professional, role-gated) — Milestone 04C's opportunity experience, reading/acting on live Milestone 04B lifecycle data. Confirmed live to require authentication (redirects to `/login`); not yet exercised end-to-end against a real signed-in session in a browser.
+- Dashboard/Roadmap/Profile pages (`app/(account)/...`) show real signed-in user data, falling back to preview data only when signed out or Supabase is unconfigured. The account Roadmap engine (`lib/account/roadmap-engine.ts`) now has real recommendation content for every selectable need category (housing, transport, credit, insurance, education, English, family, business formation) — previously several of these categories were selectable but produced zero recommendations.
+- `/conexiones` (member), `/conexiones/nueva` (start a new opportunity — Milestone 04D), and `/panel-profesional/oportunidades` (professional, role-gated) — the full opportunity lifecycle now has a real UI end to end, from creation through consent, contact, and completion. Confirmed live to require authentication; the authenticated render of `/conexiones/nueva` was visually confirmed against a real signed-in session, but the form was deliberately never submitted to avoid writing real production data.
 
 ## SUPABASE
 
 - **Organization**: EVOLUSA (`eaxhsobbvufhnybrpozs`) — separate from BELONG Labs; never touch BELONG's org or its `belong-platform` project.
 - **Project ref**: `ovialqdazxkekvqqgdiu` (repurposed from its default name "InMigration" — this is the real EVOLUSA backend now)
 - **Region**: `us-west-2` — kept as-is for MVP; free to move to `us-east-1` later if South Florida latency matters enough (see `EVOLUSA-DATABASE.md`), but that means a new project since Supabase can't change region in place.
-- **Migrations status**: 4 applied (`0001` schema, `0002` RLS, `0003` profile auto-provisioning trigger, `0004` advisor fixes) — `supabase/migrations/` in this repo matches exactly what's live.
+- **Migrations status**: **Correction (2026-08-27 audit, Finding D-1): this line previously said "4 applied," which was stale — it predated Milestones 01/03/04A/04B documented elsewhere in this same file.** As of this correction, `0001`–`0008` are applied and live (schema, RLS, profile provisioning, advisor fixes, professional foundation, Verified V1, Opportunity Engine, Opportunity Lifecycle). `0009` (assistant_messages RLS ownership fix, closing audit Finding S-2) is **authored but NOT yet applied** — it needs security-reviewer + owner sign-off before `apply_migration`. `supabase/migrations/` in this repo matches what's live for `0001`–`0008` only.
 - **Auth status**: real email/password auth working; `mailer_autoconfirm: false` (confirmation genuinely required); default built-in mailer is rate-limited — custom SMTP is the next real blocker for production signup volume (see `EVOLUSA-AUTH-TESTING.md`).
 - **RLS status**: enabled on all 8 tables, owner-only policies, verified live twice with real cross-user isolation tests (zero cross-user read/write leakage, confirmed at the database level — see `EVOLUSA-SECURITY.md`).
 - **Zero secrets in documentation** — every doc in this repo references the project ref/org id (not secret) but never the anon key or any credential value.
 
 ## CURRENT VISUAL STATUS
 
-Premium Experience V1 shipped on Header, Hero, StageSelector, Core Belief (new section), Journey (now features the reusable `EvolusaPath` component), and Roadmap Preview. New design tokens in `app/globals.css` (Deep Navy / Progress Blue / EVOL USA Red / Warm White / Educational Sky / Progress Green / Muted). A real accessibility bug was caught and fixed this round: Progress Blue text directly on Deep Navy measured 2.94:1 contrast (fails WCAG AA); a lighter `--brand-blue-on-dark` tint (7.2:1) now covers every blue-on-navy text usage. StageServices, HowItWorks, TrustAndTransparency, FAQ, CTA, and Footer were intentionally left untouched and still show the old gold accent — a visible, tracked seam, not an oversight.
+Premium Experience V1 shipped on Header, Hero, StageSelector, Core Belief (new section), Journey (now features the reusable `EvolusaPath` component), and Roadmap Preview. New design tokens in `app/globals.css` (Deep Navy / Progress Blue / EVOL USA Red / Warm White / Educational Sky / Progress Green / Muted). A real accessibility bug was caught and fixed this round: Progress Blue text directly on Deep Navy measured 2.94:1 contrast (fails WCAG AA); a lighter `--brand-blue-on-dark` tint (7.2:1) now covers every blue-on-navy text usage. **Correction (2026-08-27 audit, Finding D-1): the sentence that used to be here — "StageServices, HowItWorks, TrustAndTransparency, FAQ, CTA, and Footer were intentionally left untouched and still show the old gold accent" — is false as of the audit.** All six sections were independently verified to already use the current token set. The gold-accent seam this file used to track as open no longer exists in the code; nothing further is needed here.
 
 ## CURRENT ACCOUNT STATUS
 
@@ -182,11 +195,11 @@ Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-
 
 ## TEST STATUS
 
-`npm test` — 7/7 pass (deterministic roadmap engine + account roadmap engine tests). Lint and `tsc --noEmit` clean.
+`npm test` — 35/35 pass (roadmap engine, account roadmap engine, opportunity eligibility, opportunity experience, opportunity lifecycle, opportunity match). Lint and `tsc --noEmit` clean. **Correction (2026-08-27 audit, Finding D-1): this line previously said "7/7," which was stale and contradicted this same file's own Milestone 04C section, which already said "35/35."**
 
 ## BUILD STATUS
 
-`npm run build` clean. `/dashboard`, `/roadmap`, `/profile` are dynamically rendered (session-aware, as expected); everything else is static.
+`npm run build` clean. Dynamic (session-aware): `/assistant`, `/conexiones`, `/conexiones/nueva`, `/dashboard`, `/panel-profesional/oportunidades`, `/profesionales`, `/profesionales/[slug]`, `/profile`, `/roadmap`. Everything else is static.
 
 ## CURRENT BLOCKERS
 
@@ -194,10 +207,13 @@ Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-
 - Auth email templates are still Supabase's English defaults, not Spanish.
 - Business/legal facts still placeholders in `config/brand.ts` (legal name, phone, email, WhatsApp, website, hours) — blocks compliant public copy, not code.
 - No Vercel project currently connected to this repository (confirmed via the Vercel API this session — only unrelated `taxmind-ai`/`taxmind-mvp` projects exist in the connected account). No preview deployment exists to inspect.
+- **Live production data hygiene**: a leftover throwaway test professional (`qa-throwaway-professional-20260825`) is currently public in the live Supabase project alongside Daniela Torres — found 2026-08-27 while building `/profesionales`, needs an operator with Supabase access to delete it. See `docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md` P0-6.
+- Five public-experience photo slots (arrival, stability, entrepreneurship, growth, achievement in `data/photography/slots.ts`) have no image at all — owner decision pending on AI-generated placeholder vs. licensed stock vs. waiting for a real shoot.
+- Four legacy home sections (`sections/home/{Testimonials,Services,Process,Benefits}.tsx`) contain fabricated testimonials and direct-provision claims for disabled regulated categories. Not imported anywhere live, but flagged for deletion or full rewrite before merge — owner decision pending.
 
 ## NEXT EXACT TASK
 
-Extend the Premium Experience V1 token/Path system down through the remaining home sections (StageServices, HowItWorks, TrustAndTransparency, FAQ, CTA, Footer) so the whole home page reads as one consistent system instead of a redesigned top half + unchanged bottom half.
+**Correction (2026-08-27 audit, Finding D-1): the task previously listed here (extending Premium Experience tokens to the remaining home sections) is already done** — see "CURRENT VISUAL STATUS" above. The authoritative next-steps list is now `docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md`, Part 9 (Prioritized Execution Backlog) — check that document rather than this section before picking up new work. As of this correction, the remaining items needing the owner directly are: legal/business facts for `config/brand.ts`, an SMTP provider decision, the photo-slot decision above, and the dead-file deletion decision above. The remaining engineering-only item is Milestone 04C's gap B (showing the matched professional's identity to the member), which needs a schema decision before it can be built.
 
 ## FILES/AREAS MOST RELEVANT TO NEXT TASK
 
@@ -206,12 +222,12 @@ Extend the Premium Experience V1 token/Path system down through the remaining ho
 | Design tokens | `app/globals.css` |
 | Shared primitives already updated | `components/ui/{Button,ButtonLink,Heading,ProgressStep}.tsx` |
 | Reusable path motif | `components/evolusa/EvolusaPath.tsx` |
-| Sections still on old styling | `sections/home/{StageServices,HowItWorks,TrustAndTransparency,FAQ,CTA,Footer}.tsx` |
+| Opportunity creation flow (Milestone 04D) | `components/opportunities/NewOpportunityFlow.tsx`, `app/(account)/conexiones/nueva/page.tsx` |
 | Supabase env/client/server | `lib/supabase/{env,client,server}.ts` |
 | Route protection | `proxy.ts` |
 | Persistence functions | `lib/account/persistence.ts` |
 | Server actions | `app/(account)/actions.ts` |
-| Migrations (source of truth for what's applied) | `supabase/migrations/0001`–`0004` |
+| Migrations (source of truth for what's applied) | `supabase/migrations/0001`–`0008` applied, `0009` authored-not-applied |
 
 ## IMPORTANT DECISIONS
 
