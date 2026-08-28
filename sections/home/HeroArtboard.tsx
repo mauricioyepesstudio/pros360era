@@ -62,7 +62,7 @@ export default function HeroArtboard() {
             At this artboard's aspect ratio, object-fit:cover is height-constrained
             (source 1536x1024 is wider-aspect than this 1024x890 frame), so vertical
             crop is ~zero and only object-position-x meaningfully shifts the crop. */}
-        <div className="absolute inset-0" style={{ transform: "scale(1.15) translateY(-6%)", transformOrigin: "center top" }}>
+        <div className="absolute inset-0" style={{ transform: "scale(1.4) translateY(-11.7%)", transformOrigin: "center top" }}>
           <motion.div style={{ scale: imageScale }} className="absolute inset-0">
             <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
           </motion.div>
