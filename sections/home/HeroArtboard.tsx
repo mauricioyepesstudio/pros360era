@@ -54,7 +54,7 @@ export default function HeroArtboard() {
       <div
         className="relative mx-auto overflow-hidden"
         style={{
-          width: "min(100vw, 1536px)",
+          width: "100vw",
           aspectRatio: `${ART_W} / ${ART_H}`,
         }}
       >
