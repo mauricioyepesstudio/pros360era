@@ -20,6 +20,8 @@ type PhotoSlotProps = {
    * a new content decision. Never rendered once a real tempSrc exists.
    */
   icon?: PhotoSlotIconName;
+  /** Short label rendered under the placeholder icon (e.g. the stage's shortLabel) so an unreplaced slot still communicates what it will become instead of showing a bare icon. Never rendered once a real tempSrc exists. */
+  label?: string;
 };
 
 const placeholderTones: Record<NonNullable<PhotoSlotProps["tone"]>, string> = {
@@ -49,7 +51,7 @@ const iconComponents: Record<PhotoSlotIconName, LucideIcon> = {
  * slot id. Swap a slot's tempSrc there to ship a real photo; nothing here
  * or in the calling section needs to change.
  */
-export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition, icon }: PhotoSlotProps) {
+export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition, icon, label }: PhotoSlotProps) {
   const slot = photoSlots[id];
 
   if (slot.tempSrc) {
@@ -78,8 +80,11 @@ export default function PhotoSlot({ id, className, tone = "luminous", priority =
       <div className="absolute -right-16 -top-20 size-72 rounded-full bg-white/25 blur-3xl" />
       <div className="absolute -bottom-16 -left-10 size-64 rounded-full bg-[var(--brand-blue)]/15 blur-3xl" />
       {Icon && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
           <Icon className={placeholderIconColor[tone]} size={64} strokeWidth={1.5} />
+          {label && (
+            <span className={cn("text-xs font-bold uppercase tracking-[0.15em]", placeholderIconColor[tone])}>{label}</span>
+          )}
         </div>
       )}
     </div>

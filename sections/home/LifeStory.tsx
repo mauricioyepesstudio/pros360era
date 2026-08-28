@@ -19,6 +19,7 @@ const moments = [
     id: "emprende",
     eyebrow: "Emprende",
     line: "CONVIERTE TUS HABILIDADES\nEN OPORTUNIDADES.",
+    description: "Estructura legal, EIN y cuenta de banco de negocio — sabrás qué pedir y a quién, con apoyo profesional cuando corresponda.",
     href: "#stage-selector",
     cta: "Preparar mi negocio",
     slot: "entrepreneurship" as PhotoSlotId,
@@ -30,6 +31,7 @@ const moments = [
     id: "establecete",
     eyebrow: "Establécete",
     line: "CONSTRUYE ESTABILIDAD.",
+    description: "Vivienda, cuenta bancaria, crédito y transporte — los básicos que hacen tu día a día más fácil.",
     href: "#stage-selector",
     cta: "Organizar mis próximos pasos",
     slot: "stability" as PhotoSlotId,
@@ -41,6 +43,7 @@ const moments = [
     id: "crece",
     eyebrow: "Crece",
     line: "CRECE CON UN PLAN.",
+    description: "Una página web, tu ficha de Google Business y un sistema para no perder de vista a tus clientes.",
     href: "#stage-selector",
     cta: "Fortalecer mi presencia",
     slot: "growth" as PhotoSlotId,
@@ -71,7 +74,7 @@ export default function LifeStory() {
               transition={{ duration: 1.1, ease: "easeOut" }}
               className="absolute inset-0"
             >
-              <PhotoSlot id={moment.slot} tone={moment.tone} icon={moment.icon} className="h-full w-full" />
+              <PhotoSlot id={moment.slot} tone={moment.tone} icon={moment.icon} label={moment.eyebrow} className="h-full w-full" />
             </motion.div>
 
             <div
@@ -90,6 +93,7 @@ export default function LifeStory() {
                 <p className="mt-3 whitespace-pre-line text-balance text-2xl font-bold leading-tight tracking-[-0.01em] text-white sm:text-4xl">
                   {moment.line}
                 </p>
+                <p className="mt-3 max-w-sm text-sm leading-6 text-white/70">{moment.description}</p>
                 <Link
                   href={moment.href}
                   className={cn("mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-white/85 hover:text-white", onRight && "flex-row-reverse")}
