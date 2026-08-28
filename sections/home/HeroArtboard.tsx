@@ -54,8 +54,7 @@ export default function HeroArtboard() {
       <div
         className="relative mx-auto overflow-hidden"
         style={{
-          width: `min(100vw, calc(100vh * ${ART_W / ART_H}))`,
-          maxWidth: 1536,
+          width: "min(100vw, 1536px)",
           aspectRatio: `${ART_W} / ${ART_H}`,
         }}
       >
@@ -110,7 +109,7 @@ export default function HeroArtboard() {
           </h1>
           <motion.svg aria-hidden viewBox="0 0 260 24" className="mt-3 h-5 w-64" fill="none">
             <motion.path
-              d="M4 16C40 8 90 6 130 12C170 18 220 10 256 8"
+              d="M4 18C70 4 190 4 256 12"
               stroke="var(--brand-red)"
               strokeWidth="9"
               strokeLinecap="round"
