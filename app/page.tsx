@@ -1,5 +1,6 @@
 import { MotionConfig } from "framer-motion";
 import SiteHeader from "@/components/layout/SiteHeader";
+import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
 import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
 import StageSelector from "@/sections/home/StageSelector";
@@ -17,6 +18,7 @@ export default function Home() {
   return (
     <MotionConfig reducedMotion="user">
       <SiteHeader />
+      <RoadmapScrollFix />
 
       <main className="bg-[var(--background)] text-[var(--foreground)]">
         <HeroArtboard />

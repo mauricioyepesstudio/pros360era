@@ -34,10 +34,25 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    // Threshold used to be a flat 40px, which assumed the Hero was always
+    // short. Once the desktop HeroArtboard became a full-viewport-width,
+    // aspect-ratio-locked composition (often taller than one screen), 40px
+    // made this header's opaque white bar appear while still deep inside
+    // the Hero photo, floating over HeroArtboard's own nav. Basing it on
+    // #home's actual rendered bottom edge keeps this header hidden until
+    // the Hero (mobile or desktop) has genuinely scrolled out of view.
+    const onScroll = () => {
+      const hero = document.getElementById("home");
+      const pastHero = hero ? hero.getBoundingClientRect().bottom <= 0 : window.scrollY > 40;
+      setScrolled(pastHero);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   useEffect(() => {

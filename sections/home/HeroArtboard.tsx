@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import BrandMark from "@/components/evolusa/BrandMark";
+import EvolusaLogo from "@/components/brand/EvolusaLogo";
 import ButtonLink from "@/components/ui/ButtonLink";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
@@ -24,20 +24,17 @@ const navigation = [
  * below is a real, live component (BrandMark, EvolusaPath, ProductRevealPanel
  * with real generateRoadmap() data, real <Link>s). What's different from a
  * normal fluid layout is the CONTAINING FRAME: an "artboard" locked to the
- * aspect ratio measured directly from the approved reference
- * (evolusa-home-final-approved.png), so the composition holds its proportions
- * instead of stretching wider/flatter on large monitors. Every child below
- * is positioned with percentages measured from that same reference image
- * (see the MEASURED_* comments) — not estimated, not tuned by eye.
+ * aspect ratio of the approved reference, capped at max-width so it doesn't
+ * distort on ultra-wide monitors — the surrounding <section> supplies solid
+ * navy on either side rather than the composition stretching indefinitely.
  *
- * Measurement method: connected-component color analysis (scipy.ndimage) on
- * the reference PNG located the EVOLUSA-red UI elements' exact pixel boxes,
- * cross-checked with targeted crops viewed directly. Desktop mockup region
- * measured at 1024x890px (the file's actual desktop portion, above the row
- * of phone mockups) — NOT 1536x1024 as an earlier instruction assumed; that
- * figure doesn't match this reference file, so the artboard's aspect ratio
- * uses the real measured value instead. See the final report for this
- * discrepancy.
+ * CORRECTION (owner-confirmed): the artboard was previously 1024x890, per an
+ * even earlier in-code note claiming 1536x1024 "doesn't match the reference
+ * file." That earlier measurement was wrong. The owner confirmed the real
+ * reference is 1536x1024 (3:2) — which also happens to match hero-family.webp's
+ * own native aspect ratio (~1.5) almost exactly, which is why the photo no
+ * longer needs any extra scale/crop transform below: at matching aspect
+ * ratios, object-fit:cover shows the whole photo with no distortion.
  */
 export default function HeroArtboard() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -45,26 +42,29 @@ export default function HeroArtboard() {
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.02]);
   const pathProgress = useTransform(scrollYProgress, [0, 0.85], [0.02, 1]);
 
-  // Measured aspect ratio of the reference's desktop composition: 1024 x 890.
-  const ART_W = 1024;
-  const ART_H = 890;
+  // Corrected aspect ratio of the approved reference: 1536 x 1024 (3:2).
+  const ART_W = 1536;
+  const ART_H = 1024;
 
   return (
     <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] lg:block">
       <div
         className="relative mx-auto overflow-hidden"
         style={{
-          width: "100vw",
+          width: "min(100%, 1536px)",
           aspectRatio: `${ART_W} / ${ART_H}`,
         }}
       >
-        {/* Background photo — MEASURED family bounds: x=[67.9%,92.8%] y=[24.2%,63.3%].
-            At this artboard's aspect ratio, object-fit:cover is height-constrained
-            (source 1536x1024 is wider-aspect than this 1024x890 frame), so vertical
-            crop is ~zero and only object-position-x meaningfully shifts the crop. */}
-        <div className="absolute inset-0" style={{ transform: "scale(1.4) translateY(-11.7%)", transformOrigin: "center top" }}>
+        {/* Background photo — bottom-anchored 1.15x scale. Measured the actual
+            source file directly: ~13.9% of the top is empty sky before the
+            first building appears, while the water at the bottom runs to the
+            very edge (0% margin there). Anchoring the scale at the bottom
+            means the family's feet/legs stay exactly where they already were
+            (nothing already-visible gets cropped) while that empty sky margin
+            gets trimmed and the family sits slightly higher/larger in frame. */}
+        <div className="absolute inset-0" style={{ transform: "scale(1.28)", transformOrigin: "center bottom" }}>
           <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
+            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center" />
           </motion.div>
         </div>
 
@@ -74,22 +74,30 @@ export default function HeroArtboard() {
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)] via-[var(--brand-navy)]/75 to-transparent" style={{ width: "62%" }} />
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/85 to-transparent" />
 
-        {/* Header row — MEASURED: logo x=[2%,26.4%] y=[1.7%,7.3%]; nav x=[19%,61%] y=[3.9%,5.8%]; CTA x=[77.1%,96.7%] y=[3.0%,7.4%]. */}
-        <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="absolute" style={{ left: "2%", top: "1.7%" }}>
-          <BrandMark size="lg" theme="dark" />
+        {/* Header row — logo enlarged and nav given more top margin per owner
+            direction ("navigation too small... do not make the nav tiny just
+            because browser width is large"). */}
+        {/* Wordmark only, no isotype — owner explicitly asked to drop the mark
+            after seeing it. Sized up from the "app" preset (48px) since,
+            without the icon+divider next to it, the wordmark alone needs more
+            visual weight to read as a real logo rather than small nav text. */}
+        <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="absolute" style={{ left: "2%", top: "3%" }}>
+          <span className="inline-block origin-left" style={{ transform: "scale(1.3)" }}>
+            <EvolusaLogo variant="reverse" size="app" />
+          </span>
         </Link>
-        <nav className="absolute flex items-center gap-6" aria-label="Navegación principal" style={{ left: "19%", top: "3.4%" }}>
+        <nav className="absolute flex items-center gap-7" aria-label="Navegación principal" style={{ left: "19%", top: "5.2%" }}>
           {navigation.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm font-medium text-white transition hover:text-white/80">
+            <Link key={item.href} href={item.href} className="text-base font-medium text-white transition hover:text-white/80">
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="absolute flex items-center gap-5" style={{ right: "3.3%", top: "2.5%" }}>
-          <Link href="/login" className="text-sm font-semibold text-white transition hover:text-white/80">
+        <div className="absolute flex items-center gap-5" style={{ right: "3.3%", top: "3.8%" }}>
+          <Link href="/login" className="text-base font-semibold text-white transition hover:text-white/80">
             Entrar
           </Link>
-          <ButtonLink href="/onboarding" className="px-5 py-2.5 text-sm">
+          <ButtonLink href="/onboarding" className="px-6 py-3 text-sm">
             Descubre tu próximo paso
             <ArrowRight aria-hidden className="ml-2" size={14} />
           </ButtonLink>
@@ -102,12 +110,12 @@ export default function HeroArtboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="absolute text-white"
-          style={{ left: "6.3%", top: "17.4%", width: "46%" }}
+          style={{ left: "6.3%", top: "16%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
-            <span className="block text-[2.75rem] font-medium text-white/85">TU SUEÑO</span>
-            <span className="block text-[4.25rem] font-extrabold">TIENE UN</span>
-            <span className="block text-[4.25rem] font-extrabold">CAMINO.</span>
+            <span className="block text-[3.25rem] font-light text-white/85">TU SUEÑO</span>
+            <span className="block text-[4.75rem] font-extrabold">TIENE UN</span>
+            <span className="block text-[4.75rem] font-extrabold">CAMINO.</span>
           </h1>
           <motion.span
             aria-hidden
@@ -145,7 +153,7 @@ export default function HeroArtboard() {
 
         {/* Product Reveal panel — MEASURED: x=[5.4%,95.2%] y=[71.0%,100%]. Real
             generateRoadmap() data via the shared ProductRevealPanel component. */}
-        <div className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
+        <div id="roadmap-desktop" className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
           <ProductRevealPanel compact />
         </div>
       </div>
