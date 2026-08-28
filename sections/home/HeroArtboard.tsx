@@ -62,26 +62,17 @@ export default function HeroArtboard() {
             At this artboard's aspect ratio, object-fit:cover is height-constrained
             (source 1536x1024 is wider-aspect than this 1024x890 frame), so vertical
             crop is ~zero and only object-position-x meaningfully shifts the crop. */}
-        <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-          <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
-        </motion.div>
+        <div className="absolute inset-0" style={{ transform: "scale(1.15) translateY(-6%)", transformOrigin: "center top" }}>
+          <motion.div style={{ scale: imageScale }} className="absolute inset-0">
+            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
+          </motion.div>
+        </div>
 
         {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
             scrim covers the left ~55% width and full height for text safety, fading
             out toward the family on the right. */}
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)] via-[var(--brand-navy)]/75 to-transparent" style={{ width: "62%" }} />
-        {/* Bottom scrim — deliberately reaches near-full opacity well before the
-            stage-selector row (y=63.3%) rather than fading gradually across it,
-            so the row and the product panel below always read clearly no matter
-            what part of the photo happens to sit behind them. Not tuned against
-            where the family's heads land in this specific temporary photo — that
-            keeps shifting with the crop; a reliably dark band is the fix that
-            doesn't depend on knowing the exact crop. */}
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-[var(--brand-navy)] to-transparent"
-          style={{ backgroundImage: "linear-gradient(to top, var(--brand-navy) 0%, var(--brand-navy) 45%, transparent 100%)" }}
-        />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/85 to-transparent" />
 
         {/* Header row — MEASURED: logo x=[2%,26.4%] y=[1.7%,7.3%]; nav x=[19%,61%] y=[3.9%,5.8%]; CTA x=[77.1%,96.7%] y=[3.0%,7.4%]. */}
         <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="absolute" style={{ left: "2%", top: "1.7%" }}>
