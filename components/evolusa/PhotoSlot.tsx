@@ -1,7 +1,10 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
+import { Compass, FolderCheck, Rocket, ShieldCheck, TrendingUp, Sparkles, type LucideIcon } from "lucide-react";
 import { photoSlots, type PhotoSlotId } from "@/data/photography/slots";
 import { cn } from "@/lib/cn";
+
+export type PhotoSlotIconName = "Compass" | "FolderCheck" | "Rocket" | "ShieldCheck" | "TrendingUp" | "Sparkles";
 
 type PhotoSlotProps = {
   id: PhotoSlotId;
@@ -11,6 +14,12 @@ type PhotoSlotProps = {
   priority?: boolean;
   /** Overrides the registry's objectPosition for this render only — e.g. a desktop-only crop that shouldn't apply on mobile. */
   objectPosition?: string;
+  /**
+   * Shown centered in the placeholder while no real photo exists yet — the
+   * same icon already assigned to this stage in data/journey/stages.ts, not
+   * a new content decision. Never rendered once a real tempSrc exists.
+   */
+  icon?: PhotoSlotIconName;
 };
 
 const placeholderTones: Record<NonNullable<PhotoSlotProps["tone"]>, string> = {
@@ -19,13 +28,28 @@ const placeholderTones: Record<NonNullable<PhotoSlotProps["tone"]>, string> = {
   blue: "bg-gradient-to-br from-[var(--brand-blue-strong)] via-[#173a86] to-[var(--brand-navy)]",
 };
 
+const placeholderIconColor: Record<NonNullable<PhotoSlotProps["tone"]>, string> = {
+  luminous: "text-[var(--brand-navy)]/25",
+  navy: "text-white/25",
+  blue: "text-white/25",
+};
+
+const iconComponents: Record<PhotoSlotIconName, LucideIcon> = {
+  Compass,
+  FolderCheck,
+  Rocket,
+  ShieldCheck,
+  TrendingUp,
+  Sparkles,
+};
+
 /**
  * Replaceable photography slot — see data/photography/slots.ts for the full
  * documented contract (purpose, aspect ratio, replacement requirement) per
  * slot id. Swap a slot's tempSrc there to ship a real photo; nothing here
  * or in the calling section needs to change.
  */
-export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition }: PhotoSlotProps) {
+export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition, icon }: PhotoSlotProps) {
   const slot = photoSlots[id];
 
   if (slot.tempSrc) {
@@ -43,6 +67,8 @@ export default function PhotoSlot({ id, className, tone = "luminous", priority =
     );
   }
 
+  const Icon = icon ? iconComponents[icon] : null;
+
   return (
     <div
       aria-hidden
@@ -51,6 +77,11 @@ export default function PhotoSlot({ id, className, tone = "luminous", priority =
     >
       <div className="absolute -right-16 -top-20 size-72 rounded-full bg-white/25 blur-3xl" />
       <div className="absolute -bottom-16 -left-10 size-64 rounded-full bg-[var(--brand-blue)]/15 blur-3xl" />
+      {Icon && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Icon className={placeholderIconColor[tone]} size={64} strokeWidth={1.5} />
+        </div>
+      )}
     </div>
   );
 }

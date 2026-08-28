@@ -32,7 +32,7 @@ export default function JourneyOverview() {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className={cn("grid items-center gap-8 lg:grid-cols-2 lg:gap-14", reversed && "lg:[&>*:first-child]:order-2")}
             >
-              <PhotoSlot id={stagePhotoSlot[stage.id]} tone={index % 2 === 0 ? "navy" : "blue"} className="w-full rounded-[1.25rem]" />
+              <PhotoSlot id={stagePhotoSlot[stage.id]} tone={index % 2 === 0 ? "navy" : "blue"} icon={stage.icon} className="w-full rounded-[1.25rem]" />
               <div>
                 <span className="text-sm font-bold text-[var(--brand-blue)]">{String(stage.order).padStart(2, "0")}</span>
                 <h3 className="mt-3 text-3xl font-bold text-[var(--brand-navy)] sm:text-4xl">{stage.shortLabel}</h3>

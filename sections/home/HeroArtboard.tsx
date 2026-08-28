@@ -62,9 +62,11 @@ export default function HeroArtboard() {
             At this artboard's aspect ratio, object-fit:cover is height-constrained
             (source 1536x1024 is wider-aspect than this 1024x890 frame), so vertical
             crop is ~zero and only object-position-x meaningfully shifts the crop. */}
-        <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-          <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
-        </motion.div>
+        <div className="absolute inset-0" style={{ transform: "scale(1.15) translateY(-6%)", transformOrigin: "center top" }}>
+          <motion.div style={{ scale: imageScale }} className="absolute inset-0">
+            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
+          </motion.div>
+        </div>
 
         {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
             scrim covers the left ~55% width and full height for text safety, fading
@@ -107,17 +109,13 @@ export default function HeroArtboard() {
             <span className="block text-[4.25rem] font-extrabold">TIENE UN</span>
             <span className="block text-[4.25rem] font-extrabold">CAMINO.</span>
           </h1>
-          <motion.svg aria-hidden viewBox="0 0 260 24" className="mt-3 h-5 w-64" fill="none">
-            <motion.path
-              d="M4 18C70 4 190 4 256 12"
-              stroke="var(--brand-red)"
-              strokeWidth="9"
-              strokeLinecap="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.7, delay: 0.5, ease: "easeOut" }}
-            />
-          </motion.svg>
+          <motion.span
+            aria-hidden
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+            className="mt-3 block h-2 w-56 origin-left rounded-full bg-[var(--brand-red)]"
+          />
           <p className="mt-4 text-xl font-semibold">
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>

@@ -3,7 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import PhotoSlot from "@/components/evolusa/PhotoSlot";
+import PhotoSlot, { type PhotoSlotIconName } from "@/components/evolusa/PhotoSlot";
 import type { PhotoSlotId } from "@/data/photography/slots";
 import { cn } from "@/lib/cn";
 
@@ -24,6 +24,7 @@ const moments = [
     slot: "entrepreneurship" as PhotoSlotId,
     tone: "navy" as const,
     textSide: "left" as const,
+    icon: "Rocket" as PhotoSlotIconName,
   },
   {
     id: "establecete",
@@ -34,6 +35,7 @@ const moments = [
     slot: "stability" as PhotoSlotId,
     tone: "luminous" as const,
     textSide: "right" as const,
+    icon: "FolderCheck" as PhotoSlotIconName,
   },
   {
     id: "crece",
@@ -44,6 +46,7 @@ const moments = [
     slot: "growth" as PhotoSlotId,
     tone: "blue" as const,
     textSide: "left" as const,
+    icon: "TrendingUp" as PhotoSlotIconName,
   },
 ] as const;
 
@@ -68,7 +71,7 @@ export default function LifeStory() {
               transition={{ duration: 1.1, ease: "easeOut" }}
               className="absolute inset-0"
             >
-              <PhotoSlot id={moment.slot} tone={moment.tone} className="h-full w-full" />
+              <PhotoSlot id={moment.slot} tone={moment.tone} icon={moment.icon} className="h-full w-full" />
             </motion.div>
 
             <div
