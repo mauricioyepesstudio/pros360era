@@ -51,32 +51,29 @@ export default function HeroArtboard() {
 
   return (
     <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] lg:block">
-      <div className="relative h-screen w-full overflow-hidden">
-        {/* Full-bleed background photo — fills the entire section edge to edge on
-            any monitor width, independent of the content artboard's own max-width
-            below. Previously the photo lived INSIDE the width-capped artboard,
-            which produced a hard vertical crop line on any screen wider than the
-            cap — decoupling them fixes that: the photo now always covers the full
-            viewport via object-fit:cover, and the content composition below keeps
-            its measured proportions as a centered overlay on top of it. */}
-        <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-          <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="72% 22%" />
-        </motion.div>
+      <div
+        className="relative mx-auto overflow-hidden"
+        style={{
+          width: "min(100vw, 1536px)",
+          aspectRatio: `${ART_W} / ${ART_H}`,
+        }}
+      >
+        {/* Background photo — MEASURED family bounds: x=[67.9%,92.8%] y=[24.2%,63.3%].
+            At this artboard's aspect ratio, object-fit:cover is height-constrained
+            (source 1536x1024 is wider-aspect than this 1024x890 frame), so vertical
+            crop is ~zero and only object-position-x meaningfully shifts the crop. */}
+        <div className="absolute inset-0" style={{ transform: "scale(1.15) translateY(-6%)", transformOrigin: "center top" }}>
+          <motion.div style={{ scale: imageScale }} className="absolute inset-0">
+            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="80% 15%" />
+          </motion.div>
+        </div>
 
-        {/* Scrims now span the full section too, matching the full-bleed photo. */}
+        {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
+            scrim covers the left ~55% width and full height for text safety, fading
+            out toward the family on the right. */}
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)] via-[var(--brand-navy)]/75 to-transparent" style={{ width: "62%" }} />
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/85 to-transparent" />
 
-        {/* Content artboard — the measured 1024x890 composition (header, headline,
-            path, product panel), capped at 1536px AND bounded by viewport height
-            so it never gets clipped top/bottom, centered over the full-bleed photo. */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{
-            width: `min(100%, 1536px, calc(100vh * ${ART_W / ART_H}))`,
-            aspectRatio: `${ART_W} / ${ART_H}`,
-          }}
-        >
         {/* Header row — MEASURED: logo x=[2%,26.4%] y=[1.7%,7.3%]; nav x=[19%,61%] y=[3.9%,5.8%]; CTA x=[77.1%,96.7%] y=[3.0%,7.4%]. */}
         <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="absolute" style={{ left: "2%", top: "1.7%" }}>
           <BrandMark size="lg" theme="dark" />
@@ -150,7 +147,6 @@ export default function HeroArtboard() {
             generateRoadmap() data via the shared ProductRevealPanel component. */}
         <div className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
           <ProductRevealPanel compact />
-        </div>
         </div>
       </div>
     </section>
