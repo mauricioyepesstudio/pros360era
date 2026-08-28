@@ -1,4 +1,5 @@
-import { Building2, MapPin, Users, Video } from "lucide-react";
+import Image from "next/image";
+import { Building2, CalendarClock, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";
@@ -8,6 +9,12 @@ import { getProfessionalCategory } from "@/data/professional/categories";
 import type { ConsultationMode, ProfessionalProfilePublic } from "@/data/professional/types";
 import { cn } from "@/lib/cn";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
+
+export type ProfessionalWorkSample = {
+  title: string;
+  image: string;
+  description?: string;
+};
 
 // Presentation-only mapping of stored language codes to Spanish display
 // labels — not a business-logic catalog (doesn't gate anything), so it
@@ -32,12 +39,28 @@ const consultationCopy: Record<ConsultationMode, { title: string; description: s
  * live database (see the temporary QA route used for Milestone 02, deleted
  * before this milestone was reported complete).
  */
-export default function ProfessionalProfileView({ professional }: { professional: ProfessionalProfilePublic }) {
+export default function ProfessionalProfileView({
+  professional,
+  photoUrl,
+  contactEmail,
+  workSamples,
+}: {
+  professional: ProfessionalProfilePublic;
+  /** Optional real profile photo — not yet a column on professional_profiles_public; pass explicitly until that field exists in Supabase. */
+  photoUrl?: string;
+  /** Real inbox to reach this professional. Without an Appointments system yet, "Agendar una consulta" opens a real email rather than a fabricated calendar widget. */
+  contactEmail?: string;
+  /** Real completed work samples, shown only when provided — never a placeholder gallery. */
+  workSamples?: readonly ProfessionalWorkSample[];
+}) {
   const category = getProfessionalCategory(professional.category);
   const categoryLabel = category?.label ?? "Profesional EVOLUSA";
   const location = [professional.city, professional.state].filter(Boolean).join(", ");
   const languages = professional.languages.map((code) => languageLabels[code] ?? code.toUpperCase());
   const consultation = consultationCopy[professional.consultationMode];
+  const mailtoHref = contactEmail
+    ? `mailto:${contactEmail}?subject=${encodeURIComponent(`Consulta a través de EVOLUSA — ${professional.displayName}`)}`
+    : undefined;
 
   return (
     <main className="bg-[var(--background)] text-[var(--foreground)]">
@@ -46,9 +69,13 @@ export default function ProfessionalProfileView({ professional }: { professional
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
             <span
               aria-hidden
-              className="flex size-24 shrink-0 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15 sm:size-28"
+              className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15 sm:size-28"
             >
-              <EvolusaIsotype variant="reverse" size="app" />
+              {photoUrl ? (
+                <Image src={photoUrl} alt="" fill sizes="112px" className="object-cover" />
+              ) : (
+                <EvolusaIsotype variant="reverse" size="app" />
+              )}
             </span>
             <div className="text-white">
               <div className="flex flex-wrap items-start gap-2">
@@ -86,6 +113,13 @@ export default function ProfessionalProfileView({ professional }: { professional
                 />
                 {professional.isAcceptingClients ? "Aceptando nuevos clientes" : "No está aceptando nuevos clientes por ahora"}
               </p>
+
+              {mailtoHref && professional.isAcceptingClients && (
+                <ButtonLink href={mailtoHref} className="mt-6">
+                  <CalendarClock aria-hidden size={18} className="mr-2" />
+                  Agendar una consulta
+                </ButtonLink>
+              )}
             </div>
           </div>
         </Container>
@@ -97,6 +131,27 @@ export default function ProfessionalProfileView({ professional }: { professional
             Acerca de {professional.displayName}
           </Heading>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">{professional.bio}</p>
+        </Section>
+      )}
+
+      {workSamples && workSamples.length > 0 && (
+        <Section labelledBy="professional-portfolio-title">
+          <Heading id="professional-portfolio-title" eyebrow="Trabajo reciente">
+            Algunos proyectos de {professional.displayName}
+          </Heading>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {workSamples.map((sample) => (
+              <div key={sample.title} className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-white">
+                <div className="relative aspect-[4/3] w-full">
+                  <Image src={sample.image} alt={sample.title} fill sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
+                </div>
+                <div className="p-4">
+                  <p className="font-bold text-[var(--brand-navy)]">{sample.title}</p>
+                  {sample.description && <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{sample.description}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
         </Section>
       )}
 
