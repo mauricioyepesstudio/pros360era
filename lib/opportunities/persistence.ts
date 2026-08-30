@@ -62,12 +62,11 @@ export async function createQualifiedOpportunity(
 
   if (error || !data) return { saved: false as const, reason: "DB_ERROR" as const, error };
 
-  const opportunity = data as { id: string; matched_professional_profile_id: string | null; organic_match_score: number | null };
+  const opportunity = data as { id: string; matched_professional_profile_id: string | null };
   return {
     saved: true as const,
     opportunityId: opportunity.id,
     matchedProfessionalCount: opportunity.matched_professional_profile_id ? 1 : 0,
-    organicScore: opportunity.organic_match_score,
   };
 }
 
