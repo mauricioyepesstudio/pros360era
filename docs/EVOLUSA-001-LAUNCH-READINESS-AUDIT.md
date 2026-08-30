@@ -187,7 +187,7 @@ No Critical or High severity issues were found.
 
 | # | Item | Evidence |
 |---|---|---|
-| P1-1 | Delete or rewrite the 4 dead compliance-violating files (Finding C-1) | `sections/home/{Testimonials,Services,Process,Benefits}.tsx` |
+| P1-1 | ~~Delete or rewrite the 4 dead compliance-violating files (Finding C-1)~~ — **RESOLVED:** all four unused files were deleted after confirming they had no imports. | `sections/home/{Testimonials,Services,Process,Benefits}.tsx` removed |
 | P1-2 | Fix `assistant_messages` RLS gap before the Assistant feature is wired to any UI (Finding S-2) | `supabase/migrations/0002_evolusa_rls_policies.sql:128-129` |
 | P1-3 | Correct `CURRENT-STATE.md`'s self-contradictions (Findings D-1 through D-5) so the handoff doc is trustworthy again | `docs/CURRENT-STATE.md` (multiple lines, see Part 4) |
 | P1-4 | Decide and wire (or explicitly defer) an inbound link to `/profesionales/[slug]` (Finding Q-1) | Product decision |

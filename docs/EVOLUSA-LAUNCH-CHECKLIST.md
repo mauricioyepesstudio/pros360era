@@ -39,6 +39,7 @@ Per `docs/EVOLUSA-MVP.md` "Launch dependencies" (unchanged, still open):
 
 ## Already done and verified (do not re-block on these)
 
+- [x] Removed the four unused legacy Home files containing unsubstantiated testimonials and direct-service claims for disabled regulated categories.
 - [x] Supabase project provisioned, schema + RLS applied and advisor-clean.
 - [x] Real signup/login/logout/session-restoration/protected-routes implemented and reaching the live Auth API.
 - [x] Full real user lifecycle (signup → onboarding → persistence → task/life-event → logout/login → data still there) walked through live and confirmed — see `EVOLUSA-AUTH-TESTING.md`.
