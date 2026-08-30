@@ -2,17 +2,21 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { consentDataCategoryLabels } from "@/data/opportunities/copy";
 import { consentDataCategories, type ConsentDataCategory } from "@/data/opportunities/types";
+import type { OpportunityProfessionalSummary as OpportunityProfessionalSummaryType } from "@/data/opportunities/types";
+import OpportunityProfessionalSummary from "@/components/opportunities/OpportunityProfessionalSummary";
 
 export default function OpportunityConsentStep({
   selected,
   pending,
   onToggle,
   onConfirm,
+  matchedProfessional,
 }: {
   selected: readonly ConsentDataCategory[];
   pending: boolean;
   onToggle: (category: ConsentDataCategory) => void;
   onConfirm: () => void;
+  matchedProfessional: OpportunityProfessionalSummaryType | null;
 }) {
   return (
     <Card className="max-w-xl">
@@ -20,6 +24,11 @@ export default function OpportunityConsentStep({
       <p className="mt-2 leading-6 text-[var(--muted)]">
         Elige exactamente qué información quieres compartir con este profesional. Solo se comparte lo que autorices aquí.
       </p>
+      {matchedProfessional && (
+        <div className="mt-5">
+          <OpportunityProfessionalSummary professional={matchedProfessional} heading="Conexión propuesta" />
+        </div>
+      )}
       <fieldset className="mt-5 space-y-3">
         <legend className="mb-3 font-semibold text-[var(--brand-navy)]">Información a compartir</legend>
         {consentDataCategories.map((category) => (

@@ -104,6 +104,7 @@ export async function createOpportunityAction(
     saved: true as const,
     opportunityId: result.opportunityId,
     matchedProfessionalCount: result.matchedProfessionalCount,
+    matchedProfessional: result.matchedProfessional,
   };
 }
 

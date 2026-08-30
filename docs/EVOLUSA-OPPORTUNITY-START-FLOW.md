@@ -4,7 +4,7 @@ Implementation handoff for Milestone 04D at `/conexiones/nueva`.
 
 ## Boundary
 
-The browser collects only `needId`, optional city, consultation mode, readiness, and the member's explicit consent categories. It never receives a professional identifier, the internal organic match score, or a database/provider error object. The two existing `SECURITY DEFINER` RPCs remain the sole authorization and matching boundary.
+The browser collects only `needId`, optional city, consultation mode, readiness, and the member's explicit consent categories. It may receive the allowlisted approved/public professional summary added by Milestone 04E, but never an internal professional identifier, the organic match score, or a database/provider error object. The database RPCs remain the authorization and matching boundary.
 
 ## Modules
 
@@ -22,7 +22,7 @@ A creation failure returns to the initial form. A consent failure returns to the
 
 ## Data disclosure rule
 
-`createQualifiedOpportunity` returns only the opportunity ID and whether a match exists. `createOpportunityAction` explicitly reconstructs this public result. `organic_match_score` stays server-side, and raw Supabase errors are removed at the Server Action boundary.
+`createQualifiedOpportunity` returns the opportunity ID, whether a match exists, and—when migration 0010 is available—the allowlisted public professional summary. `createOpportunityAction` explicitly reconstructs this result. `organic_match_score`, internal professional IDs, and raw Supabase errors stay server-side.
 
 ## Verification
 

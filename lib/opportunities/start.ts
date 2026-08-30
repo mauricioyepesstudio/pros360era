@@ -1,10 +1,20 @@
-import { consentDataCategories, type ConsentDataCategory } from "../../data/opportunities/types.ts";
+import {
+  consentDataCategories,
+  type ConsentDataCategory,
+  type OpportunityProfessionalSummary,
+} from "../../data/opportunities/types.ts";
 
 export type OpportunityStartPhase =
   | { name: "form" }
-  | { name: "error"; message: string; retry: "form" | "consent"; opportunityId?: string }
+  | {
+      name: "error";
+      message: string;
+      retry: "form" | "consent";
+      opportunityId?: string;
+      matchedProfessional?: OpportunityProfessionalSummary | null;
+    }
   | { name: "no-match" }
-  | { name: "consent"; opportunityId: string }
+  | { name: "consent"; opportunityId: string; matchedProfessional: OpportunityProfessionalSummary | null }
   | { name: "done" };
 
 export const defaultConsentDataCategories: readonly ConsentDataCategory[] = ["NAME", "CONTACT_EMAIL", "NEED_SUMMARY"];
@@ -28,5 +38,5 @@ export function canConfirmConsent(selected: readonly ConsentDataCategory[]): boo
 
 export function getOpportunityRetryPhase(phase: OpportunityStartPhase): OpportunityStartPhase {
   if (phase.name !== "error" || phase.retry === "form" || !phase.opportunityId) return { name: "form" };
-  return { name: "consent", opportunityId: phase.opportunityId };
+  return { name: "consent", opportunityId: phase.opportunityId, matchedProfessional: phase.matchedProfessional ?? null };
 }

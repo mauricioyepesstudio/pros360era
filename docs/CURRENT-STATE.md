@@ -155,11 +155,17 @@ Two new authenticated routes turn the Milestone 04A/04B backend into a real UI: 
 
 `app/(account)/conexiones/nueva/page.tsx` (server) + `components/opportunities/NewOpportunityFlow.tsx` (client) close gap A from Milestone 04C: there is now a real UI for both `create_qualified_opportunity` and `consent_and_route_opportunity`. The client flow is split into `components/opportunities/start/*`, with pure state/validation rules in `lib/opportunities/start.ts` and safe error copy in `lib/opportunities/errors.ts`; see [EVOLUSA-OPPORTUNITY-START-FLOW.md](./EVOLUSA-OPPORTUNITY-START-FLOW.md). Two server actions in `app/(account)/actions.ts` — `createOpportunityAction`, `consentAndRouteOpportunityAction` — invoke the existing RPC wrappers and expose only a deliberately reduced result contract; neither performs its own authorization check, since the RPCs themselves remain the sole authority, unchanged from 0007.
 
-**No schema, RLS, or RPC change.** The form collects only genuine user input (need, optional city, consultation mode, readiness) and a consent-category checklist restricted to the fixed five-value `ConsentDataCategory` enum — no freeform field, no professional-selection input. Gap B from Milestone 04C remains open by design: the member still never sees the matched professional's name or a link to their public profile, since `professional_profiles_public` still doesn't expose a joinable identifier back to `matched_professional_profile_id` (0005's SECURITY BOUNDARY) — resolving that is still a schema decision, not something this milestone should do incidentally. The "compatible match" copy shown after a successful match is the same static, always-true-once-matched sentence already used in `/conexiones`'s `ROUTED` state (`data/opportunities/copy.ts`), not a fetched detail. The Server Action now reconstructs its success/failure payload explicitly so `organic_match_score`, professional-specific data, and raw database errors never reach a Client Component. A failed consent retry preserves the same opportunity instead of restarting creation.
+**No schema, RLS, or RPC change in 04D.** The form collects only genuine user input (need, optional city, consultation mode, readiness) and a consent-category checklist restricted to the fixed five-value `ConsentDataCategory` enum — no freeform field, no professional-selection input. Gap B from Milestone 04C remained open when 04D shipped and is resolved separately by 04E below. The Server Action reconstructs its success/failure payload explicitly so `organic_match_score`, internal professional IDs, and raw database errors never reach a Client Component. A failed consent retry preserves the same opportunity instead of restarting creation.
 
 **Verification**: `npm run lint`/`npx tsc --noEmit`/`npm test` (35/35)/`npm run build` all clean. Live-checked in a browser against the real dev environment: the unauthenticated case was previously verified for other `/conexiones/*` routes via the shared `proxy.ts` prefix match (no separate re-check needed, since `/conexiones/nueva` falls under the existing `/conexiones` protected prefix). The authenticated render was confirmed against a real, already-signed-in session found in the dev browser — the form was visually confirmed to render correctly, but was deliberately never submitted, to avoid writing real data to production Supabase under a real account without being explicitly asked to.
 
-Not yet built: any UI-level rate limiting, a real professional-identity reveal (gap B above), notifications when a new opportunity is created, and everything else already listed as deferred in Milestone 04C.
+Not yet built at the time 04D shipped: any UI-level rate limiting, a real professional-identity reveal (gap B above), notifications when a new opportunity is created, and everything else already listed as deferred in Milestone 04C. **Gap B is now code-complete in Milestone 04E below, pending migration review/apply.**
+
+### Milestone 04E status: CODE COMPLETE — Matched Professional Reveal
+
+Migration `0010_evolusa_member_opportunity_professional_projection.sql` adds `get_my_opportunity_professionals()`, an authenticated `SECURITY DEFINER` projection that returns approved public professional identity only for opportunities owned by `auth.uid()`. It does not expose internal professional IDs, organic score, private profile fields, or verification records. The member sees the proposed professional before consent and continues seeing the same public summary in `/conexiones`. See [EVOLUSA-MATCHED-PROFESSIONAL-REVEAL.md](./EVOLUSA-MATCHED-PROFESSIONAL-REVEAL.md).
+
+**Not live:** migration 0010 is authored but not applied. Until it is applied, the persistence layer safely falls back to no professional summary and the existing opportunity flow remains functional.
 
 ## WHAT IS FUNCTIONAL NOW
 
@@ -176,7 +182,7 @@ Not yet built: any UI-level rate limiting, a real professional-identity reveal (
 - **Organization**: EVOLUSA (`eaxhsobbvufhnybrpozs`) — separate from BELONG Labs; never touch BELONG's org or its `belong-platform` project.
 - **Project ref**: `ovialqdazxkekvqqgdiu` (repurposed from its default name "InMigration" — this is the real EVOLUSA backend now)
 - **Region**: `us-west-2` — kept as-is for MVP; free to move to `us-east-1` later if South Florida latency matters enough (see `EVOLUSA-DATABASE.md`), but that means a new project since Supabase can't change region in place.
-- **Migrations status**: **Correction (2026-08-27 audit, Finding D-1): this line previously said "4 applied," which was stale — it predated Milestones 01/03/04A/04B documented elsewhere in this same file.** As of this correction, `0001`–`0008` are applied and live (schema, RLS, profile provisioning, advisor fixes, professional foundation, Verified V1, Opportunity Engine, Opportunity Lifecycle). `0009` (assistant_messages RLS ownership fix, closing audit Finding S-2) is **authored but NOT yet applied** — it needs security-reviewer + owner sign-off before `apply_migration`. `supabase/migrations/` in this repo matches what's live for `0001`–`0008` only.
+- **Migrations status**: **Correction (2026-08-27 audit, Finding D-1): this line previously said "4 applied," which was stale — it predated Milestones 01/03/04A/04B documented elsewhere in this same file.** `0001`–`0008` are applied and live. `0009` (assistant_messages ownership fix) and `0010` (member-owned matched-professional projection) are **authored but NOT yet applied**; both require security review and owner sign-off before `apply_migration`. `supabase/migrations/` matches the live project only through `0008`.
 - **Auth status**: real email/password auth working; `mailer_autoconfirm: false` (confirmation genuinely required); default built-in mailer is rate-limited — custom SMTP is the next real blocker for production signup volume (see `EVOLUSA-AUTH-TESTING.md`).
 - **RLS status**: enabled on all 8 tables, owner-only policies, verified live twice with real cross-user isolation tests (zero cross-user read/write leakage, confirmed at the database level — see `EVOLUSA-SECURITY.md`).
 - **Zero secrets in documentation** — every doc in this repo references the project ref/org id (not secret) but never the anon key or any credential value.
@@ -195,7 +201,7 @@ Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-
 
 ## TEST STATUS
 
-`npm test` — 40/40 pass (roadmap engine, account roadmap engine, opportunity eligibility, opportunity experience, opportunity start flow, opportunity lifecycle, opportunity match). Lint and `tsc --noEmit` clean. **Correction (2026-08-27 audit, Finding D-1): this line previously said "7/7," which was stale and contradicted this same file's own Milestone 04C section, which already said "35/35."**
+`npm test` — 42/42 pass (roadmap engine, account roadmap engine, opportunity eligibility, opportunity experience, opportunity start flow, matched-professional public projection, opportunity lifecycle, opportunity match). Lint and `tsc --noEmit` clean. **Correction (2026-08-27 audit, Finding D-1): this line previously said "7/7," which was stale and contradicted this same file's own Milestone 04C section, which already said "35/35."**
 
 ## BUILD STATUS
 
@@ -213,7 +219,7 @@ Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-
 
 ## NEXT EXACT TASK
 
-**Correction (2026-08-27 audit, Finding D-1): the task previously listed here (extending Premium Experience tokens to the remaining home sections) is already done** — see "CURRENT VISUAL STATUS" above. The authoritative next-steps list is now `docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md`, Part 9 (Prioritized Execution Backlog) — check that document rather than this section before picking up new work. As of this correction, the remaining items needing the owner directly are: legal/business facts for `config/brand.ts`, an SMTP provider decision, the photo-slot decision above, and the dead-file deletion decision above. The remaining engineering-only item is Milestone 04C's gap B (showing the matched professional's identity to the member), which needs a schema decision before it can be built.
+**Correction (2026-08-27 audit, Finding D-1): the task previously listed here (extending Premium Experience tokens to the remaining home sections) is already done** — see "CURRENT VISUAL STATUS" above. The authoritative next-steps list is now `docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md`, Part 9 (Prioritized Execution Backlog) — check that document rather than this section before picking up new work. The remaining items needing the owner directly are: legal/business facts for `config/brand.ts`, an SMTP provider decision, the photo-slot decision above, and the dead-file deletion decision above. Milestone 04C gap B is now code-complete as Milestone 04E; its migration still requires review and explicit live-apply approval.
 
 ## FILES/AREAS MOST RELEVANT TO NEXT TASK
 
@@ -227,7 +233,7 @@ Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-
 | Route protection | `proxy.ts` |
 | Persistence functions | `lib/account/persistence.ts` |
 | Server actions | `app/(account)/actions.ts` |
-| Migrations (source of truth for what's applied) | `supabase/migrations/0001`–`0008` applied, `0009` authored-not-applied |
+| Migrations (source of truth for what's applied) | `supabase/migrations/0001`–`0008` applied, `0009`–`0010` authored-not-applied |
 
 ## IMPORTANT DECISIONS
 

@@ -10,6 +10,7 @@ import { memberStateCopy } from "@/data/opportunities/copy";
 import { getNeed } from "@/data/needs/catalog";
 import { getProfessionalCategory } from "@/data/professional/categories";
 import type { MemberOpportunityView } from "@/data/opportunities/types";
+import OpportunityProfessionalSummary from "@/components/opportunities/OpportunityProfessionalSummary";
 
 /**
  * A Server Component on purpose, not "use client": `opportunity` (read via
@@ -58,6 +59,7 @@ export default function OpportunityCard({ opportunity }: { opportunity: MemberOp
       )}
 
       <div className="mt-6 space-y-4">
+        {opportunity.matchedProfessional && <OpportunityProfessionalSummary professional={opportunity.matchedProfessional} />}
         <ConsentSummary categories={opportunity.consentedDataCategories} heading="Lo que autorizaste compartir" />
         <MemberActions
           effectiveStatus={effectiveStatus}

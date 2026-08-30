@@ -109,6 +109,21 @@ export type Opportunity = {
   declineReason: DeclineReason | null;
 };
 
+/** Approved/public fields returned for a professional matched to an opportunity owned by the current member. */
+export type OpportunityProfessionalSummary = {
+  opportunityId: string;
+  slug: string;
+  displayName: string;
+  category: string;
+  headline: string | null;
+  state: string | null;
+  city: string | null;
+  languages: readonly string[];
+  consultationMode: ConsultationMode;
+  isAcceptingClients: boolean;
+  identityVerified: boolean;
+};
+
 /**
  * Milestone 04C: the member's own /conexiones read — the raw Opportunity
  * row plus the data categories they themselves consented to at ROUTED time
@@ -119,6 +134,7 @@ export type Opportunity = {
  */
 export type MemberOpportunityView = Opportunity & {
   consentedDataCategories: readonly ConsentDataCategory[];
+  matchedProfessional: OpportunityProfessionalSummary | null;
 };
 
 /**

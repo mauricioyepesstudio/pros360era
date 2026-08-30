@@ -37,9 +37,14 @@ test("a consent failure retries the same opportunity instead of creating a dupli
     message: "safe",
     retry: "consent",
     opportunityId: "opportunity-123",
+    matchedProfessional: null,
   };
 
-  assert.deepEqual(getOpportunityRetryPhase(failedConsent), { name: "consent", opportunityId: "opportunity-123" });
+  assert.deepEqual(getOpportunityRetryPhase(failedConsent), {
+    name: "consent",
+    opportunityId: "opportunity-123",
+    matchedProfessional: null,
+  });
   assert.deepEqual(
     getOpportunityRetryPhase({ name: "error", message: "safe", retry: "form" }),
     { name: "form" },

@@ -23,13 +23,9 @@ type NeedOption = { id: NeedId; labelEs: string; descriptionEs: string };
 /**
  * Milestone 04D — the previously-missing UI for create_qualified_opportunity
  * / consent_and_route_opportunity (see docs/EVOLUSA-OPPORTUNITY-EXPERIENCE.md's
- * "What remains deferred"). Deliberately shows no professional identity or
- * score at any point: matched_professional_profile_id has no joinable public
- * identifier by design (0005's SECURITY BOUNDARY), and organic_match_score
- * must never reach a Client Component, matching the same rule OpportunityCard
- * already enforces for /conexiones. The "compatible match" copy below is the
- * same static, always-true-once-matched sentence used in
- * data/opportunities/copy.ts's ROUTED state, not a fetched detail.
+ * "What remains deferred"). Milestone 04E adds an allowlisted public summary
+ * of the matched professional through a member-owned RPC. Internal profile
+ * ids and organic_match_score still never reach this Client Component.
  */
 export default function NewOpportunityFlow({ needs }: { needs: readonly NeedOption[] }) {
   const [phase, setPhase] = useState<OpportunityStartPhase>({ name: "form" });
@@ -56,7 +52,7 @@ export default function NewOpportunityFlow({ needs }: { needs: readonly NeedOpti
         setPhase({ name: "no-match" });
         return;
       }
-      setPhase({ name: "consent", opportunityId: result.opportunityId });
+      setPhase({ name: "consent", opportunityId: result.opportunityId, matchedProfessional: result.matchedProfessional });
     });
   }
 
@@ -67,7 +63,13 @@ export default function NewOpportunityFlow({ needs }: { needs: readonly NeedOpti
       setPhase(
         result.saved
           ? { name: "done" }
-          : { name: "error", message: getOpportunityFailureMessage(result.reason), retry: "consent", opportunityId },
+          : {
+              name: "error",
+              message: getOpportunityFailureMessage(result.reason),
+              retry: "consent",
+              opportunityId,
+              matchedProfessional: phase.name === "consent" ? phase.matchedProfessional : null,
+            },
       );
     });
   }
@@ -91,6 +93,7 @@ export default function NewOpportunityFlow({ needs }: { needs: readonly NeedOpti
         pending={pending}
         onToggle={toggleCategory}
         onConfirm={() => handleConfirmConsent(phase.opportunityId)}
+        matchedProfessional={phase.matchedProfessional}
       />
     );
   }
