@@ -1,5 +1,5 @@
--- NOT YET APPLIED. Must be reviewed (security-reviewer + owner) before
--- `apply_migration` against the live EVOLUSA Supabase project.
+-- APPLIED 2026-08-31 to the live EVOLUSA Supabase project (ovialqdazxkekvqqgdiu),
+-- after security-reviewer sign-off and explicit owner authorization.
 -- ---------------------------------------------------------------------------
 -- Fix: insert_own_assistant_messages did not verify conversation_id
 -- ownership.
