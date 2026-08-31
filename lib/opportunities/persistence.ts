@@ -5,9 +5,14 @@ import type {
   IntentReadiness,
   MemberOpportunityView,
   Opportunity,
+  OpportunityProfessionalSummary,
   ProfessionalOpportunityView,
 } from "@/data/opportunities/types";
 import type { ConsultationMode } from "@/data/professional/types";
+import {
+  mapOpportunityProfessionalSummary,
+  type OpportunityProfessionalRpcRow,
+} from "@/lib/opportunities/professional-summary";
 
 /**
  * Milestone 04A persistence seam — mirrors lib/account/persistence.ts:
@@ -62,13 +67,24 @@ export async function createQualifiedOpportunity(
 
   if (error || !data) return { saved: false as const, reason: "DB_ERROR" as const, error };
 
-  const opportunity = data as { id: string; matched_professional_profile_id: string | null; organic_match_score: number | null };
+  const opportunity = data as { id: string; matched_professional_profile_id: string | null };
+  const professionalSummaries = opportunity.matched_professional_profile_id
+    ? await getMyOpportunityProfessionalSummaries(supabase)
+    : [];
   return {
     saved: true as const,
     opportunityId: opportunity.id,
     matchedProfessionalCount: opportunity.matched_professional_profile_id ? 1 : 0,
-    organicScore: opportunity.organic_match_score,
+    matchedProfessional: professionalSummaries.find((summary) => summary.opportunityId === opportunity.id) ?? null,
   };
+}
+
+async function getMyOpportunityProfessionalSummaries(
+  supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
+): Promise<OpportunityProfessionalSummary[]> {
+  const { data, error } = await supabase.rpc("get_my_opportunity_professionals");
+  if (error || !data) return [];
+  return (data as OpportunityProfessionalRpcRow[]).map(mapOpportunityProfessionalSummary);
 }
 
 /**
@@ -186,15 +202,18 @@ export async function getMyOpportunities(): Promise<MemberOpportunityView[]> {
     .order("created_at", { ascending: false });
 
   const opportunityIds = (data ?? []).map((row) => row.id as string);
-  const { data: receiptRows } =
+  const [{ data: receiptRows }, professionalSummaries] = await Promise.all([
     opportunityIds.length > 0
-      ? await supabase.from("consent_receipts").select("opportunity_id, data_categories").in("opportunity_id", opportunityIds)
-      : { data: [] as { opportunity_id: string; data_categories: ConsentDataCategory[] }[] };
+      ? supabase.from("consent_receipts").select("opportunity_id, data_categories").in("opportunity_id", opportunityIds)
+      : Promise.resolve({ data: [] as { opportunity_id: string; data_categories: ConsentDataCategory[] }[] }),
+    opportunityIds.length > 0 ? getMyOpportunityProfessionalSummaries(supabase) : Promise.resolve([]),
+  ]);
 
   const categoriesByOpportunityId = new Map<string, ConsentDataCategory[]>();
   for (const receipt of receiptRows ?? []) {
     categoriesByOpportunityId.set(receipt.opportunity_id, receipt.data_categories ?? []);
   }
+  const professionalByOpportunityId = new Map(professionalSummaries.map((summary) => [summary.opportunityId, summary]));
 
   return (data ?? []).map((row) => ({
     id: row.id,
@@ -217,6 +236,7 @@ export async function getMyOpportunities(): Promise<MemberOpportunityView[]> {
     declinedBy: row.declined_by,
     declineReason: row.decline_reason,
     consentedDataCategories: categoriesByOpportunityId.get(row.id) ?? [],
+    matchedProfessional: professionalByOpportunityId.get(row.id) ?? null,
   }));
 }
 

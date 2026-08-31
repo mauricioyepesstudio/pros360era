@@ -98,7 +98,14 @@ export async function createOpportunityAction(
   preferredConsultationMode: ConsultationMode,
   readiness: IntentReadiness,
 ) {
-  return createQualifiedOpportunity(needId, city, preferredConsultationMode, readiness);
+  const result = await createQualifiedOpportunity(needId, city, preferredConsultationMode, readiness);
+  if (!result.saved) return { saved: false as const, reason: result.reason };
+  return {
+    saved: true as const,
+    opportunityId: result.opportunityId,
+    matchedProfessionalCount: result.matchedProfessionalCount,
+    matchedProfessional: result.matchedProfessional,
+  };
 }
 
 /**
@@ -110,5 +117,5 @@ export async function createOpportunityAction(
 export async function consentAndRouteOpportunityAction(opportunityId: string, dataCategories: readonly ConsentDataCategory[]) {
   const result = await consentAndRouteOpportunity(opportunityId, dataCategories);
   revalidatePath("/conexiones");
-  return result;
+  return result.saved ? { saved: true as const } : { saved: false as const, reason: result.reason };
 }
