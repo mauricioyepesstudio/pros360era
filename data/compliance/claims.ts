@@ -21,7 +21,7 @@ export const claims = [
 
 export const disclaimers = [
   { id: "general-education", short: "Información educativa general.", full: "La información presentada es educativa y no sustituye asesoría profesional individualizada.", appliesTo: ["EDUCATION"] },
-  { id: "regulated-services", short: "La disponibilidad depende del proveedor y la jurisdicción.", full: "Los servicios legales, migratorios, fiscales y de seguros, cuando estén disponibles, son prestados por profesionales o proveedores apropiados según su licencia y jurisdicción.", appliesTo: ["LEGAL", "IMMIGRATION", "TAX", "INSURANCE"] },
+  { id: "regulated-services", short: "La disponibilidad depende del proveedor y la jurisdicción.", full: "Los servicios legales, migratorios, fiscales, notariales y de seguros, cuando estén disponibles, son prestados por profesionales o proveedores apropiados según su licencia y jurisdicción.", appliesTo: ["LEGAL", "IMMIGRATION", "TAX", "NOTARY", "INSURANCE"] },
   { id: "roadmap-guidance", short: "Tu Roadmap es una guía inicial.", full: "El Roadmap ofrece orientación operacional y educativa; no constituye asesoría legal, migratoria, fiscal, financiera ni de seguros.", appliesTo: ["EDUCATION", "BUSINESS_OPERATIONS"] },
 ] as const satisfies readonly Disclaimer[];
 
