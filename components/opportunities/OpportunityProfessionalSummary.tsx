@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MapPin, Video } from "lucide-react";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
 import type { OpportunityProfessionalSummary as OpportunityProfessionalSummaryType } from "@/data/opportunities/types";
+import { safeBookingHref } from "@/lib/opportunities/booking";
 
 const consultationLabels = {
   VIRTUAL: "Consulta virtual",
@@ -17,6 +18,7 @@ export default function OpportunityProfessionalSummary({
   heading?: string;
 }) {
   const location = [professional.city, professional.state].filter(Boolean).join(", ");
+  const bookingHref = safeBookingHref(professional.bookingUrl);
 
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--sky-surface)] p-4">
@@ -43,6 +45,17 @@ export default function OpportunityProfessionalSummary({
           {consultationLabels[professional.consultationMode]}
         </span>
       </div>
+      {bookingHref && (
+        <a
+          href={bookingHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--brand-blue)] px-4 py-2 text-sm font-bold text-white transition hover:bg-[var(--brand-navy)]"
+        >
+          <Video aria-hidden size={16} />
+          Agendar videollamada
+        </a>
+      )}
     </div>
   );
 }

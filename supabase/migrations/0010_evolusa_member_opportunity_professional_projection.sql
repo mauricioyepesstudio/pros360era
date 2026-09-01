@@ -24,7 +24,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
   select
     o.id as opportunity_id,

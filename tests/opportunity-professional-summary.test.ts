@@ -15,6 +15,7 @@ test("matched-professional mapper exposes only the approved public contract", ()
     consultation_mode: "BOTH",
     is_accepting_clients: true,
     identity_verified: false,
+    booking_url: "https://cal.com/daniela-torres",
     professional_profile_id: "private-id",
     organic_match_score: 5,
   } as Parameters<typeof mapOpportunityProfessionalSummary>[0] & {
@@ -34,6 +35,7 @@ test("matched-professional mapper exposes only the approved public contract", ()
     consultationMode: "BOTH",
     isAcceptingClients: true,
     identityVerified: false,
+    bookingUrl: "https://cal.com/daniela-torres",
   });
   assert.equal("professionalProfileId" in summary, false);
   assert.equal("organicMatchScore" in summary, false);
@@ -52,7 +54,27 @@ test("missing language array becomes an empty public list", () => {
     consultation_mode: "VIRTUAL",
     is_accepting_clients: false,
     identity_verified: false,
+    booking_url: null,
   });
 
   assert.deepEqual(summary.languages, []);
+});
+
+test("null booking_url maps to null, never an empty string or dropped field", () => {
+  const summary = mapOpportunityProfessionalSummary({
+    opportunity_id: "opportunity-3",
+    professional_slug: "professional",
+    display_name: "Professional",
+    category: "BUSINESS_MARKETING",
+    headline: null,
+    state: null,
+    city: null,
+    languages: [],
+    consultation_mode: "VIRTUAL",
+    is_accepting_clients: false,
+    identity_verified: false,
+    booking_url: null,
+  });
+
+  assert.equal(summary.bookingUrl, null);
 });

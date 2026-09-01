@@ -1,6 +1,6 @@
 import PageHeader from "@/components/account/PageHeader";
 import NewOpportunityFlow from "@/components/opportunities/NewOpportunityFlow";
-import { needs } from "@/data/needs/catalog";
+import { liveNeeds } from "@/data/needs/catalog";
 
 export default function NuevaConexionPage() {
   return (
@@ -10,7 +10,7 @@ export default function NuevaConexionPage() {
         title="Cuéntanos qué necesitas"
         description="Buscamos una opción compatible según tu categoría, tu estado y tu idioma preferido."
       />
-      <NewOpportunityFlow needs={needs} />
+      <NewOpportunityFlow needs={liveNeeds} />
     </div>
   );
 }

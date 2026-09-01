@@ -13,6 +13,7 @@ export type OpportunityProfessionalRpcRow = {
   consultation_mode: ConsultationMode;
   is_accepting_clients: boolean;
   identity_verified: boolean;
+  booking_url: string | null;
 };
 
 /** Explicit allowlist mapper: extra RPC columns can never pass through by object spreading. */
@@ -29,5 +30,6 @@ export function mapOpportunityProfessionalSummary(row: OpportunityProfessionalRp
     consultationMode: row.consultation_mode,
     isAcceptingClients: row.is_accepting_clients,
     identityVerified: row.identity_verified,
+    bookingUrl: row.booking_url,
   };
 }

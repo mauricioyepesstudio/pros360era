@@ -1,6 +1,6 @@
 import type { ServiceCategory } from "../compliance/claims";
 
-export const professionalCategoryIds = ["BUSINESS_MARKETING"] as const;
+export const professionalCategoryIds = ["BUSINESS_MARKETING", "BUSINESS_OPERATIONS", "NOTARY"] as const;
 export type ProfessionalCategoryId = (typeof professionalCategoryIds)[number];
 
 export const consultationModes = ["VIRTUAL", "IN_PERSON", "BOTH"] as const;
@@ -12,6 +12,10 @@ export type ConsultationMode = (typeof consultationModes)[number];
  * requirements, allowed/prohibited claims, jurisdiction rules, booking
  * constraints) is for when a REGULATED category is actually added —
  * deliberately not built now against a single non-regulated category.
+ *
+ * NOTARY (added 2026-09-01, migration 0013) is the first `group: "REGULATED"`
+ * entry — see data/compliance/regulatory-policy.ts's NOTARY/FL row for the
+ * verification requirement that group actually gates in SQL.
  */
 export type ProfessionalCategory = {
   id: ProfessionalCategoryId;
@@ -32,6 +36,16 @@ export type ProfessionalCategory = {
  * reviewed_by/internal_notes) has a place in this type, by design. The view
  * only ever exposes identity_verified as a derived boolean; there is no
  * field here to accidentally populate with anything more.
+ *
+ * identityVerified is deliberately NOT joined by a second
+ * notaryCommissionVerified (or similar) boolean as of migration 0013 —
+ * the hard NOTARY eligibility gate lives entirely in SQL
+ * (create_qualified_opportunity / consent_and_route_opportunity), which
+ * reads professional_verifications directly and never goes through this
+ * view or type. Exposing a public per-type verification boolean here is a
+ * separate, not-yet-scoped product/UI decision (a NOTARY badge), flagged in
+ * 0013's migration notes, not a security requirement — see that migration
+ * for the reasoning.
  */
 export type ProfessionalProfilePublic = {
   slug: string;

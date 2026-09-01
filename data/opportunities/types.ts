@@ -122,6 +122,7 @@ export type OpportunityProfessionalSummary = {
   consultationMode: ConsultationMode;
   isAcceptingClients: boolean;
   identityVerified: boolean;
+  bookingUrl: string | null;
 };
 
 /**
