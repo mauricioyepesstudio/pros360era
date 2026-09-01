@@ -4,8 +4,8 @@ Consolidated from the product/compliance requirements in `docs/EVOLUSA-MVP.md` a
 
 ## Blocking for any real user signup
 
-- [ ] **Custom SMTP configured** in Supabase Auth settings (see `EVOLUSA-AUTH-TESTING.md` for the exact steps and provider decision). Without it, only ~1-2 real signups per hour are possible before the default mailer rate-limits.
-- [ ] **Auth email templates translated to Spanish** — currently Supabase's English defaults; a Spanish-first product sending an English confirmation email is a real, visible gap.
+- [x] **Custom SMTP configured** — Resend (free tier, 3,000/mo) wired into Supabase Auth SMTP Settings by the owner directly in the dashboard, 2026-08-31. Live-tested end-to-end: real signup → Spanish confirmation email received from `onboarding@resend.dev` → account confirmed → dashboard loaded with real user data. **Caveat**: sender is still Resend's shared test domain (`onboarding@resend.dev`), which Resend restricts to only deliver to the account owner's own verified email — this is sufficient for internal testing but NOT yet real production signup volume for arbitrary users. Verifying a real owned domain in Resend (Domains → Add Domain) and updating the Sender email field in Supabase is the one remaining step before opening signups publicly; blocked on the owner acquiring a domain (small unavoidable cost, ~$10-15/yr).
+- [x] **Auth email templates translated to Spanish** — all 6 templates (Confirm signup, Invite user, Magic Link, Change Email, Reset Password, Reauthentication) pasted into Supabase Dashboard and live-verified via the same real signup test above. Source templates kept in `docs/EVOLUSA-AUTH-EMAIL-TEMPLATES-ES.md` for reference/reapplication if ever needed.
 - [ ] **Decide on Supabase region**: currently `us-west-2`. Free to move to `us-east-1` right now (database is empty) if South Florida latency matters enough to justify recreating the project; otherwise fine to keep as-is for MVP.
 
 ## Business/legal facts only Mauricio can supply (blocks compliant public copy)
