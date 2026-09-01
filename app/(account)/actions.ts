@@ -23,6 +23,7 @@ export async function completeRoadmapItemAction(catalogItemId: string) {
   const result = await completeRoadmapItem(catalogItemId);
   revalidatePath("/dashboard");
   revalidatePath("/roadmap");
+  revalidatePath("/plan-credito");
   return result;
 }
 
