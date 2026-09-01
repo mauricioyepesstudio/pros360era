@@ -14,6 +14,8 @@ type PhotoSlotProps = {
   priority?: boolean;
   /** Overrides the registry's objectPosition for this render only — e.g. a desktop-only crop that shouldn't apply on mobile. */
   objectPosition?: string;
+  /** Overrides the default `sizes` hint given to next/image — needed whenever a slot renders wider than the "50vw on desktop" default (e.g. a near-full-bleed Hero), otherwise Next serves a lower-resolution source than what's actually displayed. */
+  sizes?: string;
   /**
    * Shown centered in the placeholder while no real photo exists yet — the
    * same icon already assigned to this stage in data/journey/stages.ts, not
@@ -51,7 +53,7 @@ const iconComponents: Record<PhotoSlotIconName, LucideIcon> = {
  * slot id. Swap a slot's tempSrc there to ship a real photo; nothing here
  * or in the calling section needs to change.
  */
-export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition, icon, label }: PhotoSlotProps) {
+export default function PhotoSlot({ id, className, tone = "luminous", priority = false, objectPosition, sizes, icon, label }: PhotoSlotProps) {
   const slot = photoSlots[id];
 
   if (slot.tempSrc) {
@@ -62,7 +64,7 @@ export default function PhotoSlot({ id, className, tone = "luminous", priority =
           alt=""
           fill
           priority={priority}
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          sizes={sizes ?? "(min-width: 1024px) 50vw, 100vw"}
           style={{ objectFit: "cover", objectPosition: objectPosition ?? slot.objectPosition ?? "center" }}
         />
       </div>

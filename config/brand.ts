@@ -17,24 +17,24 @@ export const brand = {
     "EVOLUSA te ayuda a identificar tu próximo paso para establecerte, emprender y crecer en Estados Unidos.",
 
   phone: {
-    display: "Por confirmar",
-    href: "#contact",
+    display: "+1 (786) 604-1733",
+    href: "tel:+17866041733",
   },
   whatsapp: {
-    number: null,
-    href: "#contact",
+    number: "+17866041733",
+    href: "https://wa.me/17866041733",
   },
   email: null,
   website: null,
   address: null,
-  businessHours: null,
+  businessHours: "Lunes a viernes, 9am-6pm",
 
   // Compatibilidad temporal con los componentes existentes hasta integrar el nuevo Home.
   contact: {
-    phoneDisplay: "Por confirmar",
-    phoneHref: "#contact",
-    whatsappNumber: null,
-    whatsappLink: "#contact",
+    phoneDisplay: "+1 (786) 604-1733",
+    phoneHref: "tel:+17866041733",
+    whatsappNumber: "+17866041733",
+    whatsappLink: "https://wa.me/17866041733",
     email: "Por confirmar",
   },
 

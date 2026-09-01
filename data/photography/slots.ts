@@ -27,10 +27,10 @@ export const photoSlots = {
     id: "hero",
     purpose: "Hero — full-viewport aspirational 'possibility' moment. Must read luminous and optimistic, never dark or moody.",
     aspectRatio: "21/11",
-    tempSrc: "/images/hero/hero-family.webp",
+    tempSrc: "/images/hero/hero-family-2x.webp",
     objectPosition: "center 26%",
     finalReplacementRequired: true,
-    note: "TEMPORARY — staged/posed stock genre with a generic skyline backdrop, placeholder-quality, not a final brand asset. Priority #1 for the real photography shoot. This registry default is no longer read at runtime for the hero slot — both callers now always pass an explicit override: sections/home/Hero.tsx (mobile/tablet, aspect-[16/9] band, 'center 15%') and sections/home/HeroArtboard.tsx (desktop, artboard aspect 1024/890, '80% 50%', measured against the approved reference's family bounding box). Kept here for documentation/history rather than deleted.",
+    note: "TEMPORARY — staged/posed stock genre with a generic skyline backdrop, placeholder-quality, not a final brand asset. Priority #1 for the real photography shoot. This registry default is no longer read at runtime for the hero slot — both callers now always pass an explicit override: sections/home/Hero.tsx (mobile/tablet, aspect-[16/9] band, 'center 15%') and sections/home/HeroArtboard.tsx (desktop, artboard aspect 1024/890, '80% 50%', measured against the approved reference's family bounding box). Kept here for documentation/history rather than deleted. 2026-08-31: swapped to hero-family-2x.webp (3072x2048, local Lanczos+unsharp upscale of the original 1536x1024 source, plus PhotoSlot.tsx's sizes prop fixed for HeroArtboard's near-full-bleed render) — the desktop image was rendering visibly soft because HeroArtboard scales the photo 1.28x via CSS transform on top of next/image previously requesting only a 50vw-sized source. Original kept at hero-family.webp for reference.",
   },
   arrival: {
     id: "arrival",

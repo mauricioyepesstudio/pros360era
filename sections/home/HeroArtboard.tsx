@@ -64,7 +64,7 @@ export default function HeroArtboard() {
             gets trimmed and the family sits slightly higher/larger in frame. */}
         <div className="absolute inset-0" style={{ transform: "scale(1.28)", transformOrigin: "center bottom" }}>
           <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center" />
+            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center" sizes="2000px" />
           </motion.div>
         </div>
 
