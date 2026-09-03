@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bot, Briefcase, Handshake, LayoutDashboard, LogOut, Map, UserRound } from "lucide-react";
+import { Bot, Briefcase, Handshake, LayoutDashboard, LogOut, Map, ShieldCheck, UserRound } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
 import { cn } from "@/lib/cn";
 import { getAuthReadiness } from "@/lib/auth/config";
@@ -25,6 +25,7 @@ function buildNav(role: "MEMBER" | "PROFESSIONAL" | "ADMIN") {
     { href: "/roadmap", label: "Roadmap", icon: Map },
     { href: "/assistant", label: "Asistente", icon: Bot },
     { href: "/profile", label: "Perfil", icon: UserRound },
+    ...(role === "ADMIN" ? [{ href: "/admin", label: "Admin", icon: ShieldCheck }] as const : []),
   ] as const;
 }
 

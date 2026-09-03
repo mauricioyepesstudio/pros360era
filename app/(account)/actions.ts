@@ -15,6 +15,7 @@ import {
   declineOpportunity,
 } from "@/lib/opportunities/persistence";
 import { createConnectionFeeCheckout } from "@/lib/opportunities/payment";
+import { updateApplicationStatus, type ProfessionalApplicationStatus } from "@/lib/admin/persistence";
 import type { RoadmapCategory, UserProfile } from "@/data/account/types";
 import type { ConsentDataCategory, DeclineReason, IntentReadiness } from "@/data/opportunities/types";
 import type { ConsultationMode } from "@/data/professional/types";
@@ -124,4 +125,15 @@ export async function consentAndRouteOpportunityAction(opportunityId: string, da
   const result = await consentAndRouteOpportunity(opportunityId, dataCategories);
   revalidatePath("/conexiones");
   return result.saved ? { saved: true as const } : { saved: false as const, reason: result.reason };
+}
+
+/**
+ * Admin dashboard (0016) — same thin-wrapper shape as everything above.
+ * admin_update_application_status re-checks profiles.role = 'ADMIN' itself;
+ * this action never trusts the client on who's allowed to call it.
+ */
+export async function updateApplicationStatusAction(applicationId: string, status: ProfessionalApplicationStatus) {
+  const result = await updateApplicationStatus(applicationId, status);
+  revalidatePath("/admin");
+  return result;
 }
