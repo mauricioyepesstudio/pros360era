@@ -1,7 +1,8 @@
 export const brand = {
   name: "EVOLUSA",
   displayName: "EVOLUSA",
-  legalName: "Por confirmar",
+  legalName: "Real Group Entertainment LLC",
+  legalNote: "EVOLUSA es un servicio operado por Real Group Entertainment LLC.",
 
   wordmarkParts: {
     evol: "EVOL",
@@ -24,8 +25,8 @@ export const brand = {
     number: "+17866041733",
     href: "https://wa.me/17866041733",
   },
-  email: null,
-  website: null,
+  email: "rgentertainmentmanagement@gmail.com",
+  website: "https://evolusa.vercel.app",
   address: null,
   businessHours: "Lunes a viernes, 9am-6pm",
 
@@ -35,7 +36,7 @@ export const brand = {
     phoneHref: "tel:+17866041733",
     whatsappNumber: "+17866041733",
     whatsappLink: "https://wa.me/17866041733",
-    email: "Por confirmar",
+    email: "rgentertainmentmanagement@gmail.com",
   },
 
   social: {
