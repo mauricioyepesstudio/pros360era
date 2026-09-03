@@ -13,8 +13,8 @@ import {
   consentAndRouteOpportunity,
   createQualifiedOpportunity,
   declineOpportunity,
-  markOpportunityContacted,
 } from "@/lib/opportunities/persistence";
+import { createConnectionFeeCheckout } from "@/lib/opportunities/payment";
 import type { RoadmapCategory, UserProfile } from "@/data/account/types";
 import type { ConsentDataCategory, DeclineReason, IntentReadiness } from "@/data/opportunities/types";
 import type { ConsultationMode } from "@/data/professional/types";
@@ -59,16 +59,21 @@ export async function syncOnboardingAction(
 
 /**
  * Milestone 04C — thin wrappers over the Milestone 04B lifecycle RPCs.
- * These do not re-check who is allowed to call them: mark_opportunity_contacted,
- * complete_opportunity, and decline_opportunity (0008) each re-verify the
- * caller's exact authority from auth.uid() themselves and reject anything
- * else. This file's only job is to invoke the right RPC and revalidate the
- * pages that read its result — the database remains the sole authority.
+ * These do not re-check who is allowed to call them: complete_opportunity
+ * and decline_opportunity (0008) each re-verify the caller's exact
+ * authority from auth.uid() themselves and reject anything else. This
+ * file's only job is to invoke the right RPC and revalidate the pages that
+ * read its result — the database remains the sole authority.
+ *
+ * "Mark contacted" is no longer a free, direct RPC call as of the
+ * connection-fee milestone (0015) — it now starts a Stripe Checkout
+ * session instead. The actual ROUTED -> CONTACTED write only happens
+ * inside the Stripe webhook after payment is confirmed
+ * (mark_opportunity_contacted_paid); nothing in this file writes that
+ * status change directly.
  */
-export async function markContactedAction(opportunityId: string) {
-  const result = await markOpportunityContacted(opportunityId);
-  revalidatePath("/panel-profesional/oportunidades");
-  return result;
+export async function startConnectionFeeCheckoutAction(opportunityId: string) {
+  return createConnectionFeeCheckout(opportunityId);
 }
 
 export async function completeOpportunityAction(opportunityId: string) {

@@ -4,7 +4,7 @@ import OpportunityStatus from "@/components/opportunities/OpportunityStatus";
 import ExpirationIndicator from "@/components/opportunities/ExpirationIndicator";
 import ConsentSummary from "@/components/opportunities/ConsentSummary";
 import ProfessionalActions from "@/components/professional/ProfessionalActions";
-import { declineOpportunityAction, markContactedAction } from "@/app/(account)/actions";
+import { declineOpportunityAction, startConnectionFeeCheckoutAction } from "@/app/(account)/actions";
 import { getNeed } from "@/data/needs/catalog";
 import { statusLabels } from "@/data/opportunities/copy";
 import type { ProfessionalOpportunityView } from "@/data/opportunities/types";
@@ -89,7 +89,7 @@ export default function ProfessionalOpportunityCard({ opportunity }: { opportuni
       <div className="mt-6">
         <ProfessionalActions
           effectiveStatus={opportunity.effectiveStatus}
-          onMarkContacted={markContactedAction.bind(null, opportunity.opportunityId)}
+          onMarkContacted={startConnectionFeeCheckoutAction.bind(null, opportunity.opportunityId)}
           onDecline={declineOpportunityAction.bind(null, opportunity.opportunityId)}
         />
       </div>
