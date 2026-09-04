@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Building2, CalendarClock, MapPin, Users, Video } from "lucide-react";
+import { Building2, CalendarClock, Globe, Link2, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";
@@ -46,11 +46,11 @@ export default function ProfessionalProfileView({
   workSamples,
 }: {
   professional: ProfessionalProfilePublic;
-  /** Optional real profile photo — not yet a column on professional_profiles_public; pass explicitly until that field exists in Supabase. */
+  /** Overrides professional.photoUrl (0017) — pass explicitly only for a fixture/preview that has no database row at all. */
   photoUrl?: string;
   /** Real inbox to reach this professional. Without an Appointments system yet, "Agendar una consulta" opens a real email rather than a fabricated calendar widget. */
   contactEmail?: string;
-  /** Real completed work samples, shown only when provided — never a placeholder gallery. */
+  /** Overrides the work samples fetched from professional_work_samples_public (0017) — pass explicitly only for a fixture/preview. */
   workSamples?: readonly ProfessionalWorkSample[];
 }) {
   const category = getProfessionalCategory(professional.category);
@@ -61,6 +61,15 @@ export default function ProfessionalProfileView({
   const mailtoHref = contactEmail
     ? `mailto:${contactEmail}?subject=${encodeURIComponent(`Consulta a través de EVOLUSA — ${professional.displayName}`)}`
     : undefined;
+  const resolvedPhotoUrl = photoUrl ?? professional.photoUrl ?? undefined;
+  const externalLinks = [
+    professional.websiteUrl ? { href: professional.websiteUrl, label: "Sitio web", icon: Globe } : null,
+    professional.portfolioUrl ? { href: professional.portfolioUrl, label: "Portafolio", icon: Globe } : null,
+    professional.socialLinks.instagram ? { href: professional.socialLinks.instagram, label: "Instagram", icon: Link2 } : null,
+    professional.socialLinks.linkedin ? { href: professional.socialLinks.linkedin, label: "LinkedIn", icon: Link2 } : null,
+    professional.socialLinks.facebook ? { href: professional.socialLinks.facebook, label: "Facebook", icon: Link2 } : null,
+    professional.socialLinks.tiktok ? { href: professional.socialLinks.tiktok, label: "TikTok", icon: Link2 } : null,
+  ].filter((link): link is { href: string; label: string; icon: typeof Globe } => link !== null);
 
   return (
     <main className="bg-[var(--background)] text-[var(--foreground)]">
@@ -71,8 +80,8 @@ export default function ProfessionalProfileView({
               aria-hidden
               className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15 sm:size-28"
             >
-              {photoUrl ? (
-                <Image src={photoUrl} alt="" fill sizes="112px" className="object-cover" />
+              {resolvedPhotoUrl ? (
+                <Image src={resolvedPhotoUrl} alt="" fill sizes="112px" className="object-cover" />
               ) : (
                 <EvolusaIsotype variant="reverse" size="app" />
               )}
@@ -119,6 +128,23 @@ export default function ProfessionalProfileView({
                   <CalendarClock aria-hidden size={18} className="mr-2" />
                   Agendar una consulta
                 </ButtonLink>
+              )}
+
+              {externalLinks.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-3">
+                  {externalLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-white/10 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-white/20"
+                    >
+                      <link.icon aria-hidden size={15} />
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
               )}
             </div>
           </div>

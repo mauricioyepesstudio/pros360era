@@ -23,6 +23,10 @@ const professional: ProfessionalProfilePublic = {
   consultationMode: "BOTH",
   isAcceptingClients: true,
   identityVerified: false,
+  photoUrl: null,
+  portfolioUrl: null,
+  websiteUrl: null,
+  socialLinks: {},
 };
 
 test("matching professional is eligible with all match reasons present", () => {

@@ -21,6 +21,10 @@ const professional: ProfessionalProfilePublic = {
   consultationMode: "BOTH",
   isAcceptingClients: true,
   identityVerified: false,
+  photoUrl: null,
+  portfolioUrl: null,
+  websiteUrl: null,
+  socialLinks: {},
 };
 
 test("base score has no same-city bonus when member city is unknown", () => {

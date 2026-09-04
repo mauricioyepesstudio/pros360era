@@ -1,5 +1,28 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { ProfessionalProfilePublic } from "@/data/professional/types";
+import type { ProfessionalProfilePublic, ProfessionalWorkSamplePublic } from "@/data/professional/types";
+
+const PROFILE_COLUMNS =
+  "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, identity_verified, photo_url, portfolio_url, website_url, social_links";
+
+function mapProfileRow(row: Record<string, unknown>): ProfessionalProfilePublic {
+  return {
+    slug: row.slug as string,
+    displayName: row.display_name as string,
+    category: row.category as ProfessionalProfilePublic["category"],
+    headline: (row.headline as string | null) ?? null,
+    bio: (row.bio as string | null) ?? null,
+    state: (row.state as string | null) ?? null,
+    city: (row.city as string | null) ?? null,
+    languages: (row.languages as string[] | null) ?? [],
+    consultationMode: row.consultation_mode as ProfessionalProfilePublic["consultationMode"],
+    isAcceptingClients: row.is_accepting_clients as boolean,
+    identityVerified: row.identity_verified as boolean,
+    photoUrl: (row.photo_url as string | null) ?? null,
+    portfolioUrl: (row.portfolio_url as string | null) ?? null,
+    websiteUrl: (row.website_url as string | null) ?? null,
+    socialLinks: (row.social_links as ProfessionalProfilePublic["socialLinks"] | null) ?? {},
+  };
+}
 
 /**
  * Reads exactly one row from the `professional_profiles_public` database
@@ -18,27 +41,12 @@ export async function getPublicProfessionalBySlug(slug: string): Promise<Profess
 
   const { data } = await supabase
     .from("professional_profiles_public")
-    .select(
-      "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, identity_verified",
-    )
+    .select(PROFILE_COLUMNS)
     .eq("slug", slug)
     .maybeSingle();
 
   if (!data) return null;
-
-  return {
-    slug: data.slug,
-    displayName: data.display_name,
-    category: data.category,
-    headline: data.headline,
-    bio: data.bio,
-    state: data.state,
-    city: data.city,
-    languages: data.languages ?? [],
-    consultationMode: data.consultation_mode,
-    isAcceptingClients: data.is_accepting_clients,
-    identityVerified: data.identity_verified,
-  };
+  return mapProfileRow(data);
 }
 
 /**
@@ -54,24 +62,35 @@ export async function getPublicProfessionals(): Promise<ProfessionalProfilePubli
 
   const { data } = await supabase
     .from("professional_profiles_public")
-    .select(
-      "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, identity_verified",
-    )
+    .select(PROFILE_COLUMNS)
     .order("display_name", { ascending: true });
+
+  if (!data) return [];
+  return data.map(mapProfileRow);
+}
+
+/**
+ * Reads every work sample for one professional from
+ * `professional_work_samples_public` (0017) — joined server-side to
+ * is_approved = true professional_profiles, so a sample can never surface
+ * before its owner's profile is approved. Ordered by sort_order for a
+ * deterministic gallery order the professional controls.
+ */
+export async function getPublicWorkSamples(slug: string): Promise<ProfessionalWorkSamplePublic[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+
+  const { data } = await supabase
+    .from("professional_work_samples_public")
+    .select("title, image_url, description, sort_order")
+    .eq("professional_slug", slug)
+    .order("sort_order", { ascending: true });
 
   if (!data) return [];
 
   return data.map((row) => ({
-    slug: row.slug,
-    displayName: row.display_name,
-    category: row.category,
-    headline: row.headline,
-    bio: row.bio,
-    state: row.state,
-    city: row.city,
-    languages: row.languages ?? [],
-    consultationMode: row.consultation_mode,
-    isAcceptingClients: row.is_accepting_clients,
-    identityVerified: row.identity_verified,
+    title: row.title,
+    imageUrl: row.image_url,
+    description: row.description,
   }));
 }

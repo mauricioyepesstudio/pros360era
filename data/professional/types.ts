@@ -47,6 +47,13 @@ export type ProfessionalCategory = {
  * 0013's migration notes, not a security requirement — see that migration
  * for the reasoning.
  */
+export type ProfessionalSocialLinks = {
+  instagram?: string;
+  linkedin?: string;
+  facebook?: string;
+  tiktok?: string;
+};
+
 export type ProfessionalProfilePublic = {
   slug: string;
   displayName: string;
@@ -59,4 +66,18 @@ export type ProfessionalProfilePublic = {
   consultationMode: ConsultationMode;
   isAcceptingClients: boolean;
   identityVerified: boolean;
+  /** Real photo path/URL, or null — renders the EVOLUSA isotype placeholder, never a fabricated headshot. Added 0017. */
+  photoUrl: string | null;
+  /** Optional link to the professional's own portfolio/case-study site. Added 0017. */
+  portfolioUrl: string | null;
+  /** Optional link to the professional's own business website, distinct from portfolioUrl. Added 0017. */
+  websiteUrl: string | null;
+  /** Optional social links, all keys optional. Added 0017. */
+  socialLinks: ProfessionalSocialLinks;
+};
+
+export type ProfessionalWorkSamplePublic = {
+  title: string;
+  imageUrl: string;
+  description: string | null;
 };
