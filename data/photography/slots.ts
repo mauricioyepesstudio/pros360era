@@ -54,10 +54,10 @@ export const photoSlots = {
     id: "protection",
     purpose: "Business owner reviewing bookkeeping/insurance/tax obligations to keep what they built safe. Used in Journey (Protégete).",
     aspectRatio: "4/3",
-    tempSrc: "/images/journey/protection.jpg",
-    objectPosition: "center",
+    tempSrc: undefined,
+    objectPosition: undefined,
     finalReplacementRequired: true,
-    note: "TEMPORARY — AI-generated (owner-authorized) stand-in, not a final brand asset. Same placeholder-quality status as the Hero photo until a real shoot happens.",
+    note: "2026-09-03: protection.jpg was discovered to be a byte-identical duplicate of stability.jpg (same AI-generation output saved under two filenames) — real users were seeing the same photo for both Establécete and Protégete. Reverted to the gradient placeholder rather than ship a visibly duplicated photo; image-generation credits were unavailable to produce a distinct replacement. Swap tempSrc back in once a real (or newly generated, distinct) photo exists.",
   },
   entrepreneurship: {
     id: "entrepreneurship",
