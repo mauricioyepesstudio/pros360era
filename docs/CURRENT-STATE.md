@@ -193,6 +193,33 @@ Migration `0011_evolusa_business_operations_category.sql` widens the Opportunity
 
 **Known cleanup still pending**: `qa-throwaway-professional-20260825` (Orlando, FL) is still live in the same public table — the owner was given the cleanup SQL (`P0-6` in the launch audit) but hasn't confirmed running it yet. Now sits next to two real professionals in the same public listing, making cleanup slightly more visible/urgent than before.
 
+### Growth/Social Media Launch — IN PROGRESS (started 2026-09-09), resume here at home
+
+**Six new department subagents added** (`.claude/agents/{marketing-strategist,social-media-manager,ui-ux-designer,taste,finance-analyst,legal-risk-reviewer}.md`), personalized to EVOLUSA's real product/brand/compliance model, not generic roles. `orchestrator.md` updated with a "Business & growth" routing section and a standing rule: marketing/social copy must clear `compliance-reviewer` then `taste` before anything is treated as publish-ready. **Committed and pushed** (`a9008c8`) — nothing further needed here.
+
+**Real social accounts connected this session, via the Windsor.ai/"Meta Ads by Windsor.ai" Claude connector** (account `rgentertainmentmanagement@gmail.com` — note: this connector had briefly drifted to a different Windsor.ai login, `c2multimedia13190@gmail.com`, and had to be reconnected under claude.ai Settings → Connectors; if a future session sees `get_current_user` return `c2multimedia13190`, that's the same drift recurring, fix it the same way):
+- **Facebook** — connected, `facebook_organic` connector, account "Evolusa" (Page ID `1359298860589803`). Write actions available: `create_post`, `create_photo_post`.
+- **Instagram** — connected, `instagram` connector, account `@evolusa.us` (ID `17841427988961077`), created fresh this session as a Business account and linked to the Evolusa Facebook Page. Write actions available: `create_image_post`, `create_carousel_post`, `create_video_post`, `create_story`, plus comment management.
+- **LinkedIn** — **not yet connected**. First attempt failed ("No LinkedIn company pages are accessible from this LinkedIn account") — whoever authorizes next must be logged into a personal LinkedIn account that is an admin of the EVOLUSA Company Page, not just any personal account.
+- **TikTok** — not started.
+- **X (Twitter)** — not started; the `x_organic` Windsor.ai connector needs real Developer API keys (consumer key/secret, OAuth token/secret), not a simple login — expect this to take longer.
+
+**A first launch post is drafted but NOT YET APPROVED OR PUBLISHED** — the owner was reviewing this exact copy when the session paused:
+
+> 👋 Hola, somos EVOLUSA.
+>
+> Ayudamos a inmigrantes hispanohablantes en Estados Unidos a dar su próximo paso — conectándote con profesionales verificados, en el momento exacto en que los necesitas.
+>
+> Hoy ya puedes conectar con profesionales de Marketing y Operaciones de Negocio. Notaría se está activando, y seguimos creciendo cada semana.
+>
+> Nada de resultados garantizados, nada de promesas vacías — solo un camino honesto, paso a paso.
+>
+> Síguenos para acompañarte en el camino. 🇺🇸
+
+Reasoning already applied (don't re-litigate from scratch): no outcome guarantees, no claim of directly operating in a regulated category, honest about early stage, no CTA link (no stable production URL exists yet — see the Vercel blocker below — so the only ask is "follow"). No launch-specific graphic exists yet (`public/brand/social/` only has the profile picture and platform cover banners, no square post asset) — the owner was about to decide whether to generate one or launch with text + profile picture only.
+
+**Exact next step at home**: get the owner's explicit go/no-go on the copy above (edit if needed), decide on a visual, then call `create_post`/`create_photo_post` (Facebook) and `create_image_post` (Instagram) via the Meta Ads by Windsor.ai connector — only after explicit approval, never automatically. Then continue LinkedIn (reauthorize with the correct admin account), TikTok, and X.
+
 ## WHAT IS FUNCTIONAL NOW
 
 - Public marketing home page (`app/page.tsx`) — Premium Experience V1 tokens now cover the whole page, not just the top half. **Correction (2026-08-27 audit, Finding D-1): the previous claim that StageServices/HowItWorks/TrustAndTransparency/FAQ/CTA/Footer were "unchanged... still on the old gold accent" was stale and false as of the audit** — all six were independently grepped and confirmed to use the current token set (`var(--brand-navy)`, `var(--brand-blue)`, etc.), not the legacy gold. Whoever did that migration and when is not recorded anywhere in this file; treat it as done.
@@ -247,7 +274,9 @@ Schema, RLS, and the profile auto-provisioning trigger are all live and advisor-
 
 ## NEXT EXACT TASK
 
-**Correction (2026-08-27 audit, Finding D-1): the task previously listed here (extending Premium Experience tokens to the remaining home sections) is already done** — see "CURRENT VISUAL STATUS" above. The authoritative next-steps list is now `docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md`, Part 9 (Prioritized Execution Backlog) — check that document rather than this section before picking up new work. The remaining items needing the owner directly are: legal/business facts for `config/brand.ts`, an SMTP provider decision, and the photo-slot decision above. The dead compliance files are removed. Milestone 04C gap B is code-complete as Milestone 04E; its migration still requires review and explicit live-apply approval.
+**Resume the in-progress social media launch** — see "Growth/Social Media Launch — IN PROGRESS" above for full detail. In order: (1) get the owner's go/no-go on the drafted launch post copy, (2) decide on and prepare a visual, (3) publish to Facebook + Instagram via the Meta Ads by Windsor.ai connector's `create_post`/`create_image_post` actions only after explicit approval, (4) reconnect LinkedIn with an account that admins the EVOLUSA Company Page, (5) connect TikTok and (lower priority, needs Developer API keys) X. If `get_current_user` on that connector shows `c2multimedia13190@gmail.com` instead of `rgentertainmentmanagement@gmail.com`, the connector has drifted again — reconnect it via claude.ai Settings → Connectors first.
+
+**Correction (2026-08-27 audit, Finding D-1): the task previously listed here (extending Premium Experience tokens to the remaining home sections) is already done** — see "CURRENT VISUAL STATUS" above. The authoritative next-steps list for engineering work (as opposed to the growth work above) is `docs/EVOLUSA-001-LAUNCH-READINESS-AUDIT.md`, Part 9 (Prioritized Execution Backlog). The remaining items needing the owner directly are: legal/business facts for `config/brand.ts`, an SMTP provider decision, and the photo-slot decision above. The dead compliance files are removed. Milestone 04C gap B is code-complete as Milestone 04E; its migration still requires review and explicit live-apply approval.
 
 ## FILES/AREAS MOST RELEVANT TO NEXT TASK
 
