@@ -54,10 +54,10 @@ export const photoSlots = {
     id: "protection",
     purpose: "Business owner reviewing bookkeeping/insurance/tax obligations to keep what they built safe. Used in Journey (Protégete).",
     aspectRatio: "4/3",
-    tempSrc: undefined,
-    objectPosition: undefined,
+    tempSrc: "/images/journey/protection-family.jpg",
+    objectPosition: "center",
     finalReplacementRequired: true,
-    note: "2026-09-03: protection.jpg was discovered to be a byte-identical duplicate of stability.jpg (same AI-generation output saved under two filenames) — real users were seeing the same photo for both Establécete and Protégete. Reverted to the gradient placeholder rather than ship a visibly duplicated photo; image-generation credits were unavailable to produce a distinct replacement. Swap tempSrc back in once a real (or newly generated, distinct) photo exists.",
+    note: "2026-09-10: replaced the placeholder with a distinct AI-generated (owner-authorized, ChatGPT) photo — a family at the Miami skyline at sunset, cropped to 4/3. Resolves the 2026-09-03 duplicate-photo issue (protection.jpg was byte-identical to stability.jpg). Same placeholder-quality status as the other journey photos until a real shoot happens.",
   },
   entrepreneurship: {
     id: "entrepreneurship",
