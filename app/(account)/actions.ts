@@ -16,9 +16,10 @@ import {
 } from "@/lib/opportunities/persistence";
 import { createConnectionFeeCheckout } from "@/lib/opportunities/payment";
 import { updateApplicationStatus, type ProfessionalApplicationStatus } from "@/lib/admin/persistence";
+import { updateMyProfessionalProfile } from "@/lib/professional/self-profile";
 import type { RoadmapCategory, UserProfile } from "@/data/account/types";
 import type { ConsentDataCategory, DeclineReason, IntentReadiness } from "@/data/opportunities/types";
-import type { ConsultationMode } from "@/data/professional/types";
+import type { ConsultationMode, ProfessionalProfileSelfUpdate } from "@/data/professional/types";
 
 export async function completeRoadmapItemAction(catalogItemId: string) {
   const result = await completeRoadmapItem(catalogItemId);
@@ -135,5 +136,19 @@ export async function consentAndRouteOpportunityAction(opportunityId: string, da
 export async function updateApplicationStatusAction(applicationId: string, status: ProfessionalApplicationStatus) {
   const result = await updateApplicationStatus(applicationId, status);
   revalidatePath("/admin");
+  return result;
+}
+
+/**
+ * Self-service professional profile editor (/panel-profesional/perfil).
+ * Same thin-wrapper shape as every other action here: updateMyProfessionalProfile
+ * (lib/professional/self-profile.ts) scopes the write to auth.uid() itself via
+ * update_own_professional_profile (0005) — this action never trusts the
+ * client on whose row is being changed, and never accepts slug/category/
+ * is_approved (ProfessionalProfileSelfUpdate's type excludes them).
+ */
+export async function updateMyProfessionalProfileAction(fields: ProfessionalProfileSelfUpdate) {
+  const result = await updateMyProfessionalProfile(fields);
+  revalidatePath("/panel-profesional/perfil");
   return result;
 }
