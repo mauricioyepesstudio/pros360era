@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bot, Briefcase, Handshake, LayoutDashboard, LogOut, Map, ShieldCheck, UserRound } from "lucide-react";
+import { Bot, Briefcase, Handshake, IdCard, LayoutDashboard, LogOut, Map, ShieldCheck, UserRound } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
 import { cn } from "@/lib/cn";
 import { getAuthReadiness } from "@/lib/auth/config";
@@ -15,6 +15,13 @@ import OnboardingSync from "@/components/account/OnboardingSync";
  * per this project's account model (profiles.role), and a professional
  * account has no personal need/roadmap journey of its own to connect. Every
  * other tab is shared, unchanged, additive-only.
+ *
+ * "Perfil profesional" (/panel-profesional/perfil) is a second
+ * PROFESSIONAL-only tab, added alongside Oportunidades rather than
+ * replacing the shared "Perfil" tab — that one still points at the
+ * separate roadmap-progress profile (/profile), a different Supabase table
+ * (profiles, not professional_profiles) that every role has, so it stays
+ * shared and unchanged.
  */
 function buildNav(role: "MEMBER" | "PROFESSIONAL" | "ADMIN") {
   return [
@@ -22,6 +29,7 @@ function buildNav(role: "MEMBER" | "PROFESSIONAL" | "ADMIN") {
     role === "PROFESSIONAL"
       ? { href: "/panel-profesional/oportunidades", label: "Oportunidades", icon: Briefcase }
       : { href: "/conexiones", label: "Conexiones", icon: Handshake },
+    ...(role === "PROFESSIONAL" ? [{ href: "/panel-profesional/perfil", label: "Perfil profesional", icon: IdCard }] as const : []),
     { href: "/roadmap", label: "Roadmap", icon: Map },
     { href: "/assistant", label: "Asistente", icon: Bot },
     { href: "/profile", label: "Perfil", icon: UserRound },

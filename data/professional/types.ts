@@ -81,3 +81,74 @@ export type ProfessionalWorkSamplePublic = {
   imageUrl: string;
   description: string | null;
 };
+
+/**
+ * Shape of a professional's OWN `professional_profiles` row, as read by the
+ * self-service editor at /panel-profesional/perfil. Unlike
+ * ProfessionalProfilePublic (which only ever exposes an is_approved = true
+ * row through the public view), this reads the base table directly via the
+ * `select_own_professional_profile` RLS policy (0005) — so it includes
+ * fields the public view never does (isApproved) and fields that aren't
+ * public-safe until an opportunity has already routed to this professional
+ * (bookingUrl, per 0012's own reasoning for keeping it off
+ * professional_profiles_public).
+ *
+ * category, isApproved, and identityVerified are read-only here by
+ * construction of the database itself, not just a UI convention:
+ * - category/isApproved: prevent_professional_profile_protected_field_self_change()
+ *   (0005) rejects any self-UPDATE that changes either column, and the
+ *   column-level GRANT never included them in the first place.
+ * - identityVerified: professional_verifications (0006) grants the owning
+ *   professional zero table access, by design (see that migration's RLS
+ *   section) — this value is populated by a best-effort second read of
+ *   professional_profiles_public by the professional's own slug (see
+ *   lib/professional/self-profile.ts), the same "find out the same way the
+ *   public does" mechanism 0006 documents, not a new grant.
+ */
+export type ProfessionalProfileSelf = {
+  displayName: string;
+  slug: string;
+  category: ProfessionalCategoryId;
+  isApproved: boolean;
+  identityVerified: boolean;
+  headline: string | null;
+  bio: string | null;
+  state: string | null;
+  city: string | null;
+  languages: readonly string[];
+  consultationMode: ConsultationMode;
+  isAcceptingClients: boolean;
+  bookingUrl: string | null;
+  photoUrl: string | null;
+  portfolioUrl: string | null;
+  websiteUrl: string | null;
+  socialLinks: ProfessionalSocialLinks;
+};
+
+/**
+ * The subset of ProfessionalProfileSelf a professional may actually change
+ * via updateMyProfessionalProfile — deliberately excludes slug (no
+ * self-service rename of the public URL in this milestone, avoids broken
+ * bookmarks/links with no redirect story) plus the three read-only fields
+ * above. Every key optional: the update function only writes columns
+ * actually present in the object, same partial-update convention as
+ * lib/account/persistence.ts#updateProfileFields.
+ */
+export type ProfessionalProfileSelfUpdate = Partial<
+  Pick<
+    ProfessionalProfileSelf,
+    | "displayName"
+    | "headline"
+    | "bio"
+    | "state"
+    | "city"
+    | "languages"
+    | "consultationMode"
+    | "isAcceptingClients"
+    | "bookingUrl"
+    | "photoUrl"
+    | "portfolioUrl"
+    | "websiteUrl"
+    | "socialLinks"
+  >
+>;
