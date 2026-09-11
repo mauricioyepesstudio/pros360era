@@ -59,7 +59,9 @@ export default function OpportunityCard({ opportunity }: { opportunity: MemberOp
       )}
 
       <div className="mt-6 space-y-4">
-        {opportunity.matchedProfessional && <OpportunityProfessionalSummary professional={opportunity.matchedProfessional} />}
+        {opportunity.matchedProfessional && (
+          <OpportunityProfessionalSummary professional={opportunity.matchedProfessional} publicProfile={opportunity.matchedProfessionalPublicProfile} />
+        )}
         <ConsentSummary categories={opportunity.consentedDataCategories} heading="Lo que autorizaste compartir" />
         <MemberActions
           effectiveStatus={effectiveStatus}

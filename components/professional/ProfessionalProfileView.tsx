@@ -1,14 +1,15 @@
 import Image from "next/image";
-import { Building2, CalendarClock, MapPin, Users, Video } from "lucide-react";
+import { Building2, CalendarClock, ExternalLink, Globe, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";
 import ButtonLink from "@/components/ui/ButtonLink";
 import EvolusaIsotype from "@/components/brand/EvolusaIsotype";
 import { getProfessionalCategory } from "@/data/professional/categories";
-import type { ConsultationMode, ProfessionalProfilePublic } from "@/data/professional/types";
+import { socialLinkPlatformLabels, socialLinkPlatforms, type ConsultationMode, type ProfessionalProfilePublic } from "@/data/professional/types";
 import { cn } from "@/lib/cn";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
+import { safeHttpUrl, safeSocialLinks } from "@/lib/professional/links";
 
 export type ProfessionalWorkSample = {
   title: string;
@@ -46,11 +47,11 @@ export default function ProfessionalProfileView({
   workSamples,
 }: {
   professional: ProfessionalProfilePublic;
-  /** Optional real profile photo — not yet a column on professional_profiles_public; pass explicitly until that field exists in Supabase. */
+  /** Explicit override for professional.photoUrl — used by the temporary local-fixture preview route (app/profesionales/preview-mauricio) to show a photo without writing to Supabase. Every real caller should leave this unset and let professional.photoUrl (migration 0015) drive it. */
   photoUrl?: string;
   /** Real inbox to reach this professional. Without an Appointments system yet, "Agendar una consulta" opens a real email rather than a fabricated calendar widget. */
   contactEmail?: string;
-  /** Real completed work samples, shown only when provided — never a placeholder gallery. */
+  /** Real completed work samples, shown only when provided — never a placeholder gallery. No DB-backed source exists yet (see 0015's migration notes); only the local preview fixture populates this today. */
   workSamples?: readonly ProfessionalWorkSample[];
 }) {
   const category = getProfessionalCategory(professional.category);
@@ -62,6 +63,18 @@ export default function ProfessionalProfileView({
     ? `mailto:${contactEmail}?subject=${encodeURIComponent(`Consulta a través de EVOLUSA — ${professional.displayName}`)}`
     : undefined;
 
+  // photo_url (migration 0015) is owner-supplied, arbitrary-hostname text —
+  // rendered with a plain <img>, never next/image, since next/image
+  // requires each remote hostname to be allow-listed in
+  // next.config.ts ahead of time and this field's hostnames are unbounded
+  // per-professional. Same "validate at render, plain text at rest" posture
+  // as booking_url; see lib/professional/links.ts#safeHttpUrl.
+  const resolvedPhotoUrl = safeHttpUrl(photoUrl ?? professional.photoUrl);
+  const portfolioHref = safeHttpUrl(professional.portfolioUrl);
+  const websiteHref = safeHttpUrl(professional.websiteUrl);
+  const socialLinks = safeSocialLinks(professional.socialLinks);
+  const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
+
   return (
     <main className="bg-[var(--background)] text-[var(--foreground)]">
       <section className="relative bg-[var(--brand-navy)] pb-16 pt-32 sm:pt-40">
@@ -71,8 +84,9 @@ export default function ProfessionalProfileView({
               aria-hidden
               className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15 sm:size-28"
             >
-              {photoUrl ? (
-                <Image src={photoUrl} alt="" fill sizes="112px" className="object-cover" />
+              {resolvedPhotoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- arbitrary external hostname, see resolvedPhotoUrl's comment above.
+                <img src={resolvedPhotoUrl} alt="" className="absolute inset-0 size-full object-cover" />
               ) : (
                 <EvolusaIsotype variant="reverse" size="app" />
               )}
@@ -131,6 +145,53 @@ export default function ProfessionalProfileView({
             Acerca de {professional.displayName}
           </Heading>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">{professional.bio}</p>
+        </Section>
+      )}
+
+      {hasLinks && (
+        <Section className="bg-[var(--surface-subtle)]" labelledBy="professional-links-title">
+          <Heading id="professional-links-title" eyebrow="Más de este profesional">
+            Enlaces
+          </Heading>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {portfolioHref && (
+              <a
+                href={portfolioHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+              >
+                <ExternalLink aria-hidden size={16} />
+                Portafolio
+              </a>
+            )}
+            {websiteHref && (
+              <a
+                href={websiteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+              >
+                <Globe aria-hidden size={16} />
+                Sitio web
+              </a>
+            )}
+            {socialLinkPlatforms.map(
+              (platform) =>
+                socialLinks[platform] && (
+                  <a
+                    key={platform}
+                    href={socialLinks[platform]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+                  >
+                    <ExternalLink aria-hidden size={16} />
+                    {socialLinkPlatformLabels[platform]}
+                  </a>
+                ),
+            )}
+          </div>
         </Section>
       )}
 
