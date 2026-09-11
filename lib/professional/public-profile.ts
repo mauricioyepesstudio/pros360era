@@ -1,6 +1,30 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProfessionalProfilePublic } from "@/data/professional/types";
 
+/** Every column professional_profiles_public exposes (migration 0015 added the trailing four). Shared by every read below so the allowlist lives in exactly one place. */
+const publicProfileColumns =
+  "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, identity_verified, photo_url, portfolio_url, website_url, social_links";
+
+function mapPublicProfileRow(data: Record<string, unknown>): ProfessionalProfilePublic {
+  return {
+    slug: data.slug as string,
+    displayName: data.display_name as string,
+    category: data.category as ProfessionalProfilePublic["category"],
+    headline: (data.headline as string | null) ?? null,
+    bio: (data.bio as string | null) ?? null,
+    state: (data.state as string | null) ?? null,
+    city: (data.city as string | null) ?? null,
+    languages: (data.languages as string[] | null) ?? [],
+    consultationMode: data.consultation_mode as ProfessionalProfilePublic["consultationMode"],
+    isAcceptingClients: data.is_accepting_clients as boolean,
+    identityVerified: data.identity_verified as boolean,
+    photoUrl: (data.photo_url as string | null) ?? null,
+    portfolioUrl: (data.portfolio_url as string | null) ?? null,
+    websiteUrl: (data.website_url as string | null) ?? null,
+    socialLinks: (data.social_links as ProfessionalProfilePublic["socialLinks"] | null) ?? {},
+  };
+}
+
 /**
  * Reads exactly one row from the `professional_profiles_public` database
  * view — never the `professional_profiles` base table, `profiles`, or
@@ -16,29 +40,32 @@ export async function getPublicProfessionalBySlug(slug: string): Promise<Profess
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
 
-  const { data } = await supabase
-    .from("professional_profiles_public")
-    .select(
-      "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, identity_verified",
-    )
-    .eq("slug", slug)
-    .maybeSingle();
+  const { data } = await supabase.from("professional_profiles_public").select(publicProfileColumns).eq("slug", slug).maybeSingle();
 
   if (!data) return null;
+  return mapPublicProfileRow(data);
+}
 
-  return {
-    slug: data.slug,
-    displayName: data.display_name,
-    category: data.category,
-    headline: data.headline,
-    bio: data.bio,
-    state: data.state,
-    city: data.city,
-    languages: data.languages ?? [],
-    consultationMode: data.consultation_mode,
-    isAcceptingClients: data.is_accepting_clients,
-    identityVerified: data.identity_verified,
-  };
+/**
+ * Batch read for the member's own /conexiones list (lib/opportunities/
+ * persistence.ts#getMyOpportunities) — enriches each matched-professional
+ * summary (from get_my_opportunity_professionals, authenticated-only) with
+ * the same public-safe fields the /profesionales/[slug] page renders,
+ * without widening that RPC's own column list. Same view, same is_approved
+ * gate, same anon-key server client as every other read in this file — a
+ * slug with no approved row simply produces no entry in the returned map,
+ * never a partial/fabricated one.
+ */
+export async function getPublicProfessionalsBySlugs(slugs: readonly string[]): Promise<Map<string, ProfessionalProfilePublic>> {
+  const uniqueSlugs = [...new Set(slugs)];
+  if (uniqueSlugs.length === 0) return new Map();
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return new Map();
+
+  const { data } = await supabase.from("professional_profiles_public").select(publicProfileColumns).in("slug", uniqueSlugs);
+
+  return new Map((data ?? []).map((row) => [row.slug as string, mapPublicProfileRow(row)]));
 }
 
 /**
@@ -52,26 +79,8 @@ export async function getPublicProfessionals(): Promise<ProfessionalProfilePubli
   const supabase = await createSupabaseServerClient();
   if (!supabase) return [];
 
-  const { data } = await supabase
-    .from("professional_profiles_public")
-    .select(
-      "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, identity_verified",
-    )
-    .order("display_name", { ascending: true });
+  const { data } = await supabase.from("professional_profiles_public").select(publicProfileColumns).order("display_name", { ascending: true });
 
   if (!data) return [];
-
-  return data.map((row) => ({
-    slug: row.slug,
-    displayName: row.display_name,
-    category: row.category,
-    headline: row.headline,
-    bio: row.bio,
-    state: row.state,
-    city: row.city,
-    languages: row.languages ?? [],
-    consultationMode: row.consultation_mode,
-    isAcceptingClients: row.is_accepting_clients,
-    identityVerified: row.identity_verified,
-  }));
+  return data.map(mapPublicProfileRow);
 }

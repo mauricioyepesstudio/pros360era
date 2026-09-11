@@ -20,6 +20,14 @@ const mauricioFixture: ProfessionalProfilePublic = {
   consultationMode: "BOTH",
   isAcceptingClients: true,
   identityVerified: false,
+  // Left null/empty rather than guessed — this fixture predates migration
+  // 0015 and no verified URL for these fields was supplied with the
+  // original fixture content; fabricating one here would misrepresent real
+  // contact/social info even on this unlinked preview route.
+  photoUrl: null,
+  portfolioUrl: null,
+  websiteUrl: null,
+  socialLinks: {},
 };
 
 const workSamples: ProfessionalWorkSample[] = [
