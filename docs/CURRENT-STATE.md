@@ -2,6 +2,24 @@
 
 Authoritative handoff snapshot. Trust `git log` and the code over this if they ever disagree — this file is updated at milestone/checkpoint boundaries, not continuously.
 
+## ⚠️ CRITICAL FINDING (2026-09-15 daily autonomous check): `main` and `feat/evolusa-migration` have silently diverged, with duplicate feature work and a colliding migration number
+
+This file has always assumed `feat/evolusa-migration` is the one active line of work (see "ACTIVE BRANCH" and `AGENTS.md`'s "never merge to `main`" rule). That assumption is now false in a way that carries real risk, and nothing in this file mentioned it before today. Found by comparing `origin/main` and `origin/feat/evolusa-migration` directly with `git log`/`git diff --stat` — not something visible from either branch's commit history alone.
+
+**Both branches share a common ancestor at `784c94c`** (`feat(evolusa): add public professional application page`, 2026-09-02) and have moved independently since:
+
+- **`origin/main` (currently `0560435`)** carries 12 commits not on `feat/evolusa-migration`, including real feature work never recorded anywhere in this handoff doc: a **Stripe connection-fee payment integration** (`8b4ff1f`, `lib/stripe/*`, `lib/opportunities/payment.ts`), an **admin dashboard** (`1b2a529`), **real photo/portfolio wiring for professional profiles** (`b558575`), and a **real business identity + SEO foundation** (`9a0819b`) — plus three new migrations, `0015_evolusa_connection_fee_v1.sql`, `0016_evolusa_admin_dashboard_v1.sql`, `0017_evolusa_professional_portfolio_v1.sql`. It also independently merged a small PR (#3, `51882aa`) adding a **self-service professional profile editor**.
+- **`feat/evolusa-migration` (currently `0ba1dad`)** carries 6 commits not on `main`, including the brand book/social kit, the department subagents, the `/aplicar-profesional` lead-loss fix, and its own independently-built **self-service professional profile editor** (`083b1b1`) — plus its own migration numbered `0015_evolusa_professional_profile_media.sql`.
+
+**Two concrete problems this creates:**
+
+1. **The same feature was built twice, independently, on both branches.** `main`'s `51882aa` and `feat/evolusa-migration`'s `083b1b1` both implement a professional self-service profile editor, both touching `app/(account)/panel-profesional/perfil/page.tsx` and `components/account/AccountShell.tsx`, with different data models (`main` assumes the columns already exist via its own `0016`/`0017`; `feat` adds them via its own `0015`). Neither session that wrote these knew about the other's version.
+2. **Migration number `0015` means two different things on the two branches** — `evolusa_connection_fee_v1.sql` on `main` vs. `evolusa_professional_profile_media.sql` on `feat/evolusa-migration`. Neither is applied live yet (per "SUPABASE" below, the live project is only current through `0012`), so there's no live-data collision today, but applying either branch's `0015` as-is after any future merge/reconciliation would silently shadow or conflict with the other's migration — this must be caught and renumbered by hand before either branch's `0015`+ migrations are ever applied.
+
+**What was NOT done about this today, deliberately**: no merge, no cherry-pick, no migration renumbering, no push. This is exactly the kind of ambiguous, architecturally-significant, real-money-adjacent (Stripe) situation that needs the project owner's explicit reconciliation decision, not a scheduled autonomous session's judgment call — see `AGENTS.md`/orchestrator posture on ambiguous-or-architecturally-significant work.
+
+**Recommended next step for the owner**: before any further work lands on either branch, decide which branch is canonical going forward (likely: treat `main`'s Stripe/admin/portfolio work as the more complete line, since it's materially ahead in shipped-feature terms, and reconcile `feat/evolusa-migration`'s brand/compliance/subagent work into it — or vice versa), then have a session reconcile the two self-service-profile-editor implementations into one and renumber whichever `0015` migration doesn't win before either is applied. Until that decision is made, avoid opening any more PRs that merge into `main` from a branch built off `feat/evolusa-migration`'s tip (as PR #2/#3 did) — that path is exactly how the two self-service-profile-editor implementations ended up diverging further instead of reconciling.
+
 ## PROJECT
 
 EVOLUSA
