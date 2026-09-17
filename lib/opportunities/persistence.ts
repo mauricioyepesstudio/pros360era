@@ -13,6 +13,7 @@ import {
   mapOpportunityProfessionalSummary,
   type OpportunityProfessionalRpcRow,
 } from "@/lib/opportunities/professional-summary";
+import { getPublicProfessionalsBySlugs } from "@/lib/professional/public-profile";
 
 /**
  * Milestone 04A persistence seam — mirrors lib/account/persistence.ts:
@@ -127,19 +128,15 @@ export async function consentAndRouteOpportunity(opportunityId: string, dataCate
  * exact authority before touching anything.
  */
 
-/** Professional-only — see 0008's mark_opportunity_contacted for the exact ownership/state/expiry checks. */
-export async function markOpportunityContacted(opportunityId: string) {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return { saved: false as const, reason: "SUPABASE_NOT_CONFIGURED" as const };
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { saved: false as const, reason: "NOT_SIGNED_IN" as const };
-
-  const { data, error } = await supabase.rpc("mark_opportunity_contacted", { p_opportunity_id: opportunityId });
-  return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const, result: data as Opportunity | null };
-}
+// Deliberately no direct markOpportunityContacted() export here anymore: once
+// the connection-fee migration (0015_evolusa_connection_fee_v1.sql, main) is
+// applied, `authenticated`'s grant on the free `mark_opportunity_contacted`
+// RPC is revoked — the only path from ROUTED to CONTACTED is
+// lib/opportunities/payment.ts's Stripe checkout, confirmed server-side by
+// the webhook's mark_opportunity_contacted_paid call. A wrapper around the
+// free RPC here would be dead code today and a payment bypass once 0015
+// ships; removed during the main/feat reconciliation rather than left as a
+// trap for a future caller.
 
 /** Member-only — see 0008's complete_opportunity. The professional has no equivalent action; see docs/EVOLUSA-OPPORTUNITY-LIFECYCLE.md. */
 export async function completeOpportunity(opportunityId: string) {
@@ -215,29 +212,43 @@ export async function getMyOpportunities(): Promise<MemberOpportunityView[]> {
   }
   const professionalByOpportunityId = new Map(professionalSummaries.map((summary) => [summary.opportunityId, summary]));
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    memberId: row.member_id,
-    needId: row.need_id,
-    professionalCategory: row.professional_category,
-    state: row.state,
-    city: row.city,
-    preferredConsultationMode: row.preferred_consultation_mode,
-    readiness: row.readiness,
-    status: row.status,
-    matchedProfessionalProfileId: row.matched_professional_profile_id,
-    organicMatchScore: row.organic_match_score,
-    createdAt: row.created_at,
-    routedAt: row.routed_at,
-    expiresAt: row.expires_at,
-    contactedAt: row.contacted_at,
-    completedAt: row.completed_at,
-    declinedAt: row.declined_at,
-    declinedBy: row.declined_by,
-    declineReason: row.decline_reason,
-    consentedDataCategories: categoriesByOpportunityId.get(row.id) ?? [],
-    matchedProfessional: professionalByOpportunityId.get(row.id) ?? null,
-  }));
+  // 2026-09-11: batch-read the same public-safe profile fields
+  // /profesionales/[slug] renders (bio, photo_url, portfolio_url,
+  // website_url, social_links — migration 0015), keyed by the slugs the
+  // RPC above already returned. One query for every opportunity on this
+  // page, not one per row. See data/opportunities/types.ts's
+  // matchedProfessionalPublicProfile doc-comment for the full reasoning.
+  // getPublicProfessionalsBySlugs itself short-circuits to an empty Map for
+  // an empty slug list, with no query — safe to call unconditionally.
+  const publicProfilesBySlug = await getPublicProfessionalsBySlugs(professionalSummaries.map((summary) => summary.slug));
+
+  return (data ?? []).map((row) => {
+    const matchedProfessional = professionalByOpportunityId.get(row.id) ?? null;
+    return {
+      id: row.id,
+      memberId: row.member_id,
+      needId: row.need_id,
+      professionalCategory: row.professional_category,
+      state: row.state,
+      city: row.city,
+      preferredConsultationMode: row.preferred_consultation_mode,
+      readiness: row.readiness,
+      status: row.status,
+      matchedProfessionalProfileId: row.matched_professional_profile_id,
+      organicMatchScore: row.organic_match_score,
+      createdAt: row.created_at,
+      routedAt: row.routed_at,
+      expiresAt: row.expires_at,
+      contactedAt: row.contacted_at,
+      completedAt: row.completed_at,
+      declinedAt: row.declined_at,
+      declinedBy: row.declined_by,
+      declineReason: row.decline_reason,
+      consentedDataCategories: categoriesByOpportunityId.get(row.id) ?? [],
+      matchedProfessional,
+      matchedProfessionalPublicProfile: matchedProfessional ? (publicProfilesBySlug.get(matchedProfessional.slug) ?? null) : null,
+    };
+  });
 }
 
 /**

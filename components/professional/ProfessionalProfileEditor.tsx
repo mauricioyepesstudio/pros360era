@@ -29,6 +29,7 @@ const socialFields: { key: SocialKey; label: string; placeholder: string }[] = [
   { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/tu-usuario" },
   { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/tu-pagina" },
   { key: "tiktok", label: "TikTok", placeholder: "https://tiktok.com/@tu-usuario" },
+  { key: "x", label: "X (Twitter)", placeholder: "https://x.com/tu-usuario" },
 ];
 
 /** null/undefined-safe: the form always works with "" for an empty text field, converted back to null only when saving. */
@@ -83,6 +84,7 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
           linkedin: orNull(socialLinks.linkedin ?? "") ?? undefined,
           facebook: orNull(socialLinks.facebook ?? "") ?? undefined,
           tiktok: orNull(socialLinks.tiktok ?? "") ?? undefined,
+          x: orNull(socialLinks.x ?? "") ?? undefined,
         },
       });
       setFeedback(

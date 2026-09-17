@@ -1,4 +1,4 @@
-import type { ConsultationMode } from "@/data/professional/types";
+import type { ConsultationMode, ProfessionalProfilePublic } from "@/data/professional/types";
 
 export const intentReadinessValues = ["EXPLORING", "CONSIDERING", "READY_TO_ACT"] as const;
 export type IntentReadiness = (typeof intentReadinessValues)[number];
@@ -136,6 +136,21 @@ export type OpportunityProfessionalSummary = {
 export type MemberOpportunityView = Opportunity & {
   consentedDataCategories: readonly ConsentDataCategory[];
   matchedProfessional: OpportunityProfessionalSummary | null;
+  /**
+   * 2026-09-11: enriches the thin, authenticated-only matchedProfessional
+   * summary with the same public-safe fields /profesionales/[slug] renders
+   * (bio, photo_url, portfolio_url, website_url, social_links — migration
+   * 0015), sourced from professional_profiles_public by the slug
+   * matchedProfessional already carries — never by widening
+   * get_my_opportunity_professionals() itself. Independently gated to
+   * approved profiles twice over: the RPC only ever returns a
+   * matchedProfessional for an is_approved = true professional_profiles
+   * row, and professional_profiles_public's own WHERE clause enforces the
+   * same is_approved = true. null whenever matchedProfessional is null, or
+   * (defensively) if the professional's public row can't be found for any
+   * reason — never a partial or fabricated card.
+   */
+  matchedProfessionalPublicProfile: ProfessionalProfilePublic | null;
 };
 
 /**

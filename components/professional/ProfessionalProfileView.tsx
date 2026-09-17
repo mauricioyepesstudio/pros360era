@@ -69,6 +69,7 @@ export default function ProfessionalProfileView({
     professional.socialLinks.linkedin ? { href: professional.socialLinks.linkedin, label: "LinkedIn", icon: Link2 } : null,
     professional.socialLinks.facebook ? { href: professional.socialLinks.facebook, label: "Facebook", icon: Link2 } : null,
     professional.socialLinks.tiktok ? { href: professional.socialLinks.tiktok, label: "TikTok", icon: Link2 } : null,
+    professional.socialLinks.x ? { href: professional.socialLinks.x, label: "X", icon: Link2 } : null,
   ].filter((link): link is { href: string; label: string; icon: typeof Globe } => link !== null);
 
   return (

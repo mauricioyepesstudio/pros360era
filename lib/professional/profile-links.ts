@@ -34,5 +34,6 @@ export function sanitizeSocialLinks(links: ProfessionalSocialLinks): Professiona
     linkedin: sanitizeUrl(links.linkedin ?? null) ?? undefined,
     facebook: sanitizeUrl(links.facebook ?? null) ?? undefined,
     tiktok: sanitizeUrl(links.tiktok ?? null) ?? undefined,
+    x: sanitizeUrl(links.x ?? null) ?? undefined,
   };
 }

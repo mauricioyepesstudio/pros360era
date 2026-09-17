@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3002
+    },
+    {
+      "name": "scratch-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "-l", "4321", "C:\\Users\\17543\\AppData\\Local\\Temp\\claude\\C--Users-17543-pros360era\\c0518ebc-805b-49b1-8395-567aecc8278e\\scratchpad"],
+      "port": 4321
+    },
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:\\Users\\17543\\mauricio-portfolio", "run", "dev", "--", "-p", "3010"],
+      "port": 3010
     }
   ]
 }

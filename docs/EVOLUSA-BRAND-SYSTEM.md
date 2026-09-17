@@ -1,5 +1,7 @@
 # EVOLUSA — Brand System V1
 
+For voice, compliance guardrails, social media identity, and the legal-entity open item, see [EVOLUSA-BRAND-BOOK.md](./EVOLUSA-BRAND-BOOK.md) — this doc stays scoped to visual/implementation detail.
+
 Source of truth: owner-approved EVOLUSA identity board (`evolusa-identity-board.pdf`, actually a PNG saved with a `.pdf` extension — provided via Downloads, not committed to this repo). This document records what was implemented from it and what still needs the designer's real production files.
 
 ## 1. Brand architecture
@@ -34,6 +36,8 @@ All three are defined once in `app/globals.css` and never hardcoded elsewhere. S
 - `app/icon.png`, `app/apple-icon.png`, `public/icon-512.png`, `public/apple-icon-180.png` — generated from the isotype crop, composited onto a white rounded-square, matching the board's own app-icon pattern
 
 **Flagged for production vector replacement**: all of the above. Hand-tracing this mark's bezier curves from a compressed raster would risk shipping an inaccurate reinterpretation — exactly what "do not simplify the isotype / do not invent new star geometry" rules out. The moment a real vector (SVG/AI/EPS) exists, swap these files 1:1 — every component reads from these exact paths, so no component code changes would be needed.
+
+**Correction (2026-09-05): all four raster files above had binary, non-anti-aliased alpha channels** (confirmed via pixel histogram — every pixel exactly 0 or 255, zero intermediate values), making them render jagged at nearly any real display size, and independently, resizing them with plain (non-premultiplied) alpha compositing was found to bleed the transparent-pixel filler color into visible edges — most visible as the navy "EVOL" reading as light blue near dark backgrounds. Both issues fixed the same day: files restored from git history and re-upscaled 4x with a proper premultiplied-alpha Lanczos resize (no geometry changed, only anti-aliasing). See [EVOLUSA-BRAND-BOOK.md](./EVOLUSA-BRAND-BOOK.md) §3 for the resulting usage rule (primary/wordmark/isotype are light-background-only; only `evolusa-wordmark-reverse.png` is safe on dark).
 
 **Not built as static files** (deviation, disclosed): `evolusa-primary-reverse.png` and `evolusa-isotype-reverse.png` from the requested six-file list. The board has no true reverse (white-only) isotype art — only the color isotype and a white wordmark swatch exist. Rather than inventing a flattened white isotype that isn't in the source material, `EvolusaIsotype`'s `variant="reverse"` composes the real color isotype inside a white circular chip at render time — this is the board's own documented pattern for dark/photographic backgrounds (see its app-icon and social-avatar sections, which use exactly this white-chip treatment). `EvolusaLogo`'s `variant="reverse"` uses the real white wordmark crop. Monochrome variants (`monochrome-navy/white/red`) are done via CSS `mask-image` against the primary/isotype PNGs, so they're pixel-accurate to the real shape at any solid color, not a separate asset.
 

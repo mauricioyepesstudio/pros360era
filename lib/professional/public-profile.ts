@@ -50,6 +50,26 @@ export async function getPublicProfessionalBySlug(slug: string): Promise<Profess
 }
 
 /**
+ * Batch lookup for the opportunity-recommendation card (a member may see
+ * several matched professionals at once) — one query instead of N calls to
+ * getPublicProfessionalBySlug. Same view, same security boundary. Returns a
+ * Map so a caller can look up by slug and silently skip a slug the view no
+ * longer returns (e.g. a professional who was since unapproved) rather than
+ * throwing.
+ */
+export async function getPublicProfessionalsBySlugs(slugs: readonly string[]): Promise<Map<string, ProfessionalProfilePublic>> {
+  const uniqueSlugs = [...new Set(slugs)];
+  if (uniqueSlugs.length === 0) return new Map();
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return new Map();
+
+  const { data } = await supabase.from("professional_profiles_public").select(PROFILE_COLUMNS).in("slug", uniqueSlugs);
+
+  return new Map((data ?? []).map((row) => [row.slug as string, mapProfileRow(row)]));
+}
+
+/**
  * Reads every row from `professional_profiles_public` for the public
  * directory at /profesionales. Same view, same security boundary, and same
  * anon-key server client as getPublicProfessionalBySlug — the view already

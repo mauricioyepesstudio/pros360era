@@ -52,6 +52,18 @@ export type ProfessionalSocialLinks = {
   linkedin?: string;
   facebook?: string;
   tiktok?: string;
+  x?: string;
+};
+
+export const socialLinkPlatforms = ["instagram", "linkedin", "facebook", "tiktok", "x"] as const satisfies readonly (keyof ProfessionalSocialLinks)[];
+export type SocialLinkPlatform = (typeof socialLinkPlatforms)[number];
+
+export const socialLinkPlatformLabels: Record<SocialLinkPlatform, string> = {
+  instagram: "Instagram",
+  linkedin: "LinkedIn",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+  x: "X (Twitter)",
 };
 
 export type ProfessionalProfilePublic = {

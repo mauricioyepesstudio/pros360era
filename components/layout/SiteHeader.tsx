@@ -41,8 +41,18 @@ export default function SiteHeader() {
     // the Hero photo, floating over HeroArtboard's own nav. Basing it on
     // #home's actual rendered bottom edge keeps this header hidden until
     // the Hero (mobile or desktop) has genuinely scrolled out of view.
+    //
+    // Two sections share id="home" — HeroArtboard (desktop, `hidden lg:block`)
+    // and Hero (mobile, `lg:hidden`) — so only one is ever actually rendered
+    // at a time. getElementById always returns the first one in DOM order
+    // (HeroArtboard), which on mobile is `display:none` and therefore always
+    // measures a zero-height rect. That made `bottom <= 0` true from the very
+    // first paint on mobile, showing the opaque white bar immediately instead
+    // of only after a real scroll. Pick whichever of the two is actually
+    // rendered (non-zero client rect) instead of trusting getElementById.
     const onScroll = () => {
-      const hero = document.getElementById("home");
+      const candidates = document.querySelectorAll<HTMLElement>("#home");
+      const hero = Array.from(candidates).find((el) => el.getClientRects().length > 0);
       const pastHero = hero ? hero.getBoundingClientRect().bottom <= 0 : window.scrollY > 40;
       setScrolled(pastHero);
     };
