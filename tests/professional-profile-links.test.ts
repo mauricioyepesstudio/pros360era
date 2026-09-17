@@ -40,6 +40,7 @@ test("sanitizeSocialLinks: every safe link passes through, keyed the same", () =
     linkedin: "https://linkedin.com/company/evolusa",
     facebook: "https://facebook.com/evolusa",
     tiktok: "https://tiktok.com/@evolusa",
+    x: "https://x.com/evolusa",
   });
 
   assert.deepEqual(result, {
@@ -47,6 +48,7 @@ test("sanitizeSocialLinks: every safe link passes through, keyed the same", () =
     linkedin: "https://linkedin.com/company/evolusa",
     facebook: "https://facebook.com/evolusa",
     tiktok: "https://tiktok.com/@evolusa",
+    x: "https://x.com/evolusa",
   });
 });
 
@@ -61,10 +63,11 @@ test("sanitizeSocialLinks: an unsafe scheme on one key is dropped, others unaffe
     linkedin: "https://linkedin.com/company/evolusa",
     facebook: undefined,
     tiktok: undefined,
+    x: undefined,
   });
 });
 
 test("sanitizeSocialLinks: an entirely empty object stays empty", () => {
   const result = sanitizeSocialLinks({});
-  assert.deepEqual(result, { instagram: undefined, linkedin: undefined, facebook: undefined, tiktok: undefined });
+  assert.deepEqual(result, { instagram: undefined, linkedin: undefined, facebook: undefined, tiktok: undefined, x: undefined });
 });
