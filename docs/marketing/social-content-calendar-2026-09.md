@@ -1,7 +1,6 @@
 # EVOLUSA — Facebook/Instagram Content Calendar & Copy Bank (2026-09)
 
-> **STATUS: DRAFT. Nothing here is approved, scheduled, or posted.**
-> This is a batch of publish-ready copy for the owner to approve **as a set**, so growth doesn't stall waiting on post-by-post sign-off again. Every post below still needs **compliance-reviewer** and **taste** sign-off before anything is scheduled — this agent drafts, it never publishes. Send this file to both before any `create_post`/`create_image_post` call.
+> **STATUS (2026-09-18): compliance + taste reviewed, approved as a batch with one wording fix (Post 8).** Nothing here is scheduled or posted yet — that's still a separate, explicit owner-authorized step (see the note at the end of this file). Compliance review confirmed every claim against `data/compliance/claims.ts` (MARKETING/BUSINESS_OPERATIONS are the only `DIRECT` categories; NOTARY correctly described as activating, not live) and found no outcome guarantees, no fabricated testimonials, and no regulated-category overreach. Taste review found the tone consistent with the brand's honest, non-urgency-manufacturing voice throughout. Post 8's original wording (below, replaced) conflated the approval gate with the separate "identidad verificada" badge — rewritten to name both explicitly.
 
 Scope: **Facebook (@Evolusa) + Instagram (@evolusa.us) only**, per brand book §7 channel roles (these two are for member trust-building and social proof — LinkedIn is the professional-recruitment channel and isn't connected yet; TikTok/X are separate "building in public" registers). Content here is Spanish-first, matching EVOLUSA's actual audience.
 
@@ -161,13 +160,14 @@ Cadence is deliberately near-daily (Mon–Sat) for this first push, per the owne
 
 ### 8. What "verificado" actually means (member-facing)
 
-> Cuando decimos "profesionales verificados" hablamos en serio.
->
-> Cada profesional que aparece en EVOLUSA pasa por una revisión antes de estar visible en la plataforma — no cualquiera entra.
->
-> Seguimos construyendo capas adicionales de verificación, y lo hacemos con la misma honestidad de siempre: nada se compra, todo se gana.
+**Compliance review (2026-09-18): original draft approved with a wording fix.** The original copy said "cuando decimos 'profesionales verificados' hablamos en serio" and then defined that only as passing a review — but the platform separately shows an actual "identidad verificada" badge on some profiles (`identity_verified`), which is a stronger, different claim. Using "verificados" as the headline word while only describing the weaker approval gate risked a member reading the post and assuming every listed professional carries that badge. Rewritten below to name both layers explicitly rather than using "verificado" as one blanket word.
 
-**Compliance flag for reviewer:** this deliberately claims an **approval gate** (true — `is_approved` is a real operator-controlled gate before any profile is public), not blanket identity/credential verification (`identity_verified` varies per professional and isn't universal yet). Please confirm this distinction reads clearly enough before approval.
+> Antes de aparecer en EVOLUSA, cada profesional pasa por una revisión — no cualquiera entra a la plataforma.
+>
+> Algunos perfiles además tienen la insignia "Identidad verificada" — una capa adicional, no automática para todos. Si la ves, significa exactamente eso.
+>
+> Seguimos construyendo esto con la misma honestidad de siempre: nada se compra, todo se gana.
+
 **Visual:** light warm-canvas card, `evolusa-primary.png`.
 **Cadence:** Week 2, Día 9.
 
@@ -224,6 +224,9 @@ Cadence is deliberately near-daily (Mon–Sat) for this first push, per the owne
 
 ---
 
-## Send to compliance-reviewer and taste before publishing.
+## Reviewed 2026-09-18 — owner sign-off is the only remaining step before scheduling.
 
-This batch is not self-certified for compliance or brand fit — both reviews are required, as a batch, before any post here is scheduled or sent via the Meta Ads by Windsor.ai connector. Once approved, note the profile bio link on both accounts should point at `/aplicar-profesional` so every "enlace en el perfil"/"link en bio" CTA above resolves correctly.
+Compliance and taste review are done (see the status note at the top). What's still needed before the first `create_post`/`create_image_post` call via the Meta Ads by Windsor.ai connector:
+1. **Owner go/no-go on this batch as a whole** (or on individual posts) — publishing is always a separate, explicit, owner-authorized action, never automatic from a review passing.
+2. **Confirm the profile bio link on both accounts points at `/aplicar-profesional`** so every "enlace en el perfil"/"link en bio" CTA resolves correctly.
+3. **Facebook (`@Evolusa` Page) still needs its `pages_manage_posts` permission reconnected** — the first launch post failed on this exact permission gap (see `docs/CURRENT-STATE.md`'s "Update 2026-09-15"); Instagram posting already works. Reconnect via https://onboard.windsor.ai/connect?connector=facebook_organic&client=CLAUDE&next=/facebook_organic/authorize before Facebook posts in this calendar can go out.
