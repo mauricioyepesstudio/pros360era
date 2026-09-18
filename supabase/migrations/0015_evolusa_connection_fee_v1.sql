@@ -63,6 +63,22 @@ begin
     raise exception 'opportunity not found';
   end if;
 
+  -- Idempotent replay: Stripe redelivers webhooks at-least-once by design
+  -- (a slow response, a dropped ACK, a manual resend from the dashboard are
+  -- all normal, expected cases, not attacks or bugs). If this exact payment
+  -- was already recorded, return the current row instead of raising -- the
+  -- webhook route treats any error here as "retry me", so raising on an
+  -- already-successful replay would make Stripe retry a request that can
+  -- never succeed, forever. Matched on payment_intent id, not just status,
+  -- so a genuinely different charge for an already-CONTACTED opportunity
+  -- (which should not happen, but must never silently look like success)
+  -- still falls through to the exception below.
+  if v_opportunity.status = 'CONTACTED'
+     and v_opportunity.connection_fee_status = 'PAID'
+     and v_opportunity.stripe_payment_intent_id is not distinct from p_stripe_payment_intent_id then
+    return v_opportunity;
+  end if;
+
   if v_opportunity.status <> 'ROUTED' then
     raise exception 'opportunity is not in a contactable state';
   end if;
@@ -81,6 +97,6 @@ end;
 $$;
 
 comment on function public.mark_opportunity_contacted_paid(uuid, text, integer) is
-  'The only path from ROUTED to CONTACTED as of 0015. Callable only via service-role (the Stripe webhook) -- deliberately not granted to authenticated or anon. See this migration''s header for why there is no auth.uid() check.';
+  'The only path from ROUTED to CONTACTED as of 0015. Callable only via service-role (the Stripe webhook) -- deliberately not granted to authenticated or anon. See this migration''s header for why there is no auth.uid() check. Idempotent on a replayed webhook for the same payment_intent (returns the existing row instead of raising) -- Stripe redelivers events at-least-once by design.';
 
 revoke all on function public.mark_opportunity_contacted_paid(uuid, text, integer) from public, anon, authenticated;
