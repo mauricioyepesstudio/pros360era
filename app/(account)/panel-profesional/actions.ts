@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { updateMyProfessionalProfile } from "@/lib/professional/persistence";
-import type { ProfessionalProfileEditableFields } from "@/data/professional/types";
+import type { ProfessionalProfileSelfUpdate } from "@/data/professional/types";
 
 /**
  * Professional-only actions, kept in their own file (mirroring the
@@ -14,7 +14,7 @@ import type { ProfessionalProfileEditableFields } from "@/data/professional/type
  * revalidate-on-success wrapper, same shape as every action in
  * app/(account)/actions.ts.
  */
-export async function updateProfessionalProfileAction(fields: ProfessionalProfileEditableFields) {
+export async function updateProfessionalProfileAction(fields: ProfessionalProfileSelfUpdate) {
   const result = await updateMyProfessionalProfile(fields);
   if (result.saved) {
     revalidatePath("/panel-profesional/perfil");

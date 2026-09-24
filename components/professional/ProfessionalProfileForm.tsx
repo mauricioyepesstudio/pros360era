@@ -13,7 +13,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import { updateProfessionalProfileAction } from "@/app/(account)/panel-profesional/actions";
 import { getProfessionalCategory } from "@/data/professional/categories";
 import { consultationModeOptions } from "@/data/opportunities/copy";
-import { socialLinkPlatformLabels, socialLinkPlatforms, type MyProfessionalProfile, type ProfessionalProfileEditableFields, type ProfessionalSocialLinks } from "@/data/professional/types";
+import { socialLinkPlatformLabels, socialLinkPlatforms, type ProfessionalProfileSelf, type ProfessionalProfileSelfUpdate, type ProfessionalSocialLinks } from "@/data/professional/types";
 
 const languageOptions: readonly { code: string; label: string }[] = [
   { code: "es", label: "Español" },
@@ -22,7 +22,7 @@ const languageOptions: readonly { code: string; label: string }[] = [
   { code: "fr", label: "Francés" },
 ];
 
-function toEditableFields(profile: MyProfessionalProfile): ProfessionalProfileEditableFields {
+function toEditableFields(profile: ProfessionalProfileSelf): ProfessionalProfileSelfUpdate {
   return {
     displayName: profile.displayName,
     headline: profile.headline,
@@ -49,27 +49,27 @@ function toEditableFields(profile: MyProfessionalProfile): ProfessionalProfileEd
  * (ProfessionalProfileEditableFields) structurally excludes them, so there
  * is no code path here that could even attempt to send them.
  */
-export default function ProfessionalProfileForm({ profile }: { profile: MyProfessionalProfile }) {
-  const [fields, setFields] = useState<ProfessionalProfileEditableFields>(() => toEditableFields(profile));
+export default function ProfessionalProfileForm({ profile }: { profile: ProfessionalProfileSelf }) {
+  const [fields, setFields] = useState<ProfessionalProfileSelfUpdate>(() => toEditableFields(profile));
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
 
   const category = getProfessionalCategory(profile.category);
 
-  function update<K extends keyof ProfessionalProfileEditableFields>(key: K, value: ProfessionalProfileEditableFields[K]) {
+  function update<K extends keyof ProfessionalProfileSelfUpdate>(key: K, value: ProfessionalProfileSelfUpdate[K]) {
     setFields((current) => ({ ...current, [key]: value }));
   }
 
   function toggleLanguage(code: string) {
     setFields((current) => ({
       ...current,
-      languages: current.languages.includes(code) ? current.languages.filter((l) => l !== code) : [...current.languages, code],
+      languages: (current.languages ?? []).includes(code) ? (current.languages ?? []).filter((l) => l !== code) : [...(current.languages ?? []), code],
     }));
   }
 
   function updateSocialLink(platform: keyof ProfessionalSocialLinks, value: string) {
     setFields((current) => {
-      const socialLinks = { ...current.socialLinks };
+      const socialLinks = { ...(current.socialLinks ?? {}) };
       if (value.trim()) socialLinks[platform] = value;
       else delete socialLinks[platform];
       return { ...current, socialLinks };
@@ -150,7 +150,7 @@ export default function ProfessionalProfileForm({ profile }: { profile: MyProfes
                   <input
                     type="checkbox"
                     className="size-4 accent-[var(--brand-gold-strong)]"
-                    checked={fields.languages.includes(option.code)}
+                    checked={(fields.languages ?? []).includes(option.code)}
                     onChange={() => toggleLanguage(option.code)}
                   />
                   {option.label}
@@ -164,7 +164,7 @@ export default function ProfessionalProfileForm({ profile }: { profile: MyProfes
             name="consultation-mode"
             options={consultationModeOptions}
             value={fields.consultationMode}
-            onChange={(e) => update("consultationMode", e.target.value as ProfessionalProfileEditableFields["consultationMode"])}
+            onChange={(e) => update("consultationMode", e.target.value as ProfessionalProfileSelfUpdate["consultationMode"])}
           />
 
           <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-white p-4 has-[:checked]:border-[var(--brand-gold-strong)] has-[:checked]:bg-amber-50">
@@ -204,7 +204,7 @@ export default function ProfessionalProfileForm({ profile }: { profile: MyProfes
                   id={`social-${platform}`}
                   type="url"
                   maxLength={500}
-                  value={fields.socialLinks[platform] ?? ""}
+                  value={(fields.socialLinks ?? {})[platform] ?? ""}
                   onChange={(e) => updateSocialLink(platform, e.target.value)}
                   placeholder="https://..."
                 />

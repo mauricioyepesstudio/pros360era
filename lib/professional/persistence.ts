@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPublicProfessionalBySlug } from "@/lib/professional/public-profile";
-import type { MyProfessionalProfile, ProfessionalProfileEditableFields } from "@/data/professional/types";
+import type { ProfessionalProfileSelf, ProfessionalProfileSelfUpdate } from "@/data/professional/types";
 
 /**
  * Persistence seam for the professional's OWN self-service profile editor
@@ -17,7 +17,7 @@ import type { MyProfessionalProfile, ProfessionalProfileEditableFields } from "@
 const ownProfileColumns =
   "slug, display_name, category, headline, bio, state, city, languages, consultation_mode, is_accepting_clients, is_approved, booking_url, photo_url, portfolio_url, website_url, social_links";
 
-export async function getMyProfessionalProfile(): Promise<MyProfessionalProfile | null> {
+export async function getMyProfessionalProfile(): Promise<ProfessionalProfileSelf | null> {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
 
@@ -68,13 +68,13 @@ export type UpdateProfessionalProfileResult =
  * Writes only the columns the update_own_professional_profile RLS policy
  * and the column-level UPDATE grant (0005/0012/0015) actually allow a
  * professional to touch. category and is_approved are structurally
- * impossible to reach from here — ProfessionalProfileEditableFields omits
+ * impossible to reach from here — ProfessionalProfileSelfUpdate omits
  * both at the type level, and even a hand-edited call site naming them
  * would be rejected server-side by
  * prevent_professional_profile_protected_field_self_change() and the grant,
  * independently of this function ever being correct.
  */
-export async function updateMyProfessionalProfile(fields: ProfessionalProfileEditableFields): Promise<UpdateProfessionalProfileResult> {
+export async function updateMyProfessionalProfile(fields: ProfessionalProfileSelfUpdate): Promise<UpdateProfessionalProfileResult> {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { saved: false, reason: "SUPABASE_NOT_CONFIGURED" };
 
@@ -83,7 +83,7 @@ export async function updateMyProfessionalProfile(fields: ProfessionalProfileEdi
   } = await supabase.auth.getUser();
   if (!user) return { saved: false, reason: "NOT_SIGNED_IN" };
 
-  const displayName = fields.displayName.trim();
+  const displayName = (fields.displayName ?? "").trim();
   if (!displayName) return { saved: false, reason: "MISSING_REQUIRED_FIELD" };
 
   const { error } = await supabase

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Building2, CalendarClock, Globe, Link2, MapPin, Users, Video } from "lucide-react";
+import { Building2, CalendarClock, ExternalLink, Globe, Link2, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";

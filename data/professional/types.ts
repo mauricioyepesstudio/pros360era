@@ -66,13 +66,6 @@ export type ProfessionalCategory = {
  * part of this type — see 0012/0015's migration notes for why it stays off
  * the fully-public view.
  */
-export type ProfessionalSocialLinks = {
-  instagram?: string;
-  linkedin?: string;
-  facebook?: string;
-  tiktok?: string;
-};
-
 export type ProfessionalProfilePublic = {
   slug: string;
   displayName: string;
