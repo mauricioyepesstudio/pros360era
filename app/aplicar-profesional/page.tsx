@@ -3,7 +3,11 @@ import { Rocket, ShieldCheck, Sparkles, Video } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
 import Container from "@/components/ui/Container";
 import Heading from "@/components/ui/Heading";
+import ButtonLink from "@/components/ui/ButtonLink";
+import Card from "@/components/ui/Card";
 import ProfessionalApplicationForm from "@/components/professional-applications/ProfessionalApplicationForm";
+import { professionalApplicationsAcceptingSubmissions } from "@/data/professional-applications/categories";
+import { brand } from "@/config/brand";
 
 const pillars = [
   {
@@ -75,7 +79,22 @@ export default function AplicarProfesionalPage() {
           </div>
 
           <div>
-            <ProfessionalApplicationForm />
+            {professionalApplicationsAcceptingSubmissions ? (
+              <ProfessionalApplicationForm />
+            ) : (
+              <Card className="max-w-xl">
+                <h2 className="text-xl font-bold text-[var(--brand-navy)]">Estamos abriendo esto por partes</h2>
+                <p className="mt-3 leading-6 text-[var(--muted)]">
+                  El formulario de aplicación todavía no está conectado. Para no perder tu interés, escríbenos directamente y te contactamos con los siguientes pasos.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <ButtonLink href={brand.contact.whatsappLink}>{brand.cta.whatsapp}</ButtonLink>
+                  <ButtonLink href={brand.contact.phoneHref} variant="secondary">
+                    Llamar
+                  </ButtonLink>
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </Container>

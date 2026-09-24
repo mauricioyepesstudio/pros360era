@@ -6,6 +6,18 @@ export type ProfessionalCategoryId = (typeof professionalCategoryIds)[number];
 export const consultationModes = ["VIRTUAL", "IN_PERSON", "BOTH"] as const;
 export type ConsultationMode = (typeof consultationModes)[number];
 
+export const socialLinkPlatforms = ["instagram", "facebook", "linkedin", "x", "tiktok"] as const;
+export type SocialLinkPlatform = (typeof socialLinkPlatforms)[number];
+export type ProfessionalSocialLinks = Partial<Record<SocialLinkPlatform, string>>;
+
+export const socialLinkPlatformLabels: Record<SocialLinkPlatform, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  linkedin: "LinkedIn",
+  x: "X (Twitter)",
+  tiktok: "TikTok",
+};
+
 /**
  * Milestone 01 scope only: id/label/group/service-category mapping. The
  * fuller shape sketched in EVOLUSA-TRUST-COMPLIANCE.md (verification
@@ -46,6 +58,13 @@ export type ProfessionalCategory = {
  * separate, not-yet-scoped product/UI decision (a NOTARY badge), flagged in
  * 0013's migration notes, not a security requirement — see that migration
  * for the reasoning.
+ *
+ * photoUrl/portfolioUrl/websiteUrl/socialLinks (migration 0015) widen this
+ * to 15 columns. Same non-negotiable exclusions as before: id, user_id,
+ * is_approved, timestamps, and every professional_verifications internal
+ * column still have no place here. booking_url is deliberately still NOT
+ * part of this type — see 0012/0015's migration notes for why it stays off
+ * the fully-public view.
  */
 export type ProfessionalSocialLinks = {
   instagram?: string;
@@ -66,13 +85,9 @@ export type ProfessionalProfilePublic = {
   consultationMode: ConsultationMode;
   isAcceptingClients: boolean;
   identityVerified: boolean;
-  /** Real photo path/URL, or null — renders the EVOLUSA isotype placeholder, never a fabricated headshot. Added 0017. */
   photoUrl: string | null;
-  /** Optional link to the professional's own portfolio/case-study site. Added 0017. */
   portfolioUrl: string | null;
-  /** Optional link to the professional's own business website, distinct from portfolioUrl. Added 0017. */
   websiteUrl: string | null;
-  /** Optional social links, all keys optional. Added 0017. */
   socialLinks: ProfessionalSocialLinks;
 };
 
@@ -106,11 +121,11 @@ export type ProfessionalWorkSamplePublic = {
  *   public does" mechanism 0006 documents, not a new grant.
  */
 export type ProfessionalProfileSelf = {
-  displayName: string;
   slug: string;
   category: ProfessionalCategoryId;
   isApproved: boolean;
   identityVerified: boolean;
+  displayName: string;
   headline: string | null;
   bio: string | null;
   state: string | null;
