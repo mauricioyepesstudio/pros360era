@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
-import ButtonLink from "@/components/ui/ButtonLink";
 import Container from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 
@@ -101,15 +100,9 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <div className="ml-auto hidden items-center gap-5 sm:flex">
-          <Link href="/login" className={cn("text-sm font-semibold transition", scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}>
-            Entrar
-          </Link>
-          <ButtonLink href="/onboarding" className="px-5">
-            Descubre tu próximo paso
-            <ArrowRight aria-hidden className="ml-2" size={16} />
-          </ButtonLink>
-        </div>
+        <Link href="/login" className={cn("ml-auto hidden text-sm font-semibold transition lg:inline-flex", scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}>
+          Entrar
+        </Link>
 
         <button
           type="button"
@@ -144,10 +137,6 @@ export default function SiteHeader() {
               Entrar
             </Link>
           </div>
-          <ButtonLink href="/onboarding" onClick={() => setMenuOpen(false)} className="mt-4 w-full justify-center">
-            Descubre tu próximo paso
-            <ArrowRight aria-hidden className="ml-2" size={16} />
-          </ButtonLink>
         </nav>
       )}
     </header>
