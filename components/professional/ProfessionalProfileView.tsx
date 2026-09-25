@@ -1,14 +1,15 @@
 import Image from "next/image";
-import { Building2, CalendarClock, Globe, Link2, MapPin, Users, Video } from "lucide-react";
+import { Building2, CalendarClock, ExternalLink, Globe, Link2, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";
 import ButtonLink from "@/components/ui/ButtonLink";
 import EvolusaIsotype from "@/components/brand/EvolusaIsotype";
 import { getProfessionalCategory } from "@/data/professional/categories";
-import type { ConsultationMode, ProfessionalProfilePublic } from "@/data/professional/types";
+import { socialLinkPlatformLabels, socialLinkPlatforms, type ConsultationMode, type ProfessionalProfilePublic } from "@/data/professional/types";
 import { cn } from "@/lib/cn";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
+import { safeHttpUrl, safeSocialLinks } from "@/lib/professional/links";
 
 export type ProfessionalWorkSample = {
   title: string;
@@ -61,14 +62,19 @@ export default function ProfessionalProfileView({
   const mailtoHref = contactEmail
     ? `mailto:${contactEmail}?subject=${encodeURIComponent(`Consulta a través de EVOLUSA — ${professional.displayName}`)}`
     : undefined;
-  const resolvedPhotoUrl = photoUrl ?? professional.photoUrl ?? undefined;
+
+  const resolvedPhotoUrl = safeHttpUrl(photoUrl ?? professional.photoUrl);
+  const portfolioHref = safeHttpUrl(professional.portfolioUrl);
+  const websiteHref = safeHttpUrl(professional.websiteUrl);
+  const socialLinks = safeSocialLinks(professional.socialLinks);
+  const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
   const externalLinks = [
-    professional.websiteUrl ? { href: professional.websiteUrl, label: "Sitio web", icon: Globe } : null,
-    professional.portfolioUrl ? { href: professional.portfolioUrl, label: "Portafolio", icon: Globe } : null,
-    professional.socialLinks.instagram ? { href: professional.socialLinks.instagram, label: "Instagram", icon: Link2 } : null,
-    professional.socialLinks.linkedin ? { href: professional.socialLinks.linkedin, label: "LinkedIn", icon: Link2 } : null,
-    professional.socialLinks.facebook ? { href: professional.socialLinks.facebook, label: "Facebook", icon: Link2 } : null,
-    professional.socialLinks.tiktok ? { href: professional.socialLinks.tiktok, label: "TikTok", icon: Link2 } : null,
+    websiteHref ? { href: websiteHref, label: "Sitio web", icon: Globe } : null,
+    portfolioHref ? { href: portfolioHref, label: "Portafolio", icon: Globe } : null,
+    socialLinks.instagram ? { href: socialLinks.instagram, label: "Instagram", icon: Link2 } : null,
+    socialLinks.linkedin ? { href: socialLinks.linkedin, label: "LinkedIn", icon: Link2 } : null,
+    socialLinks.facebook ? { href: socialLinks.facebook, label: "Facebook", icon: Link2 } : null,
+    socialLinks.tiktok ? { href: socialLinks.tiktok, label: "TikTok", icon: Link2 } : null,
   ].filter((link): link is { href: string; label: string; icon: typeof Globe } => link !== null);
 
   return (
@@ -157,6 +163,53 @@ export default function ProfessionalProfileView({
             Acerca de {professional.displayName}
           </Heading>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">{professional.bio}</p>
+        </Section>
+      )}
+
+      {hasLinks && (
+        <Section className="bg-[var(--surface-subtle)]" labelledBy="professional-links-title">
+          <Heading id="professional-links-title" eyebrow="Más de este profesional">
+            Enlaces
+          </Heading>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {portfolioHref && (
+              <a
+                href={portfolioHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+              >
+                <ExternalLink aria-hidden size={16} />
+                Portafolio
+              </a>
+            )}
+            {websiteHref && (
+              <a
+                href={websiteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+              >
+                <Globe aria-hidden size={16} />
+                Sitio web
+              </a>
+            )}
+            {socialLinkPlatforms.map(
+              (platform) =>
+                socialLinks[platform] && (
+                  <a
+                    key={platform}
+                    href={socialLinks[platform]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+                  >
+                    <ExternalLink aria-hidden size={16} />
+                    {socialLinkPlatformLabels[platform]}
+                  </a>
+                ),
+            )}
+          </div>
         </Section>
       )}
 

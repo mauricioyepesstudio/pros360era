@@ -50,6 +50,28 @@ export async function getPublicProfessionalBySlug(slug: string): Promise<Profess
 }
 
 /**
+ * Batch read for the member's own /conexiones list (lib/opportunities/
+ * persistence.ts#getMyOpportunities) — enriches each matched-professional
+ * summary (from get_my_opportunity_professionals, authenticated-only) with
+ * the same public-safe fields the /profesionales/[slug] page renders,
+ * without widening that RPC's own column list. Same view, same is_approved
+ * gate, same anon-key server client as every other read in this file — a
+ * slug with no approved row simply produces no entry in the returned map,
+ * never a partial/fabricated one.
+ */
+export async function getPublicProfessionalsBySlugs(slugs: readonly string[]): Promise<Map<string, ProfessionalProfilePublic>> {
+  const uniqueSlugs = [...new Set(slugs)];
+  if (uniqueSlugs.length === 0) return new Map();
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return new Map();
+
+  const { data } = await supabase.from("professional_profiles_public").select(PROFILE_COLUMNS).in("slug", uniqueSlugs);
+
+  return new Map((data ?? []).map((row) => [row.slug as string, mapProfileRow(row)]));
+}
+
+/**
  * Reads every row from `professional_profiles_public` for the public
  * directory at /profesionales. Same view, same security boundary, and same
  * anon-key server client as getPublicProfessionalBySlug — the view already

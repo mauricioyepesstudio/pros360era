@@ -1,23 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import EvolusaLogo from "@/components/brand/EvolusaLogo";
 import ButtonLink from "@/components/ui/ButtonLink";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
 import ProductRevealPanel from "./ProductRevealPanel";
-
-const navigation = [
-  { label: "Etapas", href: "#stage-selector" },
-  { label: "Journey", href: "#journey" },
-  { label: "Servicios", href: "#stage-services" },
-  { label: "Roadmap", href: "#roadmap" },
-  { label: "Confianza", href: "#trust" },
-  { label: "Preguntas", href: "#faq" },
-] as const;
+import Link from "next/link";
 
 /**
  * Desktop-only (`lg:` and up). This is NOT a screenshot — every element
@@ -70,38 +60,10 @@ export default function HeroArtboard() {
 
         {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
             scrim covers the left ~55% width and full height for text safety, fading
-            out toward the family on the right. */}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)] via-[var(--brand-navy)]/75 to-transparent" style={{ width: "62%" }} />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/85 to-transparent" />
+            out toward the family on the right. Stronger opacity for text legibility. */}
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)]/95 via-[var(--brand-navy)]/80 to-transparent" style={{ width: "62%" }} />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/90 to-transparent" />
 
-        {/* Header row — logo enlarged and nav given more top margin per owner
-            direction ("navigation too small... do not make the nav tiny just
-            because browser width is large"). */}
-        {/* Wordmark only, no isotype — owner explicitly asked to drop the mark
-            after seeing it. Sized up from the "app" preset (48px) since,
-            without the icon+divider next to it, the wordmark alone needs more
-            visual weight to read as a real logo rather than small nav text. */}
-        <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="absolute" style={{ left: "2%", top: "3%" }}>
-          <span className="inline-block origin-left" style={{ transform: "scale(1.3)" }}>
-            <EvolusaLogo variant="reverse" size="app" />
-          </span>
-        </Link>
-        <nav className="absolute flex items-center gap-7" aria-label="Navegación principal" style={{ left: "19%", top: "5.2%" }}>
-          {navigation.map((item) => (
-            <Link key={item.href} href={item.href} className="text-base font-medium text-white transition hover:text-white/80">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="absolute flex items-center gap-5" style={{ right: "3.3%", top: "3.8%" }}>
-          <Link href="/login" className="text-base font-semibold text-white transition hover:text-white/80">
-            Entrar
-          </Link>
-          <ButtonLink href="/onboarding" className="px-6 py-3 text-sm">
-            Descubre tu próximo paso
-            <ArrowRight aria-hidden className="ml-2" size={14} />
-          </ButtonLink>
-        </div>
 
         {/* Headline block — MEASURED bounds: x=[6.3%,51.8%] y=[17.4%,38.8%] (headline);
             swoosh y=[38.8%,40.4%]; copy y=[42.1%,51.7%]; CTA row y=[55.4%,59.7%]. */}
@@ -113,9 +75,9 @@ export default function HeroArtboard() {
           style={{ left: "6.3%", top: "16%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
-            <span className="block text-[3.25rem] font-light text-white/85">TU SUEÑO</span>
-            <span className="block text-[4.75rem] font-extrabold">TIENE UN</span>
-            <span className="block text-[4.75rem] font-extrabold">CAMINO.</span>
+            <span className="block text-[3.25rem] font-light text-white">TU SUEÑO</span>
+            <span className="block text-[4.75rem] font-extrabold text-white">TIENE UN</span>
+            <span className="block text-[4.75rem] font-extrabold text-white">CAMINO.</span>
           </h1>
           <motion.span
             aria-hidden
@@ -128,12 +90,17 @@ export default function HeroArtboard() {
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
           <p className="mt-2 max-w-md text-base leading-6 text-white/70">Desde establecerte hasta emprender, proteger lo que construyes y seguir creciendo.</p>
-          <div className="mt-6 flex items-center">
-            <ButtonLink href="/onboarding">
-              Descubrir mi camino
-              <ArrowRight aria-hidden className="ml-2" size={18} />
-            </ButtonLink>
-            <span aria-hidden className="mx-4 h-6 w-px bg-white/25" />
+          <div className="mt-8 flex flex-col gap-4">
+            <div className="flex gap-4">
+              <ButtonLink href="/onboarding" variant="primary" title="Inicia tu camino como usuario">
+                Necesito ayuda
+                <ArrowRight aria-hidden className="ml-2" size={18} />
+              </ButtonLink>
+              <ButtonLink href="/aplicar-profesional" variant="secondary" title="Únete como profesional verificado">
+                Soy profesional
+                <ArrowRight aria-hidden className="ml-2" size={18} />
+              </ButtonLink>
+            </div>
             <Link href="/login" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               Ya tengo cuenta
             </Link>

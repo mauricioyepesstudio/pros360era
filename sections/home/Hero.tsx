@@ -46,13 +46,19 @@ export default function Hero() {
           <p className="mt-4 text-lg font-semibold">
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
-          <p className="mt-2 text-sm leading-6 text-white/70">Desde establecerte hasta emprender, proteger lo que construyes y seguir creciendo.</p>
-          <div className="mt-6 flex flex-col items-start gap-3">
-            <ButtonLink href="/onboarding" className="w-full justify-center">
-              Descubrir mi camino
-              <ArrowRight aria-hidden className="ml-2" size={18} />
-            </ButtonLink>
-            <Link href="/login" className="inline-flex min-h-11 w-full items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+          <p className="mt-2 text-sm leading-6 text-white/70">Elige tu camino: necesitas ayuda en tu vida o quieres ofrecer servicios como profesional verificado.</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
+              <ButtonLink href="/onboarding" variant="primary" className="justify-center" title="Inicia tu camino como usuario">
+                Necesito ayuda
+                <ArrowRight aria-hidden className="ml-2" size={16} />
+              </ButtonLink>
+              <ButtonLink href="/aplicar-profesional" variant="secondary" className="justify-center" title="Únete como profesional verificado">
+                Soy profesional
+                <ArrowRight aria-hidden className="ml-2" size={16} />
+              </ButtonLink>
+            </div>
+            <Link href="/login" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               Ya tengo cuenta
             </Link>
           </div>
