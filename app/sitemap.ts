@@ -9,5 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/profesionales`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/aplicar-profesional`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/guias/abrir-negocio-florida`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/guias/aparecer-en-google`, changeFrequency: "monthly", priority: 0.7 },
   ];
 }
