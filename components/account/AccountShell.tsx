@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bot, Briefcase, Handshake, IdCard, LayoutDashboard, LogOut, Map, ShieldCheck, UserRound } from "lucide-react";
+import { Bot, Briefcase, Handshake, IdCard, LayoutDashboard, LogOut, Map, Rocket, ShieldCheck, UserRound } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
 import { cn } from "@/lib/cn";
 import { getAuthReadiness } from "@/lib/auth/config";
@@ -40,6 +40,7 @@ function buildNav(role: "MEMBER" | "PROFESSIONAL" | "ADMIN") {
       ? { href: "/panel-profesional/oportunidades", label: "Oportunidades", icon: Briefcase }
       : { href: "/conexiones", label: "Conexiones", icon: Handshake },
     ...(isProfessional ? [{ href: "/panel-profesional/perfil", label: "Mi perfil", icon: IdCard }] as const : []),
+    { href: "/growth-automation", label: "Crecimiento 🚀", icon: Rocket },
     { href: "/roadmap", label: "Roadmap", icon: Map },
     { href: "/assistant", label: "Asistente", icon: Bot },
     { href: "/profile", label: "Perfil", icon: UserRound },
