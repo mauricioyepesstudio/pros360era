@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Instagram, Music, Youtube } from "lucide-react";
+import { AlertCircle, CheckCircle2, Camera, Music, Play } from "lucide-react";
 import Link from "next/link";
 import PageHeader from "@/components/account/PageHeader";
 
@@ -6,7 +6,7 @@ export default function ConnectPage() {
   const platforms = [
     {
       name: "Instagram",
-      icon: Instagram,
+      icon: Camera,
       slug: "instagram",
       description:
         "Conecta tu cuenta @username para publicación automática y analytics",
@@ -22,7 +22,7 @@ export default function ConnectPage() {
     },
     {
       name: "YouTube",
-      icon: Youtube,
+      icon: Play,
       slug: "youtube",
       description: "Conecta YouTube para análisis de shorts y community posts",
       status: "coming",
