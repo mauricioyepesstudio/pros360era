@@ -64,7 +64,7 @@ export default async function GrowthAutomationPage() {
             >
               Ver Demo Interactivo
               <ArrowRight size={18} />
-            </div>
+            </Link>
           </div>
 
           <div className="rounded-lg bg-white/10 p-6 backdrop-blur">
