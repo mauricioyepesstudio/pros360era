@@ -57,6 +57,14 @@ export default async function GrowthAutomationPage() {
                 </div>
               ))}
             </div>
+
+            <Link
+              href="/growth-automation/demo"
+              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white text-[var(--brand-navy)] px-6 py-3 font-semibold hover:bg-blue-50 transition-colors"
+            >
+              Ver Demo Interactivo
+              <ArrowRight size={18} />
+            </div>
           </div>
 
           <div className="rounded-lg bg-white/10 p-6 backdrop-blur">
