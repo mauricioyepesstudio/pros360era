@@ -1,0 +1,138 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Plus, Search, Filter } from "lucide-react";
+import PageHeader from "@/components/account/PageHeader";
+import Link from "next/link";
+
+interface Lead {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  source: string;
+  status: string;
+  qualificationScore: number;
+  createdAt: string;
+}
+
+export default function LeadsPage() {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    if (searchTerm) params.set("q", searchTerm);
+
+    fetch(`/api/crm/leads?${params}`)
+      .then((r) => r.json())
+      .then((data) => setLeads(data.data || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [searchTerm, statusFilter]);
+
+  const statusColors: Record<string, string> = {
+    new: "bg-blue-100 text-blue-800",
+    contacted: "bg-purple-100 text-purple-800",
+    qualified: "bg-green-100 text-green-800",
+    unqualified: "bg-gray-100 text-gray-800",
+    converted: "bg-emerald-100 text-emerald-800",
+    lost: "bg-red-100 text-red-800",
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Leads"
+        title="Gestión de prospectos"
+        description="Captura, califica y convierte leads"
+      />
+
+      {/* Actions & Filters */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 text-[var(--muted)]" size={18} />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-lg border border-[var(--border)] pl-10 py-2 text-sm"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
+          >
+            <option value="all">Todos los estados</option>
+            <option value="new">Nuevo</option>
+            <option value="contacted">Contactado</option>
+            <option value="qualified">Calificado</option>
+            <option value="converted">Convertido</option>
+            <option value="lost">Perdido</option>
+          </select>
+        </div>
+
+        <Link
+          href="/crm/leads/new"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--brand-blue)] px-4 py-2 font-semibold text-white hover:bg-[var(--brand-navy)] transition-colors"
+        >
+          <Plus size={18} />
+          Nuevo lead
+        </Link>
+      </div>
+
+      {/* Leads Table */}
+      <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-white">
+        {loading ? (
+          <div className="p-8 text-center text-[var(--muted)]">Cargando...</div>
+        ) : leads.length === 0 ? (
+          <div className="p-8 text-center text-[var(--muted)]">
+            Sin leads. <Link href="/crm/leads/new" className="text-[var(--brand-blue)] underline">Crear uno</Link>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead className="border-b border-[var(--border)] bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Nombre</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Teléfono</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Fuente</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Estado</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((lead) => (
+                <tr key={lead.id} className="border-b border-[var(--border)] hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/crm/leads/${lead.id}`}
+                      className="font-semibold text-[var(--brand-blue)] hover:underline"
+                    >
+                      {lead.name || "Sin nombre"}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 text-sm">{lead.email || "-"}</td>
+                  <td className="px-6 py-4 text-sm">{lead.phone || "-"}</td>
+                  <td className="px-6 py-4 text-sm capitalize">{lead.source}</td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusColors[lead.status] || "bg-gray-100"}`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 font-bold">{lead.qualificationScore}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
