@@ -82,9 +82,12 @@ export default function ConnectPage() {
                 </div>
 
                 {isReady ? (
-                  <button className="rounded-lg bg-[var(--brand-blue)] px-4 py-2 font-bold text-white hover:bg-[var(--brand-navy)] transition-colors">
+                  <a
+                    href={`/api/growth-automation/auth?platform=${platform.slug}`}
+                    className="rounded-lg bg-[var(--brand-blue)] px-4 py-2 font-bold text-white hover:bg-[var(--brand-navy)] transition-colors inline-block"
+                  >
                     Conectar ahora
-                  </button>
+                  </a>
                 ) : (
                   <div className="text-right">
                     <span className="inline-block rounded-full bg-gray-100 px-3 py-1 text-sm font-bold text-gray-600">
