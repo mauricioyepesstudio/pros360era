@@ -13,10 +13,10 @@ interface Slide {
 const slides: Slide[] = [
   {
     title: "El Problema",
-    subtitle: "¿Por qué necesitas EVOLUSA?",
+    subtitle: "¿Por qué 1MIGRATION creció 10x?",
     content: (
       <div className="space-y-3">
-        <p className="text-[var(--muted)]">Eres profesional (abogada, contadora, coach):</p>
+        <p className="text-[var(--muted)]">Eres gestora de inmigración (como Laura):</p>
         <ul className="space-y-2">
           <li className="flex items-start gap-3">
             <span className="text-green-600 font-bold">✓</span>
@@ -46,8 +46,8 @@ const slides: Slide[] = [
     ),
   },
   {
-    title: "La Solución: EVOLUSA",
-    subtitle: "4 pasos automáticos",
+    title: "La Solución: 1MIGRATION",
+    subtitle: "4 pasos automáticos para tu marca",
     content: (
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-blue-50 rounded-lg p-4 text-center">
@@ -345,9 +345,9 @@ export default function GrowthAutomationDemoPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Presentación"
-        title="Demo Interactivo EVOLUSA"
-        description="Muestra cómo funciona Growth Automation + CRM"
+        eyebrow="Tu Sistema"
+        title="Growth Automation 1MIGRATION"
+        description="Cómo automatizar crecimiento + leads + cerrar deals"
       />
 
       {/* Progress Bar */}
