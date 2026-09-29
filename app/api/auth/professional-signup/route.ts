@@ -3,74 +3,83 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("[professional-signup] Starting signup flow");
+
     const body = await request.json();
     const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: "Email and password required" },
+        { error: "Email y contraseña requeridos" },
         { status: 400 }
       );
     }
 
     const supabase = await createSupabaseServerClient();
     if (!supabase) {
+      console.error("[professional-signup] No supabase client");
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Error de autenticación" },
         { status: 401 }
       );
     }
 
+    console.log("[professional-signup] Creating user:", email);
+
     // Sign up user
-    const { data, error } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    if (error) {
+    if (authError) {
+      console.error("[professional-signup] Auth error:", authError);
       return NextResponse.json(
-        { error: error.message },
+        { error: authError.message || "Error al crear cuenta" },
         { status: 400 }
       );
     }
 
-    if (!data.user) {
+    if (!authData.user) {
+      console.error("[professional-signup] No user created");
       return NextResponse.json(
-        { error: "Failed to create user" },
+        { error: "No se pudo crear la cuenta" },
         { status: 400 }
       );
     }
 
-    // Update user metadata to mark as professional
-    await supabase.auth.admin?.updateUserById(data.user.id, {
-      user_metadata: {
-        role: "PROFESSIONAL",
-      },
-    });
+    console.log("[professional-signup] User created:", authData.user.id);
 
     // Create profile with PROFESSIONAL role
-    const { error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .insert({
-        id: data.user.id,
+        id: authData.user.id,
         name: email.split("@")[0],
         role: "PROFESSIONAL",
-      });
+      })
+      .select()
+      .single();
 
     if (profileError) {
-      console.error("Error creating profile:", profileError);
-      // Continue anyway, user can be set up manually
+      console.error("[professional-signup] Profile error:", profileError);
+      // Don't fail - continue anyway
+    } else {
+      console.log("[professional-signup] Profile created:", profileData?.id);
     }
 
     return NextResponse.json({
       success: true,
-      userId: data.user.id,
+      userId: authData.user.id,
       redirectTo: "/onboarding/professional-setup",
     });
   } catch (error) {
-    console.error("Error in professional-signup:", error);
+    console.error("[professional-signup] Unexpected error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: error instanceof Error ? error.message : "Error interno del servidor",
+        details: process.env.NODE_ENV === "development" ? String(error) : undefined
+      },
       { status: 500 }
     );
   }

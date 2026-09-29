@@ -52,10 +52,13 @@ export default function ProfessionalSignupPage() {
         <div className="w-full space-y-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
-              Bienvenida a 1MIGRATION Pro
+              Bienvenido 1MIGRATION
             </h1>
-            <p className="mt-2 text-gray-600">
-              Crea tu cuenta para comenzar a automatizar tu crecimiento
+            <p className="mt-4 text-lg text-gray-700">
+              Laura, te invitamos a automatizar tu crecimiento
+            </p>
+            <p className="mt-2 text-sm text-gray-600">
+              En 30 días: +200 seguidores, 18-20 leads, $5K+ en ingresos
             </p>
           </div>
 
