@@ -156,10 +156,10 @@ export default async function GrowthAutomationPage() {
             <ArrowRight size={18} />
           </Link>
           <Link
-            href="/growth-automation/demo"
+            href="/growth-automation/content"
             className="inline-flex items-center gap-2 rounded-lg border border-[var(--brand-blue)] px-6 py-3 font-bold text-[var(--brand-blue)] hover:bg-blue-50 transition-colors"
           >
-            Ver demo
+            Generar contenido IA
           </Link>
         </div>
       </section>
