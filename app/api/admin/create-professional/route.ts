@@ -12,6 +12,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Same source of truth as getCurrentRole() (lib/account/persistence.ts):
+    // profiles.role read under the caller's own session.
+    const {
+      data: { user: caller },
+    } = await supabase.auth.getUser();
+    if (!caller) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    const { data: callerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", caller.id)
+      .maybeSingle();
+    if (callerProfile?.role !== "ADMIN") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+
     const { email, password, fullName, profession, location, instagram, website } = await request.json();
 
     // 1. Crear usuario con Supabase Auth
