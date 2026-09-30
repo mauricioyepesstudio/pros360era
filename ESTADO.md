@@ -15,6 +15,7 @@ _Actualizado: 2026-09-30 (desde `git log` en `main` = `c4b3cfa`). Mantener con e
 _Plan de migraciones (0015/0017) y revisión de Growth Automation están documentados abajo y en `docs/cerebro/decisiones.md`; no se ejecutan aún._
 
 ## En curso / Bloqueado
+- **Bloqueado — verificar datos**: confirmar que producción (Vercel) usa el proyecto `ovialqdazxkekvqqgdiu` (ver sección abajo).
 - **Bloqueado (decisión del dueño)**: **Stripe NO pasa a Live hasta definir la entidad legal que cobra** (`PENDIENTE — decisión del dueño`).
 - **Bloqueado (dueño + asesor)**: Growth Automation (reparto 70/30) y demos Laura/1MIGRATION. Regla provisional: **solo categorías NO reguladas** hasta confirmación con asesor.
 - **Pendiente**: fotos reales (dueño y Daniela Torres, con su autorización); Marie Fernández (notaria) debe registrarse antes de verificarla; vectores de logo reales.
@@ -38,7 +39,12 @@ La lista de migraciones registradas en vivo usa otras versiones/nombres que los 
 | 0016 admin_dashboard_v1 | **No aplicada** (sin evidencia) |
 | 0017_crm_leads_contacts_foundation, 0017_professional_portfolio_v1, 0018 crm_conversations, 0019 crm_pipeline_tasks, 20260929 growth_automation | **No aplicadas** (no existen tablas CRM/growth) |
 
-Observaciones: el proyecto vivo tiene solo 1 fila en `profiles` y **0 en `professional_profiles`**, contradiciendo los docs (Daniela Torres aprobada); posible reset/restauración del proyecto — confirmar con el dueño. El código en `main` (Stripe, admin, CRM, portafolio, growth) referencia tablas que hoy no existen en vivo.
+### Bloqueado — verificar datos (investigado 2026-09-30, solo lectura)
+- **Proyectos**: la cuenta de Supabase conectada ve **1 solo proyecto**: `mauricioyepesstudio's Project InMigration`, ID `ovialqdazxkekvqqgdiu`, org `eaxhsobbvufhnybrpozs`, us-west-2, `ACTIVE_HEALTHY`, creado 2026-08-21.
+- **ID usado por repo/docs**: `ovialqdazxkekvqqgdiu` en docs, migraciones, `scripts/create-1migration.sh` y handoff: **coincide**. `.env.example` solo tiene claves vacías (no fija ID). **No verificado**: la URL real en las variables de Vercel/producción (no se leyeron valores de entorno).
+- **Conteo real (SQL `count(*)`)**: `auth.users` 6 (de 2026-08-22 a 2026-09-29), `profiles` 6, `professional_profiles` 3, `professional_applications` 1, `opportunities` 5. No existe tabla `members` (los miembros son `profiles` con rol MEMBER).
+- **Corrección**: mi reporte anterior de "0 profesionales / posible reset" era **incorrecto**; venía de `list_tables`, que usa estadísticas estimadas y mostraba 0. **No hubo reset**: los datos existen.
+- **Sigue pendiente**: confirmar que Vercel producción apunta a este proyecto; contrastar las 3 filas de `professional_profiles` con los profesionales esperados (Daniela, Mauricio, Marie) y revisar si hay otra org/cuenta de Supabase no conectada a este conector.
 
 ### Plan para la numeración duplicada (NO ejecutar todavía)
 1. Congelar: no aplicar nada de 0015+ al vivo hasta decidir el orden.
@@ -60,4 +66,5 @@ Observaciones: el proyecto vivo tiene solo 1 fila en `profiles` y **0 en `profes
 
 ## Registro
 - 2026-09-30: el dueño respondió: foco en reclutar profesionales y miembros; Stripe Live en pausa hasta definir entidad; Growth/Laura limitado a categorías no reguladas (provisional); verificadas migraciones en Supabase (solo lectura).
+- 2026-09-30: verificación de datos en Supabase: 1 proyecto, 6 usuarios, sin reset; corregido el falso hallazgo previo.
 - 2026-09-30: creado el segundo cerebro (`CLAUDE.md`, `ESTADO.md`, `docs/cerebro/`, 3 subagentes) en la rama `cerebro`. Sin cambios de código de la app.

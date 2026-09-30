@@ -21,7 +21,7 @@ Registro de decisiones con evidencia. Formato: fecha · decisión · por qué ·
 
 ## Abiertas
 - Numeración de migraciones duplicada (0015, 0017): plan propuesto en `ESTADO.md`, sin ejecutar.
-- Estado real de Supabase vivo (0 profesionales pese a los docs): confirmar con el dueño si hubo reset.
+- Confirmar que Vercel producción apunta al proyecto Supabase `ovialqdazxkekvqqgdiu` (único visible; 6 usuarios, 3 perfiles profesionales). No hubo reset.
 
 ## Pendiente de completar
 - Fecha y razón de elegir Next 16 / Supabase / Stripe (no documentadas).
