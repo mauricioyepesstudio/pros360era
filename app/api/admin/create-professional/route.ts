@@ -5,6 +5,13 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createSupabaseServerClient();
 
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Supabase no está configurado en el servidor" },
+        { status: 500 }
+      );
+    }
+
     const { email, password, fullName, profession, location, instagram, website } = await request.json();
 
     // 1. Crear usuario con Supabase Auth
