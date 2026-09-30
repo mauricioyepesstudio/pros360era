@@ -347,7 +347,7 @@ export default function LauraDemoPage() {
               <div className="bg-blue-900 text-white rounded-lg p-6">
                 <p className="font-bold text-lg mb-2">💰 TU PARTE (70%):</p>
                 <p className="text-4xl font-bold">$3,500+</p>
-                <p className="text-sm mt-2 text-blue-100">EVOLUSA se queda con 30% ($1,500) para mantener la automatización</p>
+                <p className="text-sm mt-2 text-blue-100">La plataforma retiene 30% ($1,500) para mantener la automatización</p>
               </div>
             </div>
 

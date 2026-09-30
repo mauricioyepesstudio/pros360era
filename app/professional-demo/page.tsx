@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, TrendingUp, MessageSquare, DollarSign, Zap, BarChart3, Users } from "lucide-react";
+import { ArrowRight, TrendingUp, MessageSquare, DollarSign, Zap, BarChart3, Users, CheckCircle2, Sparkles, Rocket } from "lucide-react";
 import Link from "next/link";
-import BrandMark from "@/components/evolusa/BrandMark";
 
 const DEMO_POSTS = [
   {
@@ -37,7 +36,7 @@ const DAILY_LEADS = [
 ];
 
 export default function ProfessionalDemoPage() {
-  const [activeTab, setActiveTab] = useState("posts");
+  const [activeTab, setActiveTab] = useState("explicacion");
   const [selectedMonth, setSelectedMonth] = useState(1);
 
   const projections = {
@@ -49,15 +48,19 @@ export default function ProfessionalDemoPage() {
   const monthData = projections[selectedMonth as keyof typeof projections];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+    <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
       {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <BrandMark size="sm" />
-          </Link>
-          <div className="text-sm text-slate-300">
-            Demo Interactivo - 1MIGRATION
+      <header className="sticky top-0 z-50" style={{ backgroundColor: '#061B3A', borderBottom: '3px solid #F20D24' }}>
+        <div className="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: '#2563EB' }}>1M</div>
+            <div>
+              <div className="text-sm" style={{ color: '#EFF6FF' }}>Plataforma de Automatización</div>
+              <div className="text-xl font-bold" style={{ color: '#F20D24' }}>1MIGRATION</div>
+            </div>
+          </div>
+          <div className="text-sm" style={{ color: '#EFF6FF' }}>
+            Para Profesionales de Inmigración
           </div>
         </div>
       </header>
@@ -66,88 +69,241 @@ export default function ProfessionalDemoPage() {
       <main className="mx-auto max-w-6xl px-6 py-12">
         {/* Hero */}
         <div className="mb-16 text-center">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Esto es lo que pasaría en 30 días
+          <h1 className="text-5xl font-bold mb-4" style={{ color: '#061B3A' }}>
+            Tu Marca Crece 24/7
           </h1>
-          <p className="text-xl text-slate-300">
-            Automatización de contenido + Captura de leads + Propuestas de servicios
+          <p className="text-xl mb-8" style={{ color: '#064748B' }}>
+            Nosotros creamos el contenido. Nosotros capturamos los leads. Tú ganas dinero.
           </p>
+          <div className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-6" style={{ backgroundColor: '#2563EB', color: 'white' }}>
+            ✅ 70% de los ingresos es TUYO
+          </div>
+          <div>
+            <Link
+              href="/professional-demo-tutorial"
+              className="inline-block px-6 py-3 rounded-lg font-bold text-sm mr-4"
+              style={{ backgroundColor: '#2563EB', color: 'white' }}
+            >
+              ▶️ Ver Paso a Paso (Interactivo)
+            </Link>
+          </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-8 flex gap-4 border-b border-slate-700">
+        {/* Tabs como Cards */}
+        <div className="mb-12 grid grid-cols-2 gap-6">
+          <button
+            onClick={() => setActiveTab("explicacion")}
+            className="p-6 rounded-lg font-semibold transition-all text-center"
+            style={{
+              backgroundColor: activeTab === "explicacion" ? '#F20D24' : '#EFF6FF',
+              color: activeTab === "explicacion" ? 'white' : '#061B3A',
+              border: activeTab === "explicacion" ? '3px solid #F20D24' : '2px solid #2563EB'
+            }}
+          >
+            ❓ Cómo Funciona
+          </button>
           <button
             onClick={() => setActiveTab("posts")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors ${
-              activeTab === "posts"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+            className="p-6 rounded-lg font-semibold transition-all text-center"
+            style={{
+              backgroundColor: activeTab === "posts" ? '#F20D24' : '#EFF6FF',
+              color: activeTab === "posts" ? 'white' : '#061B3A',
+              border: activeTab === "posts" ? '3px solid #F20D24' : '2px solid #2563EB'
+            }}
           >
             📱 Posts Automáticos
           </button>
           <button
             onClick={() => setActiveTab("leads")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors ${
-              activeTab === "leads"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+            className="p-6 rounded-lg font-semibold transition-all text-center"
+            style={{
+              backgroundColor: activeTab === "leads" ? '#F20D24' : '#EFF6FF',
+              color: activeTab === "leads" ? 'white' : '#061B3A',
+              border: activeTab === "leads" ? '3px solid #F20D24' : '2px solid #2563EB'
+            }}
           >
-            💬 Leads Capturados Hoy
+            💬 Leads Capturados
           </button>
           <button
             onClick={() => setActiveTab("projections")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors ${
-              activeTab === "projections"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+            className="p-6 rounded-lg font-semibold transition-all text-center"
+            style={{
+              backgroundColor: activeTab === "projections" ? '#F20D24' : '#EFF6FF',
+              color: activeTab === "projections" ? 'white' : '#061B3A',
+              border: activeTab === "projections" ? '3px solid #F20D24' : '2px solid #2563EB'
+            }}
           >
-            📈 Proyecciones 30 Días
+            📈 Resultados 30 Días
           </button>
         </div>
+
+        {/* Explicación Tab */}
+        {activeTab === "explicacion" && (
+          <div className="space-y-8">
+            {/* ¿Qué es? */}
+            <div className="rounded-lg p-8" style={{ backgroundColor: '#EFF6FF', border: '3px solid #2563EB' }}>
+              <div className="flex items-start gap-4 mb-4">
+                <Sparkles className="flex-shrink-0" size={32} style={{ color: '#2563EB' }} />
+                <div>
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#061B3A' }}>¿Qué es 1MIGRATION?</h2>
+                  <p className="text-lg" style={{ color: '#064748B' }}>
+                    Una plataforma que <strong>automatiza TODO</strong> en tu marca de inmigración:
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Crea Contenido</p>
+                    <p className="text-sm text-gray-600">Nuestros agentes generan 2-3 posts diarios</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Publica Automático</p>
+                    <p className="text-sm text-gray-600">Salen directos a tu Instagram, optimizados</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">3</div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Captura Leads</p>
+                    <p className="text-sm text-gray-600">De Instagram, WhatsApp, Email automáticamente</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">4</div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Propone Clientes</p>
+                    <p className="text-sm text-gray-600">Te mostramos quién está listo para comprar</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ¿Quién hace qué? */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="rounded-lg p-6" style={{ backgroundColor: '#EFF6FF', border: '2px solid #2563EB' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <Rocket size={28} style={{ color: '#2563EB' }} />
+                  <h3 className="text-xl font-bold" style={{ color: '#061B3A' }}>TÚ HACES:</h3>
+                </div>
+                <ul className="space-y-3" style={{ color: '#064748B' }}>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#2563EB' }} />
+                    <span>Conectas tu Instagram (1 vez)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#2563EB' }} />
+                    <span>Respondes leads cuando quieras</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#2563EB' }} />
+                    <span>Cierras tus ventas</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#2563EB' }} />
+                    <span>¡Ganas 70% de cada venta!</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-lg p-6" style={{ backgroundColor: '#FEF4F4', border: '2px solid #F20D24' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <Zap size={28} style={{ color: '#F20D24' }} />
+                  <h3 className="text-xl font-bold" style={{ color: '#061B3A' }}>NOSOTROS HACEMOS:</h3>
+                </div>
+                <ul className="space-y-3" style={{ color: '#064748B' }}>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#F20D24' }} />
+                    <span>Creamos contenido con IA</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#F20D24' }} />
+                    <span>Publicamos automáticamente 24/7</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#F20D24' }} />
+                    <span>Capturamos todos los leads</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 size={20} className="flex-shrink-0" style={{ color: '#F20D24' }} />
+                    <span>Te los presentamos organizados</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Resultado */}
+            <div className="text-white rounded-lg p-8 text-center" style={{ backgroundColor: '#061B3A' }}>
+              <h3 className="text-2xl font-bold mb-2" style={{ color: '#F20D24' }}>El Resultado en 30 Días:</h3>
+              <p className="text-lg mb-6" style={{ color: '#EFF6FF' }}>Mientras tú duermes, tu marca crece automáticamente</p>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-3xl font-bold" style={{ color: '#2563EB' }}>+200</p>
+                  <p className="text-sm" style={{ color: '#EFF6FF' }}>Nuevos Seguidores</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-bold" style={{ color: '#2563EB' }}>18-20</p>
+                  <p className="text-sm" style={{ color: '#EFF6FF' }}>Leads Calificados</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-bold" style={{ color: '#F20D24' }}>$3,500+</p>
+                  <p className="text-sm" style={{ color: '#EFF6FF' }}>Tu Ganancia (70%)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Posts Tab */}
         {activeTab === "posts" && (
           <div className="space-y-6">
-            <p className="text-slate-300 mb-6">
-              Estos son 3 ejemplos de los 2-3 posts que se publicarían automáticamente cada día:
-            </p>
+            <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#EFF6FF', border: '2px solid #2563EB' }}>
+              <p className="font-semibold" style={{ color: '#061B3A' }}>
+                📱 Estos son ejemplos de los posts que el sistema crea y publica automáticamente cada día:
+              </p>
+              <p className="text-sm mt-2" style={{ color: '#64748B' }}>
+                Totalmente optimizados para tu nicho (inmigración), basados en tendencias reales y diseñados para máximo engagement.
+              </p>
+            </div>
+
             {DEMO_POSTS.map((post) => (
               <div
                 key={post.id}
-                className="rounded-lg bg-slate-800 border border-slate-700 p-6 hover:border-blue-500/50 transition-all"
+                className="rounded-lg bg-white border-2 border-gray-200 p-6 hover:border-blue-400 hover:shadow-lg transition-all"
               >
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                     1M
                   </div>
                   <div className="flex-1">
-                    <p className="font-bold text-white">1MIGRATION</p>
-                    <p className="text-xs text-slate-400">{post.date}</p>
+                    <p className="font-bold text-gray-900">1MIGRATION</p>
+                    <p className="text-xs text-gray-500">{post.date}</p>
                   </div>
                 </div>
 
-                <p className="text-white leading-relaxed mb-4">{post.content}</p>
+                <p className="text-gray-800 leading-relaxed mb-4 text-lg">{post.content}</p>
 
-                <p className="text-sm text-blue-400 mb-4">{post.hashtags}</p>
+                <p className="text-sm text-blue-600 font-semibold mb-4">{post.hashtags}</p>
 
-                <div className="flex gap-6 text-sm text-slate-400 border-t border-slate-700 pt-4">
+                <div className="flex gap-6 text-sm text-gray-600 border-t border-gray-200 pt-4">
                   <span className="flex items-center gap-2">
-                    <Zap size={16} />
+                    <Zap size={16} className="text-orange-600" />
                     {post.engagement}
                   </span>
                 </div>
               </div>
             ))}
 
-            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg p-6 text-center">
-              <p className="text-green-400 font-semibold">
-                ✓ El sistema genera estos automáticamente cada día
+            <div className="rounded-lg p-6 text-center" style={{ backgroundColor: '#FEF4F4', border: '2px solid #F20D24' }}>
+              <p className="font-bold text-lg" style={{ color: '#F20D24' }}>
+                ✅ El sistema genera esto automáticamente cada día
               </p>
-              <p className="text-sm text-green-300 mt-2">
-                Basado en tu nicho + tendencias + engagement histórico
+              <p className="text-sm mt-2" style={{ color: '#064748B' }}>
+                No necesitas pensar en qué escribir. Nosotros lo creamos, optimizamos y publicamos.
               </p>
             </div>
           </div>
@@ -156,43 +312,48 @@ export default function ProfessionalDemoPage() {
         {/* Leads Tab */}
         {activeTab === "leads" && (
           <div className="space-y-6">
-            <p className="text-slate-300 mb-6">
-              Estos son algunos de los leads que se capturaron HOY automáticamente:
-            </p>
+            <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#EFF6FF', border: '2px solid #2563EB' }}>
+              <p className="font-semibold" style={{ color: '#061B3A' }}>
+                💬 Estos son algunos de los leads capturados automáticamente HOY:
+              </p>
+              <p className="text-sm mt-2" style={{ color: '#64748B' }}>
+                El sistema los obtiene de Instagram, WhatsApp y Email. Cada uno está calificado para que sepas quién está listo para comprar.
+              </p>
+            </div>
 
-            <div className="rounded-lg bg-slate-800 border border-slate-700 overflow-hidden">
+            <div className="rounded-lg bg-white border-2 border-gray-200 overflow-hidden">
               <table className="w-full">
-                <thead className="bg-slate-900 border-b border-slate-700">
+                <thead className="bg-gray-100 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">
                       Nombre
                     </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">
                       De dónde vino
                     </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">
                       Intención
                     </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">
                       Calificación
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-700">
+                <tbody className="divide-y divide-gray-200">
                   {DAILY_LEADS.map((lead, idx) => (
-                    <tr key={idx} className="hover:bg-slate-700/50 transition-colors">
-                      <td className="px-6 py-4 text-white font-medium">{lead.name}</td>
-                      <td className="px-6 py-4 text-slate-400 text-sm">{lead.source}</td>
-                      <td className="px-6 py-4 text-slate-400 text-sm">{lead.intent}</td>
+                    <tr key={idx} className="hover:bg-blue-50 transition-colors">
+                      <td className="px-6 py-4 text-gray-900 font-semibold">{lead.name}</td>
+                      <td className="px-6 py-4 text-gray-700 text-sm">{lead.source}</td>
+                      <td className="px-6 py-4 text-gray-700 text-sm">{lead.intent}</td>
                       <td className="px-6 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
                             lead.status === "Hot"
-                              ? "bg-red-500/20 text-red-400"
-                              : "bg-yellow-500/20 text-yellow-400"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
-                          {lead.status}
+                          {lead.status === "Hot" ? "🔥 HOT" : "🟡 Warm"}
                         </span>
                       </td>
                     </tr>
@@ -202,30 +363,29 @@ export default function ProfessionalDemoPage() {
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 p-4">
-                <p className="text-sm text-blue-300">Instagram</p>
-                <p className="text-2xl font-bold text-blue-400 mt-2">+6</p>
-                <p className="text-xs text-blue-300 mt-1">leads comentando</p>
+              <div className="rounded-lg p-4" style={{ backgroundColor: '#EFF6FF', border: '2px solid #2563EB' }}>
+                <p className="text-sm font-bold" style={{ color: '#061B3A' }}>📸 Instagram</p>
+                <p className="text-3xl font-bold mt-2" style={{ color: '#2563EB' }}>+6</p>
+                <p className="text-xs mt-1" style={{ color: '#64748B' }}>comentarios/DMs</p>
               </div>
-              <div className="rounded-lg bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30 p-4">
-                <p className="text-sm text-green-300">WhatsApp</p>
-                <p className="text-2xl font-bold text-green-400 mt-2">+4</p>
-                <p className="text-xs text-green-300 mt-1">mensajes entrantes</p>
+              <div className="rounded-lg p-4" style={{ backgroundColor: '#FEF4F4', border: '2px solid #F20D24' }}>
+                <p className="text-sm font-bold" style={{ color: '#061B3A' }}>💬 WhatsApp</p>
+                <p className="text-3xl font-bold mt-2" style={{ color: '#F20D24' }}>+4</p>
+                <p className="text-xs mt-1" style={{ color: '#64748B' }}>mensajes</p>
               </div>
-              <div className="rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 p-4">
-                <p className="text-sm text-purple-300">Email</p>
-                <p className="text-2xl font-bold text-purple-400 mt-2">+2</p>
-                <p className="text-xs text-purple-300 mt-1">consultas</p>
+              <div className="rounded-lg p-4" style={{ backgroundColor: '#EFF6FF', border: '2px solid #2563EB' }}>
+                <p className="text-sm font-bold" style={{ color: '#061B3A' }}>📧 Email</p>
+                <p className="text-3xl font-bold mt-2" style={{ color: '#2563EB' }}>+2</p>
+                <p className="text-xs mt-1" style={{ color: '#64748B' }}>consultas</p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg p-6">
-              <p className="text-green-400 font-semibold flex items-center gap-2">
-                <CheckCircle size={20} />
-                El CRM multicanal agrupa TODO automáticamente
+            <div className="text-white rounded-lg p-6" style={{ backgroundColor: '#2563EB' }}>
+              <p className="font-bold text-lg flex items-center gap-2 mb-2">
+                ✅ CRM Multicanal - Todo en UN SOLO LUGAR
               </p>
-              <p className="text-sm text-green-300 mt-2">
-                Todos tus leads en un solo lugar. El sistema califica qué tan cercanos están de comprar.
+              <p className="text-sm">
+                No necesitas revisar Instagram, WhatsApp y Email por separado. El sistema agrupa TODO, califica cada lead, y te dice quién está listo para comprar.
               </p>
             </div>
           </div>
@@ -234,19 +394,24 @@ export default function ProfessionalDemoPage() {
         {/* Projections Tab */}
         {activeTab === "projections" && (
           <div className="space-y-6">
-            <p className="text-slate-300 mb-6">
-              Esto es lo que proyectamos para cada mes:
-            </p>
+            <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#EFF6FF', border: '2px solid #2563EB' }}>
+              <p className="font-semibold" style={{ color: '#061B3A' }}>
+                📈 Proyecciones realistas basadas en datos históricos de profesionales similares:
+              </p>
+              <p className="text-sm mt-2" style={{ color: '#64748B' }}>
+                Selecciona un mes para ver los números en detalle.
+              </p>
+            </div>
 
             <div className="flex gap-4 mb-8">
               {[1, 2, 3].map((month) => (
                 <button
                   key={month}
                   onClick={() => setSelectedMonth(month)}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  className={`px-6 py-3 rounded-lg font-bold transition-all ${
                     selectedMonth === month
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   Mes {month}
@@ -255,88 +420,98 @@ export default function ProfessionalDemoPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              <div className="rounded-lg bg-slate-800 border border-slate-700 p-6">
+              <div className="rounded-lg bg-white border-2 border-blue-300 p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="text-blue-400" size={24} />
-                  <p className="text-slate-400">Nuevos Seguidores</p>
+                  <TrendingUp className="text-blue-600" size={28} />
+                  <p className="text-gray-700 font-semibold">Nuevos Seguidores</p>
                 </div>
-                <p className="text-4xl font-bold text-blue-400">+{monthData.followers}</p>
-                <p className="text-xs text-slate-400 mt-2">
+                <p className="text-4xl font-bold text-blue-600">+{monthData.followers}</p>
+                <p className="text-xs text-gray-600 mt-2">
                   Promedio: {Math.round(monthData.followers / 30)} por día
                 </p>
               </div>
 
-              <div className="rounded-lg bg-slate-800 border border-slate-700 p-6">
+              <div className="rounded-lg bg-white border-2 border-green-300 p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <MessageSquare className="text-green-400" size={24} />
-                  <p className="text-slate-400">Leads Capturados</p>
+                  <MessageSquare className="text-green-600" size={28} />
+                  <p className="text-gray-700 font-semibold">Leads Capturados</p>
                 </div>
-                <p className="text-4xl font-bold text-green-400">{monthData.leads}</p>
-                <p className="text-xs text-slate-400 mt-2">
-                  De todos tus canales
+                <p className="text-4xl font-bold text-green-600">{monthData.leads}</p>
+                <p className="text-xs text-gray-600 mt-2">
+                  De Instagram, WhatsApp, Email
                 </p>
               </div>
 
-              <div className="rounded-lg bg-slate-800 border border-slate-700 p-6">
+              <div className="rounded-lg bg-white border-2 border-purple-300 p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <Users className="text-purple-400" size={24} />
-                  <p className="text-slate-400">Conversiones (Clientes)</p>
+                  <Users className="text-purple-600" size={28} />
+                  <p className="text-gray-700 font-semibold">Nuevos Clientes</p>
                 </div>
-                <p className="text-4xl font-bold text-purple-400">{monthData.conversions}</p>
-                <p className="text-xs text-slate-400 mt-2">
-                  Con tu tasa de cierre
+                <p className="text-4xl font-bold text-purple-600">{monthData.conversions}</p>
+                <p className="text-xs text-gray-600 mt-2">
+                  ~25% de conversión de leads
                 </p>
               </div>
 
-              <div className="rounded-lg bg-slate-800 border border-slate-700 p-6">
+              <div className="rounded-lg bg-gradient-to-br from-orange-100 to-yellow-100 border-2 border-orange-400 p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <DollarSign className="text-yellow-400" size={24} />
-                  <p className="text-slate-400">Ingresos Totales</p>
+                  <DollarSign className="text-orange-600" size={28} />
+                  <p className="text-gray-700 font-bold">INGRESOS TOTALES</p>
                 </div>
-                <p className="text-4xl font-bold text-yellow-400">${monthData.revenue.toLocaleString()}</p>
-                <p className="text-xs text-slate-400 mt-2">
-                  Tu parte: ${Math.round(monthData.revenue * 0.7).toLocaleString()} (70%)
+                <p className="text-4xl font-bold text-orange-600">${monthData.revenue.toLocaleString()}</p>
+                <p className="text-sm text-gray-700 font-bold mt-3 border-t-2 border-orange-300 pt-3">
+                  TU GANANCIA (70%): <span className="text-orange-600">${Math.round(monthData.revenue * 0.7).toLocaleString()}</span>
                 </p>
               </div>
             </div>
 
-            <div className="rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 p-6">
-              <h3 className="font-bold text-yellow-400 mb-3">Cálculo de Proyecciones</h3>
-              <div className="space-y-2 text-sm text-yellow-300">
-                <p>📊 Seguidores: +200 por mes (basado en nicho immigration)</p>
-                <p>💬 Leads: 18-20 por mes (desde Instagram, WhatsApp, Email)</p>
-                <p>✅ Conversión: ~25% de los leads se convierten en clientes</p>
-                <p>💰 Precio promedio servicio: ~$1000</p>
-                <p>🤝 Split: 70% profesional, 30% plataforma</p>
+            <div className="rounded-lg bg-gradient-to-r from-orange-100 to-yellow-100 border-2 border-orange-400 p-6">
+              <h3 className="font-bold text-orange-900 mb-4 text-lg">📐 Cómo se calculan estos números:</h3>
+              <div className="space-y-2 text-sm text-orange-900">
+                <p><strong>📊 Seguidores:</strong> +200 por mes (basado en nicho de inmigración + algoritmo Instagram)</p>
+                <p><strong>💬 Leads:</strong> 18-20 por mes (desde Instagram DMs, comentarios, WhatsApp, Email)</p>
+                <p><strong>✅ Conversión:</strong> ~25% de leads se convierten en clientes (promedio profesional)</p>
+                <p><strong>💰 Precio promedio:</strong> ~$1,000 por cliente (consultoría de inmigración)</p>
+                <p><strong>🤝 Tu ganancia:</strong> 70% de cada venta es tuya</p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/30 rounded-lg p-8 text-center">
-              <h3 className="text-2xl font-bold text-blue-400 mb-2">
-                En 3 meses: ${Math.round((5000 + 12000 + 18000) * 0.7).toLocaleString()}
+            <div className="text-white rounded-lg p-8 text-center" style={{ backgroundColor: '#061B3A' }}>
+              <h3 className="text-3xl font-bold mb-2" style={{ color: '#F20D24' }}>
+                En 3 Meses: ${Math.round((5000 + 12000 + 18000) * 0.7).toLocaleString()}
               </h3>
-              <p className="text-slate-300">
-                Esto es lo que ganarías con la automatización funcionando 24/7
+              <p className="text-lg mb-4" style={{ color: '#EFF6FF' }}>
+                Tu ganancia acumulada mientras el sistema corre 24/7
+              </p>
+              <p className="text-sm" style={{ color: '#EFF6FF' }}>
+                Mes 1: $3,500 + Mes 2: $8,400 + Mes 3: $12,600
               </p>
             </div>
           </div>
         )}
 
         {/* CTA */}
-        <div className="mt-16 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            ¿Listo para ver esto en acción?
+        <div className="mt-16 rounded-lg p-10 text-center shadow-lg" style={{ backgroundColor: '#061B3A' }}>
+          <h2 className="text-4xl font-bold mb-2" style={{ color: '#F20D24' }}>
+            ¿Listo para transformar tu marca?
           </h2>
-          <p className="text-blue-100 mb-8">
-            Completa tu cuenta en 5 minutos y comienza HOY mismo
+          <p className="mb-2 text-lg" style={{ color: '#EFF6FF' }}>
+            Mientras tú atiendes clientes, nosotros hacemos crecer tu presencia 24/7
+          </p>
+          <p className="mb-8 font-semibold" style={{ color: '#2E8B57' }}>
+            Sin costo inicial. Sin riesgo. 70% es tuyo.
           </p>
           <Link
-            href="/professional-invite"
-            className="inline-flex items-center gap-3 bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors"
+            href="/signup?professional_invite=true"
+            className="inline-flex items-center gap-3 px-10 py-4 rounded-lg font-bold text-xl hover:shadow-xl transition-all"
+            style={{ backgroundColor: '#F20D24', color: 'white' }}
           >
-            Empezar Ahora
-            <ArrowRight size={24} />
+            Empezar Ahora - 5 Minutos
+            <ArrowRight size={28} />
           </Link>
+          <p className="text-sm mt-6" style={{ color: '#EFF6FF' }}>
+            Conéctate con nosotros y en 30 días ves los resultados
+          </p>
         </div>
       </main>
     </div>
