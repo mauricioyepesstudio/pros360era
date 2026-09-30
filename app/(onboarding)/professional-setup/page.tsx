@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
@@ -40,7 +40,7 @@ const STEPS: SetupStep[] = [
   },
 ];
 
-export default function ProfessionalSetupPage() {
+function ProfessionalSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
@@ -366,5 +366,13 @@ export default function ProfessionalSetupPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ProfessionalSetupPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProfessionalSetupContent />
+    </Suspense>
   );
 }
