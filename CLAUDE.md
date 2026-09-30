@@ -2,7 +2,7 @@
 
 # EVOLUSA (repo `pros360era`) — segundo cerebro
 
-> Antes de trabajar: lee `ESTADO.md` (qué sigue) y, para decisiones, marca y negocio, `docs/cerebro/`. Ante contradicción manda `git log` y el código; luego `docs/CURRENT-STATE.md`.
+> **Foco actual: reclutar profesionales y crecer miembros.** Antes de trabajar: lee `ESTADO.md` (qué sigue) y, para decisiones, marca y negocio, `docs/cerebro/`. Ante contradicción manda `git log` y el código; luego `docs/CURRENT-STATE.md`.
 
 ## Qué es
 Plataforma "Spanish-first" de progreso para hispanohablantes en EE. UU.: un **Journey de 6 etapas + Roadmap** personalizado que lleva a la persona a su "próximo paso" y la conecta con recursos, servicios permitidos o **profesionales verificados**. No es un directorio genérico de "multiservicios" (ver `docs/EVOLUSA-POSITIONING.md`). Lema: "Tu próximo paso."
@@ -29,8 +29,9 @@ Comandos: `npm run dev | lint | test | build`, `npx tsc --noEmit`.
 
 ## No se toca (sin orden explícita del owner)
 - `.env*`, credenciales Supabase/Vercel/Stripe, remotes de git. Claves (`sk_live_…`) nunca en el chat: el owner las pega directo en Vercel.
-- El paso de Stripe **Sandbox → Live** y cualquier webhook live.
-- Migraciones: no aplicar a Supabase vivo sin `security-reviewer` + OK del owner. Ojo a la numeración duplicada (0015 y 0017 tienen dos archivos cada una).
+- El paso de Stripe **Sandbox → Live** y cualquier webhook live: **en pausa hasta que el dueño defina la entidad legal que cobra**.
+- **Growth Automation / reparto 70/30 / demos Laura-1MIGRATION**: regla provisional, solo categorías NO reguladas hasta que el dueño lo confirme con un asesor.
+- Migraciones: estado vivo verificado en `ESTADO.md` (solo hasta ~0009 + profile_media; lo demás sin aplicar). No aplicar a Supabase vivo sin `security-reviewer` + OK del owner. Ojo a la numeración duplicada (0015 y 0017 tienen dos archivos cada una).
 - Activar categorías reguladas, modelos de fee en ellas, o claims `REQUIRES_VERIFICATION`.
 - `public/brand/*` (rasters temporales; se reemplazan 1:1 por vectores reales, no re-trazar).
 - Otros repos (BELONG, mauricio-portfolio, etc.).

@@ -14,12 +14,16 @@ Registro de decisiones con evidencia. Formato: fecha · decisión · por qué ·
 - **Reconciliación de ramas (2026-09-24)**: `feat/evolusa-migration` fusionada en `main`; `main` es la línea canónica hoy.
 - **CI en Node 24** para igualar Vercel.
 
-## Abiertas / a confirmar
-- ¿Growth Automation con reparto 70/30 es compatible con las reglas de fee en categorías reguladas? (`docs/GROWTH-AUTOMATION.md` lo declara; `EVOLUSA-PROFESSIONAL-NETWORK.md` prohíbe comisión por lead en REGULATED.) Sin decidir.
-- Numeración de migraciones duplicada (0015, 0017).
-- Destino de las demos Laura/1MIGRATION.
+## PENDIENTE — decisión del dueño
+- **Entidad legal que cobra**: PENDIENTE — decisión del dueño. Candidatos citados en docs: "Real Group Entertainment LLC" (copy público) y "Auto Flow Systems" (cuenta Stripe). **Stripe no pasa a Live hasta definirla** (2026-09-30).
+- **Growth Automation (reparto 70/30) y demos Laura/1MIGRATION**: PENDIENTE — sin decidir; el dueño lo confirmará con un asesor. **Regla provisional (2026-09-30): limitado a categorías NO reguladas** (hoy marketing y operaciones de negocio). Ningún profesional de inmigración, legal, tax, seguros, notario, etc. entra al reparto ni a la automatización hasta confirmación. Conflicto de fondo: `EVOLUSA-PROFESSIONAL-NETWORK.md` prohíbe fee por lead/comisión en REGULATED.
+- **Prioridad de las próximas semanas (decidido)**: reclutar profesionales y crecer miembros; Stripe Live no es prioridad.
+
+## Abiertas
+- Numeración de migraciones duplicada (0015, 0017): plan propuesto en `ESTADO.md`, sin ejecutar.
+- Estado real de Supabase vivo (0 profesionales pese a los docs): confirmar con el dueño si hubo reset.
 
 ## Pendiente de completar
 - Fecha y razón de elegir Next 16 / Supabase / Stripe (no documentadas).
 - Política de precios de profesionales (suscripción) más allá del fee de $25.
-- Criterios de salida de Sandbox → Live.
+- Criterios de salida de Sandbox → Live (tras definir entidad).
