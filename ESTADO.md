@@ -65,6 +65,7 @@ La lista de migraciones registradas en vivo usa otras versiones/nombres que los 
 - 2026-08-30/31: revelación segura del profesional emparejado; Start Flow endurecido.
 
 ## Registro
+- 2026-10-01: `fix/lint-onboarding`: `app/(onboarding)/professional-setup/page.tsx` ya no llama `setState` dentro de un efecto (error `react-hooks/set-state-in-effect`); el paso inicial se deriva de `?instagram_connected=true` con un inicializador de `useState`. Mismo comportamiento. Los demás errores de lint de `main` (any, comillas, require) siguen pendientes y fuera de este alcance.
 - 2026-10-01: `fix/admin-create-professional`: `app/api/admin/create-professional` ya no usa `auth.signUp` con la sesión del admin (lo dejaba logueado como el usuario nuevo); ahora usa `auth.admin.createUser` con el cliente service-role (solo servidor, `lib/supabase/service.ts`) tras los chequeos 401/403. Requiere `SUPABASE_SERVICE_ROLE_KEY` en el entorno. `npm run lint` en `main` tiene 19 errores previos fuera de este alcance (any, comillas sin escapar, require); tsc y build pasan.
 - 2026-09-30: el dueño respondió: foco en reclutar profesionales y miembros; Stripe Live en pausa hasta definir entidad; Growth/Laura limitado a categorías no reguladas (provisional); verificadas migraciones en Supabase (solo lectura).
 - 2026-09-30: verificación de datos en Supabase: 1 proyecto, 6 usuarios, sin reset; corregido el falso hallazgo previo.

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
@@ -43,7 +43,10 @@ const STEPS: SetupStep[] = [
 function ProfessionalSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [currentStep, setCurrentStep] = useState(1);
+  // Returning from the Instagram OAuth callback lands directly on step 3.
+  const [currentStep, setCurrentStep] = useState(() =>
+    searchParams?.get("instagram_connected") === "true" ? 3 : 1
+  );
   const [loading, setLoading] = useState(false);
   const [businessData, setBusinessData] = useState({
     displayName: "1MIGRATION",
@@ -53,13 +56,6 @@ function ProfessionalSetupContent() {
     phone: "",
   });
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const instagramCallback = searchParams?.get("instagram_connected");
-    if (instagramCallback === "true") {
-      setCurrentStep(3);
-    }
-  }, [searchParams]);
 
   const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
