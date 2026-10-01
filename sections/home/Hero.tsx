@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Container from "@/components/ui/Container";
+import AudienceSelector from "@/components/evolusa/AudienceSelector";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
 
@@ -47,6 +48,7 @@ export default function Hero() {
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
           <p className="mt-2 text-sm leading-6 text-white/70">Elige tu camino: necesitas ayuda en tu vida o quieres ofrecer servicios como profesional verificado.</p>
+          <AudienceSelector className="mt-5" />
           <div className="mt-6 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
               <ButtonLink href="/onboarding" variant="primary" className="justify-center" title="Inicia tu camino como usuario">

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
+import AudienceSelector from "@/components/evolusa/AudienceSelector";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
 import ProductRevealPanel from "./ProductRevealPanel";
@@ -72,7 +73,7 @@ export default function HeroArtboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="absolute text-white"
-          style={{ left: "6.3%", top: "16%", width: "46%" }}
+          style={{ left: "6.3%", top: "14%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
             <span className="block text-[3.25rem] font-light text-white">TU SUEÑO</span>
@@ -90,7 +91,8 @@ export default function HeroArtboard() {
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
           <p className="mt-2 max-w-md text-base leading-6 text-white/70">Desde establecerte hasta emprender, proteger lo que construyes y seguir creciendo.</p>
-          <div className="mt-8 flex flex-col gap-4">
+          <AudienceSelector className="mt-5" floatingPanel />
+          <div className="mt-5 flex items-center gap-5">
             <div className="flex gap-4">
               <ButtonLink href="/onboarding" variant="primary" title="Inicia tu camino como usuario">
                 Necesito ayuda
