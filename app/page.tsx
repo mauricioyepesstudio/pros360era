@@ -3,8 +3,7 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
 import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
-import UserJourneyFlow from "@/sections/home/UserJourneyFlow";
-import ProfessionalJourneyFlow from "@/sections/home/ProfessionalJourneyFlow";
+import ExplainerInteractive from "@/sections/home/ExplainerInteractive";
 import ProductReveal from "@/sections/home/ProductReveal";
 import JourneyOverview from "@/sections/home/JourneyOverview";
 import LifeStory from "@/sections/home/LifeStory";
@@ -26,8 +25,7 @@ export default function Home() {
         <HeroArtboard />
         <Hero />
         <ProductReveal />
-        <UserJourneyFlow />
-        <ProfessionalJourneyFlow />
+        <ExplainerInteractive />
         <JourneyOverview />
         <LifeStory />
         <StageSelector />
