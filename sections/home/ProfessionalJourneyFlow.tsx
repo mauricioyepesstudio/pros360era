@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, FileText, ShieldCheck, Briefcase, TrendingUp, Award } from "lucide-react";
 import Heading from "@/components/ui/Heading";
 import Section from "@/components/ui/Section";
-import ButtonLink from "@/components/ui/ButtonLink";
 
 const steps = [
   {
@@ -112,17 +111,6 @@ export default function ProfessionalJourneyFlow() {
             </li>
           </ul>
         </div>
-      </div>
-
-      <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
-        <ButtonLink href="/aplicar-profesional" className="sm:px-8">
-          Aplicar ahora
-          <ArrowRight aria-hidden className="ml-2" size={18} />
-        </ButtonLink>
-        <ButtonLink href="/profesionales" className="sm:px-8" title="Ver profesionales en la red">
-          Ver la red
-          <ArrowRight aria-hidden className="ml-2" size={18} />
-        </ButtonLink>
       </div>
     </Section>
   );

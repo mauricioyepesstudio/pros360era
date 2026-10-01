@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, Search, CheckCircle2, MessageSquare, Star } from "lucide-react";
 import Heading from "@/components/ui/Heading";
 import Section from "@/components/ui/Section";
-import ButtonLink from "@/components/ui/ButtonLink";
 
 const steps = [
   {
@@ -82,17 +81,6 @@ export default function UserJourneyFlow() {
             </motion.div>
           );
         })}
-      </div>
-
-      <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
-        <ButtonLink href="/onboarding" className="sm:px-8">
-          Comenzar mi camino
-          <ArrowRight aria-hidden className="ml-2" size={18} />
-        </ButtonLink>
-        <ButtonLink href="/profesionales" className="sm:px-8" title="Ver profesionales disponibles">
-          Ver profesionales
-          <ArrowRight aria-hidden className="ml-2" size={18} />
-        </ButtonLink>
       </div>
     </Section>
   );
