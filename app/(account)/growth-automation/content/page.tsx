@@ -100,7 +100,7 @@ export default function ContentPage() {
                 type="text"
                 value={niche}
                 onChange={(e) => setNiche(e.target.value)}
-                placeholder="Ej: Abogada de inmigración, Contadora, Coach de negocios"
+                placeholder="Ej: Coach de negocios, Diseñadora, Fotógrafo"
                 className="mt-2 w-full rounded-lg border border-[var(--border)] px-4 py-2 text-sm"
               />
             </div>
