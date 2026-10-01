@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -32,15 +33,25 @@ export async function POST(request: NextRequest) {
 
     const { email, password, fullName, profession, location, instagram, website } = await request.json();
 
-    // 1. Crear usuario con Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // Admin verified above. From here on the service-role client (server
+    // only, never serialized to the browser) creates the user without
+    // touching the admin's own session cookies.
+    const admin = createSupabaseServiceRoleClient();
+    if (!admin) {
+      return NextResponse.json(
+        { error: "Supabase no está configurado en el servidor" },
+        { status: 500 }
+      );
+    }
+
+    // 1. Crear usuario con Supabase Auth (no inicia sesión como el nuevo usuario)
+    const { data: authData, error: authError } = await admin.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-          profession,
-        },
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        profession,
       },
     });
 
@@ -53,8 +64,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No user ID returned" }, { status: 400 });
     }
 
-    // 2. Crear perfil PROFESSIONAL
-    const { error: profileError } = await supabase.from("profiles").insert({
+    // 2. Crear perfil PROFESSIONAL (el trigger handle_new_user ya creó la fila)
+    const { error: profileError } = await admin.from("profiles").upsert({
       id: userId,
       email,
       full_name: fullName,
@@ -67,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Crear professional_profile
-    const { error: profError } = await supabase.from("professional_profiles").insert({
+    const { error: profError } = await admin.from("professional_profiles").insert({
       user_id: userId,
       business_name: fullName,
       niche: profession,
@@ -81,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Asignar servicio Growth Automation
-    const { error: serviceError } = await supabase.from("user_services").insert({
+    const { error: serviceError } = await admin.from("user_services").insert({
       user_id: userId,
       service_id: "growth-automation",
       status: "active",
