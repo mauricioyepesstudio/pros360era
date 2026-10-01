@@ -89,15 +89,15 @@ export default function HeroArtboard() {
           <p className="mt-4 text-xl font-semibold">
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
-          <p className="mt-2 max-w-md text-base leading-6 text-white/70">Desde establecerte hasta emprender, proteger lo que construyes y seguir creciendo.</p>
+          <p className="mt-2 max-w-md text-base leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
           <div className="mt-8 flex flex-col gap-4">
             <div className="flex gap-4">
-              <ButtonLink href="/onboarding" variant="primary" title="Inicia tu camino como usuario">
-                Necesito ayuda
+              <ButtonLink href="/aplicar-profesional" variant="primary" title="Aplica como profesional aprobado">
+                Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
-              <ButtonLink href="/aplicar-profesional" variant="secondary" title="Únete como profesional verificado">
-                Soy profesional
+              <ButtonLink href="/profesionales" variant="primary" title="Ver profesionales aprobados">
+                Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
             </div>

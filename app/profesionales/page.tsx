@@ -4,6 +4,7 @@ import Footer from "@/sections/home/Footer";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";
 import Card from "@/components/ui/Card";
+import ButtonLink from "@/components/ui/ButtonLink";
 import ProfessionalsDirectory from "@/components/professionals/ProfessionalsDirectory";
 import { getPublicProfessionals } from "@/lib/professional/public-profile";
 import { brand } from "@/config/brand";
@@ -40,9 +41,11 @@ export default async function ProfessionalesPage() {
 
           {professionals.length === 0 ? (
             <Card className="mt-10 max-w-xl">
-              <p className="text-[var(--muted)]">
-                Todavía no hay profesionales públicos disponibles. Vuelve pronto — la red está creciendo.
-              </p>
+              <p className="text-lg font-semibold text-[var(--brand-navy)]">Estamos sumando profesionales aprobados.</p>
+              <p className="mt-2 text-[var(--muted)]">Cuéntanos qué necesitas y te conectamos.</p>
+              <ButtonLink href="/onboarding" className="mt-5">
+                Contarnos qué necesito
+              </ButtonLink>
             </Card>
           ) : (
             <div className="mt-10">

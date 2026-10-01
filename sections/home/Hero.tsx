@@ -46,15 +46,15 @@ export default function Hero() {
           <p className="mt-4 text-lg font-semibold">
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
-          <p className="mt-2 text-sm leading-6 text-white/70">Elige tu camino: necesitas ayuda en tu vida o quieres ofrecer servicios como profesional verificado.</p>
-          <div className="mt-6 flex flex-col gap-3">
+          <p className="mt-2 text-sm leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
+          <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
-              <ButtonLink href="/onboarding" variant="primary" className="justify-center" title="Inicia tu camino como usuario">
-                Necesito ayuda
+              <ButtonLink href="/aplicar-profesional" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
+                Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
-              <ButtonLink href="/aplicar-profesional" variant="secondary" className="justify-center" title="Únete como profesional verificado">
-                Soy profesional
+              <ButtonLink href="/profesionales" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
+                Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
