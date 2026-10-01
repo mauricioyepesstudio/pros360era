@@ -45,16 +45,15 @@ export async function GET(request: NextRequest) {
         .select("contact_id, crm_tags(id, name, color)")
         .in("contact_id", contactIds);
 
-      const tagsByContact = new Map();
-      tagsData?.forEach((item: any) => {
-        if (!tagsByContact.has(item.contact_id)) {
-          tagsByContact.set(item.contact_id, []);
-        }
-        tagsByContact.get(item.contact_id).push(item.crm_tags);
+      const tagsByContact = new Map<string, unknown[]>();
+      tagsData?.forEach((item: { contact_id: string; crm_tags: unknown }) => {
+        const tags = tagsByContact.get(item.contact_id) ?? [];
+        tags.push(item.crm_tags);
+        tagsByContact.set(item.contact_id, tags);
       });
 
-      data.forEach((contact) => {
-        (contact as any).tags = tagsByContact.get(contact.id) || [];
+      data.forEach((contact: { id: string; tags?: unknown[] }) => {
+        contact.tags = tagsByContact.get(contact.id) || [];
       });
     }
 

@@ -4,11 +4,23 @@ import { useState } from "react";
 import { Sparkles, Calendar, Send } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 
+type Platform = "instagram" | "tiktok" | "youtube";
+
+type GeneratedPost = {
+  topic?: string;
+  caption?: string;
+  hashtags?: string[];
+};
+
+type GeneratedContent = GeneratedPost & {
+  schedule?: GeneratedPost[];
+};
+
 export default function ContentPage() {
   const [niche, setNiche] = useState("");
-  const [platform, setPlatform] = useState<"instagram" | "tiktok" | "youtube">("instagram");
+  const [platform, setPlatform] = useState<Platform>("instagram");
   const [generatingType, setGeneratingType] = useState<"single" | "week" | null>(null);
-  const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
 
   async function handleGenerate(type: "single" | "week") {
     if (!niche) {
@@ -40,7 +52,7 @@ export default function ContentPage() {
     }
   }
 
-  async function schedulePost(content: any, scheduledFor: string) {
+  async function schedulePost(content: GeneratedPost, scheduledFor: string) {
     try {
       const response = await fetch("/api/growth-automation/content/schedule", {
         method: "POST",
@@ -99,7 +111,7 @@ export default function ContentPage() {
               </label>
               <select
                 value={platform}
-                onChange={(e) => setPlatform(e.target.value as any)}
+                onChange={(e) => setPlatform(e.target.value as Platform)}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] px-4 py-2 text-sm"
               >
                 <option value="instagram">Instagram</option>
@@ -140,7 +152,7 @@ export default function ContentPage() {
 
           {Array.isArray(generatedContent.schedule)
             ? // Week view
-              generatedContent.schedule.map((item: any, idx: number) => (
+              generatedContent.schedule.map((item, idx) => (
                 <div
                   key={idx}
                   className="mb-4 rounded-lg bg-white p-4 last:mb-0"
