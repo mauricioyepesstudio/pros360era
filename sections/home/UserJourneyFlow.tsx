@@ -21,8 +21,8 @@ const steps = [
   {
     number: 3,
     icon: Search,
-    title: "Encuentra profesionales verificados",
-    description: "Explora nuestro directorio. Cada profesional ha pasado verificación real — no comprada.",
+    title: "Encuentra profesionales aprobados",
+    description: "Explora nuestro directorio. Cada perfil pasa por nuestra revisión antes de publicarse — no se compra.",
   },
   {
     number: 4,
@@ -51,7 +51,7 @@ export default function UserJourneyFlow() {
         Tu camino desde la incertidumbre a acciones claras
       </Heading>
       <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-        En EVOLUSA no reinventas la rueda. Tú defines dónde estás, nosotros te mostramos el siguiente paso, y conectamos contigo con profesionales verificados que ya ayudaron a otros en tu misma etapa.
+        En EVOLUSA no reinventas la rueda. Tú defines dónde estás, nosotros te mostramos el siguiente paso, y te conectamos con profesionales aprobados cuando corresponde.
       </p>
 
       <div className="mt-16 space-y-6">

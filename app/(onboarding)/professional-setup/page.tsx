@@ -354,13 +354,8 @@ function ProfessionalSetupContent() {
                 Tu cuenta de 1MIGRATION está lista para crecer automáticamente
               </p>
               <p className="mt-6 text-sm text-gray-500">
-                En los próximos 30 días verás:
+                En tu panel verás tus seguidores, contactos e ingresos reales a medida que avances.
               </p>
-              <ul className="mt-4 space-y-2 text-gray-600">
-                <li>📈 +200 nuevos seguidores</li>
-                <li>💬 18-20 leads calificados</li>
-                <li>💰 $5,000+ en ingresos (70% para ti)</li>
-              </ul>
             </div>
           )}
         </div>

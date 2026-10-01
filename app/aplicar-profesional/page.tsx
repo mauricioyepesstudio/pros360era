@@ -37,9 +37,9 @@ export default function AplicarProfesionalPage() {
           </Link>
           <div className="mt-10 max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue-on-dark)]">Invitación a profesionales</p>
-            <h1 className="mt-3 text-balance text-4xl font-extrabold leading-tight sm:text-5xl">Estamos construyendo el camino de miles de personas en Estados Unidos — y buscamos profesionales reales para recorrerlo con ellas.</h1>
+            <h1 className="mt-3 text-balance text-4xl font-extrabold leading-tight sm:text-5xl">Estamos construyendo el camino de hispanohablantes en Estados Unidos — y buscamos profesionales reales para recorrerlo con ellas.</h1>
             <p className="mt-5 max-w-xl text-lg leading-7 text-slate-200">
-              EVOLUSA conecta a inmigrantes hispanohablantes con profesionales verificados, en el momento exacto en que los necesitan. Estamos empezando ahora — y quien entra primero, crece con la plataforma, no después de ella.
+              EVOLUSA conecta a inmigrantes hispanohablantes con profesionales aprobados, en el momento exacto en que los necesitan. Estamos empezando ahora — y quien entra primero, crece con la plataforma, no después de ella.
             </p>
           </div>
         </Container>

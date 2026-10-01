@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Zap, Users, Plug, User, Bot, TrendingUp, MessageSquare, HelpCircle } from "lucide-react";
+import { ArrowRight, Zap, Users, Plug, User, Bot, HelpCircle } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 
 export default function ProfessionalDashboard() {
@@ -83,39 +83,11 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* Resumen Rápido */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-6 border border-blue-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-blue-600 font-medium">Proyección Mes 1</p>
-              <p className="text-3xl font-bold text-blue-900 mt-2">+200</p>
-              <p className="text-xs text-blue-600 mt-1">Nuevos seguidores esperados</p>
-            </div>
-            <TrendingUp className="text-blue-400" size={40} />
-          </div>
-        </div>
-
-        <div className="rounded-lg bg-gradient-to-br from-green-50 to-green-100 p-6 border border-green-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-green-600 font-medium">Leads Calificados</p>
-              <p className="text-3xl font-bold text-green-900 mt-2">18-20</p>
-              <p className="text-xs text-green-600 mt-1">Mes 1 automáticamente</p>
-            </div>
-            <MessageSquare className="text-green-400" size={40} />
-          </div>
-        </div>
-
-        <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-6 border border-purple-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-purple-600 font-medium">Ingresos Proyectados</p>
-              <p className="text-3xl font-bold text-purple-900 mt-2">$5K+</p>
-              <p className="text-xs text-purple-600 mt-1">Tu parte: $3.5K+ (70%)</p>
-            </div>
-            <Zap className="text-purple-400" size={40} />
-          </div>
-        </div>
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
+        <p className="text-sm font-medium text-blue-600">Tu avance</p>
+        <p className="mt-2 text-sm text-blue-900">
+          Aquí verás tus seguidores, contactos e ingresos reales a medida que uses la plataforma. Los resultados dependen de tu nicho y tu constancia; no prometemos cifras.
+        </p>
       </div>
 
       {/* Secciones Principales */}
@@ -192,12 +164,12 @@ export default function ProfessionalDashboard() {
       {/* Video Tutorial Section */}
       <div className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
         <h3 className="text-xl font-bold mb-2">¿Cómo Empezar?</h3>
-        <p className="text-blue-100 mb-6">Mira nuestro video tutorial de 3 minutos para entender cómo funciona la automatización de 1MIGRATION</p>
+        <p className="text-blue-100 mb-6">Conecta tus redes y revisa cómo funciona la automatización de 1MIGRATION paso a paso.</p>
         <Link
-          href="/growth-automation/demo"
+          href="/growth-automation"
           className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
         >
-          Ver Demo Interactivo
+          Ir a Growth Automation
           <ArrowRight size={18} />
         </Link>
       </div>
