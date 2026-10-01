@@ -1,6 +1,7 @@
 import { MotionConfig } from "framer-motion";
 import SiteHeader from "@/components/layout/SiteHeader";
 import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
+import EvolusaIntroSelector from "@/components/EvolusaIntroSelector";
 import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
 import UserJourneyFlow from "@/sections/home/UserJourneyFlow";
@@ -23,6 +24,9 @@ export default function Home() {
       <RoadmapScrollFix />
 
       <main className="bg-[var(--background)] text-[var(--foreground)]">
+        <div className="container mx-auto px-4 py-8">
+          <EvolusaIntroSelector />
+        </div>
         <HeroArtboard />
         <Hero />
         <ProductReveal />
