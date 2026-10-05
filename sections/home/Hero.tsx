@@ -49,25 +49,25 @@ export default function Hero() {
           <p className="mt-2 text-sm leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
-              <ButtonLink href="/aplicar-profesional" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
+              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
                 Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
-              <ButtonLink href="/profesionales" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
+              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
                 Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
-            <Link href="/login" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+            <Link href="/login" data-tour="hero-login" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               Ya tengo cuenta
             </Link>
-            <Link href="#como-funciona" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+            <Link href="#como-funciona" data-tour="hero-como-funciona" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               ¿Cómo funciona?
             </Link>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }} className="mt-10 w-full">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }} data-tour="hero-path" className="mt-10 w-full">
           <EvolusaPath theme="dark" activeId="LLEGA" />
         </motion.div>
       </Container>

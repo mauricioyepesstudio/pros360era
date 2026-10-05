@@ -92,19 +92,19 @@ export default function HeroArtboard() {
           <p className="mt-2 max-w-md text-base leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
           <div className="mt-8 flex flex-col gap-4">
             <div className="flex gap-4">
-              <ButtonLink href="/aplicar-profesional" variant="primary" title="Aplica como profesional aprobado">
+              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" title="Aplica como profesional aprobado">
                 Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
-              <ButtonLink href="/profesionales" variant="primary" title="Ver profesionales aprobados">
+              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="primary" title="Ver profesionales aprobados">
                 Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
             </div>
-            <Link href="/login" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+            <Link href="/login" data-tour="hero-login" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               Ya tengo cuenta
             </Link>
-            <Link href="#como-funciona" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+            <Link href="#como-funciona" data-tour="hero-como-funciona" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               ¿Cómo funciona?
             </Link>
           </div>
@@ -115,6 +115,7 @@ export default function HeroArtboard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          data-tour="hero-path"
           className="absolute"
           style={{ left: "5.4%", right: "4.8%", top: "63.3%" }}
         >
@@ -123,7 +124,7 @@ export default function HeroArtboard() {
 
         {/* Product Reveal panel — MEASURED: x=[5.4%,95.2%] y=[71.0%,100%]. Real
             generateRoadmap() data via the shared ProductRevealPanel component. */}
-        <div id="roadmap-desktop" className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
+        <div id="roadmap-desktop" data-tour="hero-roadmap" className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
           <ProductRevealPanel compact />
         </div>
       </div>
