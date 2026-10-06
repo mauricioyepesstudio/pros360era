@@ -1,4 +1,6 @@
+import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { professionalDraftVersion } from "@/lib/professional-drafts/validation";
 import { previewProfile } from "@/data/account/foundation";
 import type { RoadmapCategory, UserGoal, UserProfile } from "@/data/account/types";
 
@@ -13,18 +15,33 @@ import type { RoadmapCategory, UserGoal, UserProfile } from "@/data/account/type
  * session via createSupabaseServerClient, so RLS enforces ownership.
  */
 
+export const PREVIEW_ROLE_COOKIE = "evolusa_preview_role";
+
+/**
+ * Vista preliminar only (Supabase not configured, e.g. Vercel preview
+ * deployments): lets the owner switch between the member and the
+ * professional panel to review both. Never consulted once Supabase is
+ * configured, never returns ADMIN, and there is no real data behind it —
+ * every persistence function here returns its empty/demo default without
+ * Supabase.
+ */
+async function getPreviewRole(): Promise<"MEMBER" | "PROFESSIONAL"> {
+  const cookieStore = await cookies();
+  return cookieStore.get(PREVIEW_ROLE_COOKIE)?.value === "PROFESSIONAL" ? "PROFESSIONAL" : "MEMBER";
+}
+
 /**
  * Milestone 04C — the only place this repo reads profiles.role from a
  * client-facing code path, used solely to gate the professional-facing
  * /panel-profesional route in the account layout. Degrades to "MEMBER"
- * (never "PROFESSIONAL") whenever Supabase isn't configured or the caller
- * is signed out, matching every other function in this file's safe-default
- * convention — an unconfigured/signed-out request must never be treated as
- * a professional.
+ * (never "PROFESSIONAL") whenever the caller is signed out, matching every
+ * other function in this file's safe-default convention — a signed-out
+ * request must never be treated as a professional. With Supabase not
+ * configured at all it uses the preview switch above instead.
  */
 export async function getCurrentRole(): Promise<"MEMBER" | "PROFESSIONAL" | "ADMIN"> {
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return "MEMBER";
+  if (!supabase) return getPreviewRole();
 
   const {
     data: { user },
@@ -48,7 +65,7 @@ export async function getCurrentProfile(): Promise<UserProfile> {
     await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("user_goals").select("id, label, category").eq("user_id", user.id),
-      supabase.from("onboarding_responses").select("selected_needs").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("onboarding_responses").select("selected_needs").eq("user_id", user.id).neq("roadmap_version", professionalDraftVersion).order("created_at", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("roadmap_items").select("catalog_item_id").eq("user_id", user.id).eq("status", "COMPLETED"),
       supabase.from("life_events").select("catalog_event_id").eq("user_id", user.id),
     ]);

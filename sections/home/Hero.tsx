@@ -58,10 +58,7 @@ export default function Hero() {
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
-            <Link href="/login" data-tour="hero-login" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
-              Ya tengo cuenta
-            </Link>
-            <Link href="#como-funciona" data-tour="hero-como-funciona" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+            <Link href="#como-funciona" data-tour="hero-como-funciona" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/60 bg-white px-5 font-bold text-[var(--brand-navy)] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4">
               ¿Cómo funciona?
             </Link>
           </div>

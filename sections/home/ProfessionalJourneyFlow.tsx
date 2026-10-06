@@ -15,8 +15,8 @@ const steps = [
   {
     number: 2,
     icon: ShieldCheck,
-    title: "Sé verificado",
-    description: "Pasas verificación real de identidad. Tu credibilidad no se compra — se gana. Los clientes lo ven en tu perfil.",
+    title: "Obtén tu perfil aprobado",
+    description: "Revisamos tu perfil antes de publicarlo. Tu credibilidad no se compra — se gana.",
   },
   {
     number: 3,
@@ -51,7 +51,7 @@ export default function ProfessionalJourneyFlow() {
         Cómo construyes tu práctica en EVOLUSA
       </Heading>
       <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-        EVOLUSA no es una agencia. Eres propietario de tu relación con cada cliente. Clientes verificados llegan a ti porque coinciden con tu especialidad y ubicación — no porque pagaron más por aparecer primero.
+        EVOLUSA no es una agencia. Eres propietario de tu relación con cada cliente. Las personas llegan a ti porque coinciden con tu especialidad y ubicación — no porque pagaron más por aparecer primero.
       </p>
 
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -100,7 +100,7 @@ export default function ProfessionalJourneyFlow() {
             <li className="flex gap-3">
               <ArrowRight aria-hidden className="shrink-0 text-[var(--brand-coral)]" size={20} />
               <span className="text-base text-[var(--muted)]">
-                <strong>Confianza verificada:</strong> Tu identidad real, no una reputación comprada. Clientes lo ven.
+                <strong>Perfil aprobado:</strong> Una reputación que no se compra.
               </span>
             </li>
             <li className="flex gap-3">

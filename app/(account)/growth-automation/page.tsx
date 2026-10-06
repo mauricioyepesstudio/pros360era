@@ -34,15 +34,15 @@ export default async function GrowthAutomationPage() {
           <div>
             <h2 className="text-3xl font-bold">Tu sistema completo en 4 pasos</h2>
             <p className="mt-2 text-blue-100">
-              Desde conectar redes hasta ver ingresos reales, en 30 días.
+              Desde conectar tus redes hasta dar seguimiento a cada contacto.
             </p>
 
             <div className="mt-8 space-y-4">
               {[
                 { num: 1, title: "Conecta", desc: "Instagram, TikTok, YouTube" },
-                { num: 2, title: "Publica", desc: "2-3 posts automáticos diarios" },
+                { num: 2, title: "Publica", desc: "Contenido programado para tus redes" },
                 { num: 3, title: "Automatiza", desc: "IA responde, califica leads" },
-                { num: 4, title: "Cobra", desc: "70% de cada cliente nuevo" },
+                { num: 4, title: "Cobra", desc: "Tú te quedas con el 70% de lo que cobras por la plataforma" },
               ].map((step) => (
                 <div key={step.num} className="flex gap-4">
                   <div className="flex-shrink-0">
@@ -57,39 +57,13 @@ export default async function GrowthAutomationPage() {
                 </div>
               ))}
             </div>
-
-            <Link
-              href="/growth-automation/demo"
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white text-[var(--brand-navy)] px-6 py-3 font-semibold hover:bg-blue-50 transition-colors"
-            >
-              Ver Demo Interactivo
-              <ArrowRight size={18} />
-            </Link>
           </div>
 
           <div className="rounded-lg bg-white/10 p-6 backdrop-blur">
-            <h3 className="font-bold">Proyección Mes 1</h3>
-            <div className="mt-6 space-y-4">
-              <div className="flex justify-between">
-                <span className="text-blue-100">Seguidores nuevos</span>
-                <strong>+86-200</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-100">Leads calificados</span>
-                <strong>18-20</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-100">Servicios tramitados</span>
-                <strong>3-5</strong>
-              </div>
-              <div className="border-t border-white/20 pt-4">
-                <div className="flex justify-between">
-                  <span className="font-bold">Ingresos generados</span>
-                  <strong className="text-2xl">$5,000+</strong>
-                </div>
-                <p className="mt-2 text-sm text-blue-100">Tú cobras: $3,500+ (70%)</p>
-              </div>
-            </div>
+            <h3 className="font-bold">Qué esperar</h3>
+            <p className="mt-4 text-sm text-blue-100">
+              Los resultados dependen de tu nicho, tu audiencia y tu constancia. No prometemos cifras de seguidores, contactos ni ingresos: te damos las herramientas y el seguimiento para que midas tu propio avance.
+            </p>
           </div>
         </div>
       </section>

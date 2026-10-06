@@ -1,3 +1,4 @@
+import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,10 +7,11 @@ export const metadata: Metadata = {
     "Sistema automático de publicación, análisis y captura de leads para profesionales.",
 };
 
-export default function GrowthAutomationLayout({
+export default async function GrowthAutomationLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requireProfessionalArea();
   return <>{children}</>;
 }

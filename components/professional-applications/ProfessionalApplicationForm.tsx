@@ -9,6 +9,8 @@ import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import { applicationCategoryOptions } from "@/data/professional-applications/categories";
 import { submitProfessionalApplicationAction } from "@/app/aplicar-profesional/actions";
+import Link from "next/link";
+import { brand } from "@/config/brand";
 
 export default function ProfessionalApplicationForm() {
   const [fullName, setFullName] = useState("");
@@ -19,6 +21,7 @@ export default function ProfessionalApplicationForm() {
   const [credentialInfo, setCredentialInfo] = useState("");
   const [bio, setBio] = useState("");
   const [notes, setNotes] = useState("");
+  const [website, setWebsite] = useState("");
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
 
@@ -37,10 +40,17 @@ export default function ProfessionalApplicationForm() {
       credentialInfo,
       bio,
       notes,
+      website,
     });
     setPending(false);
     setResult(response.saved ? "success" : "error");
     if (response.saved) {
+      try {
+        sessionStorage.setItem("evolusa-professional-handoff-v1", JSON.stringify({
+          email: email.trim().toLowerCase(),
+          draft: { displayName: fullName, category: categoryOfInterest, city, headline: "", bio, instagram: "", facebook: "", website: "" },
+        }));
+      } catch { /* Account access remains available when browser storage is blocked. */ }
       setFullName("");
       setEmail("");
       setPhone("");
@@ -56,15 +66,19 @@ export default function ProfessionalApplicationForm() {
       <Card className="max-w-xl">
         <h2 className="text-xl font-bold text-[var(--brand-navy)]">¡Recibido!</h2>
         <p className="mt-3 leading-6 text-[var(--muted)]">
-          Gracias por tu interés en ser parte de EVOLUSA. Vamos a revisar tu información y te contactamos directamente para los siguientes pasos.
+          Tu solicitud se guardó. Ahora crea tu cuenta o inicia sesión con el mismo correo para entrar a tu espacio profesional. Puedes preparar tu presentación privada mientras el equipo revisa tu solicitud.
         </p>
+        <div className="mt-5 flex flex-wrap gap-4">
+          <Link className="rounded-full bg-[var(--brand-blue)] px-5 py-3 font-bold text-white" href="/signup?next=%2Fdashboard%2Fprofessional">Crear mi cuenta</Link>
+          <Link className="px-5 py-3 font-bold underline" href="/login?next=%2Fdashboard%2Fprofessional">Entrar a mi espacio</Link>
+        </div>
       </Card>
     );
   }
 
   return (
     <Card className="max-w-xl">
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="relative space-y-6" onSubmit={handleSubmit}>
         <FormField id="full-name" label="Nombre completo" required>
           <Input id="full-name" required maxLength={200} value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="Ej. Marie Fernández" />
         </FormField>
@@ -93,19 +107,31 @@ export default function ProfessionalApplicationForm() {
         </FormField>
 
         <FormField id="credential" label="Credencial o licencia" hint={selectedCategory.credentialHint}>
-          <Input id="credential" maxLength={200} value={credentialInfo} onChange={(event) => setCredentialInfo(event.target.value)} placeholder="Ej. Número de comisión, licencia, o colegiación" />
+          <Input id="credential" maxLength={200} value={credentialInfo} onChange={(event) => setCredentialInfo(event.target.value)} placeholder="Ej. Certificación, portafolio o años de experiencia" />
         </FormField>
 
         <FormField id="bio" label="Cuéntanos brevemente de ti" hint="Un par de líneas — experiencia, a quién ayudas, qué te distingue.">
-          <Textarea id="bio" maxLength={600} value={bio} onChange={(event) => setBio(event.target.value)} placeholder="Ej. Notaria pública en Miami, especializada en documentos de bienes raíces y poderes notariales." />
+          <Textarea id="bio" maxLength={600} value={bio} onChange={(event) => setBio(event.target.value)} placeholder="Ej. Diseño marcas y manejo redes para restaurantes en Miami." />
         </FormField>
 
         <FormField id="notes" label="¿Algo más que quieras contarnos?" hint="Opcional.">
           <Textarea id="notes" maxLength={600} value={notes} onChange={(event) => setNotes(event.target.value)} />
         </FormField>
 
+        {/* Honeypot: invisible to people, filled by bots; the server discards those submissions. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="website">Sitio web</label>
+          <input id="website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
+        </div>
+
         {result === "error" && (
-          <p className="text-sm text-[var(--danger)]">No pudimos guardar tu información. Intenta de nuevo en un momento.</p>
+          <p className="text-sm text-[var(--danger)]">
+            No pudimos guardar tu información. Revisa tu correo e inténtalo de nuevo, o{" "}
+            <a className="underline" href={brand.contact.whatsappLink}>
+              escríbenos por WhatsApp
+            </a>{" "}
+            para no perder tu solicitud.
+          </p>
         )}
 
         <Button type="submit" disabled={pending}>

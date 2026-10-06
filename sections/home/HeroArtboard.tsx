@@ -7,7 +7,6 @@ import ButtonLink from "@/components/ui/ButtonLink";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
 import ProductRevealPanel from "./ProductRevealPanel";
-import Link from "next/link";
 
 /**
  * Desktop-only (`lg:` and up). This is NOT a screenshot — every element
@@ -75,9 +74,9 @@ export default function HeroArtboard() {
           style={{ left: "6.3%", top: "16%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
-            <span className="block text-[3.25rem] font-light text-white">TU SUEÑO</span>
-            <span className="block text-[4.75rem] font-extrabold text-white">TIENE UN</span>
-            <span className="block text-[4.75rem] font-extrabold text-white">CAMINO.</span>
+            <span className="block text-[clamp(2rem,3.4vw,3.25rem)] font-light text-white">TU SUEÑO</span>
+            <span className="block text-[clamp(3rem,4.95vw,4.75rem)] font-extrabold text-white">TIENE UN</span>
+            <span className="block text-[clamp(3rem,4.95vw,4.75rem)] font-extrabold text-white">CAMINO.</span>
           </h1>
           <motion.span
             aria-hidden
@@ -90,7 +89,7 @@ export default function HeroArtboard() {
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
           <p className="mt-2 max-w-md text-base leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
-          <div className="mt-8 flex flex-col gap-4">
+          <div className="mt-5 flex flex-col gap-4">
             <div className="flex gap-4">
               <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" title="Aplica como profesional aprobado">
                 Soy profesional
@@ -101,12 +100,6 @@ export default function HeroArtboard() {
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
             </div>
-            <Link href="/login" data-tour="hero-login" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
-              Ya tengo cuenta
-            </Link>
-            <Link href="#como-funciona" data-tour="hero-como-funciona" className="inline-flex min-h-11 items-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
-              ¿Cómo funciona?
-            </Link>
           </div>
         </motion.div>
 
