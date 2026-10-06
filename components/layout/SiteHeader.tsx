@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 
 const navigation = [
   { label: "Etapas", href: "#stage-selector" },
-  { label: "Journey", href: "#journey" },
+  { label: "¿Cómo funciona?", href: "#como-funciona" },
   { label: "Servicios", href: "#stage-services" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "Confianza", href: "#trust" },
@@ -33,26 +33,11 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Threshold used to be a flat 40px, which assumed the Hero was always
-    // short. Once the desktop HeroArtboard became a full-viewport-width,
-    // aspect-ratio-locked composition (often taller than one screen), 40px
-    // made this header's opaque white bar appear while still deep inside
-    // the Hero photo, floating over HeroArtboard's own nav. Basing it on
-    // #home's actual rendered bottom edge keeps this header hidden until
-    // the Hero (mobile or desktop) has genuinely scrolled out of view.
-    //
-    // Two sections share id="home" — HeroArtboard (desktop, `hidden lg:block`)
-    // and Hero (mobile, `lg:hidden`) — so only one is ever actually rendered
-    // at a time. getElementById always returns the first one in DOM order
-    // (HeroArtboard), which on mobile is `display:none` and therefore always
-    // measures a zero-height rect. That made `bottom <= 0` true from the very
-    // first paint on mobile, showing the opaque white bar immediately instead
-    // of only after a real scroll. Pick whichever of the two is actually
-    // rendered (non-zero client rect) instead of trusting getElementById.
+    // Use the visible hero to switch contrast; interior pages use the light header.
     const onScroll = () => {
       const candidates = document.querySelectorAll<HTMLElement>("#home");
       const hero = Array.from(candidates).find((el) => el.getClientRects().length > 0);
-      const pastHero = hero ? hero.getBoundingClientRect().bottom <= 0 : window.scrollY > 40;
+      const pastHero = hero ? hero.getBoundingClientRect().bottom <= 0 : true;
       setScrolled(pastHero);
     };
     onScroll();
@@ -76,10 +61,6 @@ export default function SiteHeader() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled && !menuOpen ? "border-b border-slate-200/70 bg-[rgba(252,252,249,0.88)] backdrop-blur-xl" : "border-b border-transparent bg-transparent",
-        // The transparent/floating state is rendered by HeroArtboard on
-        // desktop instead (measured-coordinate header inside the artboard);
-        // this header only needs to appear on desktop once scrolled past it.
-        !scrolled && "lg:hidden",
       )}
     >
       {!scrolled && !menuOpen && (
@@ -89,19 +70,19 @@ export default function SiteHeader() {
         <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
           <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} />
         </Link>
-        <nav className="hidden items-center gap-7 xl:flex" aria-label="Navegación principal">
+        <nav className="hidden items-center gap-5 xl:flex" aria-label="Navegación principal">
           {navigation.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={cn("text-sm font-medium transition", scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
+              className={cn("inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4", item.href === "#como-funciona" ? "bg-white text-[var(--brand-navy)] shadow-sm hover:bg-slate-100" : scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <Link href="/login" className={cn("ml-auto hidden text-sm font-semibold transition lg:inline-flex", scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}>
-          Entrar
+        <Link href="/login" className="ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4">
+          <span className="hidden sm:inline">Ya tengo cuenta</span><span className="sm:hidden">Entrar</span>
         </Link>
 
         <button
@@ -134,7 +115,7 @@ export default function SiteHeader() {
           </ul>
           <div className="mt-6 border-t border-white/10 pt-6">
             <Link href="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">
-              Entrar
+              Ya tengo cuenta
             </Link>
           </div>
         </nav>
