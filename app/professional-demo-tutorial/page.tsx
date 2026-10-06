@@ -95,12 +95,11 @@ const steps = [
   },
   {
     number: 9,
-    title: "Resultados en 30 días",
-    description: "Esto es lo que esperas después de tu primer mes con el sistema.",
+    title: "Mide tu avance",
+    description: "Después de tu primer mes revisas lo que pasó con datos reales.",
     details: [
-      "✅ +200 nuevos seguidores",
-      "✅ 18-20 leads calificados",
-      "✅ $3,500+ en tu bolsillo (70%)"
+      "✅ Tus seguidores, contactos e ingresos reales en un panel",
+      "✅ Sin cifras prometidas: los resultados dependen de tu nicho y constancia"
     ],
     color: "#F20D24"
   }

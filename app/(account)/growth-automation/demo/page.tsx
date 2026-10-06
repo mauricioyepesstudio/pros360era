@@ -250,7 +250,7 @@ const slides: Slide[] = [
     ),
   },
   {
-    title: "Resultados Garantizados - Mes 1",
+    title: "Ejemplo ilustrativo - Mes 1",
     subtitle: "Después de 30 días trabajando 20 minutos",
     content: (
       <div className="space-y-4">
