@@ -73,7 +73,7 @@ export default function AplicarProfesionalPage() {
                 <p className="text-xs font-bold uppercase tracking-wider">Todavía en construcción</p>
               </div>
               <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                Somos honestos: estamos en una etapa temprana. Marketing y Operaciones de Negocio ya conectan clientes reales hoy. Notaría está activándose. Impuestos y Legal/Inmigración vienen después — si aplicas ahí, tu información queda guardada y te contactamos apenas esté lista tu categoría.
+                Somos honestos: estamos en una etapa temprana. Marketing y Operaciones de Negocio ya están abiertas. Notaría está activándose. Impuestos y Legal/Inmigración vienen después — si aplicas ahí, tu información queda guardada y te contactamos apenas esté lista tu categoría.
               </p>
             </div>
           </div>
