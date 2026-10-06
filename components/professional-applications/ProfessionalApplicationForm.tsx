@@ -9,6 +9,7 @@ import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import { applicationCategoryOptions } from "@/data/professional-applications/categories";
 import { submitProfessionalApplicationAction } from "@/app/aplicar-profesional/actions";
+import Link from "next/link";
 import { brand } from "@/config/brand";
 
 export default function ProfessionalApplicationForm() {
@@ -59,7 +60,7 @@ export default function ProfessionalApplicationForm() {
       <Card className="max-w-xl">
         <h2 className="text-xl font-bold text-[var(--brand-navy)]">¡Recibido!</h2>
         <p className="mt-3 leading-6 text-[var(--muted)]">
-          Gracias por tu interés en ser parte de EVOLUSA. Vamos a revisar tu información y te contactamos directamente para los siguientes pasos.
+          Tu solicitud se guardó. Ahora crea tu cuenta o inicia sesión con el mismo correo para entrar a tu espacio profesional. El equipo revisará tu categoría antes de habilitar el perfil.
         </p>
       </Card>
     );

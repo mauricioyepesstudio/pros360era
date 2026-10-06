@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
+import { safeReturnPath, professionalWorkspacePath } from "@/lib/auth/return-path";
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -23,7 +24,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const signup = mode === "signup";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = safeReturnPath(searchParams.get("next"));
+  const professional = next === professionalWorkspacePath;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -96,7 +98,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         </span>
         <h1 className="mt-6 text-2xl font-extrabold text-[var(--brand-navy)]">Revisa tu correo</h1>
         <p className="mt-3 leading-7 text-[var(--muted)]">
-          Te enviamos un enlace de confirmación a <strong>{email}</strong>. Confírmalo para activar tu cuenta.
+          Te enviamos un enlace de confirmación a <strong>{email}</strong>. Confírmalo para activar tu cuenta. Después vuelve aquí para entrar.
         </p>
       </div>
     );
@@ -112,8 +114,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </h1>
       <p className="mt-3 leading-7 text-[var(--muted)]">
         {signup
-          ? "Guarda tu diagnóstico y continúa tu camino personalizado."
-          : "Continúa tu Roadmap y revisa tu progreso."}
+          ? (professional ? "Crea tu cuenta para entrar a tu espacio profesional. La aprobación de tu perfil se realiza por separado." : "Guarda tu diagnóstico y continúa tu camino personalizado.")
+          : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu Roadmap y revisa tu progreso.")}
       </p>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
         <label className="block text-sm font-semibold text-[var(--brand-navy)]">
@@ -156,7 +158,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </form>
       <p className="mt-6 text-center text-sm text-[var(--muted)]">
         {signup ? "¿Ya tienes cuenta?" : "¿Aún no tienes cuenta?"}{" "}
-        <Link className="font-bold text-[var(--brand-blue)]" href={signup ? "/login" : "/signup"}>
+        <Link className="font-bold text-[var(--brand-blue)]" href={`${signup ? "/login" : "/signup"}?next=${encodeURIComponent(next)}`}>
           {signup ? "Entrar" : "Crear cuenta"}
         </Link>
       </p>

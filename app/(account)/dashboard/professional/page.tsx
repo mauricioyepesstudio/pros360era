@@ -1,201 +1,46 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Zap, Users, Plug, User, Bot, HelpCircle } from "lucide-react";
+import { redirect } from "next/navigation";
 import PageHeader from "@/components/account/PageHeader";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
+import { getCurrentRole } from "@/lib/account/persistence";
 
-export default function ProfessionalDashboard() {
-  const [showTooltip, setShowTooltip] = useState<string | null>(null);
-
-  const sections = [
-    {
-      id: "growth",
-      title: "🚀 Crecimiento Automático",
-      description: "Publica contenido, capta leads y crece tu audiencia automáticamente",
-      icon: Zap,
-      href: "/growth-automation",
-      stats: [
-        { label: "Seguidores este mes", value: "+0", color: "text-blue-600" },
-        { label: "Leads capturados", value: "0", color: "text-green-600" },
-      ],
-      tooltip: "Conecta Instagram y activa la automatización de contenido. El sistema publicará 2-3 posts diarios y responderá comentarios con IA.",
-    },
-    {
-      id: "crm",
-      title: "👥 Gestión de Clientes",
-      description: "Administra leads, conversaciones y oportunidades de venta",
-      icon: Users,
-      href: "/crm",
-      stats: [
-        { label: "Leads activos", value: "0", color: "text-purple-600" },
-        { label: "Conversiones", value: "0%", color: "text-orange-600" },
-      ],
-      tooltip: "Tu CRM multicanal: WhatsApp, Instagram, Facebook, Email. Todos los leads en un solo lugar. Pipeline de ventas integrado.",
-    },
-    {
-      id: "conexiones",
-      title: "🔗 Mis Conexiones",
-      description: "Miembros de EVOLUSA que están usando tus servicios",
-      icon: Plug,
-      href: "/conexiones",
-      stats: [
-        { label: "Conexiones activas", value: "0", color: "text-indigo-600" },
-        { label: "Tasa de engagement", value: "0%", color: "text-pink-600" },
-      ],
-      tooltip: "Aquí ves a todos los miembros que eligieron trabajar contigo. Mantén el contacto y expande tu red.",
-    },
-    {
-      id: "perfil",
-      title: "👤 Mi Perfil Profesional",
-      description: "Tu marca 1MIGRATION y configuración profesional",
-      icon: User,
-      href: "/perfil",
-      stats: [
-        { label: "Perfil completitud", value: "85%", color: "text-green-600" },
-        { label: "Visibilidad", value: "Alto", color: "text-blue-600" },
-      ],
-      tooltip: "Configura tu marca, agregá tu foto, descripción y enlaces. Los clientes ven esta información cuando buscan profesionales.",
-    },
-    {
-      id: "asistente",
-      title: "🤖 Asistente IA",
-      description: "Tu asistente de IA para crear contenido y responder mensajes",
-      icon: Bot,
-      href: "/asistente",
-      stats: [
-        { label: "Contenido generado", value: "0", color: "text-cyan-600" },
-        { label: "Tiempo ahorrado", value: "0 hrs", color: "text-teal-600" },
-      ],
-      tooltip: "Crea posts, responde mensajes, genera propuestas. El asistente aprende de tu estilo y adapta las respuestas.",
-    },
-  ];
-
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="space-y-4">
-        <PageHeader
-          eyebrow="Tu Panel de Control"
-          title="Bienvenida a 1MIGRATION"
-          description="Gestiona tu crecimiento, clientes y automatización en un solo lugar"
-        />
-      </div>
-
-      {/* Resumen Rápido */}
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
-        <p className="text-sm font-medium text-blue-600">Tu avance</p>
-        <p className="mt-2 text-sm text-blue-900">
-          Aquí verás tus seguidores, contactos e ingresos reales a medida que uses la plataforma. Los resultados dependen de tu nicho y tu constancia; no prometemos cifras.
-        </p>
-      </div>
-
-      {/* Secciones Principales */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Tus Herramientas</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.map((section) => {
-            const Icon = section.icon;
-            return (
-              <Link
-                key={section.id}
-                href={section.href}
-                className="group rounded-lg border border-gray-200 bg-white p-6 hover:border-blue-400 hover:shadow-lg transition-all"
-              >
-                <div className="space-y-4">
-                  {/* Header */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="rounded-lg bg-blue-50 p-3">
-                        <Icon className="text-blue-600" size={24} />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900">{section.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{section.description}</p>
-                      </div>
-                    </div>
-
-                    {/* Tooltip Button */}
-                    <div className="relative">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowTooltip(showTooltip === section.id ? null : section.id);
-                        }}
-                        className="text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
-                        title="Más info"
-                      >
-                        <HelpCircle size={20} />
-                      </button>
-
-                      {/* Tooltip */}
-                      {showTooltip === section.id && (
-                        <div className="absolute right-0 top-8 z-10 w-64 rounded-lg bg-gray-900 text-white p-4 text-sm shadow-lg">
-                          <p>{section.tooltip}</p>
-                          <div className="absolute -top-2 right-6 w-4 h-4 bg-gray-900 transform rotate-45"></div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {section.stats.map((stat, idx) => (
-                      <div key={idx} className="rounded-lg bg-gray-50 p-3">
-                        <p className="text-xs text-gray-600">{stat.label}</p>
-                        <p className={`text-lg font-bold mt-1 ${stat.color}`}>{stat.value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTA */}
-                  <div className="flex items-center gap-2 text-blue-600 font-semibold group-hover:gap-3 transition-all">
-                    Acceder
-                    <ArrowRight size={18} />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Video Tutorial Section */}
-      <div className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
-        <h3 className="text-xl font-bold mb-2">¿Cómo Empezar?</h3>
-        <p className="text-blue-100 mb-6">Conecta tus redes y revisa cómo funciona la automatización de 1MIGRATION paso a paso.</p>
-        <Link
-          href="/growth-automation"
-          className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-        >
-          Ir a Growth Automation
-          <ArrowRight size={18} />
-        </Link>
-      </div>
-
-      {/* Revenue Split Info */}
-      <div className="rounded-lg border border-green-200 bg-green-50 p-6">
-        <h3 className="font-bold text-green-900">Tu Modelo de Ingresos</h3>
-        <p className="text-green-700 mt-2 text-sm">
-          Tú recibes el <strong>70%</strong> de todos los ingresos generados a través de 1MIGRATION.
-          EVOLUSA mantiene el 30% para operar la plataforma y la automatización.
-          <strong> Sin costos iniciales, sin riesgo.</strong>
-        </p>
-        <div className="mt-4 grid grid-cols-3 gap-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">70%</p>
-            <p className="text-xs text-green-700 mt-1">Para ti</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs text-green-600">÷</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">30%</p>
-            <p className="text-xs text-green-700 mt-1">Plataforma</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+export default async function ProfessionalDashboard() {
+ const supabase = await createSupabaseServerClient();
+ const user = supabase ? (await supabase.auth.getUser()).data.user : null;
+ if (!user) redirect("/login?next=%2Fdashboard%2Fprofessional");
+ const [profile, role] = await Promise.all([getMyProfessionalProfile(), getCurrentRole()]);
+ const canEdit = role === "PROFESSIONAL" && !!profile;
+ return <div className="space-y-8">
+  <PageHeader eyebrow="Tu espacio profesional" title={profile ? `Hola, ${profile.displayName}` : "Bienvenido a tu espacio profesional"} description="Prepara tu presentación, conoce el proceso y revisa los próximos pasos." />
+  <section className="rounded-xl border border-[var(--border)] bg-white p-6">
+   <h2 className="text-xl font-bold">Estado de tu perfil</h2>
+   <p className="mt-3">{profile ? (profile.isApproved ? "Perfil aprobado" : "Perfil pendiente de revisión") : "Tu cuenta está activa. El equipo debe revisar tu solicitud y habilitar tu perfil profesional."}</p>
+   <p className="mt-3 text-sm text-[var(--muted)]">Crear una cuenta no publica tu perfil ni acredita tu identidad. La aprobación y la verificación son pasos separados.</p>
+   {!profile && <p className="mt-3 text-sm">Si ya enviaste el formulario, usa el mismo correo. Si no lo enviaste, <Link className="underline" href="/aplicar-profesional">completa tu solicitud</Link>. Aquí no mostramos solicitudes por coincidencia de correo.</p>}
+  </section>
+  <section className="rounded-xl border border-[var(--border)] bg-white p-6">
+   <h2 className="text-xl font-bold">Cómo funciona para ti</h2>
+   <ol className="mt-4 list-decimal space-y-3 pl-5">
+    <li>Envías tu información y creas tu cuenta.</li>
+    <li>El equipo revisa tu categoría y habilita tu perfil. Puedes completar tu presentación cuando esté disponible.</li>
+    <li>Revisas tu pitch, servicios, ubicación y enlaces antes de que se publiquen.</li>
+    <li>Las integraciones de redes requieren autorización específica. Registrar un enlace no autoriza publicaciones.</li>
+    <li>Revisas las oportunidades que correspondan a tu perfil. No prometemos clientes ni ingresos.</li>
+   </ol>
+  </section>
+  <section className="rounded-xl border border-[var(--border)] bg-white p-6">
+   <h2 className="text-xl font-bold">Tu pitch profesional</h2>
+   <p className="mt-3 font-semibold">{profile?.headline || "Tu presentación todavía está pendiente."}</p>
+   <p className="mt-3 whitespace-pre-line">{profile?.bio || "Describe a quién ayudas, qué servicio ofreces y tu experiencia real. No añadas credenciales que no puedas respaldar."}</p>
+   {canEdit && <Link className="mt-4 inline-block font-bold underline" href="/panel-profesional/perfil">Editar mi perfil y presentación</Link>}
+  </section>
+  <section className="rounded-xl border border-[var(--border)] bg-white p-6">
+   <h2 className="text-xl font-bold">Redes sociales y permisos</h2>
+   <p className="mt-3">Puedes añadir enlaces a tus redes en tu perfil. Son enlaces de presentación, no cuentas conectadas.</p>
+   <p className="mt-3 text-sm text-[var(--muted)]">La conexión para consultar estadísticas o preparar contenido necesita un flujo de autorización verificado por plataforma. No está habilitada en este recorrido. Nunca compartas contraseñas; cada permiso debe indicar su finalidad y cómo revocarlo.</p>
+   {canEdit && <Link className="mt-4 inline-block underline" href="/panel-profesional/perfil">Añadir enlaces de mis redes</Link>}
+  </section>
+  {canEdit && <Link className="inline-block rounded-full bg-[var(--brand-blue)] px-6 py-3 font-bold text-white" href="/panel-profesional/oportunidades">Revisar mis oportunidades</Link>}
+ </div>;
 }
