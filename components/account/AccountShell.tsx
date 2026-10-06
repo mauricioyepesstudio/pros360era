@@ -36,6 +36,7 @@ function buildNav(role: "MEMBER" | "PROFESSIONAL" | "ADMIN") {
   const isProfessional = role === "PROFESSIONAL";
   return [
     { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
+    { href: "/dashboard/professional", label: "Espacio profesional", icon: Briefcase },
     isProfessional
       ? { href: "/panel-profesional/oportunidades", label: "Oportunidades", icon: Briefcase }
       : { href: "/conexiones", label: "Conexiones", icon: Handshake },

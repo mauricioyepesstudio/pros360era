@@ -45,6 +45,12 @@ export default function ProfessionalApplicationForm() {
     setPending(false);
     setResult(response.saved ? "success" : "error");
     if (response.saved) {
+      try {
+        sessionStorage.setItem("evolusa-professional-handoff-v1", JSON.stringify({
+          email: email.trim().toLowerCase(),
+          draft: { displayName: fullName, category: categoryOfInterest, city, headline: "", bio, instagram: "", facebook: "", website: "" },
+        }));
+      } catch { /* Account access remains available when browser storage is blocked. */ }
       setFullName("");
       setEmail("");
       setPhone("");
@@ -60,8 +66,12 @@ export default function ProfessionalApplicationForm() {
       <Card className="max-w-xl">
         <h2 className="text-xl font-bold text-[var(--brand-navy)]">¡Recibido!</h2>
         <p className="mt-3 leading-6 text-[var(--muted)]">
-          Tu solicitud se guardó. Ahora crea tu cuenta o inicia sesión con el mismo correo para entrar a tu espacio profesional. El equipo revisará tu categoría antes de habilitar el perfil.
+          Tu solicitud se guardó. Ahora crea tu cuenta o inicia sesión con el mismo correo para entrar a tu espacio profesional. Puedes preparar tu presentación privada mientras el equipo revisa tu solicitud.
         </p>
+        <div className="mt-5 flex flex-wrap gap-4">
+          <Link className="rounded-full bg-[var(--brand-blue)] px-5 py-3 font-bold text-white" href="/signup?next=%2Fdashboard%2Fprofessional">Crear mi cuenta</Link>
+          <Link className="px-5 py-3 font-bold underline" href="/login?next=%2Fdashboard%2Fprofessional">Entrar a mi espacio</Link>
+        </div>
       </Card>
     );
   }
