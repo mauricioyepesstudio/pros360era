@@ -6,7 +6,6 @@ import type { NextConfig } from "next";
 // advisor. Temporary redirects so they can be restored.
 const PAUSED_DEMO_ROUTES: { source: string; destination: string }[] = [
   { source: "/professional-demo", destination: "/aplicar-profesional" },
-  { source: "/professional-laura-demo", destination: "/aplicar-profesional" },
   { source: "/professional-demo-tutorial", destination: "/aplicar-profesional" },
   { source: "/professional-invite", destination: "/aplicar-profesional" },
   { source: "/growth-automation/demo", destination: "/growth-automation" },
