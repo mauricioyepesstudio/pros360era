@@ -7,20 +7,21 @@
  * Supabase project); `live: false` ones are shown so real interest isn't
  * lost while the category is built, with copy that's honest about
  * "próximamente."
+ *
+ * Only non-regulated categories are offered (CLAUDE.md rule 2 and the
+ * owner's decision of 2026-09-30): no notary, tax or legal/immigration
+ * options until the owner explicitly enables a regulated category.
  */
 
 /**
- * Whether the professional_applications table (migration 0014) actually
- * exists in the live Supabase project yet. As of this flag's introduction
- * it does NOT — 0014 is still "PROPOSED ONLY. NOT APPLIED." (see the
- * migration file's own header). Until an operator applies it, every
- * submission through this form would fail against the live database
- * (relation does not exist), silently losing exactly the real professional
- * interest this page exists to capture. Flip to `true` once 0014 is
- * confirmed applied — see app/aplicar-profesional/page.tsx for how this
- * gates the form.
+ * Whether the public form is shown. The professional_applications table
+ * exists in the live project (verified 2026-10-06), and its column-level
+ * INSERT grant for anon/authenticated is restored by
+ * supabase/migrations/20261006_evolusa_professional_applications_insert_grant.sql.
+ * If a submission still fails, the form itself offers WhatsApp so the lead
+ * is not lost.
  */
-export const professionalApplicationsAcceptingSubmissions = false;
+export const professionalApplicationsAcceptingSubmissions = true;
 
 export type ApplicationCategoryOption = {
   id: string;
@@ -43,31 +44,9 @@ export const applicationCategoryOptions: readonly ApplicationCategoryOption[] = 
     credentialHint: "No requiere licencia — cuéntanos tu experiencia.",
   },
   {
-    id: "NOTARY",
-    label: "Notaría Pública",
-    // Not live yet: 0013 (the NOTARY regulated-category migration, with its
-    // hard SQL-level credential-verification gate) is authored and
-    // security-reviewed but still "NOT yet applied" per docs/CURRENT-STATE.md
-    // — the Opportunity Engine cannot route a real NOTARY match today.
-    live: false,
-    credentialHint: "Tu número de comisión de notaria de Florida (lo verificamos contra el registro público del estado).",
-  },
-  {
-    id: "TAX",
-    label: "Impuestos y Contabilidad",
-    live: false,
-    credentialHint: "Tu credencial de CPA, EA, o número PTIN — próximamente en la plataforma, regístrate y te contactamos primero.",
-  },
-  {
-    id: "LEGAL",
-    label: "Legal e Inmigración",
-    live: false,
-    credentialHint: "Tu número de colegiación (Florida Bar) o acreditación DOJ-EOIR — próximamente en la plataforma, regístrate y te contactamos primero.",
-  },
-  {
     id: "OTHER",
     label: "Otro / No estoy seguro",
     live: false,
-    credentialHint: "Cuéntanos qué servicio ofreces y lo ubicamos en la categoría correcta.",
+    credentialHint: "Cuéntanos qué servicio de negocio ofreces y lo ubicamos en la categoría correcta.",
   },
 ] as const;
