@@ -44,8 +44,8 @@ export default async function ProfessionalPanelPage() {
     {
       href: "/growth-automation",
       title: "Crecimiento",
-      description: "Herramientas para tus redes sociales y tu contenido.",
-      detail: "Herramienta de marketing",
+      description: "Conexión de redes y automatizaciones aún no disponibles.",
+      detail: "En preparación",
       icon: Rocket,
     },
   ];

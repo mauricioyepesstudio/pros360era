@@ -1,33 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, Phone, MessageSquare, Target, CheckCircle2, AlertCircle } from "lucide-react";
+import { BarChart3, MessageSquare, Target, CheckCircle2, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 
-interface DashboardData {
-  totalLeads: number;
-  leadsThisMonth: number;
-  leadsBySource: Record<string, number>;
-  conversationsByChannel: Record<string, number>;
-  openConversations: number;
-  tasksOverdue: number;
-  tasksToday: number;
-  opportunitiesInPipeline: number;
-  pipelineValue: number;
-  conversionRate: number;
-}
+import { parseCRMDashboardResponse, type DashboardData } from "@/lib/crm/dashboard-response";
 
 export default function CRMPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    fetch("/api/crm/dashboard")
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+    const controller = new AbortController();
+    fetch("/api/crm/dashboard", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("CRM unavailable");
+        return parseCRMDashboardResponse(await response.json());
+      })
+      .then((dashboard) => { if (!controller.signal.aborted) setData(dashboard); })
+      .catch(() => { if (!controller.signal.aborted) setData(null); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [attempt]);
 
   if (loading) {
     return (
@@ -47,8 +42,9 @@ export default function CRMPage() {
         <PageHeader
           eyebrow="Error"
           title="No disponible"
-          description="No pudimos cargar el dashboard"
+          description="No pudimos cargar tus datos. No se muestran cifras hasta obtener una respuesta válida."
         />
+        <button type="button" onClick={() => { setLoading(true); setData(null); setAttempt((value) => value + 1); }} className="rounded-lg bg-[var(--brand-blue)] px-5 py-3 font-bold text-white">Intentar de nuevo</button>
       </div>
     );
   }

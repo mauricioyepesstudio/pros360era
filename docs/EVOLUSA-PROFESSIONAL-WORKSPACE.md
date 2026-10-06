@@ -33,3 +33,9 @@ Validación: lint (0 errores; warnings preexistentes), TypeScript, 77 pruebas y
 build. Prueba viva en transacción revertida: INSERT/SELECT propio funciona;
 INSERT/SELECT de otro usuario es rechazado. No quedaron usuarios/datos de prueba.
 Recorrido web autenticado completo y despliegue pendientes de publicación.
+
+## Disponibilidad de CRM y crecimiento — 2026-10-06
+
+El panel separa miembros y profesionales; los solicitantes conservan su borrador privado en `/dashboard/professional`. Las herramientas de crecimiento están **en preparación**: sus pantallas informan indisponibilidad y todos sus endpoints devuelven 503 antes de iniciar OAuth, intercambiar tokens, generar, programar o publicar contenido. El catálogo no ofrece este módulo como servicio habilitado. La reactivación requiere implementar y verificar consentimiento, estado OAuth ligado a sesión, persistencia segura, propiedad de cuentas y confirmación real de publicación; no basta con configurar credenciales.
+
+El dashboard CRM conserva el alcance del usuario autenticado. Un error de consulta devuelve 503; la interfaz muestra un error con reintento y rechaza respuestas incompletas. Solo una consulta válida sin filas representa cero contactos. No se han aplicado migraciones ni habilitado cobros.

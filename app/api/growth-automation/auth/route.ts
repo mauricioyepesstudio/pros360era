@@ -1,3 +1,4 @@
+import { isGrowthAutomationReady, growthUnavailableMessage } from "@/lib/growth-automation/readiness";
 import { NextRequest, NextResponse } from "next/server";
 
 const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID || "";
@@ -5,6 +6,9 @@ const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET || "";
 const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/growth-automation/callback`;
 
 export async function GET(request: NextRequest) {
+  if (!isGrowthAutomationReady()) {
+    return NextResponse.json({ error: growthUnavailableMessage }, { status: 503 });
+  }
   const { searchParams } = new URL(request.url);
   const platform = searchParams.get("platform");
 

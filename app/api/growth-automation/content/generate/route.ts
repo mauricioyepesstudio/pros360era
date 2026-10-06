@@ -1,8 +1,12 @@
+import { isGrowthAutomationReady, growthUnavailableMessage } from "@/lib/growth-automation/readiness";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { generateContent, generateWeekSchedule } from "@/lib/growth-automation/content-generator";
 
 export async function POST(request: NextRequest) {
+  if (!isGrowthAutomationReady()) {
+    return NextResponse.json({ error: growthUnavailableMessage }, { status: 503 });
+  }
   try {
     const supabase = await createSupabaseServerClient();
     if (!supabase) {
