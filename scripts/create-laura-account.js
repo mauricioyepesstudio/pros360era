@@ -34,47 +34,38 @@ async function createLauraAccount() {
     const userId = authData.user.id;
     console.log("✅ Usuario Auth creado:", userId);
 
-    // 2. Crear perfil PROFESSIONAL
-    const { error: profileError } = await supabase.from("profiles").insert({
+    // 2. Marcar el perfil como PROFESSIONAL (el trigger handle_new_user ya creó la fila;
+    //    profiles no tiene email/full_name/bio/avatar_url, solo name)
+    const { error: profileError } = await supabase.from("profiles").upsert({
       id: userId,
-      email,
-      full_name: "Laura - One Migration",
+      name: "Laura - One Migration",
       role: "PROFESSIONAL",
-      avatar_url: null,
-      bio: "Gestora de inmigración en EEUU | Coral Gables, FL",
     });
 
     if (profileError) throw profileError;
     console.log("✅ Perfil PROFESSIONAL creado");
 
-    // 3. Crear professional_profile
+    // 3. Crear professional_profile con las columnas reales (0005, 0015).
+    //    Categoría no regulada; is_approved queda en false hasta que un operador lo apruebe.
     const { error: profError } = await supabase.from("professional_profiles").insert({
       user_id: userId,
-      business_name: "One Migration",
-      niche: "Gestión de Inmigración",
-      location: "Coral Gables, FL, United States",
-      website: "https://beacons.ai/onemigration/materialgratuito",
-      instagram: "https://www.instagram.com/onemigration/",
+      display_name: "One Migration",
+      slug: `one-migration-${userId.replace(/-/g, "").slice(0, 6)}`,
+      category: "BUSINESS_MARKETING",
+      consultation_mode: "BOTH",
+      headline: "Gestión de Inmigración",
       bio: "Ayudamos profesionales a gestionar inmigración en EEUU",
+      city: "Coral Gables",
+      state: "FL",
+      website_url: "https://beacons.ai/onemigration/materialgratuito",
+      social_links: { instagram: "https://www.instagram.com/onemigration/" },
     });
 
     if (profError && profError.code !== "23505") throw profError;
     console.log("✅ Professional profile creado");
 
-    // 4. Crear servicio Growth Automation
-    const { error: serviceError } = await supabase.from("user_services").insert({
-      user_id: userId,
-      service_id: "growth-automation",
-      status: "active",
-      settings: {
-        niche: "Gestión de Inmigración",
-        target_audience: "Personas que necesitan gestión de inmigración",
-        revenue_split: 70,
-      },
-    });
-
-    if (serviceError && serviceError.code !== "23505") throw serviceError;
-    console.log("✅ Servicio Growth Automation asignado");
+    // Growth Automation no se asigna aquí: la tabla user_services nunca existió
+    // y las tablas de Growth (20260929) no están aplicadas en Supabase.
 
     console.log("\n" + "=".repeat(60));
     console.log("✅ CUENTA DE LAURA CREADA EXITOSAMENTE");
@@ -82,7 +73,6 @@ async function createLauraAccount() {
     console.log(`📧 Email: ${email}`);
     console.log(`🔑 Contraseña temporal: ${password}`);
     console.log(`👤 Role: PROFESSIONAL`);
-    console.log(`🚀 Growth Automation: ACTIVADO`);
     console.log("\n⚠️  IMPORTANTE: Laura debe cambiar su contraseña en el login");
     console.log(`🔗 URL para ingresar: http://localhost:3002`);
     console.log("=".repeat(60));
