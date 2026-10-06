@@ -10,17 +10,15 @@
  */
 
 /**
- * Whether the professional_applications table (migration 0014) actually
- * exists in the live Supabase project yet. As of this flag's introduction
- * it does NOT — 0014 is still "PROPOSED ONLY. NOT APPLIED." (see the
- * migration file's own header). Until an operator applies it, every
- * submission through this form would fail against the live database
- * (relation does not exist), silently losing exactly the real professional
- * interest this page exists to capture. Flip to `true` once 0014 is
- * confirmed applied — see app/aplicar-profesional/page.tsx for how this
- * gates the form.
+ * Whether the public form saves to the professional_applications table
+ * (migration 0014). Confirmed applied in the live Supabase project on
+ * 2026-10-06: same columns as lib/professional-applications/persistence.ts,
+ * RLS on, a single INSERT policy for anon/authenticated and column-level
+ * INSERT grants only (no SELECT/UPDATE/DELETE for either role). Set back
+ * to `false` to fall back to the WhatsApp/phone card in
+ * app/aplicar-profesional/page.tsx.
  */
-export const professionalApplicationsAcceptingSubmissions = false;
+export const professionalApplicationsAcceptingSubmissions = true;
 
 export type ApplicationCategoryOption = {
   id: string;
