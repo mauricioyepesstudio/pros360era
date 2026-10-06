@@ -81,9 +81,13 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link href="/login" className="ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4">
-          <span className="hidden sm:inline">Ya tengo cuenta</span><span className="sm:hidden">Entrar</span>
-        </Link>
+        <details className="relative z-10 ml-auto shrink-0" onKeyDown={(event) => { if (event.key === "Escape") event.currentTarget.open = false; }}>
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4"><span className="hidden sm:inline">Ya tengo cuenta</span><span className="sm:hidden">Entrar</span></summary>
+          <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--border)] bg-white p-2 text-[var(--brand-navy)] shadow-lg">
+            <Link href="/login?next=%2Fdashboard" className="block rounded-lg px-3 py-3 font-semibold hover:bg-[var(--sky-surface)]">Soy usuario<span className="mt-1 block text-xs font-normal">Mi perfil y mi proceso</span></Link>
+            <Link href="/login?next=%2Fdashboard%2Fprofessional" className="block rounded-lg px-3 py-3 font-semibold hover:bg-[var(--sky-surface)]">Soy profesional<span className="mt-1 block text-xs font-normal">Mi perfil y servicios</span></Link>
+          </div>
+        </details>
 
         <button
           type="button"
@@ -114,9 +118,8 @@ export default function SiteHeader() {
             ))}
           </ul>
           <div className="mt-6 border-t border-white/10 pt-6">
-            <Link href="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">
-              Ya tengo cuenta
-            </Link>
+            <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">Entrar como usuario</Link>
+            <Link href="/login?next=%2Fdashboard%2Fprofessional" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">Entrar como profesional</Link>
           </div>
         </nav>
       )}

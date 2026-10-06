@@ -19,7 +19,7 @@ export default async function ProfessionalDashboard() {
    <h2 className="text-xl font-bold">Estado de tu perfil</h2>
    <p className="mt-3">{profile ? (profile.isApproved ? "Perfil aprobado" : "Perfil pendiente de revisión") : "Tu cuenta está activa. Puedes completar tu perfil privado ahora. La publicación sigue pendiente de revisión."}</p>
    <p className="mt-3 text-sm text-[var(--muted)]">Crear una cuenta no publica tu perfil ni acredita tu identidad. La aprobación y la verificación son pasos separados.</p>
-   {!profile && <p className="mt-3 text-sm">Si ya enviaste el formulario, usa el mismo correo. Si no lo enviaste, <Link className="underline" href="/aplicar-profesional">completa tu solicitud</Link>. Aquí no mostramos solicitudes por coincidencia de correo.</p>}
+   {!profile && <p className="mt-3 text-sm">Si ya enviaste el formulario, usa el mismo correo. Si no lo enviaste, <Link className="underline" href="/aplicar-profesional">completa tu solicitud</Link>. Tu solicitud y tu presentación privada se revisan por separado; completar este espacio no publica tu perfil.</p>}
   </section>
   {!profile && <ProfessionalDraftForm initial={draft} />}
   <section className="rounded-xl border border-[var(--border)] bg-white p-6">
