@@ -61,6 +61,9 @@ export default function Hero() {
             <Link href="/login" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
               Ya tengo cuenta
             </Link>
+            <Link href="#como-funciona" className="inline-flex min-h-11 items-center justify-center font-semibold text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white">
+              ¿Cómo funciona?
+            </Link>
           </div>
         </motion.div>
 
