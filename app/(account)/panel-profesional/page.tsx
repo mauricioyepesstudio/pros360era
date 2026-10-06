@@ -7,9 +7,10 @@ import { getMyRoutedOpportunitiesForProfessional } from "@/lib/opportunities/per
 import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 
 /**
- * Home of the professional panel. Replaces /dashboard/professional (which
- * proxy.ts now redirects here): only real data from the professional's own
- * rows, no projected followers, leads or income.
+ * Home of the professional panel (PROFESSIONAL role). Applicants who are
+ * still MEMBER use /dashboard/professional for their private draft. Only
+ * real data from the professional's own rows, no projected followers, leads
+ * or income.
  */
 export default async function ProfessionalPanelPage() {
   await requireProfessionalArea();

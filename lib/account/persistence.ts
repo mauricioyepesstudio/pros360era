@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { professionalDraftVersion } from "@/lib/professional-drafts/validation";
 import { previewProfile } from "@/data/account/foundation";
 import type { RoadmapCategory, UserGoal, UserProfile } from "@/data/account/types";
 
@@ -64,7 +65,7 @@ export async function getCurrentProfile(): Promise<UserProfile> {
     await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("user_goals").select("id, label, category").eq("user_id", user.id),
-      supabase.from("onboarding_responses").select("selected_needs").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("onboarding_responses").select("selected_needs").eq("user_id", user.id).neq("roadmap_version", professionalDraftVersion).order("created_at", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("roadmap_items").select("catalog_item_id").eq("user_id", user.id).eq("status", "COMPLETED"),
       supabase.from("life_events").select("catalog_event_id").eq("user_id", user.id),
     ]);

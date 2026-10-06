@@ -3,7 +3,8 @@
  * asesoría) and a PROFESSIONAL live in two separate panels: the member one
  * is the journey (Roadmap, Conexiones, Asistente); the professional one is
  * the business side (Oportunidades, perfil profesional, Clientes/CRM,
- * Crecimiento). No tab is shared between the two, so a member never sees
+ * Crecimiento). The member panel also links the applicant "Espacio
+ * profesional" (private draft), but never CRM or Crecimiento. No tab is shared between the two, so a member never sees
  * CRM or Crecimiento and a professional never lands on a member Roadmap.
  *
  * ADMIN (the owner) keeps the member panel plus Admin.
@@ -35,6 +36,9 @@ const memberNav: readonly AccountNavItem[] = [
   { href: "/conexiones", label: "Conexiones", icon: "handshake" },
   { href: "/assistant", label: "Asistente", icon: "bot" },
   { href: "/profile", label: "Perfil", icon: "user" },
+  // Applicants keep the MEMBER role until their profile is approved; this is
+  // where they save their private draft (docs/EVOLUSA-PROFESSIONAL-WORKSPACE.md).
+  { href: "/dashboard/professional", label: "Espacio profesional", icon: "briefcase" },
 ];
 
 const professionalNav: readonly AccountNavItem[] = [

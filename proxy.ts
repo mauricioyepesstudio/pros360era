@@ -14,12 +14,6 @@ const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", 
  * must not fabricate a signed-in or signed-out gate before real auth exists.
  */
 export async function proxy(request: NextRequest) {
-  // The professional home moved into the professional panel; old links
-  // (onboarding, bookmarks) still point at /dashboard/professional.
-  if (request.nextUrl.pathname === "/dashboard/professional") {
-    return NextResponse.redirect(new URL("/panel-profesional", request.url));
-  }
-
   const env = getSupabaseEnv();
   if (!env) return NextResponse.next();
 

@@ -31,7 +31,7 @@ export default async function ProfessionalesPage() {
       <SiteHeader />
       <main className="bg-[var(--background)] text-[var(--foreground)]">
         <Section className="pt-32 sm:pt-40" labelledBy="professionals-directory-title">
-          <Heading id="professionals-directory-title" eyebrow="Red de profesionales">
+          <Heading id="professionals-directory-title" eyebrow="Conecta con Profesionales">
             Profesionales de EVOLUSA
           </Heading>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)]">
@@ -42,9 +42,9 @@ export default async function ProfessionalesPage() {
           {professionals.length === 0 ? (
             <Card className="mt-10 max-w-xl">
               <p className="text-lg font-semibold text-[var(--brand-navy)]">Estamos sumando profesionales aprobados.</p>
-              <p className="mt-2 text-[var(--muted)]">Cuéntanos qué necesitas y te conectamos.</p>
+              <p className="mt-2 text-[var(--muted)]">Cuéntanos qué necesitas.</p>
               <ButtonLink href="/onboarding" className="mt-5">
-                Contarnos qué necesito
+                Continuar
               </ButtonLink>
             </Card>
           ) : (
