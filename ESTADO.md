@@ -89,3 +89,14 @@ Checkout aislado desde `ef9473f`: migración generada con CLI `20261006184204_cr
 Metadatos vivos revisados por coordinador el 2026-10-06: tablas leads/contacts ausentes; ledger de 14 entradas sin los tres borradores CRM 0017/0018/0019. Esos borradores inválidos fueron movidos a `supabase/drafts/` sin cambiar sus bytes. No usar blanket db push: otros pendientes y colisiones históricas permanecen. Runbook exacto de aprobación/aplicación y rollback de acceso sin borrar datos: `docs/CRM-MANUAL-CAPTURE-APPLY.md`.
 
 Validación: `npm ci`, ESLint (0 errores, 7 advertencias existentes), `tsc --noEmit`, 91 pruebas, build de producción y diff check pasan. Cinco pruebas nuevas incluyen ejecución real del SQL en PostgreSQL PGlite con usuarios sintéticos: aislamientos de dueño/rol, denegación de dueño/status/consentimiento y UPDATE/DELETE/TRUNCATE, opt-ins false, duplicados por email y rollback que preserva datos. Revisor independiente arquitecto/steward/security/compliance: PASS. Invocación directa de 7 handlers CRM compilados sin configuración: 503; no prueba HTTP ni autenticada. No se cambió ninguna base viva, secreto, permiso existente ni cuenta. Pendientes: aprobación explícita de este esquema/grants, PR/CI/despliegue y prueba con sesiones profesionales/miembro autorizadas; no afirmar persistencia real en producción antes de completarlo.
+
+
+### 2026-10-06 — CRM manual activado, PR28 integrado
+
+- Owner autorizó expresamente la migración después de revisar el alcance de dos tablas. Revisión de seguridad y CI aprobados: 91 pruebas, TypeScript, lint y build.
+- PR28 integrado: a8a144cbf69100460249076a20e345f9e6af410c. Migración viva crm_manual_capture_v1, ledger 20261006185802, proyecto ovialqdazxkekvqqgdiu.
+- crm_leads y crm_contacts creadas. Metadatos vivos confirman RLS y dos políticas por tabla, sin lectura anon, sin UPDATE/DELETE ni INSERT de user_id para authenticated. Consentimientos por defecto false. No se activó OAuth ni envío de mensajes.
+- Función: /crm/leads/new → listado → métricas de leads persistidos. Preview READY del commit fuente; despliegue de producción en verificación al redactar esta nota.
+- Límite: falta sesión profesional de prueba para validar guardado/listado/dashboard y aislamiento en Data API con dos propietarios reales de prueba. No se afirma recorrido autenticado verificado.
+- Advisors sin hallazgos sobre las dos tablas nuevas; quedan hallazgos en objetos anteriores (vista pública SECURITY DEFINER, RPC y protección de contraseñas), fuera de esta migración.
+- El runbook CRM-MANUAL-CAPTURE-APPLY.md conserva el plan previo a activación como referencia; esta nota actualiza su estado. Próximo objetivo: prueba autenticada y seguimiento operativo del prospecto, sin inventar datos o automatizaciones.
