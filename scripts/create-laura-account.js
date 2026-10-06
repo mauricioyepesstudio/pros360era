@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- standalone CommonJS script run with `node` */
 const { createClient } = require("@supabase/supabase-js");
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

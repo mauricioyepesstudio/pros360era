@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       .eq("user_id", user.id);
 
     const leadsBySource: Record<string, number> = {};
-    leadsBySourceData?.forEach((lead: any) => {
+    leadsBySourceData?.forEach((lead: { source: string }) => {
       leadsBySource[lead.source] = (leadsBySource[lead.source] || 0) + 1;
     });
 
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       .eq("user_id", user.id);
 
     const convsByChannel: Record<string, number> = {};
-    convByChannelData?.forEach((conv: any) => {
+    convByChannelData?.forEach((conv: { channel: string }) => {
       convsByChannel[conv.channel] = (convsByChannel[conv.channel] || 0) + 1;
     });
 
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
       .eq("status", "active");
 
     const pipelineValue = (opportunities || []).reduce(
-      (sum: number, opp: any) => sum + (opp.weighted_value || 0),
+      (sum: number, opp: { weighted_value: number | null }) => sum + (opp.weighted_value || 0),
       0
     );
 
