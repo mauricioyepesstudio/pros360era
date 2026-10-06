@@ -63,7 +63,7 @@ export interface Contact {
   gdprConsented: boolean;
   gdprConsentedAt?: string;
   assignedTo?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
   lastContactedAt?: string;
   nextFollowUpAt?: string;
   createdAt: string;
@@ -282,5 +282,5 @@ export interface CRMListResponse<T> {
 export interface CRMError {
   message: string;
   code: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
