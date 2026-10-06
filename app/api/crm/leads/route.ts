@@ -1,100 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCRMAccess } from "@/lib/crm/access";
+import { leadInput, listInput, nullable } from "@/lib/crm/validation";
 
-// GET /api/crm/leads - List leads with filters
+const columns = "id,name,email,phone,whatsapp,source,source_url,status,qualification_score,notes,created_at,updated_at";
+
 export async function GET(request: NextRequest) {
+  const access = await getCRMAccess();
+  if (access.response) return access.response;
+  const parsed = listInput.safeParse(Object.fromEntries(new URL(request.url).searchParams));
+  if (!parsed.success) return NextResponse.json({ error: "Revisa los filtros de búsqueda." }, { status: 400 });
+  const filters = parsed.data;
   try {
-    const supabase = await createSupabaseServerClient();
-    if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 503 });
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const source = searchParams.get("source");
-    const assignedTo = searchParams.get("assignedTo");
-    const page = parseInt(searchParams.get("page") || "1");
-    const pageSize = parseInt(searchParams.get("pageSize") || "20");
-
-    let query = supabase
-      .from("crm_leads")
-      .select("*", { count: "exact" })
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (status) query = query.eq("status", status);
-    if (source) query = query.eq("source", source);
-    if (assignedTo) query = query.eq("assigned_to", assignedTo);
-
-    const { data, count, error } = await query.range(
-      (page - 1) * pageSize,
-      page * pageSize - 1
-    );
-
-    if (error) throw error;
-
-    return NextResponse.json({
-      data: data || [],
-      total: count || 0,
-      page,
-      pageSize,
-    });
-  } catch (error) {
-    console.error("GET /api/crm/leads error:", error);
-    return NextResponse.json({ error: "Failed to fetch leads" }, { status: 500 });
+    let query = access.supabase.from("crm_leads").select(columns, { count: "exact" }).eq("user_id", access.user.id).order("created_at", { ascending: false });
+    if (filters.status) query = query.eq("status", filters.status);
+    if (filters.source) query = query.eq("source", filters.source);
+    if (filters.q) query = query.ilike("name", `%${filters.q.replace(/[\\%_]/g, "\\$&")}%`);
+    const { data, count, error } = await query.range((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize - 1);
+    if (error) return NextResponse.json({ error: "No pudimos cargar tus datos. Intenta de nuevo." }, { status: 503 });
+    return NextResponse.json({ data: data ?? [], total: count ?? 0, page: filters.page, pageSize: filters.pageSize });
+  } catch {
+    return NextResponse.json({ error: "No pudimos cargar tus datos. Intenta de nuevo." }, { status: 503 });
   }
 }
 
-// POST /api/crm/leads - Create new lead
 export async function POST(request: NextRequest) {
+  const access = await getCRMAccess();
+  if (access.response) return access.response;
+  const parsed = leadInput.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "Revisa los datos del contacto." }, { status: 400 });
+  const body = parsed.data;
   try {
-    const supabase = await createSupabaseServerClient();
-    if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 503 });
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const body = await request.json();
-    const {
-      source,
-      sourceUrl,
-      name,
-      email,
-      phone,
-      whatsapp,
-      notes,
-    } = body;
-
-    if (!source) {
-      return NextResponse.json(
-        { error: "Source is required" },
-        { status: 400 }
-      );
-    }
-
-    const { data, error } = await supabase
-      .from("crm_leads")
-      .insert({
-        user_id: user.id,
-        source,
-        source_url: sourceUrl,
-        name,
-        email,
-        phone,
-        whatsapp,
-        notes,
-        status: "new",
-        qualification_score: 0,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
+    // user_id and protected defaults come from PostgreSQL, never the submitted body.
+    const { data, error } = await access.supabase.from("crm_leads").insert({ source: body.source, source_url: nullable(body.sourceUrl), name: nullable(body.name), email: nullable(body.email), phone: nullable(body.phone), whatsapp: nullable(body.whatsapp), notes: nullable(body.notes) }).select(columns).single();
+    if (error?.code === "23505") return NextResponse.json({ error: "Ya tienes un registro con ese correo." }, { status: 409 });
+    if (error || !data) return NextResponse.json({ error: "No pudimos guardar los datos. Intenta de nuevo." }, { status: 503 });
     return NextResponse.json(data, { status: 201 });
-  } catch (error) {
-    console.error("POST /api/crm/leads error:", error);
-    return NextResponse.json({ error: "Failed to create lead" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "No pudimos guardar los datos. Intenta de nuevo." }, { status: 503 });
   }
 }
