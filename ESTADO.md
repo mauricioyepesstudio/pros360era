@@ -71,3 +71,11 @@ La lista de migraciones registradas en vivo usa otras versiones/nombres que los 
 - 2026-09-30: el dueño respondió: foco en reclutar profesionales y miembros; Stripe Live en pausa hasta definir entidad; Growth/Laura limitado a categorías no reguladas (provisional); verificadas migraciones en Supabase (solo lectura).
 - 2026-09-30: verificación de datos en Supabase: 1 proyecto, 6 usuarios, sin reset; corregido el falso hallazgo previo.
 - 2026-09-30: creado el segundo cerebro (`CLAUDE.md`, `ESTADO.md`, `docs/cerebro/`, 3 subagentes) en la rama `cerebro`. Sin cambios de código de la app.
+
+## 2026-10-06 — corrección de disponibilidad de Growth/CRM
+
+Preparado en checkout aislado desde `7e6eaecb475c1981dbdf5436acd4e36fd138d418`: Growth muestra “en preparación”; sus APIs retornan 503 antes de cualquier conexión/generación/publicación. No se implementó OAuth real ni persistencia de tokens. CRM deja de convertir errores de base de datos en ceros, valida la respuesta y permite reintentar sin romper el formateo.
+
+Verificación de esquema vivo de solo lectura realizada por el agente coordinador: no existen en `public` `crm_leads`, `crm_conversations`, `crm_tasks`, `crm_opportunities`, `growth_automation_profiles` ni `social_media_accounts`. No aplicar migraciones dentro de esta entrega. El CRM no está funcional en producción hasta resolver su esquema bajo las aprobaciones correspondientes; no confundir ausencia de tablas con ausencia de contactos. Falta validar un recorrido autenticado real; no se dispone de una cuenta de prueba en esta entrega.
+
+Validación local: 86 pruebas pasan (4 regresiones nuevas); ESLint sin errores (12 advertencias existentes), `tsc --noEmit`, build de producción y `git diff --check` pasan. Invocación directa de los 7 handlers compilados de Growth: todos devuelven 503 sin redirección. No es una prueba HTTP ni de producción. Revisión independiente security/compliance: GO para indisponibilidad segura y manejo de errores, no para OAuth funcional. Pendiente PR/CI/despliegue y comprobación del commit real de producción por el coordinador.
