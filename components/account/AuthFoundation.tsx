@@ -3,6 +3,8 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
+import { safeReturnPath, professionalWorkspacePath } from "@/lib/auth/return-path";
+import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/professional/actions";
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -23,13 +25,26 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const signup = mode === "signup";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = safeReturnPath(searchParams.get("next"));
+  const professional = next === professionalWorkspacePath;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+
+  async function restoreProfessionalInformation() {
+    if (!professional) return;
+    try {
+      const raw = sessionStorage.getItem("evolusa-professional-handoff-v1");
+      if (!raw) return;
+      const handoff = JSON.parse(raw);
+      if (handoff.email !== email.trim().toLowerCase()) return;
+      const result = await initializeProfessionalDraftAction(handoff.draft);
+      if (result.saved) sessionStorage.removeItem("evolusa-professional-handoff-v1");
+    } catch { /* Draft handoff must not prevent successful login. */ }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,6 +65,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
           return;
         }
         if (data.session) {
+          await restoreProfessionalInformation();
           router.push(next);
           router.refresh();
         } else {
@@ -61,6 +77,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
           setError(translateAuthError(signInError.message));
           return;
         }
+        await restoreProfessionalInformation();
         router.push(next);
         router.refresh();
       }
@@ -96,8 +113,9 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         </span>
         <h1 className="mt-6 text-2xl font-extrabold text-[var(--brand-navy)]">Revisa tu correo</h1>
         <p className="mt-3 leading-7 text-[var(--muted)]">
-          Te enviamos un enlace de confirmación a <strong>{email}</strong>. Confírmalo para activar tu cuenta.
+          Te enviamos un enlace de confirmación a <strong>{email}</strong>. Confírmalo para activar tu cuenta. Después vuelve aquí para entrar.
         </p>
+        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={`/login?next=${encodeURIComponent(next)}`}>Ya confirmé mi correo: entrar</Link>
       </div>
     );
   }
@@ -112,8 +130,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </h1>
       <p className="mt-3 leading-7 text-[var(--muted)]">
         {signup
-          ? "Guarda tu diagnóstico y continúa tu camino personalizado."
-          : "Continúa tu Roadmap y revisa tu progreso."}
+          ? (professional ? "Crea tu cuenta para entrar a tu espacio profesional. La aprobación de tu perfil se realiza por separado." : "Guarda tu diagnóstico y continúa tu camino personalizado.")
+          : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu Roadmap y revisa tu progreso.")}
       </p>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
         <label className="block text-sm font-semibold text-[var(--brand-navy)]">
@@ -156,7 +174,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </form>
       <p className="mt-6 text-center text-sm text-[var(--muted)]">
         {signup ? "¿Ya tienes cuenta?" : "¿Aún no tienes cuenta?"}{" "}
-        <Link className="font-bold text-[var(--brand-blue)]" href={signup ? "/login" : "/signup"}>
+        <Link className="font-bold text-[var(--brand-blue)]" href={`${signup ? "/login" : "/signup"}?next=${encodeURIComponent(next)}`}>
           {signup ? "Entrar" : "Crear cuenta"}
         </Link>
       </p>
