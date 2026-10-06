@@ -1,13 +1,13 @@
 # ESTADO — EVOLUSA
 
-_Actualizado: 2026-09-30 (desde `git log` en `main` = `c4b3cfa`). Mantener con el agente `estado-keeper`._
+_Actualizado: 2026-10-06 (formulario de profesionales en producción; resto desde `git log` en `main` = `c4b3cfa`). Mantener con el agente `estado-keeper`._
 
 ## Objetivo actual
 **Reclutar profesionales y crecer miembros** en las próximas semanas (respuesta del dueño, 2026-09-30). Stripe Live **no** es prioridad.
 
 ## Siguiente (máx. 5; una tarea = un PR)
 1. **Kit de reclutamiento de profesionales**: pulir `docs/marketing/professional-recruitment-outreach.md` y la página `/aplicar-profesional` (copy alineado a `claims.ts`; solo categorías no reguladas: marketing y operaciones de negocio en Florida). Pasa por `compliance-reviewer`.
-2. **Activar captación en `/aplicar-profesional`**: el flujo depende de la tabla `professional_applications` (existe en vivo, 0 filas); verificar el camino completo de extremo a extremo y el mensaje de fallback. Sin aplicar migraciones.
+2. **Captación en `/aplicar-profesional`: HECHO 2026-10-06** (PR #19). Siguiente paso: revisar cada semana las solicitudes `PENDING` (runbook en `supabase/migrations/0014_…`) y contactar a quien aplique.
 3. **Adquisición de miembros**: plan de 4 semanas (canales, guías SEO, calendario social) con `growth-marketing-strategist` + `social-content-lead`; ampliar `app/guias` con 1–2 guías nuevas en español.
 4. **Métricas de embudo**: definir y medir registro → diagnóstico → Roadmap → oportunidad (`docs/EVOLUSA-LAUNCH-METRICS.md`, `lib/opportunities/analytics.ts`), con datos reales.
 5. **Actualizar README, `ci.yml` y `docs/CURRENT-STATE.md`** (desfasados) para que un profesional nuevo o un colaborador entienda el proyecto.
@@ -34,6 +34,7 @@ La lista de migraciones registradas en vivo usa otras versiones/nombres que los 
 | 0010 member_opportunity_professional_projection | Sin registro en la lista (podría ser una función; **sin verificar**) |
 | 0011 business_operations_category, 0012 booking_url, 0013 notary | Sin registro en la lista; **sin verificar** (cambian constraints/columnas; requiere inspección de esquema) |
 | 0014 professional_applications | Tabla `professional_applications` **existe** (RLS on), pero sin registro de migración |
+| 20261006 professional_applications insert grant + índice anti-duplicados | **Aplicada 2026-10-06** con OK del dueño (registrada como `evolusa_professional_applications_insert_grant`). Verificado: anon/authenticated solo INSERT por columna; sin SELECT; `status` no insertable. |
 | 0015_professional_profile_media | **Aplicada** (registrada como `evolusa_professional_profile_media`) |
 | 0015_connection_fee_v1 | **No aplicada** (no hay tablas de pago) |
 | 0016 admin_dashboard_v1 | **No aplicada** (sin evidencia) |
@@ -65,6 +66,7 @@ La lista de migraciones registradas en vivo usa otras versiones/nombres que los 
 - 2026-08-30/31: revelación segura del profesional emparejado; Start Flow endurecido.
 
 ## Registro
+- 2026-10-06: `/aplicar-profesional` estaba apagado (bandera en false) y la base viva no tenía el GRANT INSERT por columnas de 0014, así que todo envío fallaba. PR #19: formulario encendido solo con categorías no reguladas (Marketing, Operaciones, Otro), validación + honeypot, sin duplicados; migración `20261006_…` aplicada y probada con insert anónimo en transacción revertida. PR #20: `main` sin errores de lint (CI completo en verde). PR #21: `/professional-laura-demo` despublicada (404) por decisión del dueño.
 - 2026-10-01: `fix/professional-inserts-v2` (desde `main` con #12 y #13): `create-professional` y `scripts/create-laura-account.js` escribían columnas inexistentes (`business_name`, `niche`, `location`, `instagram`, `website`; en `profiles`: `email`, `full_name`, `bio`) y a `user_services`, tabla que ninguna migración crea; todo fallaba y la ruta respondía 201. Ahora usan las columnas reales (`lib/professional/admin-provisioning.ts`, con tests), cualquier error devuelve 500 y borra el usuario a medio crear. Sin asignación de Growth (tablas no aplicadas). Solo categorías no reguladas desde la ruta admin.
 - 2026-10-01: `fix/lint-onboarding`: `app/(onboarding)/professional-setup/page.tsx` ya no llama `setState` dentro de un efecto (error `react-hooks/set-state-in-effect`); el paso inicial se deriva de `?instagram_connected=true` con un inicializador de `useState`. Mismo comportamiento. Los demás errores de lint de `main` (any, comillas, require) siguen pendientes y fuera de este alcance.
 - 2026-10-01: `fix/admin-create-professional`: `app/api/admin/create-professional` ya no usa `auth.signUp` con la sesión del admin (lo dejaba logueado como el usuario nuevo); ahora usa `auth.admin.createUser` con el cliente service-role (solo servidor, `lib/supabase/service.ts`) tras los chequeos 401/403. Requiere `SUPABASE_SERVICE_ROLE_KEY` en el entorno. `npm run lint` en `main` tiene 19 errores previos fuera de este alcance (any, comillas sin escapar, require); tsc y build pasan.
