@@ -87,7 +87,7 @@ export default function LauraDemoPage() {
               </div>
 
               <p className="text-gray-800 text-lg leading-relaxed mb-4">
-                "Como gestora de inmigración, sé que el visa EB-3 no es fácil de obtener. Pero con una estrategia correcta, puedes obtenerlo en 2-3 años. Aquí te comparto los pasos clave..."
+                &ldquo;Como gestora de inmigración, sé que el visa EB-3 no es fácil de obtener. Pero con una estrategia correcta, puedes obtenerlo en 2-3 años. Aquí te comparto los pasos clave...&rdquo;
               </p>
 
               <div className="flex gap-3 mb-6">
@@ -126,7 +126,7 @@ export default function LauraDemoPage() {
               </div>
 
               <p className="text-gray-800 text-lg leading-relaxed mb-4">
-                "¿Sabías que el 78% de mis clientes obtuvieron su green card porque entendieron el proceso correcto? La mayoría pierde dinero con abogados que NO explican nada. Aquí está la verdad..."
+                &ldquo;¿Sabías que el 78% de mis clientes obtuvieron su green card porque entendieron el proceso correcto? La mayoría pierde dinero con abogados que NO explican nada. Aquí está la verdad...&rdquo;
               </p>
 
               <div className="flex gap-3 mb-6">
@@ -165,7 +165,7 @@ export default function LauraDemoPage() {
               </div>
 
               <p className="text-gray-800 text-lg leading-relaxed mb-4">
-                "El TPS está cambiando en 2026. Si tienes TPS, NECESITAS hacer esto AHORA antes de que sea demasiado tarde. Los que actúan hoy estarán protegidos..."
+                &ldquo;El TPS está cambiando en 2026. Si tienes TPS, NECESITAS hacer esto AHORA antes de que sea demasiado tarde. Los que actúan hoy estarán protegidos...&rdquo;
               </p>
 
               <div className="flex gap-3 mb-6">
