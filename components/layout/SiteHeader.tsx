@@ -67,14 +67,14 @@ export default function SiteHeader() {
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-black/30 to-transparent" />
       )}
       <Container className="flex min-h-24 items-center justify-between gap-4">
-        <Link href="#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
+        <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
           <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} />
         </Link>
         <nav className="hidden items-center gap-5 xl:flex" aria-label="Navegación principal">
           {navigation.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={`/${item.href}`}
               className={cn("inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4", item.href === "#como-funciona" ? "bg-white text-[var(--brand-navy)] shadow-sm hover:bg-slate-100" : scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
             >
               {item.label}
@@ -107,7 +107,7 @@ export default function SiteHeader() {
           <ul className="space-y-1">
             {navigation.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} onClick={() => setMenuOpen(false)} className="block py-3 text-xl font-semibold text-white">
+                <Link href={`/${item.href}`} onClick={() => setMenuOpen(false)} className="block py-3 text-xl font-semibold text-white">
                   {item.label}
                 </Link>
               </li>
