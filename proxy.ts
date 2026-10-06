@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", "/conexiones", "/panel-profesional", "/plan-credito"];
+const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", "/conexiones", "/panel-profesional", "/plan-credito", "/crm", "/growth-automation"];
 
 /**
  * Refreshes the Supabase session cookie on every request and gates the
@@ -14,6 +14,12 @@ const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", 
  * must not fabricate a signed-in or signed-out gate before real auth exists.
  */
 export async function proxy(request: NextRequest) {
+  // The professional home moved into the professional panel; old links
+  // (onboarding, bookmarks) still point at /dashboard/professional.
+  if (request.nextUrl.pathname === "/dashboard/professional") {
+    return NextResponse.redirect(new URL("/panel-profesional", request.url));
+  }
+
   const env = getSupabaseEnv();
   if (!env) return NextResponse.next();
 
@@ -63,5 +69,7 @@ export const config = {
     "/conexiones/:path*",
     "/panel-profesional/:path*",
     "/plan-credito/:path*",
+    "/crm/:path*",
+    "/growth-automation/:path*",
   ],
 };

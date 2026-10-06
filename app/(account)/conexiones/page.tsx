@@ -2,8 +2,10 @@ import PageHeader from "@/components/account/PageHeader";
 import OpportunityCard from "@/components/opportunities/OpportunityCard";
 import ButtonLink from "@/components/ui/ButtonLink";
 import { getMyOpportunities } from "@/lib/opportunities/persistence";
+import { requireMemberArea } from "@/lib/account/role-gate";
 
 export default async function ConexionesPage() {
+  await requireMemberArea();
   const opportunities = await getMyOpportunities();
 
   return (

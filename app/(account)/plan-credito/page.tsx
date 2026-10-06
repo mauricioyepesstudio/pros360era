@@ -2,8 +2,10 @@ import PageHeader from "@/components/account/PageHeader";
 import CreditPlanChecklist from "@/components/plans/CreditPlanChecklist";
 import { creditPlanSteps } from "@/data/plans/credit-plan";
 import { getCurrentProfile } from "@/lib/account/persistence";
+import { requireMemberArea } from "@/lib/account/role-gate";
 
 export default async function PlanCreditoPage() {
+  await requireMemberArea();
   const profile = await getCurrentProfile();
 
   return (

@@ -1,8 +1,10 @@
 import PageHeader from "@/components/account/PageHeader";
 import NewOpportunityFlow from "@/components/opportunities/NewOpportunityFlow";
 import { liveNeeds } from "@/data/needs/catalog";
+import { requireMemberArea } from "@/lib/account/role-gate";
 
-export default function NuevaConexionPage() {
+export default async function NuevaConexionPage() {
+  await requireMemberArea();
   return (
     <div className="space-y-8">
       <PageHeader
