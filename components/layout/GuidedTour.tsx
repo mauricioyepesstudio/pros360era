@@ -21,7 +21,7 @@ const steps: TourStep[] = [
   {
     target: "hero-pro",
     title: "¿Ofreces un servicio?",
-    body: "Toca “Soy profesional” para aplicar. Revisamos tu perfil y, cuando queda aprobado, aparece para quienes buscan ayuda.",
+    body: "Toca “Soy profesional” para enviar tu solicitud. La solicitud, la preparación del perfil y su publicación son pasos separados.",
   },
   {
     target: "hero-busco",
@@ -253,7 +253,7 @@ export default function GuidedTour() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 260, damping: 24 }}
               className="pointer-events-auto absolute rounded-[var(--radius-lg)] bg-white p-5 text-[var(--brand-navy)] shadow-[0_24px_60px_-20px_rgb(4_15_34_/_0.7)]"
-              style={{ ...cardPos, left: cardLeft, width: CARD_W }}
+              style={{ top: Math.max(16, Math.min(cardPos.top ?? rect.top - 300, viewport.h - 320)), left: cardLeft, width: CARD_W, maxHeight: Math.max(0, viewport.h - 32), overflowY: "auto" }}
             >
               {/* Flecha hacia el botón */}
               <motion.span

@@ -67,7 +67,7 @@ export default function SiteHeader() {
       )}
       <Container className="flex min-h-24 items-center justify-between gap-4">
         <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
-          <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} />
+          <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} className="[&_img]:!h-auto [&_img]:!w-24 xl:[&_img]:!h-10 xl:[&_img]:!w-auto" />
         </Link>
         <nav className="hidden items-center gap-5 xl:flex" aria-label="Navegación principal">
           {navigation.map((item) => (
