@@ -1,6 +1,6 @@
 "use client";
+import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
@@ -58,9 +58,7 @@ export default function Hero() {
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
-            <Link href="#como-funciona" data-tour="hero-como-funciona" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/60 bg-white px-5 font-bold text-[var(--brand-navy)] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4">
-              ¿Cómo funciona?
-            </Link>
+            <HomeAccountEntry />
           </div>
         </motion.div>
 

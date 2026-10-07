@@ -1,5 +1,5 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
@@ -8,17 +8,7 @@ import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/pro
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-function translateAuthError(message: string): string {
-  const known: [pattern: RegExp, spanish: string][] = [
-    [/invalid login credentials/i, "Correo o contraseña incorrectos."],
-    [/password should be at least/i, "La contraseña debe tener al menos 6 caracteres."],
-    [/email not confirmed/i, "Confirma tu correo antes de entrar. Revisa tu bandeja de entrada."],
-    [/email address ".*" is invalid|unable to validate email/i, "Ese correo no parece válido."],
-    [/email rate limit exceeded/i, "Se alcanzó el límite temporal de envíos de correo. Intenta de nuevo en unos minutos."],
-  ];
-  const match = known.find(([pattern]) => pattern.test(message));
-  return match?.[1] ?? "No pudimos completar la solicitud. Intenta de nuevo en unos minutos.";
-}
+import { authEntryDestination, confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
 
 export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const readiness = getAuthReadiness();
@@ -33,6 +23,38 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
+  const [resendNotice, setResendNotice] = useState("");
+
+  useEffect(() => {
+    if (!confirmationSent) return;
+    const timer = window.setInterval(() => setCooldown((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [confirmationSent]);
+
+  async function resendConfirmation() {
+    if (resending || cooldown > 0) return;
+    setResending(true); setError(null); setResendNotice("");
+    try {
+      const result = await requestConfirmation(createSupabaseBrowserClient().auth, email, cooldown);
+      setCooldown(confirmationCooldownSeconds);
+      if (result.requested) setResendNotice("Solicitud de reenvío recibida. Si tu cuenta necesita confirmación, revisa tu correo.");
+      else setError(result.message);
+    } catch { setError("No pudimos conectar con el servicio de cuentas. Intenta de nuevo."); }
+    finally { setResending(false); }
+  }
+
+  async function enterAccount(supabase: ReturnType<typeof createSupabaseBrowserClient>, userId?: string) {
+    await restoreProfessionalInformation();
+    let role: unknown;
+    if (professional && userId) {
+      const { data } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+      role = data?.role;
+    }
+    router.push(authEntryDestination(next, role));
+    router.refresh();
+  }
 
   async function restoreProfessionalInformation() {
     if (!professional) return;
@@ -52,34 +74,34 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     setSubmitting(true);
     try {
       const supabase = createSupabaseBrowserClient();
+      const normalizedEmail = normalizeAuthEmail(email);
       if (signup) {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        const { data, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
         if (signUpError) {
-          if (/user already registered/i.test(signUpError.message)) {
+          if (isExistingSignup(signUpError)) {
             // Never disclose account existence via the signup response — show the
-            // same "check your email" state a genuine new signup would get.
+            // same neutral confirmation-options state used for a new signup.
             setConfirmationSent(true);
+            setCooldown(confirmationCooldownSeconds);
             return;
           }
           setError(translateAuthError(signUpError.message));
           return;
         }
         if (data.session) {
-          await restoreProfessionalInformation();
-          router.push(next);
-          router.refresh();
+          await enterAccount(supabase, data.user?.id);
         } else {
           setConfirmationSent(true);
+          setCooldown(confirmationCooldownSeconds);
         }
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (signInError) {
+          if (isUnconfirmedEmail(signInError)) { setConfirmationSent(true); setCooldown(0); return; }
           setError(translateAuthError(signInError.message));
           return;
         }
-        await restoreProfessionalInformation();
-        router.push(next);
-        router.refresh();
+        await enterAccount(supabase, data.user?.id);
       }
     } catch {
       setError("No pudimos conectar con el servicio de cuentas. Intenta de nuevo.");
@@ -113,9 +135,14 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         </span>
         <h1 className="mt-6 text-2xl font-extrabold text-[var(--brand-navy)]">Revisa tu correo</h1>
         <p className="mt-3 leading-7 text-[var(--muted)]">
-          Te enviamos un enlace de confirmación a <strong>{email}</strong>. Confírmalo para activar tu cuenta. Después vuelve aquí para entrar.
+          Correo usado: <strong>{normalizeAuthEmail(email)}</strong>. {confirmationRequestMessage}
         </p>
-        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={`/login?next=${encodeURIComponent(next)}`}>Ya confirmé mi correo: entrar</Link>
+        {professional && <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Tu solicitud y tu cuenta son pasos separados. Con tu cuenta puedes preparar tu presentación privada mientras revisamos la solicitud.</p>}
+        {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
+        <button type="button" disabled={resending || cooldown > 0} onClick={resendConfirmation} className="mt-5 min-h-12 w-full rounded-full border border-[var(--brand-blue)] font-bold text-[var(--brand-blue)] disabled:opacity-50">{resending ? "Solicitando enlace…" : cooldown > 0 ? `Reenviar en ${cooldown} s` : "Reenviar confirmación"}</button>
+        {(resending || resendNotice) && <p role="status" aria-live="polite" className="mt-3 text-sm text-[var(--muted)]">{resending ? "Solicitando otro enlace…" : resendNotice}</p>}
+        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={`/login?next=${encodeURIComponent(next)}`}>Ya tengo cuenta o ya confirmé: entrar</Link>
+        <button type="button" onClick={() => { setConfirmationSent(false); setError(null); }} className="mt-3 block min-h-10 w-full text-sm underline">{signup ? "Corregir correo" : "Volver a entrar"}</button>
       </div>
     );
   }
@@ -133,7 +160,12 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
           ? (professional ? "Crea tu cuenta para entrar a tu espacio profesional. La aprobación de tu perfil se realiza por separado." : "Guarda tu diagnóstico y continúa tu camino personalizado.")
           : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu Roadmap y revisa tu progreso.")}
       </p>
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+      <div className="mt-5 space-y-2 rounded-xl bg-[var(--sky-surface)] p-4 text-sm">
+        <p className="font-bold">Una cuenta, dos formas de participar</p>
+        <div className="flex flex-wrap gap-4"><Link href={`/${mode}?next=%2Fdashboard`} className="font-bold underline">Soy usuario</Link><Link href={`/${mode}?next=%2Fdashboard%2Fprofessional`} className="font-bold underline">Soy profesional</Link></div>
+        <p className="leading-6 text-[var(--muted)]">{professional ? "Si ya tienes acceso profesional habilitado, entrarás a tu panel. Si tu solicitud sigue en revisión, podrás preparar tu presentación privada." : "Como usuario, continúas tu camino. Si también ofreces servicios, entra por Soy profesional para preparar tu presentación."}</p>
+      </div>
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-[var(--brand-navy)]">
           Correo electrónico
           <input

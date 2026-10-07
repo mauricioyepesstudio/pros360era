@@ -1,4 +1,5 @@
 "use client";
+import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -100,6 +101,7 @@ export default function HeroArtboard() {
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
             </div>
+            <HomeAccountEntry />
           </div>
         </motion.div>
 
@@ -108,8 +110,7 @@ export default function HeroArtboard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          data-tour="hero-path"
-          className="absolute"
+          data-tour="hero-path" className="absolute"
           style={{ left: "5.4%", right: "4.8%", top: "63.3%" }}
         >
           <EvolusaPath theme="dark" activeId="LLEGA" scrollProgress={pathProgress} />
@@ -117,7 +118,7 @@ export default function HeroArtboard() {
 
         {/* Product Reveal panel — MEASURED: x=[5.4%,95.2%] y=[71.0%,100%]. Real
             generateRoadmap() data via the shared ProductRevealPanel component. */}
-        <div id="roadmap-desktop" data-tour="hero-roadmap" className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
+        <div data-tour="hero-roadmap" id="roadmap-desktop" className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
           <ProductRevealPanel compact />
         </div>
       </div>

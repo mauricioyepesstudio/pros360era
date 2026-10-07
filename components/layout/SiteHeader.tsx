@@ -9,7 +9,6 @@ import { cn } from "@/lib/cn";
 
 const navigation = [
   { label: "Etapas", href: "#stage-selector" },
-  { label: "¿Cómo funciona?", href: "#como-funciona" },
   { label: "Servicios", href: "#stage-services" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "Confianza", href: "#trust" },
@@ -75,16 +74,13 @@ export default function SiteHeader() {
             <Link
               key={item.href}
               href={`/${item.href}`}
-              data-tour={item.href === "#como-funciona" ? "hero-como-funciona" : undefined}
-              className={cn("inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4", item.href === "#como-funciona" ? "bg-white text-[var(--brand-navy)] shadow-sm hover:bg-slate-100" : scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
+              className={cn("inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4", scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <Link href="/login" data-tour="hero-login" className="ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4">
-          <span className="hidden sm:inline">Ya tengo cuenta</span><span className="sm:hidden">Entrar</span>
-        </Link>
+        <Link href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100">¿Cómo funciona?</Link>
 
         <button
           type="button"
@@ -115,9 +111,8 @@ export default function SiteHeader() {
             ))}
           </ul>
           <div className="mt-6 border-t border-white/10 pt-6">
-            <Link href="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">
-              Ya tengo cuenta
-            </Link>
+            <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">Entrar como usuario</Link>
+            <Link href="/login?next=%2Fdashboard%2Fprofessional" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">Entrar como profesional</Link>
           </div>
         </nav>
       )}

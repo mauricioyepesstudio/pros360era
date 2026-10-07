@@ -31,7 +31,7 @@ const steps: TourStep[] = [
   {
     target: "hero-login",
     title: "¿Ya te registraste?",
-    body: "Entra aquí para seguir tu Roadmap donde lo dejaste.",
+    body: "Elige la entrada de usuario o profesional para continuar en tu espacio con la misma cuenta.",
   },
   {
     target: "hero-path",
@@ -90,11 +90,6 @@ export default function GuidedTour() {
   // Solo los pasos cuyo elemento existe y se ve en esta pantalla.
   const [activeSteps, setActiveSteps] = useState<TourStep[]>(steps);
 
-  useEffect(() => {
-    if (readSeen()) return;
-    const timer = window.setTimeout(() => setPhase("invite"), 1800);
-    return () => window.clearTimeout(timer);
-  }, []);
 
   const close = useCallback(() => {
     markSeen();
@@ -110,6 +105,13 @@ export default function GuidedTour() {
     setPhase("touring");
   }, [close]);
 
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("tour") === "start";
+    const timer = !readSeen() || requested ? window.setTimeout(start, 1800) : undefined;
+    window.addEventListener("evolusa:start-tour", start);
+    return () => { window.clearTimeout(timer); window.removeEventListener("evolusa:start-tour", start); };
+  }, [start]);
+
   const step = phase === "touring" ? activeSteps[stepIndex] : undefined;
 
   // Lleva el elemento al centro y sigue su posición mientras dura el paso.
@@ -117,7 +119,7 @@ export default function GuidedTour() {
     if (!step) return;
     const el = findVisible(step.target);
     if (!el) return;
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
 
     let frame = 0;
     const measure = () => {
@@ -205,7 +207,7 @@ export default function GuidedTour() {
               </motion.span>
               <div>
                 <p id="tour-invite-title" className="text-base font-extrabold">¿Primera vez en EVOLUSA?</p>
-                <p className="text-sm text-[var(--muted)]">Te mostramos cada botón en menos de un minuto.</p>
+                <p className="text-sm text-[var(--muted)]">Conoce las entradas y los pasos de EVOLUSA.</p>
               </div>
             </div>
             <div className="mt-4 flex gap-2">

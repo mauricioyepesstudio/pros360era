@@ -1,7 +1,7 @@
 import { MotionConfig } from "framer-motion";
+import GuidedTour from "@/components/layout/GuidedTour";
 import SiteHeader from "@/components/layout/SiteHeader";
 import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
-import GuidedTour from "@/components/layout/GuidedTour";
 import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
 import ExplainerInteractive from "@/sections/home/ExplainerInteractive";
