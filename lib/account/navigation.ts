@@ -12,6 +12,7 @@
  * Pure data, no React or Supabase imports, so it can be unit-tested.
  */
 export type AccountRole = "MEMBER" | "PROFESSIONAL" | "ADMIN";
+export type AccountContext = "member" | "applicant" | "professional";
 
 export type AccountNavIcon =
   | "home"
@@ -49,14 +50,37 @@ const professionalNav: readonly AccountNavItem[] = [
   { href: "/growth-automation", label: "Crecimiento", icon: "rocket" },
 ];
 
+const applicantNav: readonly AccountNavItem[] = [
+  { href: "/dashboard/professional", label: "Presentación", icon: "briefcase" },
+  { href: MEMBER_HOME, label: "Mi cuenta", icon: "user" },
+];
+
 export function homeForRole(role: AccountRole): string {
   return role === "PROFESSIONAL" ? PROFESSIONAL_HOME : MEMBER_HOME;
 }
 
-export function buildAccountNav(role: AccountRole): readonly AccountNavItem[] {
+export function accountContextFor(role: AccountRole, pathname: string): AccountContext {
+  if (role === "PROFESSIONAL") return "professional";
+  if (
+    role === "MEMBER" &&
+    (pathname === "/dashboard/professional" || pathname.startsWith("/dashboard/professional/"))
+  ) return "applicant";
+  return "member";
+}
+
+export function buildAccountNav(
+  role: AccountRole,
+  context: AccountContext = role === "PROFESSIONAL" ? "professional" : "member",
+): readonly AccountNavItem[] {
+  if (context === "applicant") return applicantNav;
   if (role === "PROFESSIONAL") return professionalNav;
   if (role === "ADMIN") return [...memberNav, { href: "/admin", label: "Admin", icon: "shield" }];
   return memberNav;
+}
+
+export function isAccountNavActive(pathname: string, href: string): boolean {
+  if (href === MEMBER_HOME || href === PROFESSIONAL_HOME) return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 /** Screens only a professional (or the admin) may open. */

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildAccountNav, homeForRole, isProfessionalArea } from "../lib/account/navigation.ts";
+import { accountContextFor, buildAccountNav, homeForRole, isAccountNavActive, isProfessionalArea } from "../lib/account/navigation.ts";
 
 const hrefs = (role: Parameters<typeof buildAccountNav>[0]) => buildAccountNav(role).map((item) => item.href);
 
@@ -34,4 +34,29 @@ test("isProfessionalArea matches whole path segments only", () => {
   assert.ok(isProfessionalArea("/panel-profesional"));
   assert.ok(!isProfessionalArea("/crmx"));
   assert.ok(!isProfessionalArea("/dashboard"));
+});
+
+test("a member gets an applicant context only inside the professional draft", () => {
+  assert.equal(accountContextFor("MEMBER", "/dashboard/professional"), "applicant");
+  assert.equal(accountContextFor("MEMBER", "/dashboard/professional/edit"), "applicant");
+  assert.equal(accountContextFor("MEMBER", "/dashboard"), "member");
+  assert.equal(accountContextFor("MEMBER", "/dashboard/professionalism"), "member");
+  assert.equal(accountContextFor("PROFESSIONAL", "/dashboard/professional"), "professional");
+});
+
+test("the applicant context exposes only the draft and the personal-account exit", () => {
+  const applicant = buildAccountNav("MEMBER", "applicant").map((item) => item.href);
+  assert.deepEqual(applicant, ["/dashboard/professional", "/dashboard"]);
+  assert.ok(!applicant.includes("/profile"));
+  assert.ok(!applicant.includes("/roadmap"));
+  assert.ok(!applicant.includes("/crm"));
+  assert.ok(!applicant.includes("/growth-automation"));
+});
+
+test("account home links are exact so only one destination is active", () => {
+  assert.ok(isAccountNavActive("/dashboard", "/dashboard"));
+  assert.ok(!isAccountNavActive("/dashboard/professional", "/dashboard"));
+  assert.ok(isAccountNavActive("/dashboard/professional", "/dashboard/professional"));
+  assert.ok(!isAccountNavActive("/panel-profesional/perfil", "/panel-profesional"));
+  assert.ok(isAccountNavActive("/panel-profesional/perfil", "/panel-profesional/perfil"));
 });
