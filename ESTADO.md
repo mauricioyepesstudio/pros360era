@@ -108,3 +108,12 @@ Preparado desde `a8a144c`: el signup no afirma que envió correo cuando Supabase
 No se enviaron correos reales ni se cambiaron configuración Auth, secretos, roles, permisos, esquema o datos. Las pruebas del proveedor usan dobles locales, no un servicio simulado en producto. Confirmación en buzón y recorrido autenticado real permanecen pendientes; no inferir falla SMTP a partir de una pantalla genérica de signup.
 
 Validación local de esta entrada: ESLint 0 errores/7 advertencias existentes, TypeScript, 96 pruebas (5 nuevas de confirmación/reenvío/destino), build de producción y diff check pasan. Revisor independiente security/product/compliance: PASS; cinco pruebas nuevas pasan también en su revisión. Endpoint retirado probado por invocación directa del handler compilado: 410 sin redirección ni llamadas de autenticación. Pruebas de dropdown/responsive y confirmación en buzón/recorrido autenticado quedan para verificación de navegador; no se inventan aquí.
+
+
+## 2026-10-07 — contexto profesional separado de la cuenta personal
+
+PR #31 integrado en `9e3587351bc493df5cb0c6cbb67a75cf902d2551` y despliegue de producción READY `dpl_FnfUFzGSc8Z1yA34Xb2W6o6AxNFm`. Una cuenta MEMBER que entra en `/dashboard/professional` ahora ve un **Espacio profesional** identificado como **Borrador privado**, con navegación limitada a Presentación y Mi cuenta. Roadmap, Conexiones y Perfil personal quedan fuera de este contexto. Un rol PROFESSIONAL que abre la ruta del borrador se redirige a `/panel-profesional`. No se cambiaron roles, RLS, esquema, datos, OAuth, cobros ni servicios regulados.
+
+Validación: 99 pruebas, TypeScript, lint sin errores (7 advertencias preexistentes), build de 55 rutas, diff check, revisión de producto/UI/compliance y CI #74 aprobados. La producción pública redirige `/dashboard/professional` a `/login?next=%2Fdashboard%2Fprofessional` y conserva las entradas Soy usuario/Soy profesional. Estado: preparado, integrado y desplegado; recorrido público verificado. Pendiente: prueba autenticada MEMBER para guardar/recargar el borrador y prueba PROFESSIONAL para confirmar el destino de panel. No se afirma correo recibido ni E2E autenticado.
+
+Pieza visual reciente conservada: `exec-3df552d3-fc66-4d82-9e6a-a88f52a9feb5.png`, producida el 2026-10-06 para explicar el recorrido real de EvolUSA. Lista para compartir aquí; no publicada en redes. No se generó duplicado.
