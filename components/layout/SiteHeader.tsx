@@ -65,7 +65,7 @@ export default function SiteHeader() {
       {!scrolled && !menuOpen && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-black/30 to-transparent" />
       )}
-      <Container className="flex min-h-24 items-center justify-between gap-4">
+      <Container className="flex min-h-24 items-center justify-between gap-2 sm:gap-4">
         <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
           <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} className="[&_img]:!h-auto [&_img]:!w-24 xl:[&_img]:!h-10 xl:[&_img]:!w-auto" />
         </Link>
@@ -80,7 +80,7 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100">¿Cómo funciona?</Link>
+        <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>
 
         <button
           type="button"
