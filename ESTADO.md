@@ -117,3 +117,18 @@ PR #31 integrado en `9e3587351bc493df5cb0c6cbb67a75cf902d2551` y despliegue de p
 Validación: 99 pruebas, TypeScript, lint sin errores (7 advertencias preexistentes), build de 55 rutas, diff check, revisión de producto/UI/compliance y CI #74 aprobados. La producción pública redirige `/dashboard/professional` a `/login?next=%2Fdashboard%2Fprofessional` y conserva las entradas Soy usuario/Soy profesional. Estado: preparado, integrado y desplegado; recorrido público verificado. Pendiente: prueba autenticada MEMBER para guardar/recargar el borrador y prueba PROFESSIONAL para confirmar el destino de panel. No se afirma correo recibido ni E2E autenticado.
 
 Pieza visual reciente conservada: `exec-3df552d3-fc66-4d82-9e6a-a88f52a9feb5.png`, producida el 2026-10-06 para explicar el recorrido real de EvolUSA. Lista para compartir aquí; no publicada en redes. No se generó duplicado.
+
+
+## Entrega 2026-10-08 — recorrido guiado y entrada de cuenta
+
+- **PR funcional:** [#30](https://github.com/mauricioyepesstudio/pros360era/pull/30)
+- **Preparado:** `20efec5313c174b5003dcb7568c48f0ea997b971`
+- **Integrado / producción:** `2c961591a1e38f6eb812023ef728462f52e0da3b`
+- **Despliegue:** `dpl_AFDYaB8u4HEoZrF5cnbQBhwBS5Fe` — READY en https://evolusa.vercel.app
+- **Recorrido comprobado:** el CTA «¿Cómo funciona?» abre el recorrido animado (paso 1 de 6); «Ya tengo cuenta» está debajo de las entradas principales y separa «Soy usuario» de «Soy profesional».
+- **Cuenta profesional:** una cuenta MEMBER solicitante llega a su presentación privada; una cuenta PROFESSIONAL aprobada se redirige a `/panel-profesional`. Elegir esta entrada no cambia roles ni permisos.
+- **Capacidades reales:** el panel profesional muestra perfil, oportunidades y CRM disponibles. Crecimiento/redes continúa marcado «En preparación»; no hay OAuth, publicación ni métricas simuladas.
+- **Validación:** 99 pruebas, TypeScript, build (55 rutas), ESLint sin errores (7 advertencias preexistentes), CI #79 y revisión producto/rutas/seguridad/compliance aprobados.
+- **Estado:** preparado ✅, integrado ✅, desplegado ✅, recorrido público verificado ✅; recorrido autenticado MEMBER/PROFESSIONAL pendiente de cuentas de prueba autorizadas.
+- **Contenido:** se conserva la pieza EvolUSA del 2026-10-06 (`exec-3df552d3-fc66-4d82-9e6a-a88f52a9feb5.png`), lista para compartir aquí y no publicada externamente; no se generó duplicado.
+- **Próximo objetivo:** probar con una cuenta MEMBER y una PROFESSIONAL que ambas entradas conservan el destino correcto y que el borrador/perfil se mantiene tras recargar.
