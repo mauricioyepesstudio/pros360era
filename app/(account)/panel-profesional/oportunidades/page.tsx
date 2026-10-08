@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import PageHeader from "@/components/account/PageHeader";
 import ProfessionalOpportunityCard from "@/components/professional/ProfessionalOpportunityCard";
-import { getCurrentRole } from "@/lib/account/persistence";
+import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getMyRoutedOpportunitiesForProfessional } from "@/lib/opportunities/persistence";
 
 /**
@@ -12,8 +11,7 @@ import { getMyRoutedOpportunitiesForProfessional } from "@/lib/opportunities/per
  * just keeps a non-professional from landing on an always-empty page.
  */
 export default async function ProfessionalOpportunitiesPage() {
-  const role = await getCurrentRole();
-  if (role !== "PROFESSIONAL") redirect("/dashboard");
+  await requireProfessionalArea();
 
   const opportunities = await getMyRoutedOpportunitiesForProfessional();
 
