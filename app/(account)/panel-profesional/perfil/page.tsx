@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import PageHeader from "@/components/account/PageHeader";
 import ProfessionalProfileEditor from "@/components/professional/ProfessionalProfileEditor";
-import { getCurrentRole } from "@/lib/account/persistence";
+import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 
 /**
@@ -12,8 +11,7 @@ import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
  * the empty-state below), not a leak.
  */
 export default async function ProfessionalSelfProfilePage() {
-  const role = await getCurrentRole();
-  if (role !== "PROFESSIONAL") redirect("/dashboard");
+  await requireProfessionalArea();
 
   const profile = await getMyProfessionalProfile();
 
