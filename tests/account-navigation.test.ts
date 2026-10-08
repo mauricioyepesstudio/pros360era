@@ -20,7 +20,7 @@ test("the professional panel shares no tab with the member panel", () => {
 
 test("each role lands on its own home", () => {
   assert.equal(homeForRole("MEMBER"), "/dashboard");
-  assert.equal(homeForRole("ADMIN"), "/dashboard");
+  assert.equal(homeForRole("ADMIN"), "/panel-profesional");
   assert.equal(homeForRole("PROFESSIONAL"), "/panel-profesional");
   assert.equal(hrefs("PROFESSIONAL")[0], "/panel-profesional");
 });

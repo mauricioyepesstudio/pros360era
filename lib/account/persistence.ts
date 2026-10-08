@@ -1,3 +1,6 @@
+import { unstable_rethrow } from "next/navigation";
+import { cache } from "react";
+import { resolveSessionAccountIdentity } from "./identity";
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { professionalDraftVersion } from "@/lib/professional-drafts/validation";
@@ -39,17 +42,24 @@ async function getPreviewRole(): Promise<"MEMBER" | "PROFESSIONAL"> {
  * request must never be treated as a professional. With Supabase not
  * configured at all it uses the preview switch above instead.
  */
+export const getCurrentAccountIdentity = cache(async () => {
+  try {
+    const supabase = await createSupabaseServerClient();
+    if (!supabase) return { status: "ready" as const, role: await getPreviewRole(), email: null };
+    return await resolveSessionAccountIdentity(async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      return { user, error };
+    }, async (id) => {
+      const { data, error } = await supabase.from("profiles").select("role").eq("id", id).maybeSingle();
+      return { role: data?.role, error: Boolean(error) };
+    });
+  } catch (error) { unstable_rethrow(error); return { status: "role_unavailable" as const, email: null }; }
+});
+
 export async function getCurrentRole(): Promise<"MEMBER" | "PROFESSIONAL" | "ADMIN"> {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return getPreviewRole();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return "MEMBER";
-
-  const { data } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  return (data?.role as "MEMBER" | "PROFESSIONAL" | "ADMIN" | undefined) ?? "MEMBER";
+  const identity = await getCurrentAccountIdentity();
+  if (identity.status === "role_unavailable") throw new Error("ACCOUNT_ROLE_UNAVAILABLE");
+  return identity.status === "ready" ? identity.role : "MEMBER";
 }
 
 export async function getCurrentProfile(): Promise<UserProfile> {

@@ -10,7 +10,7 @@ import { MEMBER_HOME, PROFESSIONAL_HOME, type AccountRole } from "@/lib/account/
  */
 export async function requireMemberArea(): Promise<AccountRole> {
   const role = await getCurrentRole();
-  if (role === "PROFESSIONAL") redirect(PROFESSIONAL_HOME);
+  if (role === "PROFESSIONAL" || role === "ADMIN") redirect(PROFESSIONAL_HOME);
   return role;
 }
 
