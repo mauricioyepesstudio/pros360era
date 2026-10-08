@@ -9,7 +9,6 @@ import { cn } from "@/lib/cn";
 
 const navigation = [
   { label: "Etapas", href: "#stage-selector" },
-  { label: "¿Cómo funciona?", href: "#como-funciona" },
   { label: "Servicios", href: "#stage-services" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "Confianza", href: "#trust" },
@@ -66,28 +65,22 @@ export default function SiteHeader() {
       {!scrolled && !menuOpen && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-black/30 to-transparent" />
       )}
-      <Container className="flex min-h-24 items-center justify-between gap-4">
+      <Container className="flex min-h-24 items-center justify-between gap-2 sm:gap-4">
         <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
-          <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} />
+          <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} className="[&_img]:!h-auto [&_img]:!w-24 xl:[&_img]:!h-10 xl:[&_img]:!w-auto" />
         </Link>
         <nav className="hidden items-center gap-5 xl:flex" aria-label="Navegación principal">
           {navigation.map((item) => (
             <Link
               key={item.href}
               href={`/${item.href}`}
-              className={cn("inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4", item.href === "#como-funciona" ? "bg-white text-[var(--brand-navy)] shadow-sm hover:bg-slate-100" : scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
+              className={cn("inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4", scrolled ? "text-[var(--brand-navy)] hover:text-[var(--brand-blue)]" : "text-white hover:text-white/80")}
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <details className="relative z-10 ml-auto shrink-0" onKeyDown={(event) => { if (event.key === "Escape") event.currentTarget.open = false; }}>
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4"><span className="hidden sm:inline">Ya tengo cuenta</span><span className="sm:hidden">Entrar</span></summary>
-          <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--border)] bg-white p-2 text-[var(--brand-navy)] shadow-lg">
-            <Link href="/login?next=%2Fdashboard" className="block rounded-lg px-3 py-3 font-semibold hover:bg-[var(--sky-surface)]">Soy usuario<span className="mt-1 block text-xs font-normal">Mi perfil y mi proceso</span></Link>
-            <Link href="/login?next=%2Fdashboard%2Fprofessional" className="block rounded-lg px-3 py-3 font-semibold hover:bg-[var(--sky-surface)]">Soy profesional<span className="mt-1 block text-xs font-normal">Mi perfil y servicios</span></Link>
-          </div>
-        </details>
+        <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>
 
         <button
           type="button"

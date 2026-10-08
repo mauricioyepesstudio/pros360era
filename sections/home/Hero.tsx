@@ -1,6 +1,6 @@
 "use client";
+import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
@@ -49,22 +49,20 @@ export default function Hero() {
           <p className="mt-2 text-sm leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
-              <ButtonLink href="/aplicar-profesional" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
+              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
                 Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
-              <ButtonLink href="/profesionales" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
+              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
                 Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
-            <Link href="#como-funciona" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/60 bg-white px-5 font-bold text-[var(--brand-navy)] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4">
-              ¿Cómo funciona?
-            </Link>
+            <HomeAccountEntry />
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }} className="mt-10 w-full">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }} data-tour="hero-path" className="mt-10 w-full">
           <EvolusaPath theme="dark" activeId="LLEGA" />
         </motion.div>
       </Container>
