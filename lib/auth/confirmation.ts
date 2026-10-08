@@ -35,5 +35,5 @@ export async function requestConfirmation(client: ConfirmationClient, email: str
 /** Navigation only; authorization and profile approval remain server-controlled. */
 export function authEntryDestination(next: string, role: unknown): string {
   const safe = safeReturnPath(next);
-  return safe === professionalWorkspacePath && role === "PROFESSIONAL" ? "/panel-profesional" : safe;
+  return safe === professionalWorkspacePath && (role === "PROFESSIONAL" || role === "ADMIN") ? "/panel-profesional" : safe;
 }

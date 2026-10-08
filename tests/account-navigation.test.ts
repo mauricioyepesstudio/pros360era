@@ -60,3 +60,14 @@ test("account home links are exact so only one destination is active", () => {
   assert.ok(!isAccountNavActive("/panel-profesional/perfil", "/panel-profesional"));
   assert.ok(isAccountNavActive("/panel-profesional/perfil", "/panel-profesional/perfil"));
 });
+
+
+test("admin professional pages expose professional tools and retain Admin", () => {
+  for (const path of ["/panel-profesional", "/panel-profesional/perfil", "/crm/leads", "/growth-automation"]) {
+    const context = accountContextFor("ADMIN", path);
+    assert.equal(context, "professional");
+    assert.deepEqual(buildAccountNav("ADMIN", context).map(item => item.href), [...hrefs("PROFESSIONAL"), "/admin"]);
+  }
+  assert.equal(accountContextFor("ADMIN", "/dashboard"), "member");
+  assert.equal(accountContextFor("ADMIN", "/crmx"), "member");
+});
