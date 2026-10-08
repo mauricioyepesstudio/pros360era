@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 import Link from "next/link";
+import { leadStatusLabels } from "@/lib/crm/followup";
 
 interface Lead {
   id: string;
@@ -121,14 +122,14 @@ export default function LeadsPage() {
               {leads.map((lead) => (
                 <tr key={lead.id} className="border-b border-[var(--border)] hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <span className="font-semibold">{lead.name || "Sin nombre"}</span>
+                    <Link href={`/crm/leads/${lead.id}`} className="font-semibold text-[var(--brand-blue)] underline">{lead.name || "Abrir prospecto"}</Link>
                   </td>
                   <td className="px-6 py-4 text-sm">{lead.email || "-"}</td>
                   <td className="px-6 py-4 text-sm">{lead.phone || "-"}</td>
                   <td className="px-6 py-4 text-sm capitalize">{lead.source}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusColors[lead.status] || "bg-gray-100"}`}>
-                      {lead.status}
+                      {leadStatusLabels[lead.status as keyof typeof leadStatusLabels] || lead.status}
                     </span>
                   </td>
 
