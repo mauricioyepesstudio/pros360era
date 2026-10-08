@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BarChart3, MessageSquare, Target, CheckCircle2, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
@@ -172,12 +173,12 @@ export default function CRMPage() {
       <div className="rounded-lg border-2 border-[var(--brand-blue)] bg-blue-50 p-6">
         <h3 className="font-bold text-[var(--brand-navy)]">Acciones rápidas</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <a
+          <Link
             href="/crm/leads"
             className="inline-block rounded-lg bg-white px-4 py-3 font-semibold text-[var(--brand-blue)] hover:bg-gray-50 transition-colors"
           >
             → Ver todos los leads
-          </a>
+          </Link>
           <span aria-disabled="true" className="rounded-lg bg-white px-4 py-3 text-[var(--muted)]">Conversaciones · En preparación</span>
 
         </div>

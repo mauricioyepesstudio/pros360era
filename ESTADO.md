@@ -140,3 +140,13 @@ PR34/35 integrados previamente: ADMIN puede entrar a su panel y abrir perfil/opo
 Nueva corrección preparada desde main 1e8314c: el servidor resuelve la identidad autenticada sin convertir errores/fila ausente en MEMBER. Muestra el correo propio para identificar la sesión; recuperación permite reintentar o cambiar cuenta. ADMIN y PROFESSIONAL que abren /dashboard van al panel, /profile al editor profesional; entradas de MEMBER siguen sin privilegios profesionales. Login delega la decisión al servidor, elimina consulta duplicada cliente. Cuenta personal y preparación profesional se nombran explícitamente para solicitantes. Sin cambios de roles, RLS, esquema, secretos, cobros o integraciones.
 
 Validación: 106 pruebas pasan, TypeScript aprobado, lint 0 errores/7 advertencias existentes; revisión independiente producto/security/compliance GO. Build/CI/integración/despliegue se registran en queue central tras verificarse. El navegador retenido bloqueó la nueva observación por protección de credenciales: no se afirma repetición del recorrido privado de esta corrección. Próximo objetivo: completar seguimiento CRM y conectar redes mediante autorización real, sin datos ni resultados inventados.
+
+## 2026-10-08 — CRM: ficha y seguimiento preparados
+
+Nueva ficha `/crm/leads/[id]` y API GET/PATCH propia: estado y notas, concurrencia por updated_at, preservación del borrador al recargar tras conflicto; guardado confirmado solo con fila devuelta. Listado enlaza a ficha y estados en español. No se envían mensajes ni se modifica consentimiento.
+
+Migración mínima preparada para UPDATE(status,notes) de dueño PROFESSIONAL/ADMIN + trigger updated_at; rollback preserva datos. Pendiente excepción explícita a «No cambies esquema, permisos» antes de aplicar a base viva. Runbook concreto: docs/CRM-LEAD-FOLLOWUP-APPLY.md. Pruebas PGlite verifican aislamiento, rol, columnas protegidas, rechazo de versión obsoleta y rollback. Revisión independiente security/compliance GO para preparación; cambios de borrador tras conflicto preservados.
+
+Producción cuenta: PR36 integrado825e2421564c442377e9432308cc49943d8e1f7c, deployment dpl_EDYfResNTFX1RDUzUJWB1HRKUEvr READY. Browser autenticado /dashboard redirige al panel, muestra sesión propia y Administrador · Profesional. Observación del formulario /profile bloqueada por protección de credenciales: no afirmar revalidación de ese formulario aquí.
+
+Bloqueo redes comprobado por metadata Vercel (solo nombres, sin valores): no INSTAGRAM_APP_ID/INSTAGRAM_APP_SECRET. Growth legacy sigue apagado; autorización OAuth, storage seguro de tokens y pruebas reales faltan. No simular resultados ni habilitar pagos.
