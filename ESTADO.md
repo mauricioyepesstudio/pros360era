@@ -150,3 +150,14 @@ Migración mínima preparada para UPDATE(status,notes) de dueño PROFESSIONAL/AD
 Producción cuenta: PR36 integrado825e2421564c442377e9432308cc49943d8e1f7c, deployment dpl_EDYfResNTFX1RDUzUJWB1HRKUEvr READY. Browser autenticado /dashboard redirige al panel, muestra sesión propia y Administrador · Profesional. Observación del formulario /profile bloqueada por protección de credenciales: no afirmar revalidación de ese formulario aquí.
 
 Bloqueo redes comprobado por metadata Vercel (solo nombres, sin valores): no INSTAGRAM_APP_ID/INSTAGRAM_APP_SECRET. Growth legacy sigue apagado; autorización OAuth, storage seguro de tokens y pruebas reales faltan. No simular resultados ni habilitar pagos.
+
+
+## 2026-10-08 — CRM seguimiento ACTIVADO (prevalece sobre preparación anterior)
+
+Owner aprobó expresamente la excepción UPDATE(status,notes) tras revisar el alcance. Migración crm_lead_followup_v1 aplicada solo en EvolUSA ovialqdazxkekvqqgdiu. Metadata viva confirma status/notes permitidos, user_id/updated_at y anon denegados. Sin tablas nuevas, eliminación o mensajes.
+
+PR37 integrado f325e8c3bf59538467742a31ae9a5f85619bcb4d; producción READY dpl_G6iszqt1aPpJEzP5dQQc6KVM8JFT. CI84 y Vercel aprobados,108 tests,TypeScript,lint0 errores7 warnings,build57 rutas. Revisor security/compliance aprobó.
+
+Prueba real PostgreSQL con role authenticated y propietario ADMIN: INSERT temporal→UPDATE estado/notas→readback correcto→rechazo de updated_at antiguo→denegación de modificar propietario. Transacción revertida completa; ningún dato de prueba retenido. Browser autenticado abre /crm y muestra cero leads reales. No equivale a E2E formulario→guardar→recargar, aún no realizado. Protecciones del navegador limitaron observaciones de formularios; no se inventa validación.
+
+Estado: preparado/integrado/desplegado; permisos y escritura transaccional verificados; E2E guardado por interfaz pendiente. El runbook CRM-LEAD-FOLLOWUP-APPLY.md conserva instrucciones previas de aprobación, ya resuelta por esta nota. Próximo objetivo: seguimiento con un lead real autorizado y tareas/pipeline; conversaciones y OAuth/redes continúan pendientes. Credenciales Meta ausentes en metadata Vercel; nunca habilitar handlers legacy sin flujo real seguro.
