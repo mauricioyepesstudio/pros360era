@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", "/conexiones", "/panel-profesional", "/plan-credito", "/crm", "/growth-automation"];
+const PROTECTED_PREFIXES = ["/dashboard", "/roadmap", "/assistant", "/profile", "/conexiones", "/panel-profesional", "/plan-credito", "/crm", "/growth-automation", "/videollamada-inicial"];
 
 /**
  * Refreshes the Supabase session cookie on every request and gates the
@@ -47,7 +47,7 @@ export async function proxy(request: NextRequest) {
 
   if (!user) {
     const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("next", request.nextUrl.pathname);
+    redirectUrl.searchParams.set("next", request.nextUrl.pathname + (request.nextUrl.pathname === "/videollamada-inicial" ? request.nextUrl.search : ""));
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -65,5 +65,6 @@ export const config = {
     "/plan-credito/:path*",
     "/crm/:path*",
     "/growth-automation/:path*",
+    "/videollamada-inicial/:path*",
   ],
 };

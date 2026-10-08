@@ -166,3 +166,10 @@ Estado: preparado/integrado/desplegado; permisos y escritura transaccional verif
 ### Verificación por interfaz completada, 2026-10-08
 
 La limitación de formulario descrita arriba se resolvió para seguimiento navegando desde el listado. Con sesión owner ADMIN: se abrió una ficha técnica explícitamente marcada «no es un cliente», se seleccionó Contactado, se guardaron notas mediante PATCH de la interfaz, apareció «Seguimiento guardado correctamente», se volvió al listado y se reabrió la ficha; estado y notas persistían. El registro técnico creado para esta prueba se retiró por ID+nombre exactos al terminar; SQL confirmó 0 registros restantes. Ningún contacto real modificado ni mensajes enviados. Es evidencia del formulario de actualización/reapertura; la creación inicial del registro fue SQL, no formulario Nuevo prospecto. Captura guardada: evolusa-crm-followup-verified-20261008.jpg. Próximo: probar captura de un lead real y desarrollar tareas/pipeline; OAuth pendiente de app Meta y autorización de plataformas.
+
+
+## 2026-10-08 — solicitud inicial y agenda profesional preparadas
+
+Desde main8444ad3, opción voluntaria de solicitar videollamada inicial al registrarse sin alterar next/handoff. Solicitud autenticada propia con nombre preferido, tema/franja enumerados, zona IANA y consentimiento revocable; guardado idempotente y cancelación. Bandeja ADMIN verificada antes de service role, sin envíos. Agenda profesional propia: disponibilidad semanal ACTIVE/PAUSED y booking_url canónico HTTPS removible. Prefijos protegidos y filtros Roadmap incluyen las versiones internas. Sin migración, permisos, secretos ni cuentas externas.
+
+Estas son solicitudes y preferencias privadas; no reservas confirmadas ni sincronización. Integración real propuesta Cal.com APIv2 + OAuth individual + webhooks; no usar managed users antiguo ni SDK Atoms en mantenimiento como base nueva. Falta OAuth client aprobado, credenciales seguras y almacenamiento token revisado, autorización de cada profesional y pruebas con proveedor. Ver docs/EVOLUSA-INITIAL-CALL-AGENDA.md para fuentes y alcance. Pruebas/CI/deploy/browser finales registrados en cola central al completarse.

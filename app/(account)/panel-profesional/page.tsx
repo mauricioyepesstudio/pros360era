@@ -42,6 +42,13 @@ export default async function ProfessionalPanelPage() {
       icon: Users,
     },
     {
+      href: "/panel-profesional/agenda",
+      title: "Agenda",
+      description: "Tus preferencias de disponibilidad y el enlace de reservas.",
+      detail: "Configura tu horario",
+      icon: IdCard,
+    },
+    {
       href: "/growth-automation",
       title: "Crecimiento",
       description: "Conexión de redes y automatizaciones aún no disponibles.",

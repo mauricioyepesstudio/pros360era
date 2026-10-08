@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import PageHeader from "@/components/account/PageHeader";
+import InitialCallInbox from "@/components/initial-call/InitialCallInbox";
 import ApplicationsTable from "@/components/admin/ApplicationsTable";
 import { getCurrentRole } from "@/lib/account/persistence";
 import { getAdminDashboardStats, getProfessionalApplications } from "@/lib/admin/persistence";
@@ -31,6 +32,8 @@ export default async function AdminPage() {
         title="EVOLUSA en números"
         description="Miembros, profesionales y aplicaciones pendientes de revisión."
       />
+
+      <InitialCallInbox />
 
       {stats && (
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
