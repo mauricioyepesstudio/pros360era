@@ -8,7 +8,7 @@ import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/pro
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-import { authEntryDestination, confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
+import { confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
 
 export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const readiness = getAuthReadiness();
@@ -45,14 +45,10 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     finally { setResending(false); }
   }
 
-  async function enterAccount(supabase: ReturnType<typeof createSupabaseBrowserClient>, userId?: string) {
+  async function enterAccount() {
     await restoreProfessionalInformation();
-    let role: unknown;
-    if (professional && userId) {
-      const { data } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
-      role = data?.role;
-    }
-    router.push(authEntryDestination(next, role));
+    // The authenticated server route owns role resolution and authorization.
+    router.push(next);
     router.refresh();
   }
 
@@ -89,19 +85,19 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
           return;
         }
         if (data.session) {
-          await enterAccount(supabase, data.user?.id);
+          await enterAccount();
         } else {
           setConfirmationSent(true);
           setCooldown(confirmationCooldownSeconds);
         }
       } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (signInError) {
           if (isUnconfirmedEmail(signInError)) { setConfirmationSent(true); setCooldown(0); return; }
           setError(translateAuthError(signInError.message));
           return;
         }
-        await enterAccount(supabase, data.user?.id);
+        await enterAccount();
       }
     } catch {
       setError("No pudimos conectar con el servicio de cuentas. Intenta de nuevo.");

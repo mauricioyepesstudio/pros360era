@@ -39,7 +39,7 @@ const memberNav: readonly AccountNavItem[] = [
   { href: "/profile", label: "Perfil", icon: "user" },
   // Applicants keep the MEMBER role until their profile is approved; this is
   // where they save their private draft (docs/EVOLUSA-PROFESSIONAL-WORKSPACE.md).
-  { href: "/dashboard/professional", label: "Espacio profesional", icon: "briefcase" },
+  { href: "/dashboard/professional", label: "Preparación profesional", icon: "briefcase" },
 ];
 
 const professionalNav: readonly AccountNavItem[] = [
@@ -52,11 +52,11 @@ const professionalNav: readonly AccountNavItem[] = [
 
 const applicantNav: readonly AccountNavItem[] = [
   { href: "/dashboard/professional", label: "Presentación", icon: "briefcase" },
-  { href: MEMBER_HOME, label: "Mi cuenta", icon: "user" },
+  { href: MEMBER_HOME, label: "Cuenta personal", icon: "user" },
 ];
 
 export function homeForRole(role: AccountRole): string {
-  return role === "PROFESSIONAL" ? PROFESSIONAL_HOME : MEMBER_HOME;
+  return role === "PROFESSIONAL" || role === "ADMIN" ? PROFESSIONAL_HOME : MEMBER_HOME;
 }
 
 export function accountContextFor(role: AccountRole, pathname: string): AccountContext {

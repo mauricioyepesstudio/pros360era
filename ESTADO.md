@@ -132,3 +132,11 @@ Pieza visual reciente conservada: `exec-3df552d3-fc66-4d82-9e6a-a88f52a9feb5.png
 - **Estado:** preparado ✅, integrado ✅, desplegado ✅, recorrido público verificado ✅; recorrido autenticado MEMBER/PROFESSIONAL pendiente de cuentas de prueba autorizadas.
 - **Contenido:** se conserva la pieza EvolUSA del 2026-10-06 (`exec-3df552d3-fc66-4d82-9e6a-a88f52a9feb5.png`), lista para compartir aquí y no publicada externamente; no se generó duplicado.
 - **Próximo objetivo:** probar con una cuenta MEMBER y una PROFESSIONAL que ambas entradas conservan el destino correcto y que el borrador/perfil se mantiene tras recargar.
+
+## 2026-10-08 — identidad y destino de cuenta profesional
+
+PR34/35 integrados previamente: ADMIN puede entrar a su panel y abrir perfil/oportunidades con el mismo guard compartido. Perfil existente guardado sin alterar campos y escritura comprobada en base viva; CRM solo listado/formulario, no seguimiento ni automatización.
+
+Nueva corrección preparada desde main 1e8314c: el servidor resuelve la identidad autenticada sin convertir errores/fila ausente en MEMBER. Muestra el correo propio para identificar la sesión; recuperación permite reintentar o cambiar cuenta. ADMIN y PROFESSIONAL que abren /dashboard van al panel, /profile al editor profesional; entradas de MEMBER siguen sin privilegios profesionales. Login delega la decisión al servidor, elimina consulta duplicada cliente. Cuenta personal y preparación profesional se nombran explícitamente para solicitantes. Sin cambios de roles, RLS, esquema, secretos, cobros o integraciones.
+
+Validación: 106 pruebas pasan, TypeScript aprobado, lint 0 errores/7 advertencias existentes; revisión independiente producto/security/compliance GO. Build/CI/integración/despliegue se registran en queue central tras verificarse. El navegador retenido bloqueó la nueva observación por protección de credenciales: no se afirma repetición del recorrido privado de esta corrección. Próximo objetivo: completar seguimiento CRM y conectar redes mediante autorización real, sin datos ni resultados inventados.
