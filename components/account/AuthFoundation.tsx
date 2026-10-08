@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 import { safeReturnPath, professionalWorkspacePath } from "@/lib/auth/return-path";
+import { initialCallDestination, authEntryHref } from "@/lib/initial-call/auth-intent";
 import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/professional/actions";
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -18,6 +19,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const next = safeReturnPath(searchParams.get("next"));
   const professional = next === professionalWorkspacePath;
 
+  const [initialCall, setInitialCall] = useState(searchParams.get("initialCall") === "1");
+  const callQuery = initialCall ? "&initialCall=1" : "";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +51,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   async function enterAccount() {
     await restoreProfessionalInformation();
     // The authenticated server route owns role resolution and authorization.
-    router.push(next);
+    router.push(initialCallDestination(next, initialCall));
     router.refresh();
   }
 
@@ -137,7 +140,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
         <button type="button" disabled={resending || cooldown > 0} onClick={resendConfirmation} className="mt-5 min-h-12 w-full rounded-full border border-[var(--brand-blue)] font-bold text-[var(--brand-blue)] disabled:opacity-50">{resending ? "Solicitando enlace…" : cooldown > 0 ? `Reenviar en ${cooldown} s` : "Reenviar confirmación"}</button>
         {(resending || resendNotice) && <p role="status" aria-live="polite" className="mt-3 text-sm text-[var(--muted)]">{resending ? "Solicitando otro enlace…" : resendNotice}</p>}
-        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={`/login?next=${encodeURIComponent(next)}`}>Ya tengo cuenta o ya confirmé: entrar</Link>
+        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={authEntryHref("login", next, initialCall)}>Ya tengo cuenta o ya confirmé: entrar</Link>
         <button type="button" onClick={() => { setConfirmationSent(false); setError(null); }} className="mt-3 block min-h-10 w-full text-sm underline">{signup ? "Corregir correo" : "Volver a entrar"}</button>
       </div>
     );
@@ -158,7 +161,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </p>
       <div className="mt-5 space-y-2 rounded-xl bg-[var(--sky-surface)] p-4 text-sm">
         <p className="font-bold">Una cuenta, dos formas de participar</p>
-        <div className="flex flex-wrap gap-4"><Link href={`/${mode}?next=%2Fdashboard`} className="font-bold underline">Soy usuario</Link><Link href={`/${mode}?next=%2Fdashboard%2Fprofessional`} className="font-bold underline">Soy profesional</Link></div>
+        <div className="flex flex-wrap gap-4"><Link href={`/${mode}?next=%2Fdashboard${callQuery}`} className="font-bold underline">Soy usuario</Link><Link href={`/${mode}?next=%2Fdashboard%2Fprofessional${callQuery}`} className="font-bold underline">Soy profesional</Link></div>
         <p className="leading-6 text-[var(--muted)]">{professional ? "Si ya tienes acceso profesional habilitado, entrarás a tu panel. Si tu solicitud sigue en revisión, podrás preparar tu presentación privada." : "Como usuario, continúas tu camino. Si también ofreces servicios, entra por Soy profesional para preparar tu presentación."}</p>
       </div>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -187,6 +190,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
             placeholder="••••••••"
           />
         </label>
+        {signup && <label className="flex items-start gap-3 rounded-xl bg-[var(--sky-surface)] p-4 text-sm"><input type="checkbox" checked={initialCall} onChange={event => setInitialCall(event.target.checked)} className="mt-1 size-5 shrink-0"/><span><strong className="block">Quiero una videollamada inicial</strong>Después de entrar, podrás elegir el tema y tu disponibilidad. Este paso es opcional y no reserva una cita.</span></label>}
         {error && (
           <p role="alert" className="rounded-[var(--radius-md)] bg-rose-50 p-3 text-sm font-semibold text-rose-700">
             {error}
@@ -202,7 +206,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </form>
       <p className="mt-6 text-center text-sm text-[var(--muted)]">
         {signup ? "¿Ya tienes cuenta?" : "¿Aún no tienes cuenta?"}{" "}
-        <Link className="font-bold text-[var(--brand-blue)]" href={`${signup ? "/login" : "/signup"}?next=${encodeURIComponent(next)}`}>
+        <Link className="font-bold text-[var(--brand-blue)]" href={authEntryHref(signup ? "login" : "signup", next, initialCall)}>
           {signup ? "Entrar" : "Crear cuenta"}
         </Link>
       </p>

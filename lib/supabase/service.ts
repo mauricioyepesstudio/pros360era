@@ -3,10 +3,8 @@ import { getSupabaseEnv } from "./env";
 
 /**
  * Service-role Supabase client — bypasses RLS and every table/function
- * grant entirely. Used ONLY by the Stripe webhook route, which has no user
- * session to authenticate as and has already independently verified the
- * event came from Stripe (signature check) before this client is ever
- * touched. Never import this into a Server Action or Server Component —
+ * grant entirely. Used by Stripe webhooks after signature verification and the admin
+ * initial-call API after authenticated authoritative ADMIN verification. Never import this into a Server Action or Server Component —
  * those must always use createSupabaseServerClient (lib/supabase/server.ts)
  * so authorization stays derived from the real caller's session.
  */
