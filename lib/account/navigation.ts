@@ -60,7 +60,7 @@ export function homeForRole(role: AccountRole): string {
 }
 
 export function accountContextFor(role: AccountRole, pathname: string): AccountContext {
-  if (role === "PROFESSIONAL") return "professional";
+  if (role === "PROFESSIONAL" || (role === "ADMIN" && isProfessionalArea(pathname))) return "professional";
   if (
     role === "MEMBER" &&
     (pathname === "/dashboard/professional" || pathname.startsWith("/dashboard/professional/"))
@@ -74,6 +74,7 @@ export function buildAccountNav(
 ): readonly AccountNavItem[] {
   if (context === "applicant") return applicantNav;
   if (role === "PROFESSIONAL") return professionalNav;
+  if (role === "ADMIN" && context === "professional") return [...professionalNav, { href: "/admin", label: "Admin", icon: "shield" }];
   if (role === "ADMIN") return [...memberNav, { href: "/admin", label: "Admin", icon: "shield" }];
   return memberNav;
 }

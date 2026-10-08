@@ -11,7 +11,7 @@ export default async function ProfessionalDashboard() {
  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
  if (!user) redirect("/login?next=%2Fdashboard%2Fprofessional");
  const role = await getCurrentRole();
- if (role === "PROFESSIONAL") redirect("/panel-profesional");
+ if (role === "PROFESSIONAL" || role === "ADMIN") redirect("/panel-profesional");
  const draft = await getMyProfessionalDraft();
  return <div className="space-y-8">
   <PageHeader eyebrow="Borrador privado" title="Tu presentación profesional" description="Prepara cómo quieres presentarte mientras completas el proceso de solicitud." />

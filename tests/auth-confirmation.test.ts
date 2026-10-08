@@ -38,3 +38,9 @@ test("unconfirmed login offers recovery and professional entry cannot elevate ro
   assert.equal(authEntryDestination("https://attacker.invalid/", "PROFESSIONAL"), "/dashboard");
   assert.equal(authEntryDestination("/dashboard", "MEMBER"), "/dashboard");
 });
+
+
+test("admin professional entry uses the professional panel without changing default member entry", () => {
+  assert.equal(authEntryDestination("/dashboard/professional", "ADMIN"), "/panel-profesional");
+  assert.equal(authEntryDestination("/dashboard", "ADMIN"), "/dashboard");
+});
