@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { professionalPlannerAllowed } from "@/lib/professional-planner/validation";
 import { decryptToken, encryptToken } from "@/lib/social/crypto";
 import { getInstagramConfig, refreshLongLivedToken, type InstagramAccount, type InstagramToken } from "@/lib/social/instagram";
+import { getLinkedInConfig } from "@/lib/social/linkedin";
 import { needsRefresh, REFRESH_WINDOW_MS } from "@/lib/social/refresh-policy";
 
 export type SocialConnectionStatus = "ACTIVE" | "EXPIRED" | "REVOKED";
@@ -39,20 +40,20 @@ export async function socialConnectionOwner() {
   return { db, user };
 }
 
-export async function getMyInstagramState(): Promise<MyInstagramState> {
-  const configured = getInstagramConfig() !== null;
+export type SocialProvider = "instagram" | "linkedin";
+
+async function getMyConnection(provider: SocialProvider) {
   const owner = await socialConnectionOwner();
-  if (!owner) return { allowed: false, configured, storageReady: false, connection: null };
+  if (!owner) return { allowed: false, storageReady: false, connection: null };
   const { data, error } = await owner.db
     .from("social_connections")
     .select("username, account_type, status, token_expires_at, created_at")
     .eq("user_id", owner.user.id)
-    .eq("provider", "instagram")
+    .eq("provider", provider)
     .maybeSingle();
-  if (error) return { allowed: true, configured, storageReady: false, connection: null };
+  if (error) return { allowed: true, storageReady: false, connection: null };
   return {
     allowed: true,
-    configured,
     storageReady: true,
     connection: data
       ? {
@@ -66,38 +67,69 @@ export async function getMyInstagramState(): Promise<MyInstagramState> {
   };
 }
 
+export async function getMyInstagramState(): Promise<MyInstagramState> {
+  return { configured: getInstagramConfig() !== null, ...(await getMyConnection("instagram")) };
+}
+
+export async function getMyLinkedInState(now = Date.now()): Promise<MyInstagramState> {
+  const state = await getMyConnection("linkedin");
+  const connection = state.connection;
+  // Between cron runs a connection can be past its date while still marked ACTIVE.
+  const lapsed = connection?.status === "ACTIVE" && connection.tokenExpiresAt !== null && Date.parse(connection.tokenExpiresAt) <= now;
+  return {
+    configured: getLinkedInConfig() !== null,
+    ...state,
+    connection: connection && lapsed ? { ...connection, status: "EXPIRED" } : connection,
+  };
+}
+
 /** RLS lets the owner delete only their own row; the encrypted token goes with it. */
-export async function disconnectMyInstagram(): Promise<boolean> {
+export async function disconnectMySocial(provider: SocialProvider): Promise<boolean> {
   const owner = await socialConnectionOwner();
   if (!owner) return false;
-  const { error } = await owner.db.from("social_connections").delete().eq("user_id", owner.user.id).eq("provider", "instagram");
+  const { error } = await owner.db.from("social_connections").delete().eq("user_id", owner.user.id).eq("provider", provider);
   return !error;
+}
+
+export async function disconnectMyInstagram(): Promise<boolean> {
+  return disconnectMySocial("instagram");
 }
 
 // ---- Service-role side (OAuth callback, refresh cron, Meta callbacks) ----
 
-export class InstagramAccountInUseError extends Error {}
+export class SocialAccountInUseError extends Error {}
+/** Kept for the Instagram callback's import. */
+export const InstagramAccountInUseError = SocialAccountInUseError;
 
-export async function saveInstagramConnection(
+type SocialAccount = { id: string; username: string; accountType: string | null };
+type SocialToken = { accessToken: string; expiresAt: Date };
+
+/** Additional data the token ciphertext is bound to. Publishers must decrypt with the same value. */
+export function tokenBinding(provider: SocialProvider, providerAccountId: string): string {
+  return provider === "instagram" ? providerAccountId : `${provider}:${providerAccountId}`;
+}
+
+export async function saveSocialConnection(
   service: SupabaseClient,
-  input: { userId: string; account: InstagramAccount; token: InstagramToken; scopes: string[]; tokenKey: Buffer; now?: Date },
+  provider: SocialProvider,
+  input: { userId: string; account: SocialAccount; token: SocialToken; scopes: string[]; tokenKey: Buffer; now?: Date },
 ): Promise<void> {
   const now = (input.now ?? new Date()).toISOString();
   const { data: holder, error: holderError } = await service
     .from("social_connections")
     .select("user_id, status")
-    .eq("provider", "instagram")
+    .eq("provider", provider)
     .eq("provider_account_id", input.account.id)
     .maybeSingle();
   if (holderError) throw new Error("social_storage_unavailable");
   if (holder && holder.user_id !== input.userId) {
-    // The new person just proved control of the account through Instagram; a
+    // The new person just proved control of the account through the network; a
     // stale (expired or revoked) link elsewhere doesn't block them. An active one does.
-    if (holder.status === "ACTIVE") throw new InstagramAccountInUseError("account_in_use");
+    if (holder.status === "ACTIVE") throw new SocialAccountInUseError("account_in_use");
     const { error: releaseError } = await service
       .from("social_connections")
       .delete()
-      .eq("provider", "instagram")
+      .eq("provider", provider)
       .eq("provider_account_id", input.account.id)
       .neq("status", "ACTIVE");
     if (releaseError) throw new Error("social_storage_unavailable");
@@ -106,13 +138,14 @@ export async function saveInstagramConnection(
   const { error } = await service.from("social_connections").upsert(
     {
       user_id: input.userId,
-      provider: "instagram",
+      provider,
       provider_account_id: input.account.id,
-      username: input.account.username.slice(0, 64),
+      username: Array.from(input.account.username).slice(0, 64).join(""),
       account_type: input.account.accountType?.slice(0, 32) ?? null,
       scopes: input.scopes,
       status: "ACTIVE",
-      token_ciphertext: encryptToken(input.token.accessToken, input.tokenKey, input.account.id),
+      // Instagram ciphertexts (already stored) are bound to the bare id; new networks also bind the network.
+      token_ciphertext: encryptToken(input.token.accessToken, input.tokenKey, tokenBinding(provider, input.account.id)),
       token_expires_at: input.token.expiresAt.toISOString(),
       token_refreshed_at: now,
       last_error: null,
@@ -121,6 +154,26 @@ export async function saveInstagramConnection(
     { onConflict: "user_id,provider" },
   );
   if (error) throw new Error("social_storage_unavailable");
+}
+
+export async function saveInstagramConnection(
+  service: SupabaseClient,
+  input: { userId: string; account: InstagramAccount; token: InstagramToken; scopes: string[]; tokenKey: Buffer; now?: Date },
+): Promise<void> {
+  return saveSocialConnection(service, "instagram", input);
+}
+
+/** LinkedIn gives no refresh token to self-serve apps: past expiry the connection is marked EXPIRED and the token wiped. */
+export async function expireDueLinkedInConnections(service: SupabaseClient, now = Date.now()): Promise<number> {
+  const { data, error } = await service
+    .from("social_connections")
+    .update({ status: "EXPIRED", token_ciphertext: null, last_error: "La conexión con LinkedIn venció. Vuelve a conectarla.", updated_at: new Date(now).toISOString() })
+    .eq("provider", "linkedin")
+    .eq("status", "ACTIVE")
+    .lte("token_expires_at", new Date(now).toISOString())
+    .select("id");
+  if (error) throw new Error("social_storage_unavailable");
+  return data?.length ?? 0;
 }
 
 /** Meta deauthorize: the person removed EVOLUSA from their Instagram. Wipe the token, keep the row as REVOKED. */

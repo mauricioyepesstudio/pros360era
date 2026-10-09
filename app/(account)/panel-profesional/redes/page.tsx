@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { AtSign, CalendarDays, CheckCircle2, ShieldCheck, Users } from "lucide-react";
+import { AtSign, BriefcaseBusiness, CalendarDays, CheckCircle2, ShieldCheck, Users } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 import { requireProfessionalArea } from "@/lib/account/role-gate";
-import { getMyInstagramState } from "@/lib/social/connections";
-import { disconnectInstagramAction } from "./actions";
+import { getMyInstagramState, getMyLinkedInState } from "@/lib/social/connections";
+import { disconnectInstagramAction, disconnectLinkedInAction } from "./actions";
 
 const notices: Record<string, { tone: "ok" | "error"; text: string }> = {
   "conectado=instagram": { tone: "ok", text: "Tu Instagram quedó conectado." },
@@ -14,6 +14,12 @@ const notices: Record<string, { tone: "ok" | "error"; text: string }> = {
   "error=instagram": { tone: "error", text: "Instagram no aceptó la conexión. Revisa que tu cuenta sea profesional (empresa o creador) e inténtalo de nuevo." },
   "error=no_configurado": { tone: "error", text: "La conexión con Instagram todavía no está activa en EVOLUSA." },
   "error=desconectar": { tone: "error", text: "No pudimos desconectar tu cuenta. Inténtalo de nuevo." },
+  "conectado=linkedin": { tone: "ok", text: "Tu LinkedIn quedó conectado." },
+  "desconectado=linkedin": { tone: "ok", text: "Desconectamos tu LinkedIn y borramos de EVOLUSA la llave de acceso." },
+  "error=linkedin": { tone: "error", text: "LinkedIn no aceptó la conexión. Inténtalo de nuevo." },
+  "error=linkedin_cancelado": { tone: "error", text: "No se completó la conexión con LinkedIn. Puedes intentarlo de nuevo cuando quieras." },
+  "error=linkedin_en_uso": { tone: "error", text: "Ese LinkedIn ya está conectado a otro perfil de EVOLUSA." },
+  "error=linkedin_no_configurado": { tone: "error", text: "La conexión con LinkedIn todavía no está activa en EVOLUSA." },
 };
 
 function noticeFor(params: Record<string, string | string[] | undefined>) {
@@ -31,7 +37,7 @@ function noticeFor(params: Record<string, string | string[] | undefined>) {
  */
 export default async function RedesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireProfessionalArea();
-  const [state, params] = await Promise.all([getMyInstagramState(), searchParams]);
+  const [state, linkedin, params] = await Promise.all([getMyInstagramState(), getMyLinkedInState(), searchParams]);
   const notice = noticeFor(params);
   const connection = state.connection;
   const canConnect = state.allowed && state.configured && state.storageReady;
@@ -115,9 +121,63 @@ export default async function RedesPage({ searchParams }: { searchParams: Promis
         </ul>
       </section>
 
+      <LinkedInCard state={linkedin} />
+
       <p className="text-sm leading-6 text-[var(--muted)]">
-        Facebook, TikTok y LinkedIn vienen después de Instagram. Cómo tratamos tus datos: <Link href="/privacidad" className="font-semibold text-[var(--brand-blue)] underline">política de privacidad</Link>.
+        Facebook y TikTok vienen después. Cómo tratamos tus datos: <Link href="/privacidad" className="font-semibold text-[var(--brand-blue)] underline">política de privacidad</Link>.
       </p>
     </div>
+  );
+}
+
+function LinkedInCard({ state }: { state: Awaited<ReturnType<typeof getMyLinkedInState>> }) {
+  const connection = state.connection;
+  const canConnect = state.allowed && state.configured && state.storageReady;
+  const expiresAt = connection?.tokenExpiresAt ? new Intl.DateTimeFormat("es-US", { dateStyle: "long", timeZone: "America/New_York" }).format(new Date(connection.tokenExpiresAt)) : null;
+  return (
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6 sm:p-8">
+      <div className="flex flex-wrap items-start justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <span className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] bg-[var(--sky-surface)] text-[var(--brand-blue)]">
+            <BriefcaseBusiness aria-hidden size={24} />
+          </span>
+          <div>
+            <h2 className="text-xl font-bold text-[var(--brand-navy)]">LinkedIn</h2>
+            {connection?.status === "ACTIVE" ? (
+              <>
+                <p className="mt-1 flex items-center gap-2 font-semibold text-[var(--success)]">
+                  <CheckCircle2 aria-hidden size={18} /> Conectado como {connection.username}
+                </p>
+                {expiresAt ? <p className="mt-1 text-sm text-[var(--muted)]">LinkedIn pide volver a conectar cada 60 días. La tuya vence el {expiresAt}.</p> : null}
+              </>
+            ) : connection ? (
+              <p className="mt-1 font-semibold text-[var(--warning)]">{connection.username}: la conexión venció. Vuelve a conectarla.</p>
+            ) : (
+              <p className="mt-1 text-[var(--muted)]">Tu perfil personal de LinkedIn, para publicar desde tu planner.</p>
+            )}
+          </div>
+        </div>
+
+        {connection?.status === "ACTIVE" ? (
+          <form action={disconnectLinkedInAction}>
+            <button type="submit" className="inline-flex min-h-11 items-center rounded-[var(--radius-pill)] border border-[var(--border)] px-5 text-sm font-semibold text-[var(--brand-navy)] hover:bg-[var(--sky-surface)]">
+              Desconectar
+            </button>
+          </form>
+        ) : canConnect ? (
+          // A plain link: the connect route redirects to LinkedIn and must not be prefetched.
+          <a href="/api/social/linkedin/connect" className="inline-flex min-h-11 items-center rounded-[var(--radius-pill)] bg-[var(--brand-red)] px-6 text-sm font-semibold text-white shadow-[var(--shadow-sm)] hover:bg-[var(--brand-red-strong)]">
+            {connection ? "Volver a conectar" : "Conectar LinkedIn"}
+          </a>
+        ) : (
+          <span className="rounded-full bg-[var(--sky-surface)] px-4 py-2 text-sm font-semibold text-[var(--muted)]">Aún no disponible</span>
+        )}
+      </div>
+      {!connection && !canConnect && state.allowed ? (
+        <p className="mt-6 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-4 text-sm leading-6 text-[var(--muted)]">
+          EVOLUSA está terminando la configuración con LinkedIn. Cuando esté lista, aquí aparecerá el botón para conectar tu perfil.
+        </p>
+      ) : null}
+    </section>
   );
 }

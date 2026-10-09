@@ -1,6 +1,6 @@
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { safeEqual } from "@/lib/social/crypto";
-import { refreshDueInstagramTokens } from "@/lib/social/connections";
+import { expireDueLinkedInConnections, refreshDueInstagramTokens } from "@/lib/social/connections";
 import { getInstagramConfig } from "@/lib/social/instagram";
 
 /**
@@ -16,10 +16,20 @@ export async function GET(request: Request) {
   }
   const config = getInstagramConfig();
   const service = createSupabaseServiceRoleClient();
-  if (!config || !service) return Response.json({ skipped: "not_configured" });
+  if (!service) return Response.json({ skipped: "not_configured" });
+
+  // LinkedIn can't be renewed; expired connections are marked so the panel asks to reconnect.
+  // Runs on its own so neither network's failure or missing config blocks the other.
+  let linkedinExpired: number | "error" = 0;
   try {
-    return Response.json(await refreshDueInstagramTokens(service, config.tokenKey));
+    linkedinExpired = await expireDueLinkedInConnections(service);
   } catch {
-    return Response.json({ error: "unavailable" }, { status: 503 });
+    linkedinExpired = "error";
+  }
+  if (!config) return Response.json({ instagram: "not_configured", linkedinExpired });
+  try {
+    return Response.json({ ...(await refreshDueInstagramTokens(service, config.tokenKey)), linkedinExpired });
+  } catch {
+    return Response.json({ error: "unavailable", linkedinExpired }, { status: 503 });
   }
 }
