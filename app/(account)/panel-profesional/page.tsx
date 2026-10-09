@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Briefcase, IdCard, Rocket, Users } from "lucide-react";
+import { ArrowRight, Briefcase, CalendarDays, IdCard, ImageIcon, Rocket, Users } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
+import PreparedKitWelcome from "@/components/professional/PreparedKitWelcome";
 import { getProfessionalCategory } from "@/data/professional/categories";
 import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getMyRoutedOpportunitiesForProfessional } from "@/lib/opportunities/persistence";
+import { getMyPreparedKit } from "@/lib/professional/prepared-kit";
 import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 
 /**
@@ -15,7 +17,7 @@ import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 export default async function ProfessionalPanelPage() {
   await requireProfessionalArea();
 
-  const [profile, opportunities] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional()]);
+  const [profile, opportunities, kit] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional(), getMyPreparedKit()]);
   const waitingForContact = opportunities.filter((opportunity) => opportunity.effectiveStatus === "ROUTED").length;
   const categoryLabel = profile ? getProfessionalCategory(profile.category)?.label : undefined;
 
@@ -46,8 +48,19 @@ export default async function ProfessionalPanelPage() {
       title: "Agenda",
       description: "Tus preferencias de disponibilidad y el enlace de reservas.",
       detail: "Configura tu horario",
-      icon: IdCard,
+      icon: CalendarDays,
     },
+    ...(kit
+      ? [
+          {
+            href: "/panel-profesional/creativos",
+            title: "Creativos",
+            description: "Tus piezas por concepto y formato, listas para revisar y descargar.",
+            detail: `${kit.creatives.concepts.length} conceptos · ${kit.creatives.formats.length} formatos`,
+            icon: ImageIcon,
+          },
+        ]
+      : []),
     {
       href: "/growth-automation",
       title: "Crecimiento",
@@ -64,6 +77,8 @@ export default async function ProfessionalPanelPage() {
         title={profile ? `Hola, ${profile.displayName}` : "Tu panel profesional"}
         description="Aquí gestionas tu presencia en EVOLUSA y las personas que te contactan. Los miembros no ven este panel."
       />
+
+      {kit ? <PreparedKitWelcome kit={kit} hasPhoto={Boolean(profile?.photoUrl)} /> : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
         <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[var(--brand-blue)]">Estado de tu perfil</h2>

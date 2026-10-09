@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import {
+  buildAppMetadata,
   buildProfessionalProfileInsert,
   buildProfileUpsert,
   parseCreateProfessionalInput,
@@ -58,6 +59,8 @@ export async function POST(request: NextRequest) {
       email: input.email,
       password: input.password,
       email_confirm: true,
+      // Solo el service role escribe app_metadata: así nadie se asigna un kit ajeno.
+      app_metadata: buildAppMetadata(input),
       user_metadata: {
         full_name: input.fullName,
         profession: input.profession,
@@ -115,7 +118,8 @@ export async function POST(request: NextRequest) {
         email: input.email,
         professionalProfileId: professionalProfile.id,
         slug: professionalProfile.slug,
-        loginUrl: "/",
+        preparedKit: input.preparedKit?.id ?? null,
+        loginUrl: "/login?next=%2Fpanel-profesional",
       },
       { status: 201 }
     );

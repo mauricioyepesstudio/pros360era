@@ -1,6 +1,8 @@
 import { consultationModes } from "../../data/professional/types.ts";
 import type { ConsultationMode } from "../../data/professional/types.ts";
 import { sanitizeUrl, sanitizeSocialLinks } from "./profile-links.ts";
+import { getPreparedKit, preparedKitProfileColumns } from "../../data/professional/prepared-kits.ts";
+import type { PreparedKit } from "../../data/professional/prepared-kits.ts";
 
 /**
  * Pure builders for app/api/admin/create-professional. The route used to
@@ -34,6 +36,8 @@ export type CreateProfessionalInput = {
   website: string | null;
   category: AdminProvisionableCategory;
   consultationMode: ConsultationMode;
+  /** Optional prepared kit (data/professional/prepared-kits.ts) that pre-fills the profile and the welcome material. */
+  preparedKit: PreparedKit | null;
 };
 
 function optionalText(value: unknown): string | null {
@@ -47,19 +51,25 @@ export function parseCreateProfessionalInput(
 ): { ok: true; input: CreateProfessionalInput } | { ok: false; error: string } {
   const raw = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
 
+  const kitId = optionalText(raw.preparedKit);
+  const preparedKit = kitId ? getPreparedKit(kitId) : null;
+  if (kitId && !preparedKit) {
+    return { ok: false, error: `Kit preparado desconocido: ${kitId}` };
+  }
+
   const email = optionalText(raw.email);
   const password = typeof raw.password === "string" ? raw.password : "";
-  const fullName = optionalText(raw.fullName);
+  const fullName = optionalText(raw.fullName) ?? preparedKit?.profile.displayName ?? null;
   if (!email || !password || !fullName) {
     return { ok: false, error: "Faltan campos obligatorios: email, password y fullName" };
   }
 
-  const category = raw.category ?? "BUSINESS_MARKETING";
+  const category = raw.category ?? preparedKit?.category ?? "BUSINESS_MARKETING";
   if (!adminProvisionableCategories.includes(category as AdminProvisionableCategory)) {
     return { ok: false, error: `Categoría no permitida: ${String(category)}` };
   }
 
-  const consultationMode = raw.consultationMode ?? "BOTH";
+  const consultationMode = raw.consultationMode ?? preparedKit?.profile.consultationMode ?? "BOTH";
   if (!consultationModes.includes(consultationMode as ConsultationMode)) {
     return { ok: false, error: `Modalidad no válida: ${String(consultationMode)}` };
   }
@@ -76,6 +86,7 @@ export function parseCreateProfessionalInput(
       website: optionalText(raw.website),
       category: category as AdminProvisionableCategory,
       consultationMode: consultationMode as ConsultationMode,
+      preparedKit,
     },
   };
 }
@@ -111,8 +122,43 @@ export function buildProfileUpsert(input: CreateProfessionalInput, userId: strin
   return { id: userId, name: input.fullName, role: "PROFESSIONAL" as const };
 }
 
-/** is_approved stays at its default (false): an operator approves the profile separately. */
-export function buildProfessionalProfileInsert(input: CreateProfessionalInput, userId: string) {
+/**
+ * app_metadata (not user_metadata): only the service role can write it, so a
+ * user can never attach someone else's kit to their own account.
+ */
+export function buildAppMetadata(input: CreateProfessionalInput) {
+  return input.preparedKit ? { prepared_kit: input.preparedKit.id } : {};
+}
+
+/**
+ * is_approved stays at its default (false): an operator approves the profile separately.
+ * A prepared kit fills the profile; explicit form fields (headline, city,
+ * website, instagram) still win over the kit when the admin sends them.
+ */
+export type ProfessionalProfileInsert = ReturnType<typeof buildBaseProfessionalProfileInsert> &
+  Partial<Pick<ReturnType<typeof preparedKitProfileColumns>, "bio" | "state" | "languages">>;
+
+export function buildProfessionalProfileInsert(input: CreateProfessionalInput, userId: string): ProfessionalProfileInsert {
+  const base = buildBaseProfessionalProfileInsert(input, userId);
+  if (!input.preparedKit) return base;
+  const kit = preparedKitProfileColumns(input.preparedKit);
+  return {
+    ...base,
+    ...kit,
+    display_name: input.fullName,
+    consultation_mode: input.consultationMode,
+    headline: input.profession ?? kit.headline,
+    city: input.location ?? kit.city,
+    website_url: base.website_url ?? sanitizeUrl(kit.website_url),
+    social_links: sanitizeSocialLinks({ ...kit.social_links, ...stripEmpty(base.social_links) }),
+  };
+}
+
+function stripEmpty<T extends Record<string, unknown>>(value: T): Partial<T> {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined && v !== null)) as Partial<T>;
+}
+
+function buildBaseProfessionalProfileInsert(input: CreateProfessionalInput, userId: string) {
   return {
     user_id: userId,
     display_name: input.fullName,
