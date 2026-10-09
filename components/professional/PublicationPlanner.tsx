@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, List, Plus, Trash2, X } from "lucide-react";
@@ -205,7 +206,7 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        <strong className="text-[var(--brand-navy)]">Conexión con redes: aún no disponible.</strong> Planifica aquí y publica desde tu app. Cuando conectes tu cuenta, tus publicaciones listas podrán programarse desde este mismo planner.
+        <strong className="text-[var(--brand-navy)]">Publicación automática: aún no disponible.</strong> Planifica aquí y publica desde tu app. Ya puedes preparar tu cuenta en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>; cuando la publicación se active, tus publicaciones listas saldrán desde este mismo planner.
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
