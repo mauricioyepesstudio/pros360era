@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ProfessionalCareerView from "@/components/professional/ProfessionalCareerView";
 import { Building2, CalendarClock, ExternalLink, Globe, Link2, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
@@ -10,6 +11,7 @@ import { socialLinkPlatformLabels, socialLinkPlatforms, type ConsultationMode, t
 import { cn } from "@/lib/cn";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
 import { safeHttpUrl, safeSocialLinks } from "@/lib/professional/links";
+import { hasCareerContent } from "@/lib/professional/career";
 
 export type ProfessionalWorkSample = {
   title: string;
@@ -157,12 +159,12 @@ export default function ProfessionalProfileView({
         </Container>
       </section>
 
-      {professional.bio && (
+      {hasCareerContent(professional.bio) && (
         <Section labelledBy="professional-about-title">
           <Heading id="professional-about-title" eyebrow="Sobre este profesional">
             Acerca de {professional.displayName}
           </Heading>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--muted)]">{professional.bio}</p>
+          <div className="mt-5 max-w-3xl"><ProfessionalCareerView bio={professional.bio} /></div>
         </Section>
       )}
 

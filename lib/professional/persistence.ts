@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPublicProfessionalBySlug } from "@/lib/professional/public-profile";
+import { validateCareerBio } from "@/lib/professional/career";
 import type { ProfessionalProfileSelf, ProfessionalProfileSelfUpdate } from "@/data/professional/types";
 
 /**
@@ -62,7 +63,7 @@ export async function getMyProfessionalProfile(): Promise<ProfessionalProfileSel
 
 export type UpdateProfessionalProfileResult =
   | { saved: true }
-  | { saved: false; reason: "SUPABASE_NOT_CONFIGURED" | "NOT_SIGNED_IN" | "MISSING_REQUIRED_FIELD" | "DB_ERROR"; error?: unknown };
+  | { saved: false; reason: "SUPABASE_NOT_CONFIGURED" | "NOT_SIGNED_IN" | "MISSING_REQUIRED_FIELD" | "INVALID_BIO" | "DB_ERROR"; error?: unknown };
 
 /**
  * Writes only the columns the update_own_professional_profile RLS policy
@@ -85,13 +86,14 @@ export async function updateMyProfessionalProfile(fields: ProfessionalProfileSel
 
   const displayName = (fields.displayName ?? "").trim();
   if (!displayName) return { saved: false, reason: "MISSING_REQUIRED_FIELD" };
+  if (!validateCareerBio(fields.bio)) return { saved: false, reason: "INVALID_BIO" };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("professional_profiles")
     .update({
       display_name: displayName,
       headline: fields.headline?.trim() || null,
-      bio: fields.bio?.trim() || null,
+      bio: fields.bio ?? null,
       state: fields.state?.trim() || null,
       city: fields.city?.trim() || null,
       languages: fields.languages,
@@ -103,7 +105,9 @@ export async function updateMyProfessionalProfile(fields: ProfessionalProfileSel
       website_url: fields.websiteUrl?.trim() || null,
       social_links: fields.socialLinks,
     })
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("slug")
+    .maybeSingle();
 
-  return error ? { saved: false, reason: "DB_ERROR", error } : { saved: true };
+  return error || !data ? { saved: false, reason: "DB_ERROR", error } : { saved: true };
 }

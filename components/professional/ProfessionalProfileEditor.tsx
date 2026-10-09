@@ -6,11 +6,12 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
+import ProfessionalCareerFields from "@/components/professional/ProfessionalCareerFields";
 import RadioGroup from "@/components/ui/RadioGroup";
 import { updateMyProfessionalProfileAction } from "@/app/(account)/actions";
 import { getProfessionalCategory } from "@/data/professional/categories";
 import { consultationModeOptions } from "@/data/opportunities/copy";
+import { parseCareer, serializeCareer, validateCareer } from "@/lib/professional/career";
 import type { ConsultationMode, ProfessionalProfileSelf, ProfessionalSocialLinks } from "@/data/professional/types";
 
 // Presentation-only — same local map ProfessionalProfileView.tsx keeps for
@@ -40,7 +41,7 @@ function orNull(value: string): string | null {
 export default function ProfessionalProfileEditor({ profile }: { profile: ProfessionalProfileSelf }) {
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [headline, setHeadline] = useState(profile.headline ?? "");
-  const [bio, setBio] = useState(profile.bio ?? "");
+  const [career, setCareer] = useState(() => parseCareer(profile.bio));
   const [state, setState] = useState(profile.state ?? "");
   const [city, setCity] = useState(profile.city ?? "");
   const [languages, setLanguages] = useState<string[]>([...profile.languages]);
@@ -63,33 +64,42 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const careerError = validateCareer(career);
+    if (careerError) {
+      setFeedback({ kind: "error", message: careerError });
+      return;
+    }
     setFeedback(null);
     startTransition(async () => {
-      const result = await updateMyProfessionalProfileAction({
-        displayName,
-        headline: orNull(headline),
-        bio: orNull(bio),
-        state: orNull(state),
-        city: orNull(city),
-        languages,
-        consultationMode,
-        isAcceptingClients,
-        bookingUrl: orNull(bookingUrl),
-        photoUrl: orNull(photoUrl),
-        portfolioUrl: orNull(portfolioUrl),
-        websiteUrl: orNull(websiteUrl),
-        socialLinks: {
-          instagram: orNull(socialLinks.instagram ?? "") ?? undefined,
-          linkedin: orNull(socialLinks.linkedin ?? "") ?? undefined,
-          facebook: orNull(socialLinks.facebook ?? "") ?? undefined,
-          tiktok: orNull(socialLinks.tiktok ?? "") ?? undefined,
-        },
-      });
-      setFeedback(
-        result.saved
-          ? { kind: "success", message: "Tu perfil se guardó correctamente." }
-          : { kind: "error", message: "No pudimos guardar los cambios. Intenta de nuevo en unos minutos." },
-      );
+      try {
+        const result = await updateMyProfessionalProfileAction({
+          displayName,
+          headline: orNull(headline),
+          bio: serializeCareer(career),
+          state: orNull(state),
+          city: orNull(city),
+          languages,
+          consultationMode,
+          isAcceptingClients,
+          bookingUrl: orNull(bookingUrl),
+          photoUrl: orNull(photoUrl),
+          portfolioUrl: orNull(portfolioUrl),
+          websiteUrl: orNull(websiteUrl),
+          socialLinks: {
+            instagram: orNull(socialLinks.instagram ?? "") ?? undefined,
+            linkedin: orNull(socialLinks.linkedin ?? "") ?? undefined,
+            facebook: orNull(socialLinks.facebook ?? "") ?? undefined,
+            tiktok: orNull(socialLinks.tiktok ?? "") ?? undefined,
+          },
+        });
+        setFeedback(
+          result.saved
+            ? { kind: "success", message: "Tu perfil se guardó correctamente." }
+            : { kind: "error", message: "No pudimos guardar los cambios. Revisa la trayectoria e intenta de nuevo." },
+        );
+      } catch {
+        setFeedback({ kind: "error", message: "No pudimos conectar. Tus cambios siguen aquí; vuelve a guardar." });
+      }
     });
   }
 
@@ -142,9 +152,9 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
         <FormField id="headline" label="Titular" hint="Una línea breve que describe lo que ofreces.">
           <Input id="headline" maxLength={140} value={headline} onChange={(event) => setHeadline(event.target.value)} />
         </FormField>
-        <FormField id="bio" label="Sobre ti" hint="Se muestra en tu perfil público una vez aprobado.">
-          <Textarea id="bio" maxLength={2000} value={bio} onChange={(event) => setBio(event.target.value)} />
-        </FormField>
+        <h3 className="text-lg font-bold text-[var(--brand-navy)]">Tu trayectoria profesional</h3>
+        {!profile.isApproved && <p className="text-sm text-[var(--muted)]">Borrador privado; todavía no es público.</p>}
+        <ProfessionalCareerFields value={career} onChange={setCareer} />
         <div className="grid gap-6 sm:grid-cols-2">
           <FormField id="state" label="Estado">
             <Input id="state" maxLength={60} value={state} onChange={(event) => setState(event.target.value)} placeholder="Ej. FL" />
@@ -241,7 +251,7 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
         </Button>
         {feedback && (
           <p
-            role="status"
+            role={feedback.kind === "error" ? "alert" : "status"}
             className={feedback.kind === "success" ? "text-sm font-semibold text-[var(--success)]" : "text-sm font-semibold text-[var(--danger)]"}
           >
             {feedback.message}
