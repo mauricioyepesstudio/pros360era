@@ -34,7 +34,7 @@ test("confirmation and login preserve professional handoff destination separatel
 test("initial calls and private professional drafts cannot replace member roadmap needs",()=>{
  const rows=[{version:initialCallVersion,needs:[]},{version:"professional-draft-v1",needs:[]},{version:"1.0.0",needs:["BUSINESS"]}];
  assert.deepEqual(rows.filter(r=>isMemberRoadmapResponse(r.version))[0].needs,["BUSINESS"]);
- assert.equal(internalOnboardingFilter,"(professional-draft-v1,initial-call-v1,professional-schedule-v1)");
+ assert.equal(internalOnboardingFilter,"(professional-draft-v1,initial-call-v1,professional-schedule-v1,professional-planner-v1)");
 });
 
 test("admin intake ignores non-canonical shadow rows instead of showing duplicate requests",()=>{

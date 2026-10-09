@@ -24,6 +24,7 @@ export type AccountNavIcon =
   | "id-card"
   | "users"
   | "rocket"
+  | "calendar"
   | "shield";
 
 export type AccountNavItem = { href: string; label: string; icon: AccountNavIcon };
@@ -47,6 +48,7 @@ const professionalNav: readonly AccountNavItem[] = [
   { href: "/panel-profesional/oportunidades", label: "Oportunidades", icon: "briefcase" },
   { href: "/panel-profesional/perfil", label: "Mi perfil", icon: "id-card" },
   { href: "/crm", label: "Clientes", icon: "users" },
+  { href: "/panel-profesional/planner", label: "Planner", icon: "calendar" },
   { href: "/growth-automation", label: "Crecimiento", icon: "rocket" },
 ];
 
