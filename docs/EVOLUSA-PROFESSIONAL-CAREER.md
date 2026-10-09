@@ -1,5 +1,9 @@
 # Trayectoria profesional — 2026-10-09
 
+Entrega revisable: [PR #40](https://github.com/mauricioyepesstudio/pros360era/pull/40).
+Preparado desde main `f587d7e`; controles, integración y commit real de producción
+se registran en la tarea central `evolusa-resume-profile-20261008`.
+
 Los perfiles profesionales propios pueden editar Presentación, Experiencia,
 Formación, Habilidades y Credenciales/cursos. Los dos editores usan los mismos
 campos, parser y vista previa. La vista pública y la ficha de conexión siguen
