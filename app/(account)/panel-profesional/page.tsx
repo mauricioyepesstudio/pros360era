@@ -62,6 +62,13 @@ export default async function ProfessionalPanelPage() {
         ]
       : []),
     {
+      href: "/panel-profesional/planner",
+      title: "Planner de publicaciones",
+      description: "Tu calendario de contenido: qué publicas, cuándo y en qué red.",
+      detail: kit ? "Propuesta lista con tus creativos" : "Planifica tu contenido",
+      icon: CalendarDays,
+    },
+    {
       href: "/growth-automation",
       title: "Crecimiento",
       description: "Conexión de redes y automatizaciones aún no disponibles.",
