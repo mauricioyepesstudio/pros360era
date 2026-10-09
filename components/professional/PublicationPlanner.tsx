@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, List, Plus, Trash2, X } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, ExternalLink, List, Plus, Send, Trash2, X } from "lucide-react";
 import {
   plannerCaptionLimit,
   plannerFormats,
@@ -16,8 +16,16 @@ import {
   type ProfessionalPlanner,
 } from "@/lib/professional-planner/validation";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
+import type { MyPublishingState, PublicationView } from "@/lib/social/connections";
 
 export type PlannerImageOption = { src: string; label: string };
+
+const publishNetworks = { instagram: "Instagram", linkedin: "LinkedIn" } as const;
+type PublishNetwork = keyof typeof publishNetworks;
+
+function publishNetwork(post: PlannerPost): PublishNetwork | null {
+  return post.platform === "instagram" || post.platform === "linkedin" ? post.platform : null;
+}
 
 const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const statusStyles: Record<PlannerStatus, string> = {
@@ -73,12 +81,14 @@ export default function PublicationPlanner({
   proposedFromKit,
   today,
   imageOptions,
+  publishing,
 }: {
   initial: ProfessionalPlanner;
   saved: boolean;
   proposedFromKit: boolean;
   today: string;
   imageOptions: PlannerImageOption[];
+  publishing: MyPublishingState;
 }) {
   const router = useRouter();
   const [posts, setPosts] = useState(initial.posts);
@@ -88,7 +98,8 @@ export default function PublicationPlanner({
   const [view, setView] = useState<"calendar" | "list">("calendar");
   const [editing, setEditing] = useState<PlannerPost | null>(null);
   const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
+  const [notice, setNotice] = useState<{ text: string; failed: boolean; link?: string | null } | null>(null);
+  const [publications, setPublications] = useState<PublicationView[]>(publishing.publications);
 
   const byDate = useMemo(() => {
     const map = new Map<string, PlannerPost[]>();
@@ -139,6 +150,37 @@ export default function PublicationPlanner({
     const next = posts.filter((post) => post.id !== editing.id);
     setPosts(next);
     if (await persist(next, "Publicación eliminada.")) setEditing(null);
+  }
+
+  async function publishEditing(network: PublishNetwork) {
+    if (!editing) return;
+    if (!window.confirm(`Vas a publicar "${editing.title}" en tu ${publishNetworks[network]} ahora mismo, con el texto y la imagen guardados. ¿Lo revisaste?`)) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const response = await fetch("/api/social/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: editing.id }),
+      });
+      const result = (await response.json().catch(() => ({}))) as { message?: string; permalink?: string | null; post?: PlannerPost | null };
+      if (!response.ok) {
+        setNotice({ text: result.message ?? "No pudimos publicar. Intenta de nuevo.", failed: true });
+        return;
+      }
+      const published = result.post ?? null;
+      if (published) {
+        setPosts((current) => sortPosts(current.map((post) => (post.id === published.id ? published : post))));
+        setEditing(published);
+      }
+      setPublications((current) => [...current.filter((item) => !(item.postId === editing.id && item.provider === network)), { postId: editing.id, provider: network, status: "PUBLISHED", permalink: result.permalink ?? null }]);
+      setNotice({ text: result.message ?? "¡Publicada!", failed: false, link: result.permalink ?? null });
+      router.refresh();
+    } catch {
+      setNotice({ text: "No pudimos conectar. Revisa tu cuenta antes de intentar de nuevo.", failed: true });
+    } finally {
+      setBusy(false);
+    }
   }
 
   function openNew(date: string | null) {
@@ -206,7 +248,17 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        <strong className="text-[var(--brand-navy)]">Publicación automática: aún no disponible.</strong> Planifica aquí y publica desde tu app. Ya puedes preparar tu cuenta en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>; cuando la publicación se active, tus publicaciones listas saldrán desde este mismo planner.
+        {publishing.ready.instagram || publishing.ready.linkedin ? (
+          <>
+            <strong className="text-[var(--brand-navy)]">Publica desde aquí.</strong> Abre una publicación guardada de{" "}
+            {[publishing.ready.instagram ? "Instagram" : null, publishing.ready.linkedin ? "LinkedIn" : null].filter(Boolean).join(" o ")} y usa &quot;Publicar ahora&quot;. Sale en tu cuenta en ese momento, solo cuando tú lo pides.
+          </>
+        ) : (
+          <>
+            <strong className="text-[var(--brand-navy)]">Publica desde aquí.</strong> Conecta tu Instagram o LinkedIn en{" "}
+            <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link> y podrás publicar tus publicaciones guardadas con un clic. Mientras tanto, copia el texto y publícalo desde tu app.
+          </>
+        )}
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -283,6 +335,12 @@ export default function PublicationPlanner({
       {notice && !editing ? (
         <p role={notice.failed ? "alert" : "status"} className="rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-4 text-sm">
           {notice.text}
+          {notice.link ? (
+            <>
+              {" "}
+              <a href={notice.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-blue)] underline">Ver publicación</a>
+            </>
+          ) : null}
         </p>
       ) : null}
 
@@ -388,8 +446,25 @@ export default function PublicationPlanner({
               </label>
             </fieldset>
 
+            <PublishPanel
+              editing={editing}
+              saved={posts.find((post) => post.id === editing.id) ?? null}
+              ready={publishing.ready}
+              publications={publications}
+              busy={busy}
+              onPublish={(network) => void publishEditing(network)}
+            />
+
             {notice ? (
-              <p role={notice.failed ? "alert" : "status"} className="mt-4 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3 text-sm">{notice.text}</p>
+              <p role={notice.failed ? "alert" : "status"} className="mt-4 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3 text-sm">
+                {notice.text}
+                {notice.link ? (
+                  <>
+                    {" "}
+                    <a href={notice.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-blue)] underline">Ver publicación</a>
+                  </>
+                ) : null}
+              </p>
             ) : null}
 
             <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
@@ -405,6 +480,68 @@ export default function PublicationPlanner({
           </form>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function PublishPanel({
+  editing,
+  saved,
+  ready,
+  publications,
+  busy,
+  onPublish,
+}: {
+  editing: PlannerPost;
+  saved: PlannerPost | null;
+  ready: MyPublishingState["ready"];
+  publications: PublicationView[];
+  busy: boolean;
+  onPublish: (network: PublishNetwork) => void;
+}) {
+  const network = publishNetwork(editing);
+  if (!network) return null;
+  const name = publishNetworks[network];
+  const done = publications.find((item) => item.postId === editing.id && item.provider === network && item.status === "PUBLISHED");
+  const box = "mt-5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--warm-canvas)] p-4 text-sm";
+
+  if (done) {
+    return (
+      <div className={box}>
+        <p className="font-semibold text-[var(--brand-navy)]">Publicada en tu {name}.</p>
+        {done.permalink ? (
+          <a href={done.permalink} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 font-semibold text-[var(--brand-blue)] underline">
+            Ver publicación <ExternalLink aria-hidden size={14} />
+          </a>
+        ) : null}
+      </div>
+    );
+  }
+  if (!ready[network]) {
+    return (
+      <p className={box}>
+        Conecta tu {name} en{" "}
+        <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link> para publicar esta publicación desde aquí.
+      </p>
+    );
+  }
+  if (editing.status === "PUBLISHED") return null;
+  const unsaved = !saved || JSON.stringify(saved) !== JSON.stringify(editing);
+  return (
+    <div className={box}>
+      <p className="font-semibold text-[var(--brand-navy)]">Publicar en tu {name}</p>
+      <p className="mt-1 text-[var(--muted)]">
+        Sale en tu cuenta ahora mismo, con el texto y la imagen guardados. Revisa que no prometa resultados y que todo sea correcto.
+      </p>
+      {unsaved ? <p className="mt-2 font-semibold text-amber-800">Guarda los cambios antes de publicar.</p> : null}
+      <button
+        type="button"
+        disabled={busy || unsaved}
+        onClick={() => onPublish(network)}
+        className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-navy)] px-5 font-bold text-white disabled:opacity-60"
+      >
+        <Send aria-hidden size={16} /> {busy ? "Publicando…" : `Publicar ahora en ${name}`}
+      </button>
     </div>
   );
 }
