@@ -58,6 +58,15 @@ const sections: readonly LegalSection[] = [
     ),
   },
   {
+    title: "Datos de LinkedIn",
+    body: (
+      <>
+        <p>Si un profesional conecta su perfil personal de LinkedIn guardamos su identificador de LinkedIn, su nombre y la llave de acceso, cifrada. La usamos solo para publicar en su perfil lo que marca como listo en su planner. No leemos sus contactos ni sus mensajes.</p>
+        <p>LinkedIn pide volver a conectar cada 60 días. Al desconectar, o cuando la conexión vence, borramos la llave de acceso.</p>
+      </>
+    ),
+  },
+  {
     title: "Para qué los usamos",
     body: (
       <ul>
@@ -79,6 +88,7 @@ const sections: readonly LegalSection[] = [
           <li>Anthropic (redacta borradores de texto con IA cuando un profesional usa esa función).</li>
           <li>Stripe (pagos), con su propia <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.</li>
           <li>Meta (Instagram), solo si un profesional conecta su cuenta.</li>
+          <li>LinkedIn, solo si un profesional conecta su perfil, con su propia <a href="https://www.linkedin.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.</li>
         </ul>
         <p>Cuando pides una conexión con un profesional, le compartimos lo necesario para atenderte, con tu consentimiento.</p>
         <p>Los profesionales son responsables de los datos de los contactos que guardan en su CRM.</p>
@@ -87,7 +97,7 @@ const sections: readonly LegalSection[] = [
   },
   {
     title: "Cuánto tiempo los guardamos",
-    body: <p>Mientras tengas tu cuenta activa. Los datos de Instagram se borran al desconectar la cuenta o al quitar EVOLUSA desde Instagram. Si pides borrar tu cuenta, eliminamos tus datos salvo lo que la ley nos obligue a conservar.</p>,
+    body: <p>Mientras tengas tu cuenta activa. Los datos de Instagram se borran al desconectar la cuenta o al quitar EVOLUSA desde Instagram; la llave de LinkedIn, al desconectar o cuando vence. Si pides borrar tu cuenta, eliminamos tus datos salvo lo que la ley nos obligue a conservar.</p>,
   },
   {
     title: "Cómo borrar tus datos",
