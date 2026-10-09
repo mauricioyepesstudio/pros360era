@@ -49,10 +49,10 @@ const sections: readonly LegalSection[] = [
           <li>la llave de acceso que entrega Instagram, cifrada. Solo la usa nuestro servidor y nunca se muestra en la plataforma.</li>
         </ul>
         <p>
-          La usamos únicamente para lo que el profesional pide desde su panel: publicar las piezas que marca como listas en su planner y, cuando esa función esté activa, traer los comentarios y mensajes de su cuenta a su CRM. Ese contenido (nombre de usuario de quien escribe y el texto del mensaje o comentario) se guarda en el CRM del profesional. No vendemos estos datos, no los usamos para publicidad y no publicamos nada que el profesional no haya aprobado.
+          La usamos únicamente para lo que el profesional pide desde su panel: publicar las piezas que marca como listas en su planner y traer los comentarios y mensajes directos de su cuenta a su CRM (una vez al día o cuando lo pide). Ese contenido (nombre de usuario de quien escribe, texto, fecha y enlace a la publicación) se guarda en el CRM del profesional, y cada persona que escribe queda como prospecto con su nombre de usuario de Instagram. No vendemos estos datos, no los usamos para publicidad y no publicamos nada que el profesional no haya aprobado.
         </p>
         <p>
-          Puedes desconectar tu cuenta en cualquier momento desde tu panel (Redes) o desde Instagram, en Configuración → Apps y sitios web. Al desconectarla borramos de EVOLUSA la llave de acceso y los datos de la cuenta conectada. Meta trata tus datos según su propia <a href="https://privacycenter.instagram.com/policy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
+          Puedes desconectar tu cuenta en cualquier momento desde tu panel (Redes) o desde Instagram, en Configuración → Apps y sitios web. Al desconectarla borramos de EVOLUSA la llave de acceso, los datos de la cuenta conectada y los comentarios y mensajes traídos. Los prospectos que ya estaban en el CRM del profesional se conservan como parte de su lista de clientes. Meta trata tus datos según su propia <a href="https://privacycenter.instagram.com/policy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
         </p>
       </>
     ),

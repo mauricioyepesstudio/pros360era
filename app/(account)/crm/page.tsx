@@ -94,7 +94,7 @@ export default function CRMPage() {
       <PageHeader
         eyebrow="CRM"
         title="Panel de ventas"
-        description="Registra prospectos y revisa tus datos. Conversaciones, tareas y pipeline están en preparación."
+        description="Registra prospectos y revisa tus datos. Los comentarios y mensajes de tu Instagram llegan a Conversaciones. Tareas y pipeline están en preparación."
       />
 
       {/* KPI Grid */}
@@ -179,7 +179,12 @@ export default function CRMPage() {
           >
             → Ver todos los leads
           </Link>
-          <span aria-disabled="true" className="rounded-lg bg-white px-4 py-3 text-[var(--muted)]">Conversaciones · En preparación</span>
+          <Link
+            href="/crm/conversations"
+            className="inline-block rounded-lg bg-white px-4 py-3 font-semibold text-[var(--brand-blue)] hover:bg-gray-50 transition-colors"
+          >
+            → Conversaciones de Instagram
+          </Link>
 
         </div>
       </div>
