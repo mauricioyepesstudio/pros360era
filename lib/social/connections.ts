@@ -132,7 +132,13 @@ export async function revokeInstagramAccount(service: SupabaseClient, providerAc
     .eq("provider_account_id", providerAccountId)
     .select("id");
   if (error) throw new Error("social_storage_unavailable");
-  return data?.length ?? 0;
+  const ids = (data ?? []).map((row) => row.id as string);
+  if (ids.length) {
+    // Removing EVOLUSA from Instagram also removes the comments and messages we imported.
+    const { error: inboxError } = await service.from("social_inbox_items").delete().in("connection_id", ids);
+    if (inboxError) throw new Error("social_storage_unavailable");
+  }
+  return ids.length;
 }
 
 /** Meta data deletion: remove everything we hold for that Instagram account. */
@@ -201,4 +207,51 @@ export async function refreshDueInstagramTokens(service: SupabaseClient, tokenKe
     }
   }
   return result;
+}
+
+export type InboxItemView = {
+  id: string;
+  kind: "comment" | "message";
+  authorUsername: string;
+  body: string;
+  permalink: string | null;
+  occurredAt: string;
+  leadId: string | null;
+};
+
+export type MyInstagramInbox = {
+  allowed: boolean;
+  storageReady: boolean;
+  connection: { username: string; status: SocialConnectionStatus; inboxSyncedAt: string | null } | null;
+  items: InboxItemView[];
+};
+
+/** The owner's imported comments and messages, read under their own session (RLS). */
+export async function getMyInstagramInbox(limit = 60): Promise<MyInstagramInbox> {
+  const owner = await socialConnectionOwner();
+  if (!owner) return { allowed: false, storageReady: false, connection: null, items: [] };
+  const [{ data: connection, error: connectionError }, { data: items, error: itemsError }] = await Promise.all([
+    owner.db.from("social_connections").select("username, status, inbox_synced_at").eq("user_id", owner.user.id).eq("provider", "instagram").maybeSingle(),
+    owner.db
+      .from("social_inbox_items")
+      .select("id, kind, author_username, body, permalink, occurred_at, lead_id")
+      .eq("user_id", owner.user.id)
+      .order("occurred_at", { ascending: false })
+      .limit(limit),
+  ]);
+  if (connectionError || itemsError) return { allowed: true, storageReady: false, connection: null, items: [] };
+  return {
+    allowed: true,
+    storageReady: true,
+    connection: connection ? { username: connection.username, status: connection.status as SocialConnectionStatus, inboxSyncedAt: connection.inbox_synced_at } : null,
+    items: (items ?? []).map((item) => ({
+      id: item.id,
+      kind: item.kind as InboxItemView["kind"],
+      authorUsername: item.author_username,
+      body: item.body,
+      permalink: item.permalink,
+      occurredAt: item.occurred_at,
+      leadId: item.lead_id,
+    })),
+  };
 }

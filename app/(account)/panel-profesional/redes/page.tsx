@@ -105,7 +105,7 @@ export default async function RedesPage({ searchParams }: { searchParams: Promis
           <li className="rounded-[var(--radius-md)] border border-[var(--border)] p-4">
             <Users aria-hidden size={20} className="text-[var(--brand-blue)]" />
             <p className="mt-2 font-semibold text-[var(--brand-navy)]">Clientes</p>
-            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">Los comentarios y mensajes de tu cuenta llegarán a tu CRM para ayudarte a darles seguimiento.</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">Los comentarios y mensajes de tu cuenta llegan a tu CRM, en <Link href="/crm/conversations" className="font-semibold text-[var(--brand-blue)] underline">Conversaciones</Link>, para ayudarte a darles seguimiento.</p>
           </li>
           <li className="rounded-[var(--radius-md)] border border-[var(--border)] p-4">
             <ShieldCheck aria-hidden size={20} className="text-[var(--brand-blue)]" />
