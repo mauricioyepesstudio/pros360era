@@ -49,7 +49,7 @@ const sections: readonly LegalSection[] = [
           <li>la llave de acceso que entrega Instagram, cifrada. Solo la usa nuestro servidor y nunca se muestra en la plataforma.</li>
         </ul>
         <p>
-          La usamos únicamente para lo que el profesional pide desde su panel: publicar las piezas que marca como listas en su planner y traer los comentarios y mensajes directos de su cuenta a su CRM (una vez al día o cuando lo pide). Ese contenido (nombre de usuario de quien escribe, texto, fecha y enlace a la publicación) se guarda en el CRM del profesional, y cada persona que escribe queda como prospecto con su nombre de usuario de Instagram. Cuando el profesional publica desde su planner, guardamos el identificador y el enlace de esa publicación para mostrárselo. No vendemos estos datos, no los usamos para publicidad y no publicamos nada que el profesional no haya aprobado.
+          La usamos únicamente para lo que el profesional pide desde su panel: publicar las piezas que marca como listas en su planner y traer los comentarios y mensajes directos de su cuenta a su CRM (una vez al día o cuando lo pide). Ese contenido (nombre de usuario de quien escribe, texto, fecha y enlace a la publicación) se guarda en el CRM del profesional, y cada persona que escribe queda como prospecto con su nombre de usuario de Instagram. Cuando el profesional publica desde su planner, guardamos el identificador y el enlace de esa publicación para mostrárselo. EVOLUSA solo envía lo que el profesional decide publicar; el contenido es suyo y no lo revisamos ni lo respaldamos. No vendemos estos datos, no los usamos para publicidad y no publicamos nada que el profesional no haya aprobado.
         </p>
         <p>
           Puedes desconectar tu cuenta en cualquier momento desde tu panel (Redes) o desde Instagram, en Configuración → Apps y sitios web. Al desconectarla borramos de EVOLUSA la llave de acceso, los datos de la cuenta conectada y los comentarios y mensajes traídos. Los prospectos que ya estaban en el CRM del profesional se conservan como parte de su lista de clientes. Meta trata tus datos según su propia <a href="https://privacycenter.instagram.com/policy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
@@ -61,7 +61,7 @@ const sections: readonly LegalSection[] = [
     title: "Datos de LinkedIn",
     body: (
       <>
-        <p>Si un profesional conecta su perfil personal de LinkedIn guardamos su identificador de LinkedIn, su nombre y la llave de acceso, cifrada. La usamos solo para publicar en su perfil lo que publica desde su planner, y guardamos el enlace de cada publicación para mostrárselo. No leemos sus contactos ni sus mensajes.</p>
+        <p>Si un profesional conecta su perfil personal de LinkedIn guardamos su identificador de LinkedIn, su nombre y la llave de acceso, cifrada. La usamos solo para publicar en su perfil lo que publica desde su planner, y guardamos el enlace de cada publicación para mostrárselo. EVOLUSA solo envía lo que el profesional decide publicar; el contenido es suyo y no lo revisamos ni lo respaldamos. No leemos sus contactos ni sus mensajes.</p>
         <p>LinkedIn pide volver a conectar cada 60 días. Al desconectar, o cuando la conexión vence, borramos la llave de acceso.</p>
       </>
     ),

@@ -154,7 +154,7 @@ export default function PublicationPlanner({
 
   async function publishEditing(network: PublishNetwork) {
     if (!editing) return;
-    if (!window.confirm(`Vas a publicar "${editing.title}" en tu ${publishNetworks[network]} ahora mismo, con el texto y la imagen guardados. ¿Lo revisaste?`)) return;
+    if (!window.confirm(`Vas a publicar "${editing.title}" en tu ${publishNetworks[network]} ahora mismo. Es contenido tuyo y tú respondes por él. ¿Lo revisaste?`)) return;
     setBusy(true);
     setNotice(null);
     try {
@@ -531,7 +531,7 @@ function PublishPanel({
     <div className={box}>
       <p className="font-semibold text-[var(--brand-navy)]">Publicar en tu {name}</p>
       <p className="mt-1 text-[var(--muted)]">
-        Sale en tu cuenta ahora mismo, con el texto y la imagen guardados. Revisa que no prometa resultados y que todo sea correcto.
+        Sale en tu cuenta ahora mismo, con el texto y la imagen guardados. Es contenido tuyo: no prometas resultados ni des asesoría legal, migratoria, fiscal o de inversión individualizada, y confirma que todo sea correcto.
       </p>
       {unsaved ? <p className="mt-2 font-semibold text-amber-800">Guarda los cambios antes de publicar.</p> : null}
       <button

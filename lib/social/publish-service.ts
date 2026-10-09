@@ -87,20 +87,26 @@ async function claim(service: SupabaseClient, userId: string, connectionId: stri
     .eq("provider", provider)
     .eq("planner_post_id", postId)
     .maybeSingle();
-  throw existing?.status === "PUBLISHED"
-    ? new PublishError("already_published", "Esta publicación ya salió en esa red.")
-    : new PublishError("in_progress", "Esta publicación se está enviando. Espera un momento y recarga la página.");
+  if (existing?.status === "PUBLISHED") throw new PublishError("already_published", "Esta publicación ya salió en esa red.");
+  if (existing?.status === "UNKNOWN") {
+    throw new PublishError("publish_unknown", "No pudimos confirmar si esta publicación salió. Revisa tu cuenta; si no está, duplícala en el planner y publica la copia.");
+  }
+  throw new PublishError("in_progress", "Esta publicación se está enviando. Espera un momento y recarga la página.");
 }
 
+/** Tried twice: a row left in PUBLISHING after a real post could otherwise be retried into a duplicate. */
 async function finish(service: SupabaseClient, userId: string, provider: PublishProvider, postId: string, update: Record<string, unknown>) {
-  const { error } = await service
-    .from("social_publications")
-    .update(update)
-    .eq("user_id", userId)
-    .eq("provider", provider)
-    .eq("planner_post_id", postId)
-    .eq("status", "PUBLISHING");
-  if (error) console.error("social_publication_record_failed", provider);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const { error } = await service
+      .from("social_publications")
+      .update(update)
+      .eq("user_id", userId)
+      .eq("provider", provider)
+      .eq("planner_post_id", postId)
+      .eq("status", "PUBLISHING");
+    if (!error) return;
+  }
+  console.error("social_publication_record_failed", provider);
 }
 
 async function kitImage(path: string, fetchImpl: typeof fetch) {
@@ -144,7 +150,9 @@ export async function publishPlannerPost(
     return { provider, ...result };
   } catch (error) {
     const code = error instanceof PublishError ? error.code : "unexpected";
-    await finish(service, userId, provider, post.id, { status: "FAILED", error_code: code.slice(0, 200) });
+    // Retryable only when the network clearly did not publish it.
+    const uncertain = !(error instanceof PublishError) || error.uncertain;
+    await finish(service, userId, provider, post.id, { status: uncertain ? "UNKNOWN" : "FAILED", error_code: code.slice(0, 200) });
     throw error;
   }
 }

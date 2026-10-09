@@ -16,10 +16,28 @@ export type PublishResult = { externalId: string | null; permalink: string | nul
 export class PublishError extends Error {
   readonly code: string;
   readonly userMessage: string;
-  constructor(code: string, userMessage: string) {
+  /** The network may have published it anyway (timeout or server error on the final call): never retry on its own. */
+  readonly uncertain: boolean;
+  constructor(code: string, userMessage: string, uncertain = false) {
     super(code);
     this.code = code;
     this.userMessage = userMessage;
+    this.uncertain = uncertain;
+  }
+}
+
+const UNCERTAIN_MESSAGE = "No pudimos confirmar si se publicó. Revisa tu cuenta antes de intentar de nuevo.";
+
+/**
+ * The call that actually makes the post public. A clear rejection (4xx) means
+ * nothing went out; a timeout, dropped connection or 5xx might have posted it.
+ */
+async function finalStep<T>(provider: PublishProvider, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    if (error instanceof PublishError && !/_5\d\d(_|$)/.test(error.code)) throw error;
+    throw new PublishError(`${provider}_publish_uncertain`, UNCERTAIN_MESSAGE, true);
   }
 }
 
@@ -110,7 +128,8 @@ export async function publishToInstagram(
     await wait(1500);
   }
 
-  const mediaId = idString((await igCall(`/${igUserId}/media_publish`, accessToken, fetchImpl, { body: { creation_id: container } })).id);
+  const published = await finalStep("instagram", () => igCall(`/${igUserId}/media_publish`, accessToken, fetchImpl, { body: { creation_id: container } }));
+  const mediaId = idString(published.id);
   // Instagram answered OK, so the post is live; never retry it into a duplicate.
   if (!mediaId) return { externalId: null, permalink: null };
 
@@ -172,6 +191,7 @@ async function uploadLinkedInImage(accessToken: string, author: string, image: {
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": image.contentType },
     body: image.bytes,
     cache: "no-store",
+    redirect: "error",
   });
   if (!upload.ok) throw linkedInFailure(upload.status, "image_upload");
   return imageUrn;
@@ -187,7 +207,7 @@ export async function publishToLinkedIn(
   const author = `urn:li:person:${memberId}`;
   const imageUrn = post.image ? await uploadLinkedInImage(accessToken, author, post.image, fetchImpl) : null;
 
-  const response = await fetchImpl("https://api.linkedin.com/rest/posts", {
+  const response = await finalStep("linkedin", () => fetchImpl("https://api.linkedin.com/rest/posts", {
     method: "POST",
     headers: linkedInHeaders(accessToken),
     body: JSON.stringify({
@@ -200,7 +220,8 @@ export async function publishToLinkedIn(
       isReshareDisabledByAuthor: false,
     }),
     cache: "no-store",
-  });
+  }));
+  if (response.status >= 500) throw new PublishError("linkedin_publish_uncertain", UNCERTAIN_MESSAGE, true);
   if (!response.ok) throw linkedInFailure(response.status, "post");
   const urn = response.headers.get("x-restli-id") ?? response.headers.get("x-linkedin-id");
   const externalId = urn && /^urn:li:(share|ugcPost):\d{1,32}$/.test(urn) ? urn : null;

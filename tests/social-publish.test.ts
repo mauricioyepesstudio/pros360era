@@ -127,4 +127,21 @@ test("the publications migration is read-only for clients and owner-scoped", () 
   assert.match(sql, /using \(user_id = \(select auth\.uid\(\)\)\)/);
   assert.match(sql, /constraint social_publications_once unique \(user_id, provider, planner_post_id\)/);
   assert.match(sql, /references public\.social_connections\(id\) on delete cascade/);
+  assert.match(sql, /'UNKNOWN'/);
+});
+
+test("a timeout or server error on the final call is marked uncertain, never a clean failure", async () => {
+  const igFetch = (async (input: string | URL) => {
+    const path = new URL(String(input)).pathname;
+    if (path.endsWith("/media")) return Response.json({ id: "900" });
+    if (path.endsWith("/900")) return Response.json({ status_code: "FINISHED" });
+    throw new TypeError("fetch failed");
+  }) as typeof fetch;
+  await assert.rejects(publishToInstagram("tok", "1", { imageUrl: "https://a/x.jpg", caption: "" }, { fetchImpl: igFetch, wait: noWait }), (error: PublishError) => error.uncertain);
+
+  const li500 = (async () => new Response(null, { status: 502 })) as unknown as typeof fetch;
+  await assert.rejects(publishToLinkedIn("tok", "abc", { text: "t", image: null, altText: "" }, li500), (error: PublishError) => error.uncertain);
+
+  const li422 = (async () => new Response(null, { status: 422 })) as unknown as typeof fetch;
+  await assert.rejects(publishToLinkedIn("tok", "abc", { text: "t", image: null, altText: "" }, li422), (error: PublishError) => !error.uncertain);
 });

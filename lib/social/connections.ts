@@ -309,7 +309,7 @@ export async function getMyInstagramInbox(limit = 60): Promise<MyInstagramInbox>
   };
 }
 
-export type PublicationView = { postId: string; provider: SocialProvider; status: "PUBLISHING" | "PUBLISHED" | "FAILED"; permalink: string | null };
+export type PublicationView = { postId: string; provider: SocialProvider; status: "PUBLISHING" | "PUBLISHED" | "FAILED" | "UNKNOWN"; permalink: string | null };
 export type MyPublishingState = { ready: Record<SocialProvider, boolean>; publications: PublicationView[] };
 
 /** For the planner: which networks can publish right now, and what already went out. Owner's session (RLS). */
