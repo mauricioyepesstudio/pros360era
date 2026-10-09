@@ -308,3 +308,28 @@ export async function getMyInstagramInbox(limit = 60): Promise<MyInstagramInbox>
     })),
   };
 }
+
+export type PublicationView = { postId: string; provider: SocialProvider; status: "PUBLISHING" | "PUBLISHED" | "FAILED" | "UNKNOWN"; permalink: string | null };
+export type MyPublishingState = { ready: Record<SocialProvider, boolean>; publications: PublicationView[] };
+
+/** For the planner: which networks can publish right now, and what already went out. Owner's session (RLS). */
+export async function getMyPublishingState(now = Date.now()): Promise<MyPublishingState> {
+  const empty: MyPublishingState = { ready: { instagram: false, linkedin: false }, publications: [] };
+  const owner = await socialConnectionOwner();
+  if (!owner) return empty;
+  const [{ data: connections, error: connectionsError }, { data: publications, error: publicationsError }] = await Promise.all([
+    owner.db.from("social_connections").select("provider, status, token_expires_at").eq("user_id", owner.user.id),
+    owner.db.from("social_publications").select("planner_post_id, provider, status, permalink").eq("user_id", owner.user.id).limit(500),
+  ]);
+  if (connectionsError) return empty;
+  const ready = { ...empty.ready };
+  for (const row of connections ?? []) {
+    const live = row.status === "ACTIVE" && (!row.token_expires_at || Date.parse(row.token_expires_at) > now);
+    if (live && (row.provider === "instagram" || (row.provider === "linkedin" && getLinkedInConfig() !== null))) ready[row.provider as SocialProvider] = true;
+  }
+  // Before the publications migration is applied the table is missing: nothing has gone out yet.
+  const views = publicationsError
+    ? []
+    : (publications ?? []).map((row) => ({ postId: row.planner_post_id, provider: row.provider as SocialProvider, status: row.status as PublicationView["status"], permalink: row.permalink }));
+  return { ready: publicationsError ? empty.ready : ready, publications: views };
+}
