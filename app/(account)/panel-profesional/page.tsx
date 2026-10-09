@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Briefcase, CalendarDays, IdCard, ImageIcon, Rocket, Users } from "lucide-react";
+import { ArrowRight, AtSign, Briefcase, CalendarDays, IdCard, ImageIcon, Rocket, Users } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 import PreparedKitWelcome from "@/components/professional/PreparedKitWelcome";
 import { getProfessionalCategory } from "@/data/professional/categories";
@@ -7,6 +7,7 @@ import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getMyRoutedOpportunitiesForProfessional } from "@/lib/opportunities/persistence";
 import { getMyPreparedKit } from "@/lib/professional/prepared-kit";
 import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
+import { getMyInstagramState } from "@/lib/social/connections";
 
 /**
  * Home of the professional panel (PROFESSIONAL role). Applicants who are
@@ -17,7 +18,7 @@ import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 export default async function ProfessionalPanelPage() {
   await requireProfessionalArea();
 
-  const [profile, opportunities, kit] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional(), getMyPreparedKit()]);
+  const [profile, opportunities, kit, instagram] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional(), getMyPreparedKit(), getMyInstagramState()]);
   const waitingForContact = opportunities.filter((opportunity) => opportunity.effectiveStatus === "ROUTED").length;
   const categoryLabel = profile ? getProfessionalCategory(profile.category)?.label : undefined;
 
@@ -61,6 +62,20 @@ export default async function ProfessionalPanelPage() {
           },
         ]
       : []),
+    {
+      href: "/panel-profesional/planner",
+      title: "Planner de publicaciones",
+      description: "Tu calendario de contenido: qué publicas, cuándo y en qué red.",
+      detail: kit ? "Propuesta lista con tus creativos" : "Planifica tu contenido",
+      icon: CalendarDays,
+    },
+    {
+      href: "/panel-profesional/redes",
+      title: "Redes conectadas",
+      description: "Conecta tu Instagram para que tu planner y tu CRM trabajen con tu cuenta.",
+      detail: instagram.connection?.status === "ACTIVE" ? `Instagram: @${instagram.connection.username}` : "Sin redes conectadas",
+      icon: AtSign,
+    },
     {
       href: "/growth-automation",
       title: "Crecimiento",

@@ -42,9 +42,9 @@ export default function PreparedKitWelcome({ kit, hasPhoto }: { kit: PreparedKit
               </Link>
             </li>
             <li>
-              <Link href="/panel-profesional/agenda" className="group flex items-center gap-3 rounded-[var(--radius-md)] bg-white/10 p-3 transition hover:bg-white/15">
+              <Link href="/panel-profesional/planner" className="group flex items-center gap-3 rounded-[var(--radius-md)] bg-white/10 p-3 transition hover:bg-white/15">
                 <CalendarDays aria-hidden size={20} className="text-[var(--brand-blue-on-dark)]" />
-                <span className="flex-1 text-sm font-semibold">Conecta tu calendario</span>
+                <span className="flex-1 text-sm font-semibold">Tu planner de publicaciones</span>
                 <ArrowRight aria-hidden size={16} className="transition group-hover:translate-x-1" />
               </Link>
             </li>
