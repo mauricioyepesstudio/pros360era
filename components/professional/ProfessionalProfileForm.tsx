@@ -7,13 +7,14 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
+import ProfessionalCareerFields from "@/components/professional/ProfessionalCareerFields";
 import RadioGroup from "@/components/ui/RadioGroup";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { updateProfessionalProfileAction } from "@/app/(account)/panel-profesional/actions";
 import { getProfessionalCategory } from "@/data/professional/categories";
 import { consultationModeOptions } from "@/data/opportunities/copy";
 import { socialLinkPlatformLabels, socialLinkPlatforms, type ProfessionalProfileSelf, type ProfessionalProfileSelfUpdate, type ProfessionalSocialLinks } from "@/data/professional/types";
+import { parseCareer, serializeCareer, validateCareer } from "@/lib/professional/career";
 
 const languageOptions: readonly { code: string; label: string }[] = [
   { code: "es", label: "Español" },
@@ -51,6 +52,8 @@ function toEditableFields(profile: ProfessionalProfileSelf): ProfessionalProfile
  */
 export default function ProfessionalProfileForm({ profile }: { profile: ProfessionalProfileSelf }) {
   const [fields, setFields] = useState<ProfessionalProfileSelfUpdate>(() => toEditableFields(profile));
+  const [career, setCareer] = useState(() => parseCareer(profile.bio));
+  const [careerError, setCareerError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
 
@@ -78,11 +81,19 @@ export default function ProfessionalProfileForm({ profile }: { profile: Professi
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validationError = validateCareer(career);
+    setCareerError(validationError);
+    if (validationError) return;
     setPending(true);
     setResult(null);
-    const response = await updateProfessionalProfileAction(fields);
-    setPending(false);
-    setResult(response.saved ? "success" : "error");
+    try {
+      const response = await updateProfessionalProfileAction({ ...fields, bio: serializeCareer(career) });
+      setResult(response.saved ? "success" : "error");
+    } catch {
+      setResult("error");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -126,9 +137,9 @@ export default function ProfessionalProfileForm({ profile }: { profile: Professi
             <Input id="headline" maxLength={200} value={fields.headline ?? ""} onChange={(e) => update("headline", e.target.value)} />
           </FormField>
 
-          <FormField id="bio" label="Sobre ti" hint="Lo que un miembro lee antes de decidir si te contacta.">
-            <Textarea id="bio" maxLength={1000} value={fields.bio ?? ""} onChange={(e) => update("bio", e.target.value)} />
-          </FormField>
+          {!profile.isApproved && <p className="text-sm text-[var(--muted)]">Borrador privado; todavía no es público.</p>}
+          <ProfessionalCareerFields value={career} onChange={setCareer} />
+          {careerError && <p role="alert" className="text-sm text-[var(--danger)]">{careerError}</p>}
 
           <div className="grid gap-6 sm:grid-cols-2">
             <FormField id="city" label="Ciudad">

@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { sanitizeSocialLinks, sanitizeUrl } from "@/lib/professional/profile-links";
+import { validateCareerBio } from "@/lib/professional/career";
 import type { ProfessionalProfileSelf, ProfessionalProfileSelfUpdate, ProfessionalSocialLinks } from "@/data/professional/types";
 
 /**
@@ -94,8 +95,9 @@ export async function updateMyProfessionalProfile(fields: ProfessionalProfileSel
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { saved: false as const, reason: "NOT_SIGNED_IN" as const };
+  if (!validateCareerBio(fields.bio)) return { saved: false as const, reason: "INVALID_BIO" as const };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("professional_profiles")
     .update({
       ...(fields.displayName !== undefined && { display_name: fields.displayName }),
@@ -112,7 +114,9 @@ export async function updateMyProfessionalProfile(fields: ProfessionalProfileSel
       ...(fields.websiteUrl !== undefined && { website_url: sanitizeUrl(fields.websiteUrl) }),
       ...(fields.socialLinks !== undefined && { social_links: sanitizeSocialLinks(fields.socialLinks) }),
     })
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("slug")
+    .maybeSingle();
 
-  return error ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const };
+  return error || !data ? { saved: false as const, reason: "DB_ERROR" as const, error } : { saved: true as const };
 }

@@ -149,6 +149,10 @@ export async function updateApplicationStatusAction(applicationId: string, statu
  */
 export async function updateMyProfessionalProfileAction(fields: ProfessionalProfileSelfUpdate) {
   const result = await updateMyProfessionalProfile(fields);
-  revalidatePath("/panel-profesional/perfil");
+  if (result.saved) {
+    revalidatePath("/panel-profesional/perfil");
+    revalidatePath("/profesionales", "layout");
+    revalidatePath("/conexiones");
+  }
   return result;
 }

@@ -18,6 +18,8 @@ export async function updateProfessionalProfileAction(fields: ProfessionalProfil
   const result = await updateMyProfessionalProfile(fields);
   if (result.saved) {
     revalidatePath("/panel-profesional/perfil");
+    revalidatePath("/profesionales", "layout");
+    revalidatePath("/conexiones");
   }
   return result;
 }

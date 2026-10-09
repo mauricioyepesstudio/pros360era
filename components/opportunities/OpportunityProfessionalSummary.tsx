@@ -5,6 +5,7 @@ import type { OpportunityProfessionalSummary as OpportunityProfessionalSummaryTy
 import type { ProfessionalProfilePublic } from "@/data/professional/types";
 import { socialLinkPlatformLabels, socialLinkPlatforms } from "@/data/professional/types";
 import { safeBookingHref } from "@/lib/opportunities/booking";
+import { parseCareer } from "@/lib/professional/career";
 import { safeHttpUrl, safeSocialLinks } from "@/lib/professional/links";
 import EvolusaIsotype from "@/components/brand/EvolusaIsotype";
 
@@ -37,6 +38,7 @@ export default function OpportunityProfessionalSummary({
   publicProfile?: ProfessionalProfilePublic | null;
   heading?: string;
 }) {
+  const careerSummary = parseCareer(publicProfile?.bio).summary;
   const location = [professional.city, professional.state].filter(Boolean).join(", ");
   const bookingHref = safeBookingHref(professional.bookingUrl);
   const photoHref = safeHttpUrl(publicProfile?.photoUrl);
@@ -76,7 +78,7 @@ export default function OpportunityProfessionalSummary({
         </div>
       </div>
 
-      {publicProfile?.bio && <p className="mt-3 text-sm leading-6 text-[var(--foreground)]">{publicProfile.bio}</p>}
+      {careerSummary && <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-[var(--foreground)]">{careerSummary}</p>}
 
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-[var(--muted)]">
         {location && (
