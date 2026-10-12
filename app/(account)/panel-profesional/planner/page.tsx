@@ -7,8 +7,8 @@ import { getMyProfessionalPlanner } from "@/lib/professional-planner/persistence
 
 /**
  * Publication planner: the professional's private content calendar. Posts
- * marked ready for Instagram go out on their own once the professional has
- * connected Instagram in Redes (lib/professional-planner/publisher.ts).
+ * marked ready for Instagram or Facebook go out on their own once the
+ * professional has connected that network in Redes (lib/professional-planner/publisher.ts).
  */
 export default async function ProfessionalPlannerPage() {
   await requireProfessionalArea();
@@ -25,10 +25,10 @@ export default async function ProfessionalPlannerPage() {
       <PageHeader
         eyebrow="Panel profesional"
         title="Planner de publicaciones"
-        description="Organiza qué vas a publicar y cuándo. Con tu Instagram conectado, lo que marques «Listo para publicar» sale solo a su hora."
+        description="Organiza qué vas a publicar y cuándo. Con tu Instagram y tu Facebook conectados, lo que marques «Listo para publicar» sale solo a su hora."
       />
       {result.available ? (
-        <PublicationPlanner initial={result.planner} instagram={result.instagram} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} />
+        <PublicationPlanner initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} />
       ) : (
         <p role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
           No pudimos abrir tu planner. Necesitas un perfil profesional propio; reintenta más tarde.

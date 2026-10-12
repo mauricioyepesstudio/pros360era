@@ -16,7 +16,7 @@ import {
   type ProfessionalPlanner,
 } from "@/lib/professional-planner/validation";
 import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-planner/publishing";
-import type { PlannerInstagram } from "@/lib/professional-planner/persistence";
+import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
 
 export type PlannerImageOption = { src: string; label: string };
@@ -75,7 +75,7 @@ export default function PublicationPlanner({
   proposedFromKit,
   today,
   imageOptions,
-  instagram,
+  networks,
   publications,
 }: {
   initial: ProfessionalPlanner;
@@ -83,7 +83,7 @@ export default function PublicationPlanner({
   proposedFromKit: boolean;
   today: string;
   imageOptions: PlannerImageOption[];
-  instagram: PlannerInstagram;
+  networks: PlannerNetworks;
   publications: Record<string, PostPublication>;
 }) {
   const router = useRouter();
@@ -106,11 +106,13 @@ export default function PublicationPlanner({
   // What Instagram did wins over the saved status: a post that went out shows as published.
   const shownStatus = (post: PlannerPost): PlannerStatus => (publications[post.id]?.state === "PUBLISHED" ? "PUBLISHED" : post.status);
   const counts = (Object.keys(plannerStatuses) as PlannerStatus[]).map((status) => ({ status, count: posts.filter((post) => shownStatus(post) === status).length }));
+  const networkLabel = (post: PlannerPost) => plannerPlatforms[post.platform];
+  const autoAccount = (post: PlannerPost) => (post.platform === "instagram" || post.platform === "facebook" ? networks[post.platform] : undefined);
   const publicationLine = (post: PlannerPost) => {
     const publication = publications[post.id];
     if (!publication) return null;
-    if (publication.state === "PUBLISHED") return publication.permalink ? <a href={publication.permalink} target="_blank" rel="noreferrer" className="font-semibold text-green-700 underline">Publicada en Instagram</a> : <span className="font-semibold text-green-700">Publicada en Instagram</span>;
-    if (publication.state === "PUBLISHING") return <span className="font-semibold text-[var(--brand-blue-strong)]">Publicando en Instagram…</span>;
+    if (publication.state === "PUBLISHED") return publication.permalink ? <a href={publication.permalink} target="_blank" rel="noreferrer" className="font-semibold text-green-700 underline">Publicada en {networkLabel(post)}</a> : <span className="font-semibold text-green-700">Publicada en {networkLabel(post)}</span>;
+    if (publication.state === "PUBLISHING") return <span className="font-semibold text-[var(--brand-blue-strong)]">Publicando en {networkLabel(post)}…</span>;
     return <span className="font-semibold text-[var(--danger)]">{publication.error}</span>;
   };
 
@@ -222,15 +224,13 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        {instagram?.canPublish ? (
-          <>
-            <strong className="text-[var(--brand-navy)]">Publicación automática activa en Instagram (@{instagram.username}).</strong> Lo que marques «Listo para publicar» con red Instagram sale solo a su fecha y hora ({plannerTimeZoneLabel}). El formato 9:16 sale como Story. Las demás redes las publicas tú desde su app.
-          </>
-        ) : (
-          <>
-            <strong className="text-[var(--brand-navy)]">{instagram ? "Vuelve a conectar tu Instagram para publicar solo." : "Conecta tu Instagram para publicar solo."}</strong> Hazlo en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>. Después, lo que marques «Listo para publicar» con red Instagram saldrá a su fecha y hora ({plannerTimeZoneLabel}). Mientras tanto, publica desde tu app.
-          </>
-        )}
+        <strong className="text-[var(--brand-navy)]">Publicación automática en Instagram y Facebook.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); el formato 9:16 sale como Story. Las demás redes las publicas tú desde su app.
+        <span className="mt-2 block">
+          Instagram: {networks.instagram?.canPublish ? <strong className="text-[var(--success)]">activa (@{networks.instagram.username})</strong> : <strong className="text-[var(--warning)]">{networks.instagram ? "vuelve a conectarla" : "sin conectar"}</strong>}
+          {" · "}
+          Facebook: {networks.facebook?.canPublish ? <strong className="text-[var(--success)]">activa ({networks.facebook.username})</strong> : <strong className="text-[var(--warning)]">{networks.facebook ? "vuelve a conectarla" : "sin conectar"}</strong>}
+          {networks.instagram?.canPublish && networks.facebook?.canPublish ? null : <> · Conéctalas en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>.</>}
+        </span>
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -413,11 +413,11 @@ export default function PublicationPlanner({
             </fieldset>
 
             {publications[editing.id] ? <p className="mt-4 rounded-[var(--radius-md)] bg-[var(--warm-canvas)] p-3 text-sm">{publicationLine(editing)}</p> : null}
-            {editing.status === "READY" && editing.platform === "instagram" && editing.date && !publications[editing.id] ? (
+            {editing.status === "READY" && autoAccount(editing) !== undefined && editing.date && !publications[editing.id] ? (
               <p className="mt-4 text-sm text-[var(--muted)]">
-                {instagram?.canPublish
-                  ? `Saldrá sola en Instagram el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : ""}.`
-                  : "Para que salga sola, conecta tu Instagram en Redes."}
+                {autoAccount(editing)?.canPublish
+                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : ""}.`
+                  : `Para que salga sola, conecta tu ${networkLabel(editing)} en Redes.`}
               </p>
             ) : null}
             {notice ? (
