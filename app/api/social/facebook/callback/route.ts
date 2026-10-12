@@ -3,7 +3,7 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { safeEqual, verifyState } from "@/lib/social/crypto";
 import { saveSocialConnection, SocialAccountInUseError, socialConnectionOwner } from "@/lib/social/connections";
 import { SOCIAL_PAGE } from "@/lib/social/instagram";
-import { cleanFacebookCode, connectFacebookPage, FACEBOOK_COOKIE_PATH, FACEBOOK_STATE_COOKIE, FacebookNoPageError, getFacebookConfig } from "@/lib/social/facebook";
+import { cleanFacebookCode, connectFacebookPage, FACEBOOK_COOKIE_PATH, FACEBOOK_STATE_COOKIE, FacebookNoPageError, FacebookMultiplePagesError, getFacebookConfig } from "@/lib/social/facebook";
 
 /**
  * Facebook sends the person back here. Stored only if the signed state, the
@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
     return finish("conectado=facebook");
   } catch (error) {
     if (error instanceof SocialAccountInUseError) return finish("error=facebook_en_uso");
+    if (error instanceof FacebookMultiplePagesError) return finish("error=facebook_varias_paginas");
     if (error instanceof FacebookNoPageError) return finish("error=facebook_sin_pagina");
     console.error("facebook_connect_failed", error instanceof Error ? error.message : "unknown");
     return finish("error=facebook");

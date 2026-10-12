@@ -25,6 +25,7 @@ const notices: Record<string, { tone: "ok" | "error"; text: string }> = {
   "error=facebook": { tone: "error", text: "Facebook no aceptó la conexión. Inténtalo de nuevo." },
   "error=facebook_cancelado": { tone: "error", text: "No se completó la conexión con Facebook. Puedes intentarlo de nuevo cuando quieras." },
   "error=facebook_en_uso": { tone: "error", text: "Esa página de Facebook ya está conectada a otro perfil de EVOLUSA." },
+  "error=facebook_varias_paginas": { tone: "error", text: "Facebook autorizó varias páginas. No conectamos ninguna para evitar publicar en otra marca. Vuelve a conectar, pulsa Editar acceso en Facebook y selecciona únicamente la página que quieres usar en este perfil." },
   "error=facebook_sin_pagina": { tone: "error", text: "No encontramos una página de Facebook en la que puedas publicar. Al conectar, elige tu página y deja marcado el permiso de publicar." },
   "error=facebook_no_configurado": { tone: "error", text: "La conexión con Facebook todavía no está activa en EVOLUSA." },
 };

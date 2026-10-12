@@ -56,8 +56,7 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
 }
 
 /**
- * Code → user token → long-lived user token → the first Page the person can
- * post to, with its (non-expiring) Page token and the permissions granted.
+ * Code → user token → long-lived user token → the single Page the person explicitly grants access to, with its (non-expiring) Page token and the permissions granted.
  */
 export async function connectFacebookPage(config: FacebookConfig, code: string, fetchImpl: Fetch = fetch): Promise<{ page: FacebookPage; grantedScopes: string[] }> {
   const shortUrl = new URL(`${graph}/oauth/access_token`);
@@ -88,15 +87,18 @@ export async function connectFacebookPage(config: FacebookConfig, code: string, 
   pagesUrl.searchParams.set("fields", "id,name,access_token,tasks");
   pagesUrl.searchParams.set("access_token", userToken);
   const pages = await readJson(await fetchImpl(pagesUrl, { cache: "no-store" }));
-  const page = (Array.isArray(pages.data) ? pages.data : []).find(
+  const candidates = (Array.isArray(pages.data) ? pages.data : []).filter(
     (row: { id?: unknown; name?: unknown; access_token?: unknown; tasks?: unknown }) =>
-      typeof row?.id === "string" && typeof row.name === "string" && typeof row.access_token === "string" && (!Array.isArray(row.tasks) || row.tasks.includes("CREATE_CONTENT")),
-  ) as { id: string; name: string; access_token: string } | undefined;
+      typeof row?.id === "string" && typeof row.name === "string" && typeof row.access_token === "string" && Array.isArray(row.tasks) && row.tasks.includes("CREATE_CONTENT"),
+  ) as { id: string; name: string; access_token: string }[];
+  if (candidates.length > 1 || pages.paging && typeof pages.paging === "object" && "next" in pages.paging) throw new FacebookMultiplePagesError("facebook_multiple_pages");
+  const page = candidates[0];
   if (!page) throw new FacebookNoPageError("facebook_no_page");
   return { page: { id: page.id, name: page.name, accessToken: page.access_token }, grantedScopes };
 }
 
 export class FacebookNoPageError extends Error {}
+export class FacebookMultiplePagesError extends Error {}
 export class FacebookPublishError extends Error {}
 
 async function readPublishJson(response: Response): Promise<Record<string, unknown>> {

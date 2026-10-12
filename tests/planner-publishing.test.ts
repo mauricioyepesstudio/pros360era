@@ -6,7 +6,7 @@ import { duePosts, facebookRequest, instagramMediaRequest, parsePublishLog, plan
 import { professionalPlannerId } from "../lib/professional-planner/identity.ts";
 import { isMemberRoadmapResponse } from "../lib/account/internal-onboarding.ts";
 import { publishInstagramMedia } from "../lib/social/instagram.ts";
-import { connectFacebookPage, publishFacebookPost, type FacebookConfig } from "../lib/social/facebook.ts";
+import { connectFacebookPage, FacebookMultiplePagesError, FacebookNoPageError, publishFacebookPost, type FacebookConfig } from "../lib/social/facebook.ts";
 
 const post: PlannerPost = { id: "p-1", date: "2026-10-12", time: "18:00", platform: "instagram", format: "4x5", title: "Tu banco bajó", caption: "Texto", imageUrl: "/professionals/kits/miguel-acosta/01-banco-baja-4x5.png", status: "READY", note: null };
 const sixPm = Date.parse("2026-10-12T22:00:00Z"); // 18:00 in Florida (EDT, UTC-4)
@@ -132,7 +132,7 @@ test("a Facebook photo post returns its link", async () => {
   assert.deepEqual(await publishFacebookPost("99", "tok", { kind: "PHOTO", imageUrl: "https://x/a.jpg", caption: "Hola" }, fake), { mediaId: "99_1", permalink: "https://www.facebook.com/99/posts/1" });
 });
 
-test("connecting Facebook keeps the first Page the person can post to", async () => {
+test("connecting Facebook keeps the only Page with explicit publishing tasks", async () => {
   const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
   const fake = (async (input: string | URL) => {
     const url = new URL(String(input));
@@ -143,3 +143,19 @@ test("connecting Facebook keeps the first Page the person can post to", async ()
   }) as typeof fetch;
   assert.deepEqual(await connectFacebookPage(config, "code", fake), { page: { id: "2", name: "Personal CFO", accessToken: "page-tok" }, grantedScopes: ["pages_manage_posts"] });
 });
+
+for (const [label, data, error] of [
+  ["multiple brands", [{ id: "1", name: "DH EVG", access_token: "a", tasks: ["CREATE_CONTENT"] }, { id: "2", name: "Evolusa", access_token: "b", tasks: ["CREATE_CONTENT"] }], FacebookMultiplePagesError],
+  ["missing publishing tasks", [{ id: "1", name: "DH EVG", access_token: "a" }], FacebookNoPageError],
+] as const) {
+  test(`Facebook refuses ${label} without selecting a destination`, async () => {
+    const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
+    const fake = (async (input: string | URL) => {
+      const url = new URL(String(input));
+      if (url.pathname.endsWith("/oauth/access_token")) return json({ access_token: "user" });
+      if (url.pathname.endsWith("/me/permissions")) return json({ data: [{ permission: "pages_manage_posts", status: "granted" }] });
+      return json({ data });
+    }) as typeof fetch;
+    await assert.rejects(connectFacebookPage(config, "code", fake), error);
+  });
+}
