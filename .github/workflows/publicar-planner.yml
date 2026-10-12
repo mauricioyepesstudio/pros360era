@@ -1,10 +1,10 @@
 name: Publicar planner
 
-# Every 10 minutes, asks production to publish the planner posts whose time has come.
+# Manual button: asks production to publish the planner posts whose time has come.
+# The every-10-minutes clock lives in Supabase (pg_cron, migration 20261012180000);
+# GitHub's schedule did not fire reliably, and two clocks could post the same piece twice.
 # Needs the repository secret CRON_SECRET with the same value as CRON_SECRET in Vercel.
 on:
-  schedule:
-    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 concurrency:

@@ -189,3 +189,7 @@ Causa del aviso «la publicación no salió»: el planner nunca publicaba (solo 
 ## 2026-10-12 — planner publica también en Facebook (preparado)
 
 PR #46 (Instagram) integrado. Nuevo: conexión de página de Facebook en Redes (Facebook Login, permisos pages_show_list/pages_manage_posts/pages_read_engagement; se guarda solo el token de página, cifrado, sin vencimiento) y el publicador manda a Facebook lo «Listo para publicar» con red Facebook: foto con texto, solo texto, o Story si es 9:16. Requiere: migración `20261012_social_connections_facebook.sql` (amplía el check de proveedor e incluye linkedin, cuya migración no está aplicada en vivo; permite token sin vencimiento solo para facebook), variables `FACEBOOK_APP_ID`/`FACEBOOK_APP_SECRET` en Vercel y el producto Facebook Login en la app de Meta con la URL de retorno `https://evolusa.vercel.app/api/social/facebook/callback`. Mientras la app de Meta esté en modo desarrollo, solo quien tenga rol en la app puede conectar su página.
+
+## 2026-10-12 — reloj del publicador en Supabase (preparado, sin aplicar)
+
+El horario de GitHub (`*/10`) no se disparó ni una vez en 4 h; la primera pieza de Instagram salió con un lanzamiento manual (run 38256644262, `published: 1`). Nuevo reloj: `supabase/migrations/20261012180000_planner_publish_cron.sql` (pg_cron + pg_net llaman al publicador cada 10 min, leyendo `CRON_SECRET` del Vault como `planner_cron_secret`). GitHub queda solo como botón manual para no tener dos relojes publicando a la vez. **Falta que el dueño guarde el secreto en el Vault y corra la migración.**
