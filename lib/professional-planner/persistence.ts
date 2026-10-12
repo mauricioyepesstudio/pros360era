@@ -1,6 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPreparedKit } from "@/data/professional/prepared-kits";
+import { createHash } from "node:crypto";
 import { professionalPlannerId } from "./identity";
+import { parsePublishLog, publicationView, publishLogId, type PostPublication } from "./publishing";
 import { parseProfessionalPlanner, plannerFromKit, professionalPlannerAllowed, professionalPlannerVersion, type ProfessionalPlanner } from "./validation";
 
 async function plannerOwner() {
@@ -16,7 +18,29 @@ async function plannerOwner() {
   return { db, user };
 }
 
-export type PlannerResult = { available: boolean; planner: ProfessionalPlanner; saved: boolean; proposedFromKit: boolean };
+export type PlannerInstagram = { username: string; canPublish: boolean } | null;
+export type PlannerResult = {
+  available: boolean;
+  planner: ProfessionalPlanner;
+  saved: boolean;
+  proposedFromKit: boolean;
+  instagram: PlannerInstagram;
+  publications: Record<string, PostPublication>;
+};
+const unavailable: PlannerResult = { available: false, planner: { posts: [] }, saved: false, proposedFromKit: false, instagram: null, publications: {} };
+
+/** Instagram account that will publish, and what already happened to each post (read under the owner's own session). */
+async function publishingState(owner: NonNullable<Awaited<ReturnType<typeof plannerOwner>>>, planner: ProfessionalPlanner) {
+  const logId = publishLogId(owner.user.id, (input) => createHash("sha256").update(input).digest("hex"));
+  const [{ data: connection }, { data: log }] = await Promise.all([
+    owner.db.from("social_connections").select("username, status, scopes").eq("user_id", owner.user.id).eq("provider", "instagram").maybeSingle(),
+    owner.db.from("onboarding_responses").select("answers").eq("id", logId).eq("user_id", owner.user.id).maybeSingle(),
+  ]);
+  const instagram: PlannerInstagram = connection
+    ? { username: connection.username, canPublish: connection.status === "ACTIVE" && Array.isArray(connection.scopes) && connection.scopes.includes("instagram_business_content_publish") }
+    : null;
+  return { instagram, publications: publicationView(planner, parsePublishLog(log?.answers), Date.now()) };
+}
 
 /**
  * The saved planner, or (first visit only) a proposal built from the
@@ -24,7 +48,7 @@ export type PlannerResult = { available: boolean; planner: ProfessionalPlanner; 
  */
 export async function getMyProfessionalPlanner(today: string): Promise<PlannerResult> {
   const owner = await plannerOwner();
-  if (!owner) return { available: false, planner: { posts: [] }, saved: false, proposedFromKit: false };
+  if (!owner) return unavailable;
   const { data, error } = await owner.db
     .from("onboarding_responses")
     .select("answers")
@@ -32,13 +56,12 @@ export async function getMyProfessionalPlanner(today: string): Promise<PlannerRe
     .eq("user_id", owner.user.id)
     .eq("roadmap_version", professionalPlannerVersion)
     .maybeSingle();
-  if (error) return { available: false, planner: { posts: [] }, saved: false, proposedFromKit: false };
+  if (error) return unavailable;
   const saved = parseProfessionalPlanner(data?.answers);
-  if (saved) return { available: true, planner: saved, saved: true, proposedFromKit: false };
+  if (saved) return { available: true, planner: saved, saved: true, proposedFromKit: false, ...(await publishingState(owner, saved)) };
   const kit = getPreparedKit(owner.user.app_metadata?.prepared_kit);
-  return kit
-    ? { available: true, planner: plannerFromKit(kit, today), saved: false, proposedFromKit: true }
-    : { available: true, planner: { posts: [] }, saved: false, proposedFromKit: false };
+  const planner = kit ? plannerFromKit(kit, today) : { posts: [] };
+  return { available: true, planner, saved: false, proposedFromKit: Boolean(kit), ...(await publishingState(owner, planner)) };
 }
 
 export async function saveMyProfessionalPlanner(input: unknown) {
@@ -56,5 +79,5 @@ export async function saveMyProfessionalPlanner(input: unknown) {
     .single();
   return error || !parseProfessionalPlanner(data?.answers)
     ? { saved: false, message: "No pudimos guardar. Tus cambios siguen en pantalla." }
-    : { saved: true, message: "Planner guardado. Nada se publica automáticamente." };
+    : { saved: true, message: "Planner guardado." };
 }
