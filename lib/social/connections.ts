@@ -5,6 +5,7 @@ import { professionalPlannerAllowed } from "@/lib/professional-planner/validatio
 import { decryptToken, encryptToken } from "@/lib/social/crypto";
 import { getInstagramConfig, refreshLongLivedToken, type InstagramAccount, type InstagramToken } from "@/lib/social/instagram";
 import { getLinkedInConfig } from "@/lib/social/linkedin";
+import { getFacebookConfig } from "@/lib/social/facebook";
 import { needsRefresh, REFRESH_WINDOW_MS } from "@/lib/social/refresh-policy";
 
 export type SocialConnectionStatus = "ACTIVE" | "EXPIRED" | "REVOKED";
@@ -40,7 +41,7 @@ export async function socialConnectionOwner() {
   return { db, user };
 }
 
-export type SocialProvider = "instagram" | "linkedin";
+export type SocialProvider = "instagram" | "linkedin" | "facebook";
 
 async function getMyConnection(provider: SocialProvider) {
   const owner = await socialConnectionOwner();
@@ -69,6 +70,10 @@ async function getMyConnection(provider: SocialProvider) {
 
 export async function getMyInstagramState(): Promise<MyInstagramState> {
   return { configured: getInstagramConfig() !== null, ...(await getMyConnection("instagram")) };
+}
+
+export async function getMyFacebookState(): Promise<MyInstagramState> {
+  return { configured: getFacebookConfig() !== null, ...(await getMyConnection("facebook")) };
 }
 
 export async function getMyLinkedInState(now = Date.now()): Promise<MyInstagramState> {
@@ -102,7 +107,8 @@ export class SocialAccountInUseError extends Error {}
 export const InstagramAccountInUseError = SocialAccountInUseError;
 
 type SocialAccount = { id: string; username: string; accountType: string | null };
-type SocialToken = { accessToken: string; expiresAt: Date };
+/** Facebook Page tokens have no expiry (null). */
+type SocialToken = { accessToken: string; expiresAt: Date | null };
 
 /** Additional data the token ciphertext is bound to. Publishers must decrypt with the same value. */
 export function tokenBinding(provider: SocialProvider, providerAccountId: string): string {
@@ -146,7 +152,7 @@ export async function saveSocialConnection(
       status: "ACTIVE",
       // Instagram ciphertexts (already stored) are bound to the bare id; new networks also bind the network.
       token_ciphertext: encryptToken(input.token.accessToken, input.tokenKey, tokenBinding(provider, input.account.id)),
-      token_expires_at: input.token.expiresAt.toISOString(),
+      token_expires_at: input.token.expiresAt?.toISOString() ?? null,
       token_refreshed_at: now,
       last_error: null,
       updated_at: now,

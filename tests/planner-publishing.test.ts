@@ -2,10 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import type { PlannerPost } from "../lib/professional-planner/validation.ts";
-import { duePosts, instagramMediaRequest, parsePublishLog, plannerPublishLogVersion, publicationView, publishLogId, scheduledFor, zonedInstant, type PublishLog } from "../lib/professional-planner/publishing.ts";
+import { duePosts, facebookRequest, instagramMediaRequest, parsePublishLog, plannerPublishLogVersion, publicationView, publishLogId, scheduledFor, zonedInstant, type PublishLog } from "../lib/professional-planner/publishing.ts";
 import { professionalPlannerId } from "../lib/professional-planner/identity.ts";
 import { isMemberRoadmapResponse } from "../lib/account/internal-onboarding.ts";
 import { publishInstagramMedia } from "../lib/social/instagram.ts";
+import { connectFacebookPage, publishFacebookPost, type FacebookConfig } from "../lib/social/facebook.ts";
 
 const post: PlannerPost = { id: "p-1", date: "2026-10-12", time: "18:00", platform: "instagram", format: "4x5", title: "Tu banco bajó", caption: "Texto", imageUrl: "/professionals/kits/miguel-acosta/01-banco-baja-4x5.png", status: "READY", note: null };
 const sixPm = Date.parse("2026-10-12T22:00:00Z"); // 18:00 in Florida (EDT, UTC-4)
@@ -17,11 +18,11 @@ test("planner times are Florida wall-clock times, across daylight saving", () =>
   assert.equal(scheduledFor({ ...post, date: null, time: null }), null);
 });
 
-test("only ready Instagram posts whose time arrived are due", () => {
-  const planner = { posts: [post, { ...post, id: "idea", status: "IDEA" as const }, { ...post, id: "fb", platform: "facebook" as const }, { ...post, id: "later", time: "18:30" }, { ...post, id: "old", date: "2026-10-01" }] };
+test("only ready Instagram and Facebook posts whose time arrived are due", () => {
+  const planner = { posts: [post, { ...post, id: "idea", status: "IDEA" as const }, { ...post, id: "fb", platform: "facebook" as const }, { ...post, id: "li", platform: "linkedin" as const }, { ...post, id: "later", time: "18:30" }, { ...post, id: "old", date: "2026-10-01" }] };
   assert.deepEqual(duePosts(planner, {}, sixPm - 60_000).map((p) => p.id), []);
-  assert.deepEqual(duePosts(planner, {}, sixPm).map((p) => p.id), ["p-1"]);
-  assert.deepEqual(duePosts(planner, {}, sixPm + 31 * 60_000).map((p) => p.id), ["p-1", "later"]);
+  assert.deepEqual(duePosts(planner, {}, sixPm).map((p) => p.id), ["p-1", "fb"]);
+  assert.deepEqual(duePosts(planner, {}, sixPm + 31 * 60_000).map((p) => p.id), ["p-1", "fb", "later"]);
 });
 
 test("a logged post never goes out twice; a failed one retries only when rescheduled", () => {
@@ -96,4 +97,49 @@ test("every kit image has the JPEG twin Instagram is sent", async () => {
       assert.ok(existsSync(new URL(`${kit}/${file.replace(/\.png$/, ".jpg")}`, root)), `${kit}/${file}`);
     }
   }
+});
+
+test("Facebook takes photos, text-only posts and 9:16 Stories", () => {
+  const site = "https://evolusa.vercel.app";
+  assert.deepEqual(facebookRequest({ ...post, platform: "facebook" }, site), { ok: true, request: { kind: "PHOTO", imageUrl: `${site}/professionals/kits/miguel-acosta/01-banco-baja-4x5.jpg`, caption: "Texto" } });
+  assert.deepEqual(facebookRequest({ ...post, platform: "facebook", format: "text" }, site), { ok: true, request: { kind: "TEXT", message: "Texto" } });
+  assert.deepEqual(facebookRequest({ ...post, platform: "facebook", format: "9x16" }, site), { ok: true, request: { kind: "STORY", imageUrl: `${site}/professionals/kits/miguel-acosta/01-banco-baja-4x5.jpg` } });
+  assert.equal(facebookRequest({ ...post, platform: "facebook", imageUrl: null, caption: " " }, site).ok, false);
+});
+
+const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
+
+test("a Facebook Story uploads the photo unpublished, then posts it as a Story", async () => {
+  const calls: string[] = [];
+  const fake = (async (input: string | URL, init?: RequestInit) => {
+    const url = String(input);
+    const params = init?.body as URLSearchParams | undefined;
+    calls.push(`${init?.method ?? "GET"} ${url.split("?")[0].replace("https://graph.facebook.com/v23.0", "")} ${params?.get("published") ?? ""}${params?.get("photo_id") ?? ""}`.trim());
+    if (url.endsWith("/photos")) return json({ id: "ph-1" });
+    return json({ success: true, post_id: "page_story" });
+  }) as typeof fetch;
+  const result = await publishFacebookPost("99", "tok", { kind: "STORY", imageUrl: "https://x/a.jpg" }, fake);
+  assert.deepEqual(result, { mediaId: "page_story", permalink: null });
+  assert.deepEqual(calls, ["POST /99/photos false", "POST /99/photo_stories ph-1"]);
+});
+
+test("a Facebook photo post returns its link", async () => {
+  const fake = (async (input: string | URL) => {
+    const url = String(input);
+    if (url.endsWith("/99/photos")) return json({ id: "ph-1", post_id: "99_1" });
+    return json({ permalink_url: "https://www.facebook.com/99/posts/1" });
+  }) as typeof fetch;
+  assert.deepEqual(await publishFacebookPost("99", "tok", { kind: "PHOTO", imageUrl: "https://x/a.jpg", caption: "Hola" }, fake), { mediaId: "99_1", permalink: "https://www.facebook.com/99/posts/1" });
+});
+
+test("connecting Facebook keeps the first Page the person can post to", async () => {
+  const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
+  const fake = (async (input: string | URL) => {
+    const url = new URL(String(input));
+    if (url.pathname.endsWith("/oauth/access_token")) return json({ access_token: url.searchParams.get("grant_type") ? "long" : "short" });
+    if (url.pathname.endsWith("/me/permissions")) return json({ data: [{ permission: "pages_manage_posts", status: "granted" }, { permission: "pages_show_list", status: "declined" }] });
+    assert.equal(url.searchParams.get("access_token"), "long");
+    return json({ data: [{ id: "1", name: "Solo lectura", access_token: "a", tasks: ["ANALYZE"] }, { id: "2", name: "Personal CFO", access_token: "page-tok", tasks: ["CREATE_CONTENT", "MANAGE"] }] });
+  }) as typeof fetch;
+  assert.deepEqual(await connectFacebookPage(config, "code", fake), { page: { id: "2", name: "Personal CFO", accessToken: "page-tok" }, grantedScopes: ["pages_manage_posts"] });
 });

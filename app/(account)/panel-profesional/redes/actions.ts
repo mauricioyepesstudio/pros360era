@@ -15,3 +15,9 @@ export async function disconnectLinkedInAction() {
   revalidatePath(SOCIAL_PAGE);
   redirect(`${SOCIAL_PAGE}?${ok ? "desconectado=linkedin" : "error=desconectar"}`);
 }
+
+export async function disconnectFacebookAction() {
+  const ok = await disconnectMySocial("facebook");
+  revalidatePath(SOCIAL_PAGE);
+  redirect(`${SOCIAL_PAGE}?${ok ? "desconectado=facebook" : "error=desconectar"}`);
+}

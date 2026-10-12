@@ -18,28 +18,34 @@ async function plannerOwner() {
   return { db, user };
 }
 
-export type PlannerInstagram = { username: string; canPublish: boolean } | null;
+export type PlannerAccount = { username: string; canPublish: boolean } | null;
+/** The Meta accounts that publish this planner's ready posts. */
+export type PlannerNetworks = { instagram: PlannerAccount; facebook: PlannerAccount };
 export type PlannerResult = {
   available: boolean;
   planner: ProfessionalPlanner;
   saved: boolean;
   proposedFromKit: boolean;
-  instagram: PlannerInstagram;
+  networks: PlannerNetworks;
   publications: Record<string, PostPublication>;
 };
-const unavailable: PlannerResult = { available: false, planner: { posts: [] }, saved: false, proposedFromKit: false, instagram: null, publications: {} };
+const unavailable: PlannerResult = { available: false, planner: { posts: [] }, saved: false, proposedFromKit: false, networks: { instagram: null, facebook: null }, publications: {} };
 
 /** Instagram account that will publish, and what already happened to each post (read under the owner's own session). */
 async function publishingState(owner: NonNullable<Awaited<ReturnType<typeof plannerOwner>>>, planner: ProfessionalPlanner) {
   const logId = publishLogId(owner.user.id, (input) => createHash("sha256").update(input).digest("hex"));
-  const [{ data: connection }, { data: log }] = await Promise.all([
-    owner.db.from("social_connections").select("username, status, scopes").eq("user_id", owner.user.id).eq("provider", "instagram").maybeSingle(),
+  const [{ data: connections }, { data: log }] = await Promise.all([
+    owner.db.from("social_connections").select("provider, username, status, scopes").eq("user_id", owner.user.id).in("provider", ["instagram", "facebook"]),
     owner.db.from("onboarding_responses").select("answers").eq("id", logId).eq("user_id", owner.user.id).maybeSingle(),
   ]);
-  const instagram: PlannerInstagram = connection
-    ? { username: connection.username, canPublish: connection.status === "ACTIVE" && Array.isArray(connection.scopes) && connection.scopes.includes("instagram_business_content_publish") }
-    : null;
-  return { instagram, publications: publicationView(planner, parsePublishLog(log?.answers), Date.now()) };
+  const account = (provider: string, scope: string): PlannerAccount => {
+    const row = (connections ?? []).find((c) => c.provider === provider);
+    return row ? { username: row.username, canPublish: row.status === "ACTIVE" && Array.isArray(row.scopes) && row.scopes.includes(scope) } : null;
+  };
+  return {
+    networks: { instagram: account("instagram", "instagram_business_content_publish"), facebook: account("facebook", "pages_manage_posts") },
+    publications: publicationView(planner, parsePublishLog(log?.answers), Date.now()),
+  };
 }
 
 /**

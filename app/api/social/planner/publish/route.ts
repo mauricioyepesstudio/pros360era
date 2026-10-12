@@ -1,6 +1,5 @@
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
-import { safeEqual } from "@/lib/social/crypto";
-import { getInstagramConfig } from "@/lib/social/instagram";
+import { readSocialTokenKey, safeEqual } from "@/lib/social/crypto";
 import { publishDuePlannerPosts } from "@/lib/professional-planner/publisher";
 
 export const maxDuration = 60;
@@ -16,11 +15,11 @@ export async function GET(request: Request) {
   if (!secret || !safeEqual(Buffer.from(header), Buffer.from(`Bearer ${secret}`))) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const config = getInstagramConfig();
+  const tokenKey = readSocialTokenKey();
   const service = createSupabaseServiceRoleClient();
-  if (!config || !service) return Response.json({ skipped: "not_configured" });
+  if (!tokenKey || !service) return Response.json({ skipped: "not_configured" });
   try {
-    return Response.json(await publishDuePlannerPosts(service, config));
+    return Response.json(await publishDuePlannerPosts(service, tokenKey));
   } catch {
     return Response.json({ error: "unavailable" }, { status: 503 });
   }

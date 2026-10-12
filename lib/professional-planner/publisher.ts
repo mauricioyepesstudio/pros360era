@@ -2,23 +2,28 @@ import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decryptToken } from "@/lib/social/crypto";
 import { tokenBinding } from "@/lib/social/connections";
-import { InstagramPublishError, PUBLIC_APP_URL, publishInstagramMedia, type InstagramConfig } from "@/lib/social/instagram";
-import { parseProfessionalPlanner, professionalPlannerVersion } from "@/lib/professional-planner/validation";
+import { FACEBOOK_PUBLISH_SCOPE, FacebookPublishError, publishFacebookPost } from "@/lib/social/facebook";
+import { InstagramPublishError, PUBLIC_APP_URL, publishInstagramMedia } from "@/lib/social/instagram";
+import { parseProfessionalPlanner, professionalPlannerVersion, type PlannerPost } from "@/lib/professional-planner/validation";
 import {
   duePosts,
+  facebookRequest,
   instagramMediaRequest,
+  isAutoPublishable,
   parsePublishLog,
   plannerPublishLogVersion,
   publishLogId,
   scheduledFor,
   staleClaimMs,
+  type AutoPublishPlatform,
   type PublishLog,
   type PublishLogEntry,
 } from "@/lib/professional-planner/publishing";
 
 const sha256 = (input: string) => createHash("sha256").update(input).digest("hex");
 export const plannerPublishLogId = (userId: string) => publishLogId(userId, sha256);
-const publishScope = "instagram_business_content_publish";
+const publishScopes: Record<AutoPublishPlatform, string> = { instagram: "instagram_business_content_publish", facebook: FACEBOOK_PUBLISH_SCOPE };
+const networkName: Record<AutoPublishPlatform, string> = { instagram: "Instagram", facebook: "Facebook" };
 
 async function saveLog(service: SupabaseClient, userId: string, log: PublishLog) {
   const { error } = await service
@@ -27,12 +32,49 @@ async function saveLog(service: SupabaseClient, userId: string, log: PublishLog)
   if (error) throw new Error("publish_log_unavailable");
 }
 
+type Account = { accountId: string; token: string };
+
+/** The professional's active connection for that network, with its token decrypted, or null. */
+async function publishingAccount(service: SupabaseClient, tokenKey: Buffer, userId: string, platform: AutoPublishPlatform): Promise<Account | null> {
+  const { data } = await service
+    .from("social_connections")
+    .select("provider_account_id, token_ciphertext, scopes, status")
+    .eq("user_id", userId)
+    .eq("provider", platform)
+    .maybeSingle();
+  if (!data || data.status !== "ACTIVE" || !data.token_ciphertext || !Array.isArray(data.scopes) || !data.scopes.includes(publishScopes[platform])) return null;
+  const token = decryptToken(data.token_ciphertext, tokenKey, tokenBinding(platform, data.provider_account_id));
+  return token ? { accountId: data.provider_account_id, token } : null;
+}
+
+type Outcome = { ok: true; mediaId: string; permalink: string | null } | { ok: false; error: string; sent: boolean };
+
+async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform }, account: Account): Promise<Outcome> {
+  const network = networkName[post.platform];
+  if (post.platform === "instagram") {
+    const request = instagramMediaRequest(post, PUBLIC_APP_URL);
+    if (!request.ok) return { ok: false, error: request.error, sent: false };
+    try {
+      return { ok: true, ...(await publishInstagramMedia(account.accountId, account.token, request.params)) };
+    } catch (error) {
+      return { ok: false, error: `No se publicó: ${error instanceof InstagramPublishError ? error.message : `${network} no respondió.`}`, sent: true };
+    }
+  }
+  const request = facebookRequest(post, PUBLIC_APP_URL);
+  if (!request.ok) return { ok: false, error: request.error, sent: false };
+  try {
+    return { ok: true, ...(await publishFacebookPost(account.accountId, account.token, request.request)) };
+  } catch (error) {
+    return { ok: false, error: `No se publicó: ${error instanceof FacebookPublishError ? error.message : `${network} no respondió.`}`, sent: true };
+  }
+}
+
 /**
- * Cron side (service role): publish every professional's due Instagram posts.
- * The log entry is written as PUBLISHING before calling Instagram, so a run
- * that dies halfway can't make the next run post the same thing again.
+ * Cron side (service role): publish every professional's due Instagram and
+ * Facebook posts. The log entry is written as PUBLISHING before calling the
+ * network, so a run that dies halfway can't make the next run post it twice.
  */
-export async function publishDuePlannerPosts(service: SupabaseClient, config: InstagramConfig, now = Date.now()) {
+export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: Buffer, now = Date.now()) {
   const result = { published: 0, failed: 0, notConnected: 0 };
   const { data: planners, error } = await service
     .from("onboarding_responses")
@@ -43,7 +85,7 @@ export async function publishDuePlannerPosts(service: SupabaseClient, config: In
 
   for (const row of planners ?? []) {
     const planner = parseProfessionalPlanner(row.answers);
-    if (!planner || !planner.posts.some((post) => post.status === "READY" && post.platform === "instagram")) continue;
+    if (!planner || !planner.posts.some(isAutoPublishable)) continue;
     const userId = row.user_id as string;
 
     const { data: logRow, error: logError } = await service.from("onboarding_responses").select("answers").eq("id", plannerPublishLogId(userId)).eq("user_id", userId).maybeSingle();
@@ -54,57 +96,34 @@ export async function publishDuePlannerPosts(service: SupabaseClient, config: In
     let changed = false;
     for (const [id, entry] of Object.entries(log)) {
       if (entry.state === "PUBLISHING" && now - Date.parse(entry.at) > staleClaimMs) {
-        log[id] = { ...entry, state: "FAILED", at: stamp, error: "No sabemos si llegó a salir. Revisa tu Instagram antes de volver a programarla." };
+        log[id] = { ...entry, state: "FAILED", at: stamp, error: "No sabemos si llegó a salir. Revísalo en la red antes de volver a programarla." };
         changed = true;
       }
     }
 
-    const due = duePosts(planner, log, now);
-    if (due.length === 0) {
-      if (changed) await saveLog(service, userId, log);
-      continue;
-    }
-
-    const { data: connection } = await service
-      .from("social_connections")
-      .select("provider_account_id, token_ciphertext, scopes, status")
-      .eq("user_id", userId)
-      .eq("provider", "instagram")
-      .maybeSingle();
-    const token =
-      connection?.status === "ACTIVE" && connection.token_ciphertext && Array.isArray(connection.scopes) && connection.scopes.includes(publishScope)
-        ? decryptToken(connection.token_ciphertext, config.tokenKey, tokenBinding("instagram", connection.provider_account_id))
-        : null;
-    if (!connection || !token) {
-      // Nothing is logged: once they connect Instagram, posts still within their window go out.
-      result.notConnected += 1;
-      if (changed) await saveLog(service, userId, log);
-      continue;
-    }
-
-    for (const post of due) {
-      const at = scheduledFor(post)!.toISOString();
-      const request = instagramMediaRequest(post, PUBLIC_APP_URL);
-      const base: Omit<PublishLogEntry, "state"> = { scheduledFor: at, at: stamp, mediaId: null, permalink: null, error: null };
-      if (!request.ok) {
-        log[post.id] = { ...base, state: "FAILED", error: request.error };
-        result.failed += 1;
-        await saveLog(service, userId, log);
+    const accounts = new Map<AutoPublishPlatform, Account | null>();
+    for (const post of duePosts(planner, log, now)) {
+      if (!isAutoPublishable(post)) continue;
+      if (!accounts.has(post.platform)) accounts.set(post.platform, await publishingAccount(service, tokenKey, userId, post.platform));
+      const account = accounts.get(post.platform);
+      if (!account) {
+        // Nothing is logged: once they connect the network, posts still within their window go out.
+        result.notConnected += 1;
         continue;
       }
+      const base: Omit<PublishLogEntry, "state"> = { scheduledFor: scheduledFor(post)!.toISOString(), at: stamp, mediaId: null, permalink: null, error: null };
       log[post.id] = { ...base, state: "PUBLISHING" };
       await saveLog(service, userId, log);
-      try {
-        const published = await publishInstagramMedia(connection.provider_account_id, token, request.params);
-        log[post.id] = { ...base, state: "PUBLISHED", at: new Date().toISOString(), mediaId: published.mediaId, permalink: published.permalink };
-        result.published += 1;
-      } catch (publishError) {
-        const message = publishError instanceof InstagramPublishError ? publishError.message : "Instagram no respondió.";
-        log[post.id] = { ...base, state: "FAILED", at: new Date().toISOString(), error: `No se publicó: ${message}`.slice(0, 300) };
-        result.failed += 1;
-      }
+      changed = false;
+      const outcome = await publishOne(post, account);
+      log[post.id] = outcome.ok
+        ? { ...base, state: "PUBLISHED", at: new Date().toISOString(), mediaId: outcome.mediaId, permalink: outcome.permalink }
+        : { ...base, state: "FAILED", at: new Date().toISOString(), error: outcome.error.slice(0, 300) };
+      if (outcome.ok) result.published += 1;
+      else result.failed += 1;
       await saveLog(service, userId, log);
     }
+    if (changed) await saveLog(service, userId, log);
   }
   return result;
 }
