@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, List, Plus, Trash2, X } from "lucide-react";
 import {
@@ -15,6 +15,7 @@ import {
   type PlannerStatus,
   type ProfessionalPlanner,
 } from "@/lib/professional-planner/validation";
+import { mergeInstagramHistory, type InstagramHistory } from "@/lib/professional-planner/instagram-history";
 import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-planner/publishing";
 import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
@@ -88,6 +89,47 @@ export default function PublicationPlanner({
 }) {
   const router = useRouter();
   const [posts, setPosts] = useState(initial.posts);
+  const [importedPublications, setImportedPublications] = useState<Record<string, PostPublication>>({});
+  const [syncing, setSyncing] = useState(Boolean(networks.instagram));
+  const connectedUsername = networks.instagram?.username;
+  const [historyNotice, setHistoryNotice] = useState("");
+  const publicationStates = { ...publications, ...importedPublications };
+  const syncInstagram = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const response = await fetch("/api/social/instagram/media", { cache: "no-store", signal });
+      const data = await response.json() as InstagramHistory & { error?: string };
+      if (!response.ok) throw new Error(data.error || "No pudimos leer Instagram.");
+      if (signal?.aborted) return;
+      setPosts((current) => mergeInstagramHistory(current, data.posts));
+      setImportedPublications(data.publications);
+      setHistoryNotice(data.posts.length ? `Se muestran ${data.posts.length} publicaciones recientes de tu Instagram. Las nuevas publicaciones se programan aparte.` : "Instagram no devolvió publicaciones del feed. Aquí puedes preparar tus próximas piezas.");
+    } catch (error) {
+      if (!signal?.aborted) setHistoryNotice(error instanceof Error ? error.message : "No pudimos leer Instagram.");
+    } finally { if (!signal?.aborted) setSyncing(false); }
+  }, []);
+  useEffect(() => {
+    if (!connectedUsername) return;
+    const controller = new AbortController();
+    void fetch("/api/social/instagram/media", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const data = await response.json() as InstagramHistory & { error?: string };
+        if (!response.ok) throw new Error(data.error || "No pudimos leer Instagram.");
+        return data;
+      })
+      .then((data) => {
+        if (controller.signal.aborted) return;
+        setPosts((current) => mergeInstagramHistory(current, data.posts));
+        setImportedPublications(data.publications);
+        setHistoryNotice(data.posts.length ? `Se muestran ${data.posts.length} publicaciones recientes de tu Instagram.` : "Instagram no devolvió publicaciones del feed. Aquí puedes preparar tus próximas piezas.");
+        setSyncing(false);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setHistoryNotice(error instanceof Error ? error.message : "No pudimos leer Instagram.");
+        setSyncing(false);
+      });
+    return () => controller.abort();
+  }, [connectedUsername]);
   const [isSaved, setIsSaved] = useState(saved);
   const firstDated = initial.posts.find((post) => post.date && post.date >= today)?.date;
   const [month, setMonth] = useState(monthKey(firstDated ?? today));
@@ -104,12 +146,12 @@ export default function PublicationPlanner({
   const undated = posts.filter((post) => !post.date);
   const monthPosts = posts.filter((post) => post.date && monthKey(post.date) === month);
   // What Instagram did wins over the saved status: a post that went out shows as published.
-  const shownStatus = (post: PlannerPost): PlannerStatus => (publications[post.id]?.state === "PUBLISHED" ? "PUBLISHED" : post.status);
+  const shownStatus = (post: PlannerPost): PlannerStatus => (publicationStates[post.id]?.state === "PUBLISHED" ? "PUBLISHED" : post.status);
   const counts = (Object.keys(plannerStatuses) as PlannerStatus[]).map((status) => ({ status, count: posts.filter((post) => shownStatus(post) === status).length }));
   const networkLabel = (post: PlannerPost) => plannerPlatforms[post.platform];
   const autoAccount = (post: PlannerPost) => (post.platform === "instagram" || post.platform === "facebook" ? networks[post.platform] : undefined);
   const publicationLine = (post: PlannerPost) => {
-    const publication = publications[post.id];
+    const publication = publicationStates[post.id];
     if (!publication) return null;
     if (publication.state === "PUBLISHED") return publication.permalink ? <a href={publication.permalink} target="_blank" rel="noreferrer" className="font-semibold text-green-700 underline">Publicada en {networkLabel(post)}</a> : <span className="font-semibold text-green-700">Publicada en {networkLabel(post)}</span>;
     if (publication.state === "PUBLISHING") return <span className="font-semibold text-[var(--brand-blue-strong)]">Publicando en {networkLabel(post)}…</span>;
@@ -201,7 +243,7 @@ export default function PublicationPlanner({
           </span>
           <span className="mt-1 block font-bold text-[var(--brand-navy)]">{post.title}</span>
           {post.note ? <span className="mt-1 block text-sm text-[var(--muted)]">{post.note}</span> : null}
-          {publications[post.id] ? <span className="mt-1 block text-sm">{publicationLine(post)}</span> : null}
+          {publicationStates[post.id] ? <span className="mt-1 block text-sm">{publicationLine(post)}</span> : null}
         </span>
         <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${statusStyles[shownStatus(post)]}`}>{plannerStatuses[shownStatus(post)]}</span>
       </button>
@@ -232,6 +274,12 @@ export default function PublicationPlanner({
           {networks.instagram?.canPublish && networks.facebook?.canPublish ? null : <> · Conéctalas en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>.</>}
         </span>
       </section>
+
+      {networks.instagram && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-bold text-[var(--brand-navy)]">Tu historial de Instagram</h2><button type="button" disabled={syncing} onClick={() => { setSyncing(true); void syncInstagram(); }} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold disabled:opacity-60">{syncing ? "Leyendo Instagram…" : "Actualizar publicaciones"}</button></div>
+        <p className="mt-2 text-sm text-[var(--muted)]" role="status">{historyNotice || "Consultando las publicaciones de tu cuenta conectada…"}</p>
+        {posts.some((post) => post.id.startsWith("ig-")) && <ol className="mt-4 space-y-3">{posts.filter((post) => post.id.startsWith("ig-")).sort((a, b) => (b.date ?? "").localeCompare(a.date ?? "")).slice(0, 5).map(listRow)}</ol>}
+      </section>}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
@@ -358,7 +406,7 @@ export default function PublicationPlanner({
                 </label>
                 <label className="block text-sm font-semibold">
                   Estado
-                  <select value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value as PlannerStatus })} className={field}>
+                  <select disabled={editing.id.startsWith("ig-")} value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value as PlannerStatus })} className={field}>
                     {Object.entries(plannerStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
                 </label>

@@ -74,7 +74,7 @@ function isValidDate(value: string): boolean {
 
 export function safePlannerImageUrl(value: unknown): string | null | undefined {
   if (value === null || value === "") return null;
-  if (typeof value !== "string" || value.length > 500) return undefined;
+  if (typeof value !== "string" || value.length > 2048) return undefined;
   if (/^\/professionals\/kits\/[a-z0-9-]+\/[a-z0-9-]+\.(png|jpe?g|webp)$/.test(value)) return value;
   try {
     const url = new URL(value);
@@ -105,6 +105,7 @@ function parsePost(value: unknown): PlannerPost | null {
   const imageUrl = safePlannerImageUrl(v.imageUrl);
   const note = optionalText(v.note, 500);
   if (imageUrl === undefined || note === undefined) return null;
+  if (v.id.startsWith("ig-") && v.status !== "PUBLISHED") return null;
   if (v.status === "PUBLISHED" && v.date === null) return null;
   return {
     id: v.id,
