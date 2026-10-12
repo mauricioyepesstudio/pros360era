@@ -15,6 +15,8 @@ import {
   type PlannerStatus,
   type ProfessionalPlanner,
 } from "@/lib/professional-planner/validation";
+import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-planner/publishing";
+import type { PlannerInstagram } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
 
 export type PlannerImageOption = { src: string; label: string };
@@ -73,12 +75,16 @@ export default function PublicationPlanner({
   proposedFromKit,
   today,
   imageOptions,
+  instagram,
+  publications,
 }: {
   initial: ProfessionalPlanner;
   saved: boolean;
   proposedFromKit: boolean;
   today: string;
   imageOptions: PlannerImageOption[];
+  instagram: PlannerInstagram;
+  publications: Record<string, PostPublication>;
 }) {
   const router = useRouter();
   const [posts, setPosts] = useState(initial.posts);
@@ -97,7 +103,16 @@ export default function PublicationPlanner({
   }, [posts]);
   const undated = posts.filter((post) => !post.date);
   const monthPosts = posts.filter((post) => post.date && monthKey(post.date) === month);
-  const counts = (Object.keys(plannerStatuses) as PlannerStatus[]).map((status) => ({ status, count: posts.filter((post) => post.status === status).length }));
+  // What Instagram did wins over the saved status: a post that went out shows as published.
+  const shownStatus = (post: PlannerPost): PlannerStatus => (publications[post.id]?.state === "PUBLISHED" ? "PUBLISHED" : post.status);
+  const counts = (Object.keys(plannerStatuses) as PlannerStatus[]).map((status) => ({ status, count: posts.filter((post) => shownStatus(post) === status).length }));
+  const publicationLine = (post: PlannerPost) => {
+    const publication = publications[post.id];
+    if (!publication) return null;
+    if (publication.state === "PUBLISHED") return publication.permalink ? <a href={publication.permalink} target="_blank" rel="noreferrer" className="font-semibold text-green-700 underline">Publicada en Instagram</a> : <span className="font-semibold text-green-700">Publicada en Instagram</span>;
+    if (publication.state === "PUBLISHING") return <span className="font-semibold text-[var(--brand-blue-strong)]">Publicando en Instagram…</span>;
+    return <span className="font-semibold text-[var(--danger)]">{publication.error}</span>;
+  };
 
   async function persist(next: PlannerPost[], message?: string) {
     setBusy(true);
@@ -164,7 +179,7 @@ export default function PublicationPlanner({
       )}
       <span className="min-w-0 flex-1">
         <span className="line-clamp-2 block text-[11px] font-semibold leading-tight text-[var(--brand-navy)]">{post.title}</span>
-        <span className={`mt-1 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-bold ${statusStyles[post.status]}`}>{plannerStatuses[post.status]}</span>
+        <span className={`mt-1 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-bold ${statusStyles[shownStatus(post)]}`}>{plannerStatuses[shownStatus(post)]}</span>
       </span>
     </button>
   );
@@ -184,8 +199,9 @@ export default function PublicationPlanner({
           </span>
           <span className="mt-1 block font-bold text-[var(--brand-navy)]">{post.title}</span>
           {post.note ? <span className="mt-1 block text-sm text-[var(--muted)]">{post.note}</span> : null}
+          {publications[post.id] ? <span className="mt-1 block text-sm">{publicationLine(post)}</span> : null}
         </span>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${statusStyles[post.status]}`}>{plannerStatuses[post.status]}</span>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${statusStyles[shownStatus(post)]}`}>{plannerStatuses[shownStatus(post)]}</span>
       </button>
     </li>
   );
@@ -206,7 +222,15 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        <strong className="text-[var(--brand-navy)]">Publicación automática: aún no disponible.</strong> Planifica aquí y publica desde tu app. Ya puedes preparar tu cuenta en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>; cuando la publicación se active, tus publicaciones listas saldrán desde este mismo planner.
+        {instagram?.canPublish ? (
+          <>
+            <strong className="text-[var(--brand-navy)]">Publicación automática activa en Instagram (@{instagram.username}).</strong> Lo que marques «Listo para publicar» con red Instagram sale solo a su fecha y hora ({plannerTimeZoneLabel}). El formato 9:16 sale como Story. Las demás redes las publicas tú desde su app.
+          </>
+        ) : (
+          <>
+            <strong className="text-[var(--brand-navy)]">{instagram ? "Vuelve a conectar tu Instagram para publicar solo." : "Conecta tu Instagram para publicar solo."}</strong> Hazlo en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>. Después, lo que marques «Listo para publicar» con red Instagram saldrá a su fecha y hora ({plannerTimeZoneLabel}). Mientras tanto, publica desde tu app.
+          </>
+        )}
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -388,6 +412,14 @@ export default function PublicationPlanner({
               </label>
             </fieldset>
 
+            {publications[editing.id] ? <p className="mt-4 rounded-[var(--radius-md)] bg-[var(--warm-canvas)] p-3 text-sm">{publicationLine(editing)}</p> : null}
+            {editing.status === "READY" && editing.platform === "instagram" && editing.date && !publications[editing.id] ? (
+              <p className="mt-4 text-sm text-[var(--muted)]">
+                {instagram?.canPublish
+                  ? `Saldrá sola en Instagram el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : ""}.`
+                  : "Para que salga sola, conecta tu Instagram en Redes."}
+              </p>
+            ) : null}
             {notice ? (
               <p role={notice.failed ? "alert" : "status"} className="mt-4 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3 text-sm">{notice.text}</p>
             ) : null}

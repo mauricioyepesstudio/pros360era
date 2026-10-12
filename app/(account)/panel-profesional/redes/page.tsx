@@ -106,7 +106,7 @@ export default async function RedesPage({ searchParams }: { searchParams: Promis
           <li className="rounded-[var(--radius-md)] border border-[var(--border)] p-4">
             <CalendarDays aria-hidden size={20} className="text-[var(--brand-blue)]" />
             <p className="mt-2 font-semibold text-[var(--brand-navy)]">Planner</p>
-            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">Tus publicaciones marcadas como listas se podrán publicar a su hora.</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">Tus publicaciones de Instagram marcadas «Listo para publicar» en el planner salen solas a su hora.</p>
           </li>
           <li className="rounded-[var(--radius-md)] border border-[var(--border)] p-4">
             <Users aria-hidden size={20} className="text-[var(--brand-blue)]" />

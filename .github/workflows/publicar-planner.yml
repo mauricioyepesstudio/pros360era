@@ -1,0 +1,28 @@
+name: Publicar planner
+
+# Every 10 minutes, asks production to publish the planner posts whose time has come.
+# Needs the repository secret CRON_SECRET with the same value as CRON_SECRET in Vercel.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: publicar-planner
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Llamar al publicador
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "Falta el secreto CRON_SECRET en GitHub"; exit 1; fi
+          curl --fail-with-body --silent --show-error --max-time 90 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://evolusa.vercel.app/api/social/planner/publish
