@@ -16,9 +16,15 @@ El cuerpo multipart completo está limitado a 4 MiB antes de interpretarlo; por 
 
 ## Evidencia y límites de validación
 
-Nueve pruebas nuevas ejercitan origen y ausencia de Origin, sesión, consentimiento, formatos falsos, tamaño de cuerpo, decodificación, eliminación de EXIF, dimensiones, límites de píxeles, falla de almacenamiento, sugerencias, estado IDEA, duplicados y capacidad. TypeScript, 193 pruebas completas y build de 78 rutas pasan. El coordinador registra CI y revisión del PR en el cerebro central.
+Nueve pruebas nuevas ejercitan origen y ausencia de Origin, sesión, consentimiento, formatos falsos, tamaño de cuerpo, decodificación, eliminación de EXIF, dimensiones, límites de píxeles, falla de almacenamiento, sugerencias, estado IDEA, duplicados y capacidad. Siete pruebas adicionales cubren CSV, XLSX real, selección, fechas, duplicados y archivos comprimidos peligrosos. TypeScript, 200 pruebas completas, lint sin errores (7 avisos existentes), build de 78 rutas y diff check pasan. El coordinador registra CI y revisión del PR en el cerebro central.
 
-**Estado: preparado, no integrado ni desplegado.** La revisión automática rechazó aplicar el bucket vivo porque crea una nueva exposición pública persistente y no identificó autorización explícita para ese cambio de almacenamiento. No se creó el bucket y no se sustituyó por otro mecanismo para eludir la decisión. Hace falta aprobación concreta del dueño para `planner-images` público, únicamente imágenes promocionales JPEG, sin escritura/listado directo de usuarios. El código está listo para revisar; el upload no está funcional en producción mientras falte este requisito.
+**Estado: preparado; PR [#51](https://github.com/mauricioyepesstudio/pros360era/pull/51).** El rechazo inicial de revisión automática se resolvió con autorización específica del dueño el 2026-10-13. Se aplicó exclusivamente `planner_images` y se verificó el bucket público JPEG de 4194304 bytes, sin políticas de escritura/listado directo de usuarios. No se usó un mecanismo alternativo para eludir la revisión. La integración y el despliegue del código se registran en el cerebro central al completar CI.
+
+## Importar parrilla existente
+
+Botón dentro del mismo planner: CSV y Excel XLSX de una sola hoja, hasta 2 MB, 200 filas y 30 columnas. El archivo se interpreta localmente; solo se guardan las filas seleccionadas. Columnas en español o inglés: fecha, red y título; hora, texto e imagen opcionales. Fechas AAAA-MM-DD o DD/MM/AAAA, hora del Este y 12:00 si se omite. Vista previa con errores por fila; añadido sin sustituir el calendario y únicamente como IDEA. Identificadores estables impiden importar el mismo borrador repetidamente.
+
+ZIP descomprimido por streaming con límite real, XML sin DTD/entidades y sin ejecución de fórmulas/macros o consulta de enlaces. Excel con fechas 1904 o varias hojas se rechaza explícitamente para evitar fechas o parrillas equivocadas. DOCX no admitido: copiar la tabla a Excel y exportar CSV/XLSX. No es sincronización OAuth de calendarios externos. Revisión independiente de seguridad aprobada; archivo con 8 MB ocultos tras tamaño falso rechazado en 12 ms.
 
 No se dispone de una sesión profesional de prueba autorizada en el navegador para confirmar selección de archivo y persistencia de extremo a extremo. No afirmar que Miguel ya subió un archivo o que estas sugerencias fueron publicadas en sus redes. Ningún contenido ni planner privado de usuarios fue modificado por esta implementación.
 

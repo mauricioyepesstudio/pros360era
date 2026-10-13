@@ -20,6 +20,7 @@ import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-p
 import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
 import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
+import PlannerImport from "@/components/professional/PlannerImport";
 
 export type PlannerImageOption = { src: string; label: string };
 
@@ -354,6 +355,14 @@ export default function PublicationPlanner({
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
         <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
       </section>}
+
+      <PlannerImport posts={posts} busy={busy} save={async (next) => {
+        if (!await persist(next, "Parrilla guardada como Ideas.")) return false;
+        setPosts(next);
+        const date = next.find((post) => !posts.some((current) => current.id === post.id))?.date;
+        if (date) setMonth(monthKey(date));
+        return true;
+      }} />
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 sm:p-5">
         <div className="flex items-center justify-between">
