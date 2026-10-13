@@ -1,5 +1,11 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-13 — imágenes, sugerencias e importación de parrillas
+
+Selector JPG/PNG/WebP con conversión JPEG y eliminación de metadatos; sugerencias del kit propio y plantillas editables seleccionables, guardadas como IDEA por el calendario existente. Revisión de producto, seguridad y cumplimiento aprobadas; 200 pruebas, TypeScript, lint y build de 78 rutas pasan. Ver `docs/cerebro/2026-10-13-planner-upload-suggestions.md`.
+
+El rechazo inicial de revisión automática quedó resuelto tras autorización específica del dueño: `planner-images` aplicado y verificado público, JPEG, 4 MB, sin políticas de escritura/listado directo. [PR #51](https://github.com/mauricioyepesstudio/pros360era/pull/51) añade además Importar parrilla CSV/XLSX con vista previa y selección, sin reemplazar calendario y solo IDEA. No importa DOCX ni sincroniza calendarios externos. CI/integración/despliegue se registran en el cerebro central al finalizar; recorrido autenticado en navegador aún no verificado. No publicaciones externas nuevas.
+
 _Actualizado: 2026-10-06 (formulario de profesionales en producción; resto desde `git log` en `main` = `c4b3cfa`). Mantener con el agente `estado-keeper`._
 
 ## Objetivo actual

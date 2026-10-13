@@ -19,6 +19,8 @@ import { mergeInstagramHistory, type InstagramHistory } from "@/lib/professional
 import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-planner/publishing";
 import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
+import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
+import PlannerImport from "@/components/professional/PlannerImport";
 
 export type PlannerImageOption = { src: string; label: string };
 
@@ -78,6 +80,7 @@ export default function PublicationPlanner({
   imageOptions,
   networks,
   publications,
+  suggestions,
 }: {
   initial: ProfessionalPlanner;
   saved: boolean;
@@ -86,6 +89,7 @@ export default function PublicationPlanner({
   imageOptions: PlannerImageOption[];
   networks: PlannerNetworks;
   publications: Record<string, PostPublication>;
+  suggestions: PlannerSuggestion[];
 }) {
   const router = useRouter();
   const [posts, setPosts] = useState(initial.posts);
@@ -137,6 +141,11 @@ export default function PublicationPlanner({
   const [editing, setEditing] = useState<PlannerPost | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [publicImageConsent, setPublicImageConsent] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
+  const [suggestionDate, setSuggestionDate] = useState(today);
 
   const byDate = useMemo(() => {
     const map = new Map<string, PlannerPost[]>();
@@ -206,6 +215,40 @@ export default function PublicationPlanner({
       return;
     }
     setEditing(blankPost(date));
+  }
+
+  async function uploadImage(file: File) {
+    if (!editing) return;
+    const postId = editing.id;
+    if (!publicImageConsent || file.size >= 4 * 1024 * 1024) {
+      setNotice({ text: "Confirma el uso público y elige una imagen de menos de 4 MB.", failed: true });
+      return;
+    }
+    setUploading(true);
+    setNotice(null);
+    try {
+      const form = new FormData();
+      form.set("image", file);
+      form.set("publicImageConsent", "true");
+      const response = await fetch("/api/professional/planner/image", { method: "POST", body: form });
+      const result = await response.json() as { imageUrl?: string; error?: string };
+      if (!response.ok || !result.imageUrl) throw new Error(result.error || "No pudimos subir la imagen.");
+      setEditing((current) => current?.id === postId ? { ...current, imageUrl: result.imageUrl!, status: "IDEA" } : current);
+      setNotice({ text: "Imagen subida. La publicación queda como Idea; guarda los cambios y revísala antes de marcarla lista.", failed: false });
+    } catch (error) {
+      setNotice({ text: error instanceof Error ? error.message : "No pudimos subirla. La imagen anterior sigue intacta.", failed: true });
+    } finally { setUploading(false); }
+  }
+
+  async function saveSuggestions() {
+    const next = addPlannerSuggestions(posts, suggestions, selectedSuggestions, suggestionDate);
+    if (!next) { setNotice({ text: `Revisa la fecha y el límite de ${plannerMaxPosts} publicaciones.`, failed: true }); return; }
+    if (await persist(next, "Ideas añadidas al calendario. Revisa cada borrador antes de publicarlo.")) {
+      setPosts(next);
+      setMonth(monthKey(suggestionDate));
+      setSelectedSuggestions([]);
+      setShowSuggestions(false);
+    }
   }
 
   const chip = (post: PlannerPost) => (
@@ -290,6 +333,7 @@ export default function PublicationPlanner({
           ))}
         </div>
         <div className="flex items-center gap-2">
+          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias</button>
           <div className="hidden rounded-full border border-[var(--border)] bg-white p-1 md:flex">
             <button type="button" onClick={() => setView("calendar")} aria-pressed={view === "calendar"} className={`inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold ${view === "calendar" ? "bg-[var(--brand-navy)] text-white" : ""}`}>
               <CalendarDays aria-hidden size={16} /> Calendario
@@ -303,6 +347,22 @@ export default function PublicationPlanner({
           </button>
         </div>
       </div>
+
+      {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
+        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Ideas para tu próxima publicación</h2>
+        <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
+        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label></li>)}</ul>
+        <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
+        <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
+      </section>}
+
+      <PlannerImport posts={posts} busy={busy} save={async (next) => {
+        if (!await persist(next, "Parrilla guardada como Ideas.")) return false;
+        setPosts(next);
+        const date = next.find((post) => !posts.some((current) => current.id === post.id))?.date;
+        if (date) setMonth(monthKey(date));
+        return true;
+      }} />
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 sm:p-5">
         <div className="flex items-center justify-between">
@@ -376,7 +436,7 @@ export default function PublicationPlanner({
               </button>
             </div>
 
-            <fieldset disabled={busy} className="mt-4 space-y-4 disabled:opacity-60">
+            <fieldset disabled={busy || uploading} className="mt-4 space-y-4 disabled:opacity-60">
               <label className="block text-sm font-semibold">
                 Título
                 <input required maxLength={140} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} className={field} />
@@ -414,6 +474,11 @@ export default function PublicationPlanner({
 
               <div>
                 <p className="text-sm font-semibold">Imagen</p>
+                {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
+                  <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={publicImageConsent} onChange={(event) => setPublicImageConsent(event.target.checked)} className="mt-0.5 size-4 shrink-0" />Esta imagen será accesible públicamente para compartirla en redes. Tengo permiso para usarla. No subiré documentos privados.</label>
+                  <label className="mt-3 block text-sm font-semibold">{uploading ? "Subiendo imagen…" : "Subir imagen desde tu dispositivo"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={!publicImageConsent || uploading} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void uploadImage(file); }} className="mt-2 block w-full text-xs file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-4 file:font-semibold file:text-white disabled:opacity-60" /></label>
+                  <p className="mt-2 text-xs text-[var(--muted)]">JPG, PNG o WebP de menos de 4 MB. Se convierte a JPG y se eliminan metadatos. Hasta 200 imágenes por cuenta.</p>
+                </div>}
                 {editing.imageUrl ? (
                   <div className="mt-2 flex items-start gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -478,7 +543,7 @@ export default function PublicationPlanner({
                   <Trash2 aria-hidden size={16} /> Eliminar
                 </button>
               ) : <span />}
-              <button type="submit" disabled={busy} className="min-h-11 rounded-full bg-[var(--brand-blue)] px-6 font-bold text-white disabled:opacity-60">
+              <button type="submit" disabled={busy || uploading} className="min-h-11 rounded-full bg-[var(--brand-blue)] px-6 font-bold text-white disabled:opacity-60">
                 {busy ? "Guardando…" : "Guardar"}
               </button>
             </div>
