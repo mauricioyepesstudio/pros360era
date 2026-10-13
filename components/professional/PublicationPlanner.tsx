@@ -21,6 +21,7 @@ import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
 import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
 import PlannerImport from "@/components/professional/PlannerImport";
+import { generatePlannerIdeasAction } from "@/app/(account)/panel-profesional/planner/ai-actions";
 
 export type PlannerImageOption = { src: string; label: string };
 
@@ -149,7 +150,23 @@ export default function PublicationPlanner({
   const [freshSuggestions, setFreshSuggestions] = useState<PlannerSuggestion[]>([]);
   const [suggestionBatch, setSuggestionBatch] = useState(0);
   const [suggestionImageChoice, setSuggestionImageChoice] = useState<Record<string, string>>({});
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
   const suggestionPool = [...suggestions, ...freshSuggestions];
+  async function proposeWithAI() {
+    if (aiLoading || aiTopic.trim().length < 8) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const result = await generatePlannerIdeasAction(aiTopic);
+      if (!result.ok) { setAiError(result.error); return; }
+      const unique = `ai-${Date.now().toString(36)}`;
+      setFreshSuggestions((current) => [...current, ...result.posts.map((post, index): PlannerSuggestion => ({ id: `${unique}-${index}`, title: post.title, caption: post.caption, imageUrl: imageOptions[index % imageOptions.length]?.src ?? null, source: "Plantilla editable" }))]);
+      setShowSuggestions(true);
+    } catch { setAiError("No se pudo conectar con la IA."); }
+    finally { setAiLoading(false); }
+  }
   function proposeMoreSuggestions() {
     const themes = [
       { title: "Un consejo útil para tus clientes", caption: "Comparte un consejo concreto sobre tu servicio y explica cuándo conviene aplicarlo." },
@@ -356,7 +373,8 @@ export default function PublicationPlanner({
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias actuales</button>\n          <button type="button" onClick={proposeMoreSuggestions} className="min-h-11 rounded-full border border-[var(--brand-blue)] px-4 font-semibold text-[var(--brand-blue)]">+ Sugerencias</button>
+          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias actuales</button>
+          <button type="button" onClick={proposeMoreSuggestions} className="min-h-11 rounded-full border border-[var(--brand-blue)] px-4 font-semibold text-[var(--brand-blue)]">+ Sugerencias</button>
           <div className="hidden rounded-full border border-[var(--border)] bg-white p-1 md:flex">
             <button type="button" onClick={() => setView("calendar")} aria-pressed={view === "calendar"} className={`inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold ${view === "calendar" ? "bg-[var(--brand-navy)] text-white" : ""}`}>
               <CalendarDays aria-hidden size={16} /> Calendario
@@ -373,6 +391,12 @@ export default function PublicationPlanner({
 
       {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Ideas para tu próxima publicación</h2>
+        <div className="mt-3 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-4">
+          <label className="block text-sm font-semibold">Generar tres propuestas con IA sobre tu negocio<input value={aiTopic} maxLength={240} onChange={(event) => setAiTopic(event.target.value)} placeholder="Ej.: Consejos para preparar una consulta inicial" className={field} /></label>
+          <button type="button" disabled={aiLoading || aiTopic.trim().length < 8} onClick={() => void proposeWithAI()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white disabled:opacity-60">{aiLoading ? "Generando propuestas…" : "Generar 3 propuestas con IA"}</button>
+          {aiError && <p role="alert" className="mt-2 text-sm text-red-700">{aiError}</p>}
+          <p className="mt-2 text-xs text-[var(--muted)]">Los textos se basan en tu perfil profesional. Revísalos antes de aprobar. Las imágenes se eligen de tu kit; aún no se generan con IA.</p>
+        </div>
         <p className="mt-2 text-sm text-[var(--muted)]">Propuestas editables de tu kit y nuevas ideas orientativas. Puedes escoger una imagen disponible; no son imágenes generadas por IA. Se guardan como Ideas, sin publicarse.</p>
         <ul className="mt-4 space-y-3">{suggestionPool.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}{imageOptions.length > 0 && <select aria-label={`Imagen para ${item.title}`} value={suggestionImageChoice[item.id] ?? item.imageUrl ?? ""} onChange={(event) => setSuggestionImageChoice((current) => ({ ...current, [item.id]: event.target.value }))} className="mt-2 w-full rounded border border-[var(--border)] p-2 text-sm"><option value="">Sin imagen</option>{imageOptions.map((option) => <option key={option.src} value={option.src}>{option.label}</option>)}</select>}</span></label></li>)}</ul>
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
