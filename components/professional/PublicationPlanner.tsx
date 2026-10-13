@@ -146,6 +146,29 @@ export default function PublicationPlanner({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [suggestionDate, setSuggestionDate] = useState(today);
+  const [freshSuggestions, setFreshSuggestions] = useState<PlannerSuggestion[]>([]);
+  const [suggestionBatch, setSuggestionBatch] = useState(0);
+  const [suggestionImageChoice, setSuggestionImageChoice] = useState<Record<string, string>>({});
+  const suggestionPool = [...suggestions, ...freshSuggestions];
+  function proposeMoreSuggestions() {
+    const themes = [
+      { title: "Un consejo útil para tus clientes", caption: "Comparte un consejo concreto sobre tu servicio y explica cuándo conviene aplicarlo." },
+      { title: "Detrás de nuestro trabajo", caption: "Muestra una etapa real de tu proceso y explica qué aporta a tus clientes." },
+      { title: "Tres preguntas antes de empezar", caption: "Responde tres preguntas frecuentes sobre tus servicios con información verificable." },
+      { title: "Lo que debes saber antes de contratar", caption: "Explica qué información necesita un cliente para evaluar el servicio." },
+      { title: "Un error frecuente y cómo evitarlo", caption: "Describe un error habitual de forma educativa, sin exagerar resultados." },
+      { title: "Conoce nuestros servicios", caption: "Presenta un servicio concreto, para quién está pensado y cómo solicitar información." },
+    ];
+    const batch = suggestionBatch + 1;
+    const next = Array.from({ length: 3 }, (_, index): PlannerSuggestion => {
+      const idea = themes[((batch - 1) * 3 + index) % themes.length];
+      return { id: `suggest-new-${batch}-${index}`, ...idea, imageUrl: imageOptions.length ? imageOptions[((batch - 1) * 3 + index) % imageOptions.length].src : null, source: "Plantilla editable" };
+    });
+    setFreshSuggestions((current) => [...current, ...next]);
+    setSuggestionBatch(batch);
+    setShowSuggestions(true);
+  }
+
 
   const byDate = useMemo(() => {
     const map = new Map<string, PlannerPost[]>();
@@ -241,7 +264,7 @@ export default function PublicationPlanner({
   }
 
   async function saveSuggestions() {
-    const next = addPlannerSuggestions(posts, suggestions, selectedSuggestions, suggestionDate);
+    const next = addPlannerSuggestions(posts, suggestionPool.map((item) => ({ ...item, imageUrl: suggestionImageChoice[item.id] ?? item.imageUrl })), selectedSuggestions, suggestionDate);
     if (!next) { setNotice({ text: `Revisa la fecha y el límite de ${plannerMaxPosts} publicaciones.`, failed: true }); return; }
     if (await persist(next, "Ideas añadidas al calendario. Revisa cada borrador antes de publicarlo.")) {
       setPosts(next);
@@ -333,7 +356,7 @@ export default function PublicationPlanner({
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias actuales</button>
+          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias actuales</button>\n          <button type="button" onClick={proposeMoreSuggestions} className="min-h-11 rounded-full border border-[var(--brand-blue)] px-4 font-semibold text-[var(--brand-blue)]">+ Sugerencias</button>
           <div className="hidden rounded-full border border-[var(--border)] bg-white p-1 md:flex">
             <button type="button" onClick={() => setView("calendar")} aria-pressed={view === "calendar"} className={`inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold ${view === "calendar" ? "bg-[var(--brand-navy)] text-white" : ""}`}>
               <CalendarDays aria-hidden size={16} /> Calendario
@@ -350,8 +373,8 @@ export default function PublicationPlanner({
 
       {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Ideas para tu próxima publicación</h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
-        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label></li>)}</ul>
+        <p className="mt-2 text-sm text-[var(--muted)]">Propuestas editables de tu kit y nuevas ideas orientativas. Puedes escoger una imagen disponible; no son imágenes generadas por IA. Se guardan como Ideas, sin publicarse.</p>
+        <ul className="mt-4 space-y-3">{suggestionPool.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}{imageOptions.length > 0 && <select aria-label={`Imagen para ${item.title}`} value={suggestionImageChoice[item.id] ?? item.imageUrl ?? ""} onChange={(event) => setSuggestionImageChoice((current) => ({ ...current, [item.id]: event.target.value }))} className="mt-2 w-full rounded border border-[var(--border)] p-2 text-sm"><option value="">Sin imagen</option>{imageOptions.map((option) => <option key={option.src} value={option.src}>{option.label}</option>)}</select>}</span></label></li>)}</ul>
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
         <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
       </section>}
