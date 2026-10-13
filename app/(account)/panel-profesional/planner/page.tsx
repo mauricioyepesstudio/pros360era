@@ -4,6 +4,8 @@ import { creativeFormatLabels, creativeSrc } from "@/data/professional/prepared-
 import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getMyPreparedKit } from "@/lib/professional/prepared-kit";
 import { getMyProfessionalPlanner } from "@/lib/professional-planner/persistence";
+import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
+import { plannerSuggestions } from "@/lib/professional-planner/suggestions";
 
 /**
  * Publication planner: the professional's private content calendar. Posts
@@ -13,7 +15,7 @@ import { getMyProfessionalPlanner } from "@/lib/professional-planner/persistence
 export default async function ProfessionalPlannerPage() {
   await requireProfessionalArea();
   const today = new Date().toISOString().slice(0, 10);
-  const [result, kit] = await Promise.all([getMyProfessionalPlanner(today), getMyPreparedKit()]);
+  const [result, kit, profile] = await Promise.all([getMyProfessionalPlanner(today), getMyPreparedKit(), getMyProfessionalProfile()]);
   const imageOptions: PlannerImageOption[] = kit
     ? kit.creatives.concepts.flatMap((concept) =>
         kit.creatives.formats.map((format) => ({ src: creativeSrc(kit, concept.id, format), label: `${concept.title} · ${creativeFormatLabels[format]}` })),
@@ -28,7 +30,7 @@ export default async function ProfessionalPlannerPage() {
         description="Organiza qué vas a publicar y cuándo. Con tu Instagram y tu Facebook conectados, lo que marques «Listo para publicar» sale solo a su hora."
       />
       {result.available ? (
-        <PublicationPlanner initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} />
+        <PublicationPlanner initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} suggestions={plannerSuggestions(kit, profile?.displayName ?? null)} />
       ) : (
         <p role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
           No pudimos abrir tu planner. Necesitas un perfil profesional propio; reintenta más tarde.

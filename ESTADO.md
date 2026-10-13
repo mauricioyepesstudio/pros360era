@@ -1,5 +1,11 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-13 — subida directa y sugerencias del planner preparadas
+
+Selector JPG/PNG/WebP con conversión JPEG y eliminación de metadatos; sugerencias del kit propio y plantillas editables seleccionables, guardadas como IDEA por el calendario existente. Revisión de producto, seguridad y cumplimiento aprobadas; 193 pruebas, TypeScript, lint y build de 78 rutas pasan. Ver `docs/cerebro/2026-10-13-planner-upload-suggestions.md`.
+
+La revisión automática rechazó aplicar el nuevo bucket público `planner-images`: requiere autorización concreta para este almacenamiento promocional público. No se creó ni se eludió la decisión. Estado preparado; no integrado/desplegado y upload aún no funcional en producción. No hay validación de navegador autenticado ni publicaciones externas nuevas.
+
 _Actualizado: 2026-10-06 (formulario de profesionales en producción; resto desde `git log` en `main` = `c4b3cfa`). Mantener con el agente `estado-keeper`._
 
 ## Objetivo actual
