@@ -333,7 +333,7 @@ export default function PublicationPlanner({
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias</button>
+          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias actuales</button>
           <div className="hidden rounded-full border border-[var(--border)] bg-white p-1 md:flex">
             <button type="button" onClick={() => setView("calendar")} aria-pressed={view === "calendar"} className={`inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold ${view === "calendar" ? "bg-[var(--brand-navy)] text-white" : ""}`}>
               <CalendarDays aria-hidden size={16} /> Calendario
@@ -357,7 +357,7 @@ export default function PublicationPlanner({
       </section>}
 
       <PlannerImport posts={posts} busy={busy} save={async (next) => {
-        if (!await persist(next, "Parrilla guardada como Ideas.")) return false;
+        if (!await persist(next, "Plantilla importada como Ideas.")) return false;
         setPosts(next);
         const date = next.find((post) => !posts.some((current) => current.id === post.id))?.date;
         if (date) setMonth(monthKey(date));
