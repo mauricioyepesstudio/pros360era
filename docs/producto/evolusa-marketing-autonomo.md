@@ -38,3 +38,20 @@ Documento de producto; no certifica que generación IA, publicación multicanal 
 - Establecer cuotas gratuitas de generación y presupuestos de infraestructura, sin trasladar cobros al usuario. Medir coste por cuenta y uso efectivo.
 - Criterio para activar planes y pagos: flujos probados con cuentas de piloto, publicación confirmada con ID/permalink real, aislamiento entre usuarios, recuperación ante token vencido y fallos, auditoría de aprobaciones y costos conocidos. **Activación solo tras una nueva autorización explícita del dueño.**
 - Integraciones adicionales (LinkedIn, Google, WhatsApp, CRM avanzado y Ads) son posteriores al primer circuito validado; no bloquear el piloto de Instagram/Facebook por ellas.
+
+## Mi Evolución — expediente de acompañamiento del usuario (visión 2026-10-13)
+El usuario tiene un perfil propio, independiente del panel profesional, con plan de necesidades y metas, profesionales elegidos, servicios contratados, tareas, documentos, mensajes, citas, hitos, recordatorios y alertas. El usuario puede ver su progreso y controlar quién accede a cada servicio. No se interpreta una lista de tareas como porcentaje de avance legal o garantía de resultado.
+
+### Modelo funcional
+- UserJourney: usuario, objetivos voluntarios, etapas configurables, preferencias de notificación.
+- ServiceEngagement: profesional verificado, categoría, consentimiento explícito, alcance del servicio, estado y revocación.
+- Milestone/Task: creador, responsable, fecha y fuente, estado, evidencia y última actualización; las fechas legales deben tener fuente verificable y responsable humano.
+- Appointment/Message/Document: acceso restringido al usuario y profesionales específicamente autorizados, auditoría y reglas de retención.
+- Notification: recordatorio configurable, evento verificable, canal, consentimiento, deduplicación y cancelación. Nunca inferir fechas de USCIS u otras agencias sin confirmación.
+- Recommendations: basadas en necesidades expresadas y criterios transparentes; distinguir recomendaciones, promociones pagadas y relaciones comerciales; verificar licencias y atribuciones para profesiones reguladas.
+
+### Privacidad y seguridad
+RLS y aislamiento por usuario y engagement, permisos granulares y revocables, mínima recopilación de datos sensibles, cifrado, trazabilidad, exportación y eliminación según requisitos aplicables. No compartir expedientes migratorios, financieros, médicos o legales entre profesionales por defecto. No sustituir asesoría legal ni emitir decisiones sobre estatus migratorio.
+
+### Validación piloto
+Primero diseñar y probar un recorrido de usuario ficticio, una invitación de profesional, asignación consentida de tareas y una notificación simulada. Mantener separado del piloto de publicación hasta que sus controles de seguridad estén listos. No activar integraciones gubernamentales ni afirmar acceso a estados oficiales sin conexión y autorización verificadas.
