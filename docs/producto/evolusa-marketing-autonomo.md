@@ -55,3 +55,21 @@ RLS y aislamiento por usuario y engagement, permisos granulares y revocables, m�
 
 ### Validación piloto
 Primero diseñar y probar un recorrido de usuario ficticio, una invitación de profesional, asignación consentida de tareas y una notificación simulada. Mantener separado del piloto de publicación hasta que sus controles de seguridad estén listos. No activar integraciones gubernamentales ni afirmar acceso a estados oficiales sin conexión y autorización verificadas.
+
+## Corrección de alcance: agencia de agentes dentro de cada perfil (2026-10-13)
+Miguel y Laura YA son usuarios que están probando EvolUSA y aportando solicitudes. No tratarlos como nuevos participantes por incorporar ni asumir que las conexiones están pendientes sin verificar el estado real por cuenta. Conservar su contenido y sus conexiones existentes.
+
+**Producto:** un único Professional Command Center por profesional; director/orquestador IA con agentes especializados para identidad de marca, creatividad, planner/schedule, publicaciones, CRM, campañas y analítica. Skills = procedimientos reutilizables; conectores = permisos a sistemas externos; agentes = ejecutores de tareas. No exigir una suscripción externa de ChatGPT/Dots por cada profesional.
+
+**Principios:** identidad, calendario, CRM y redes compartidos únicamente dentro de la cuenta del profesional; tenant isolation y RLS; credenciales por usuario; herramientas por rol; aprobaciones explícitas antes de publicar o gastar; auditoría; cuotas y límites de costo; reintentos seguros. No duplicar módulos existentes ni modificar publicaciones de Miguel/Laura.
+
+**Inventario de código confirmado en main (no equivalencia a producción validada):**
+- `lib/professional/self-profile.ts`: perfil privado.
+- `app/(account)/crm/page.tsx`, migraciones CRM: gestión de contactos.
+- `lib/social/connections.ts`, migraciones: conexiones sociales.
+- `components/professional/PublicationPlanner.tsx`: planner.
+- `lib/professional-planner/publisher.ts` y `app/api/social/planner/publish/route.ts`: publicador y cron.
+- `lib/growth-automation/content-generator.ts`: generador de contenido Anthropic preexistente.
+- `app/(account)/panel-profesional/planner/ai-actions.ts` en rama piloto: tres propuestas IA sujetas a clave y pruebas.
+
+**Siguiente trabajo:** auditoría de brechas por cuenta con consentimiento (función disponible, prueba de Miguel/Laura, bug reportado, permisos, conexión y prueba end-to-end); unificar navegación y estado en Professional Command Center; orquestador que use los módulos existentes, no clones; tests de aislamiento, aprobación, idempotencia y costes; demos guiadas sobre las cuentas reales con aprobación de cada dueño. No desplegar cambios ni activar pagos sin autorización.
