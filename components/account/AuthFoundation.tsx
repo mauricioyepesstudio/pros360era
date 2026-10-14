@@ -190,7 +190,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
             placeholder="••••••••"
           />
         </label>
-        {signup && <label className="flex items-start gap-3 rounded-xl bg-[var(--sky-surface)] p-4 text-sm"><input type="checkbox" checked={initialCall} onChange={event => setInitialCall(event.target.checked)} className="mt-1 size-5 shrink-0"/><span><strong className="block">Quiero una videollamada inicial</strong>Después de entrar, podrás elegir el tema y tu disponibilidad. Este paso es opcional y no reserva una cita.</span></label>}
+        {!signup && <Link href="/forgot-password" className="block text-right text-sm font-bold text-[var(--brand-blue)] underline">¿Olvidaste tu contraseña?</Link>}\n        {signup && <label className="flex items-start gap-3 rounded-xl bg-[var(--sky-surface)] p-4 text-sm"><input type="checkbox" checked={initialCall} onChange={event => setInitialCall(event.target.checked)} className="mt-1 size-5 shrink-0"/><span><strong className="block">Quiero una videollamada inicial</strong>Después de entrar, podrás elegir el tema y tu disponibilidad. Este paso es opcional y no reserva una cita.</span></label>}
         {error && (
           <p role="alert" className="rounded-[var(--radius-md)] bg-rose-50 p-3 text-sm font-semibold text-rose-700">
             {error}
