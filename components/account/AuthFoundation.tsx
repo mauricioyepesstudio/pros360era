@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 import { safeReturnPath, professionalWorkspacePath } from "@/lib/auth/return-path";
-import { initialCallDestination, authEntryHref } from "@/lib/initial-call/auth-intent";
+import { authEntryHref } from "@/lib/initial-call/auth-intent";
 import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/professional/actions";
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 
 import { confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
 
@@ -19,8 +20,22 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const next = safeReturnPath(searchParams.get("next"));
   const professional = next === professionalWorkspacePath;
 
-  const [initialCall, setInitialCall] = useState(searchParams.get("initialCall") === "1");
-  const callQuery = initialCall ? "&initialCall=1" : "";
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+
+  useEffect(() => {
+    const env = getSupabaseEnv();
+    if (!env) return;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
+    void fetch(`${env.url}/auth/v1/settings`, { headers: { apikey: env.anonKey }, signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) return;
+        const settings = await response.json();
+        if (!controller.signal.aborted) setGoogleEnabled(settings.external?.google === true);
+      }).catch(() => { /* Keep unavailable providers disabled. */ })
+      .finally(() => window.clearTimeout(timeout));
+    return () => { controller.abort(); window.clearTimeout(timeout); };
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +66,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   async function enterAccount() {
     await restoreProfessionalInformation();
     // The authenticated server route owns role resolution and authorization.
-    router.push(initialCallDestination(next, initialCall));
+    router.push(next);
     router.refresh();
   }
 
@@ -68,12 +83,13 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   }
 
   async function signInWithGoogle() {
+    if (!googleEnabled || submitting) return;
     setError(null);
     setSubmitting(true);
     try {
       const { error: oauthError } = await createSupabaseBrowserClient().auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(initialCallDestination(next, initialCall))}` },
+        options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
       });
       if (oauthError) setError(translateAuthError(oauthError.message));
     } catch {
@@ -154,7 +170,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
         <button type="button" disabled={resending || cooldown > 0} onClick={resendConfirmation} className="mt-5 min-h-12 w-full rounded-full border border-[var(--brand-blue)] font-bold text-[var(--brand-blue)] disabled:opacity-50">{resending ? "Solicitando enlace…" : cooldown > 0 ? `Reenviar en ${cooldown} s` : "Reenviar confirmación"}</button>
         {(resending || resendNotice) && <p role="status" aria-live="polite" className="mt-3 text-sm text-[var(--muted)]">{resending ? "Solicitando otro enlace…" : resendNotice}</p>}
-        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={authEntryHref("login", next, initialCall)}>Ya tengo cuenta o ya confirmé: entrar</Link>
+        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={authEntryHref("login", next, false)}>Ya tengo cuenta o ya confirmé: entrar</Link>
         <button type="button" onClick={() => { setConfirmationSent(false); setError(null); }} className="mt-3 block min-h-10 w-full text-sm underline">{signup ? "Corregir correo" : "Volver a entrar"}</button>
       </div>
     );
@@ -173,12 +189,12 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
           ? (professional ? "Crea tu cuenta para entrar a tu espacio profesional. La aprobación de tu perfil se realiza por separado." : "Guarda tu diagnóstico y continúa tu camino personalizado.")
           : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu Roadmap y revisa tu progreso.")}
       </p>
-      <div className="mt-5 space-y-2 rounded-xl bg-[var(--sky-surface)] p-4 text-sm">
-        <p className="font-bold">Una cuenta, dos formas de participar</p>
-        <div className="flex flex-wrap gap-4"><Link href={`/${mode}?next=%2Fdashboard${callQuery}`} className="font-bold underline">Soy usuario</Link><Link href={`/${mode}?next=%2Fdashboard%2Fprofessional${callQuery}`} className="font-bold underline">Soy profesional</Link></div>
-        <p className="leading-6 text-[var(--muted)]">{professional ? "Si ya tienes acceso profesional habilitado, entrarás a tu panel. Si tu solicitud sigue en revisión, podrás preparar tu presentación privada." : "Como usuario, continúas tu camino. Si también ofreces servicios, entra por Soy profesional para preparar tu presentación."}</p>
-      </div>
-      <button type="button" onClick={signInWithGoogle} disabled={submitting} className="mt-6 min-h-12 w-full rounded-full border border-[var(--border)] bg-white font-bold text-[var(--brand-navy)] disabled:opacity-50">Continuar con Google</button>
+      {signup ? <div className="mt-5 space-y-2 rounded-xl bg-[var(--sky-surface)] p-4 text-sm">
+        <p className="font-bold">¿Cómo quieres empezar?</p>
+        <div className="flex flex-wrap gap-4"><Link href="/signup?next=%2Fdashboard" className="font-bold underline">Busco un profesional</Link><Link href="/signup?next=%2Fdashboard%2Fprofessional" className="font-bold underline">Ofrezco servicios profesionales</Link></div>
+      </div> : <p className="mt-5 text-sm leading-6 text-[var(--muted)]">Usa el correo de tu cuenta. Al entrar, iremos a tu espacio según tu perfil.</p>}
+      <button type="button" onClick={signInWithGoogle} disabled={submitting || !googleEnabled} aria-describedby={!googleEnabled ? "google-status" : undefined} className="mt-6 min-h-12 w-full rounded-full border border-[var(--border)] bg-white font-bold text-[var(--brand-navy)] disabled:cursor-not-allowed disabled:opacity-60">{googleEnabled ? "Continuar con Google" : "Google · no disponible todavía"}</button>
+      {!googleEnabled && <p id="google-status" className="mt-2 text-center text-xs text-[var(--muted)]">Por ahora, entra con tu correo y contraseña.</p>}
       <p className="mt-4 text-center text-sm text-[var(--muted)]">O continúa con tu correo electrónico</p>
       <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-[var(--brand-navy)]">
@@ -206,7 +222,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
             placeholder="••••••••"
           />
         </label>
-        {!signup && <Link href="/forgot-password" className="block text-right text-sm font-bold text-[var(--brand-blue)] underline">¿Olvidaste tu contraseña?</Link>}\n        {signup && <label className="flex items-start gap-3 rounded-xl bg-[var(--sky-surface)] p-4 text-sm"><input type="checkbox" checked={initialCall} onChange={event => setInitialCall(event.target.checked)} className="mt-1 size-5 shrink-0"/><span><strong className="block">Quiero una videollamada inicial</strong>Después de entrar, podrás elegir el tema y tu disponibilidad. Este paso es opcional y no reserva una cita.</span></label>}
+        {!signup && <Link href="/forgot-password" className="block text-right text-sm font-bold text-[var(--brand-blue)] underline">¿Olvidaste tu contraseña?</Link>}
+
         {error && (
           <p role="alert" className="rounded-[var(--radius-md)] bg-rose-50 p-3 text-sm font-semibold text-rose-700">
             {error}
@@ -222,7 +239,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </form>
       <p className="mt-6 text-center text-sm text-[var(--muted)]">
         {signup ? "¿Ya tienes cuenta?" : "¿Aún no tienes cuenta?"}{" "}
-        <Link className="font-bold text-[var(--brand-blue)]" href={authEntryHref(signup ? "login" : "signup", next, initialCall)}>
+        <Link className="font-bold text-[var(--brand-blue)]" href={authEntryHref(signup ? "login" : "signup", next, false)}>
           {signup ? "Entrar" : "Crear cuenta"}
         </Link>
       </p>
