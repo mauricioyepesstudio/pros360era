@@ -67,6 +67,20 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     } catch { /* Draft handoff must not prevent successful login. */ }
   }
 
+  async function signInWithGoogle() {
+    setError(null);
+    setSubmitting(true);
+    try {
+      const { error: oauthError } = await createSupabaseBrowserClient().auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(initialCallDestination(next, initialCall))}` },
+      });
+      if (oauthError) setError(translateAuthError(oauthError.message));
+    } catch {
+      setError("No pudimos iniciar sesión con Google. Inténtalo nuevamente.");
+    } finally { setSubmitting(false); }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -164,7 +178,9 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         <div className="flex flex-wrap gap-4"><Link href={`/${mode}?next=%2Fdashboard${callQuery}`} className="font-bold underline">Soy usuario</Link><Link href={`/${mode}?next=%2Fdashboard%2Fprofessional${callQuery}`} className="font-bold underline">Soy profesional</Link></div>
         <p className="leading-6 text-[var(--muted)]">{professional ? "Si ya tienes acceso profesional habilitado, entrarás a tu panel. Si tu solicitud sigue en revisión, podrás preparar tu presentación privada." : "Como usuario, continúas tu camino. Si también ofreces servicios, entra por Soy profesional para preparar tu presentación."}</p>
       </div>
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+      <button type="button" onClick={signInWithGoogle} disabled={submitting} className="mt-6 min-h-12 w-full rounded-full border border-[var(--border)] bg-white font-bold text-[var(--brand-navy)] disabled:opacity-50">Continuar con Google</button>
+      <p className="mt-4 text-center text-sm text-[var(--muted)]">O continúa con tu correo electrónico</p>
+      <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-[var(--brand-navy)]">
           Correo electrónico
           <input
