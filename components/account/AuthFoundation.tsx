@@ -9,6 +9,7 @@ import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/pro
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSupabaseEnv } from "@/lib/supabase/env";
+import { canUseGoogleOAuth } from "@/lib/auth/provider-capability";
 
 import { confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
 
@@ -27,12 +28,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     if (!env) return;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 5000);
-    void fetch(`${env.url}/auth/v1/settings`, { headers: { apikey: env.anonKey }, signal: controller.signal })
-      .then(async response => {
-        if (!response.ok) return;
-        const settings = await response.json();
-        if (!controller.signal.aborted) setGoogleEnabled(settings.external?.google === true);
-      }).catch(() => { /* Keep unavailable providers disabled. */ })
+    void canUseGoogleOAuth(env, controller.signal)
+      .then(enabled => { if (!controller.signal.aborted) setGoogleEnabled(enabled); })
       .finally(() => window.clearTimeout(timeout));
     return () => { controller.abort(); window.clearTimeout(timeout); };
   }, []);

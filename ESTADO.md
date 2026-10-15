@@ -1,5 +1,9 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-15 — continuación PR55 y planner propio
+
+PR55 sigue preparado, no integrado/desplegado. Acceso común conserva resolución del rol en servidor y reservas con profesional emparejado; comprobación de disponibilidad Google aislada y cubierta por 5 regresiones fail-closed. 205 pruebas, TypeScript, lint (0 errores/7 warnings), build y diff check pasan; revisión producto/seguridad/compliance GO. Falta QA responsive y autenticado, no se afirma OAuth funcional ni entrega de correo. Producción actual READY a309fa6. Ver docs/cerebro/2026-10-15-account-entry-provider-check.md. HV y planner vigentes del dueño leídos; continuación Oct16 reutiliza branding existente, sin transferir datos de ADMIN ni publicar en redes. Resultado de reemplazo del planner e imagen en cerebro central.
+
 ## 2026-10-13 — imágenes, sugerencias e importación de parrillas
 
 Selector JPG/PNG/WebP con conversión JPEG y eliminación de metadatos; sugerencias del kit propio y plantillas editables seleccionables, guardadas como IDEA por el calendario existente. Revisión de producto, seguridad y cumplimiento aprobadas; 200 pruebas, TypeScript, lint y build de 78 rutas pasan. Ver `docs/cerebro/2026-10-13-planner-upload-suggestions.md`.
