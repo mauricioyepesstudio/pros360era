@@ -21,7 +21,7 @@ export function parsePlannerCsv(text: string): ImportCell[][] {
       row.push(cell.replace(/\r$/, "")); cell = "";
       if (char === "\n") { rows.push(row); row = []; }
     } else cell += char;
-    if (cell.length > 10000 || row.length > 30 || rows.length > plannerImportMaxRows + 1) throw new Error("La parrilla supera el límite de 200 filas o 30 columnas.");
+    if (cell.length > 10000 || row.length > 30 || rows.length > plannerImportMaxRows + 1) throw new Error("El planner supera el límite de 200 filas o 30 columnas.");
   }
   if (quoted) throw new Error("El CSV contiene comillas sin cerrar.");
   row.push(cell.replace(/\r$/, "")); if (row.some(Boolean)) rows.push(row);
@@ -49,7 +49,7 @@ function stableId(text: string) {
   return `import-${(hash >>> 0).toString(16)}-${(second >>> 0).toString(16)}`;
 }
 export function previewPlannerRows(table: ImportCell[][]): ImportPreview {
-  if (!table.length || table.length > plannerImportMaxRows + 1 || table.some((row) => row.length > 30)) throw new Error("Usa una parrilla de hasta 200 filas y 30 columnas.");
+  if (!table.length || table.length > plannerImportMaxRows + 1 || table.some((row) => row.length > 30)) throw new Error("Usa un planner de hasta 200 filas y 30 columnas.");
   const headers = table[0].map((cell) => String(cell ?? "").slice(0, 100));
   const indexes = Object.fromEntries(Object.entries(aliases).map(([key, values]) => [key, headers.findIndex((header) => values.includes(normalize(header)))])) as Record<keyof typeof aliases, number>;
   if ([indexes.date, indexes.platform, indexes.title].some((index) => index < 0)) throw new Error("Faltan columnas: fecha, red y título. También puedes incluir hora, texto e imagen.");
@@ -107,24 +107,24 @@ export function readPlannerXlsx(bytes: Uint8Array): ImportCell[][] {
   // Small compressed chunks bound the work before each actual-size callback.
   for (let offset = 0; offset < bytes.length; offset += 1024) unzip.push(bytes.subarray(offset, offset + 1024), offset + 1024 >= bytes.length);
   const sheet = files["xl/worksheets/sheet1.xml"];
-  if (!sheet) throw new Error("El Excel necesita una primera hoja con la parrilla.");
+  if (!sheet) throw new Error("El Excel necesita una primera hoja con el planner.");
   if (files["xl/workbook.xml"]) {
     const workbook = parseXml(strFromU8(files["xl/workbook.xml"]));
     const date1904 = workbook.getElementsByTagName("workbookPr")[0]?.getAttribute("date1904");
-    if (date1904 === "1" || date1904 === "true") throw new Error("Este Excel usa fechas de 1904. Exporta la parrilla como CSV con fechas DD/MM/AAAA.");
+    if (date1904 === "1" || date1904 === "true") throw new Error("Este Excel usa fechas de 1904. Exporta el planner como CSV con fechas DD/MM/AAAA.");
     const sheets = workbook.getElementsByTagName("sheet");
-    if (sheets.length !== 1) throw new Error("Usa un Excel con una sola hoja para evitar importar otra parrilla. Puedes exportar la hoja elegida como CSV.");
+    if (sheets.length !== 1) throw new Error("Usa un Excel con una sola hoja para evitar importar otro planner. Puedes exportar la hoja elegida como CSV.");
   }
   const strings = files["xl/sharedStrings.xml"] ? Array.from(parseXml(strFromU8(files["xl/sharedStrings.xml"])).getElementsByTagName("si"), (item) => Array.from(item.getElementsByTagName("t"), (node) => node.textContent ?? "").join("")) : [];
   const document = parseXml(strFromU8(sheet));
   const xmlRows = Array.from(document.getElementsByTagName("row"));
-  if (xmlRows.length > plannerImportMaxRows + 1) throw new Error("La parrilla admite hasta 200 filas.");
+  if (xmlRows.length > plannerImportMaxRows + 1) throw new Error("El planner admite hasta 200 filas.");
   return xmlRows.map((row) => {
     const values: ImportCell[] = [];
     for (const cell of Array.from(row.getElementsByTagName("c"))) {
       const letters = /^([A-Z]+)/.exec(cell.getAttribute("r") ?? "")?.[1];
       let column = 0; for (const letter of letters ?? "") column = column * 26 + letter.charCodeAt(0) - 64;
-      if (!column || column > 30) throw new Error("La parrilla admite hasta 30 columnas.");
+      if (!column || column > 30) throw new Error("El planner admite hasta 30 columnas.");
       const raw = cell.getElementsByTagName("v")[0]?.textContent ?? "";
       values[column - 1] = cell.getElementsByTagName("f").length ? "=FORMULA" : cell.getAttribute("t") === "s" ? strings[Number(raw)] ?? "" : cell.getAttribute("t") === "inlineStr" ? cell.textContent ?? "" : raw && Number.isFinite(Number(raw)) ? Number(raw) : raw;
     }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Compass, Hand, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Hand, X } from "lucide-react";
 
 /**
  * Recorrido guiado del home: un pop-up animado que resalta, uno por uno, los
@@ -11,7 +11,7 @@ import { ArrowLeft, ArrowRight, Compass, Hand, X } from "lucide-react";
  * con ese data-tour y salta los pasos que no se ven en la pantalla actual.
  *
  * La invitación sale sola una vez por navegador (localStorage); después el
- * botón flotante "Recorrido guiado" permite repetirlo. Copy revisado contra
+ * botón del encabezado "¿Cómo funciona?" permite repetirlo. Copy revisado contra
  * data/compliance/claims.ts: "profesionales aprobados", sin cifras.
  */
 
@@ -164,24 +164,6 @@ export default function GuidedTour() {
 
   return (
     <>
-      {/* Botón flotante para repetir el recorrido */}
-      <AnimatePresence>
-        {phase === "idle" && (
-          <motion.button
-            type="button"
-            onClick={start}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            className="fixed bottom-5 left-5 z-[60] inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-pill)] bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white shadow-[0_14px_30px_-12px_rgb(4_15_34_/_0.6)] ring-1 ring-white/15 transition hover:-translate-y-0.5"
-          >
-            <Compass aria-hidden size={18} />
-            Recorrido guiado
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Invitación inicial */}
       <AnimatePresence>
         {phase === "invite" && (
           <motion.div
