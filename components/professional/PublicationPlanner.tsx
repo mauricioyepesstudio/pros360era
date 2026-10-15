@@ -357,7 +357,7 @@ export default function PublicationPlanner({
       </section>}
 
       <PlannerImport posts={posts} busy={busy} save={async (next) => {
-        if (!await persist(next, "Parrilla guardada como Ideas.")) return false;
+        if (!await persist(next, "Planner guardado como Ideas.")) return false;
         setPosts(next);
         const date = next.find((post) => !posts.some((current) => current.id === post.id))?.date;
         if (date) setMonth(monthKey(date));
