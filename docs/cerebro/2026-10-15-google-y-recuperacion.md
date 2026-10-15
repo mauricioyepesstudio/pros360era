@@ -18,7 +18,7 @@
 
 1. **Supabase → Authentication → URL Configuration**
    - Site URL: `https://evolusa.vercel.app`
-   - Redirect URLs: añadir `https://evolusa.vercel.app/**` y `https://*-mauricioyepesstudios-projects.vercel.app/**` (vistas previas; ajustar al equipo real de Vercel) y `http://localhost:3002/**`.
+   - Redirect URLs: añadir `https://evolusa.vercel.app/**` y `https://evolusa-git-*-mauricio-yepes.vercel.app/**` (vistas previas) y `http://localhost:3002/**`.
 2. **Google Cloud Console → APIs y servicios → Credenciales → Crear ID de cliente OAuth (Aplicación web)**
    - Orígenes autorizados: `https://evolusa.vercel.app`
    - URI de redirección autorizado: `https://ovialqdazxkekvqqgdiu.supabase.co/auth/v1/callback`
