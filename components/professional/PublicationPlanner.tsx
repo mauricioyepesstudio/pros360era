@@ -217,6 +217,48 @@ export default function PublicationPlanner({
     setEditing(blankPost(date));
   }
 
+  async function createDesignedPost() {
+    if (!editing) return;
+    if (!publicImageConsent) {
+      setNotice({ text: "Confirma el uso público de la imagen para crearla y guardarla.", failed: true });
+      return;
+    }
+    const title = editing.title.trim() || "Descubre lo que podemos construir juntos";
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = editing.format === "story" || editing.format === "9x16" ? 1920 : 1350;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) { setNotice({ text: "Este navegador no permite crear la imagen.", failed: true }); return; }
+    const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    bg.addColorStop(0, "#071e3d");
+    bg.addColorStop(1, "#086d91");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    ctx.beginPath(); ctx.arc(900, 230, 390, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#54d4ef"; ctx.fillRect(86, 160, 140, 12);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 44px sans-serif";
+    ctx.fillText("EVOLUSA  /  PROFESIONALES", 86, 115);
+    ctx.font = "bold 88px sans-serif";
+    const words = title.split(/\s+/);
+    let line = "", y = 380;
+    for (const word of words) {
+      const next = line ? line + " " + word : word;
+      if (ctx.measureText(next).width > 890 && line) {
+        ctx.fillText(line, 86, y); y += 110; line = word;
+      } else line = next;
+      if (y > canvas.height - 360) break;
+    }
+    if (line && y < canvas.height - 260) ctx.fillText(line, 86, y);
+    ctx.fillStyle = "#a6e9f7"; ctx.font = "38px sans-serif";
+    ctx.fillText("Conecta. Descubre. Crece.", 86, canvas.height - 165);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 38px sans-serif";
+    ctx.fillText("EVOLUSA", 86, canvas.height - 90);
+    canvas.toBlob(async (blob) => {
+      if (!blob) { setNotice({ text: "No se pudo exportar la imagen.", failed: true }); return; }
+      await uploadImage(new File([blob], "evolusa-publicacion.jpg", { type: "image/jpeg" }));
+    }, "image/jpeg", .87);
+  }
+
   async function uploadImage(file: File) {
     if (!editing) return;
     const postId = editing.id;
@@ -477,6 +519,8 @@ export default function PublicationPlanner({
                 {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
                   <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={publicImageConsent} onChange={(event) => setPublicImageConsent(event.target.checked)} className="mt-0.5 size-4 shrink-0" />Esta imagen será accesible públicamente para compartirla en redes. Tengo permiso para usarla. No subiré documentos privados.</label>
                   <label className="mt-3 block text-sm font-semibold">{uploading ? "Subiendo imagen…" : "Subir imagen desde tu dispositivo"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={!publicImageConsent || uploading} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void uploadImage(file); }} className="mt-2 block w-full text-xs file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-4 file:font-semibold file:text-white disabled:opacity-60" /></label>
+                  <button type="button" disabled={uploading || !publicImageConsent} onClick={() => void createDesignedPost()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 text-sm font-bold text-white disabled:opacity-50">Crear diseño con el título del post</button>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Genera una pieza original EVOLUSA en tu navegador, sin subir un archivo externo. Puedes editar el título y volver a generarla.</p>
                   <p className="mt-2 text-xs text-[var(--muted)]">JPG, PNG o WebP de menos de 4 MB. Se convierte a JPG y se eliminan metadatos. Hasta 200 imágenes por cuenta.</p>
                 </div>}
                 {editing.imageUrl ? (
