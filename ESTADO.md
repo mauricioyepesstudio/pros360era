@@ -1,5 +1,9 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-16 — LinkedIn público y continuación del planner
+
+PR55 ya integrado y producción READY en 567dcc8; reemplaza el estado histórico de preparado del 15. Nuevo ajuste pequeño: enlaces LinkedIn company/admin se presentan como página pública y se normalizan en futuros guardados, sin migrar cuentas. 211 pruebas, TypeScript, lint (7 warnings existentes), build y diff check PASS; revisión independiente seguridad/compliance GO. Estado de entrega y límites en docs/cerebro/2026-10-16-public-linkedin-profile.md. Planner propio actualizado bajo su identidad, versión3, para Oct17 reutilizando pieza web original; listo aquí, no programado/publicado. Guardado autenticado y OAuth no se dan por verificados.
+
 ## 2026-10-15 — continuación PR55 y planner propio
 
 PR55 sigue preparado, no integrado/desplegado. Acceso común conserva resolución del rol en servidor y reservas con profesional emparejado; comprobación de disponibilidad Google aislada y cubierta por 5 regresiones fail-closed. 205 pruebas, TypeScript, lint (0 errores/7 warnings), build y diff check pasan; revisión producto/seguridad/compliance GO. Falta QA responsive y autenticado, no se afirma OAuth funcional ni entrega de correo. Producción actual READY a309fa6. Ver docs/cerebro/2026-10-15-account-entry-provider-check.md. HV y planner vigentes del dueño leídos; continuación Oct16 reutiliza branding existente, sin transferir datos de ADMIN ni publicar en redes. Resultado de reemplazo del planner e imagen en cerebro central.
