@@ -28,10 +28,21 @@ export function sanitizeUrl(url: string | null): string | null {
   }
 }
 
+/** Public social destination, not proof of company ownership or OAuth access. */
+export function publicLinkedInUrl(url: string | null): string | null {
+  const safe = sanitizeUrl(url);
+  if (!safe) return null;
+  const parsed = new URL(safe);
+  if (parsed.hostname !== "linkedin.com" && parsed.hostname !== "www.linkedin.com") return safe;
+  const companyAdmin = /^\/company\/([a-zA-Z0-9_-]+)\/admin(?:\/.*)?$/.exec(parsed.pathname);
+  if (!companyAdmin) return safe;
+  return `https://www.linkedin.com/company/${companyAdmin[1]}/`;
+}
+
 export function sanitizeSocialLinks(links: ProfessionalSocialLinks): ProfessionalSocialLinks {
   return {
     instagram: sanitizeUrl(links.instagram ?? null) ?? undefined,
-    linkedin: sanitizeUrl(links.linkedin ?? null) ?? undefined,
+    linkedin: publicLinkedInUrl(links.linkedin ?? null) ?? undefined,
     facebook: sanitizeUrl(links.facebook ?? null) ?? undefined,
     tiktok: sanitizeUrl(links.tiktok ?? null) ?? undefined,
   };
