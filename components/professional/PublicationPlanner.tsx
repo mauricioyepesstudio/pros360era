@@ -226,7 +226,7 @@ export default function PublicationPlanner({
     const title = editing.title.trim() || "Descubre lo que podemos construir juntos";
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
-    canvas.height = editing.format === "story" || editing.format === "9x16" ? 1920 : 1350;
+    canvas.height = editing.format === "9x16" ? 1920 : 1350;
     const ctx = canvas.getContext("2d");
     if (!ctx) { setNotice({ text: "Este navegador no permite crear la imagen.", failed: true }); return; }
     const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
