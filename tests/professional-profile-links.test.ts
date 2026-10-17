@@ -3,6 +3,50 @@ import assert from "node:assert/strict";
 import { sanitizeUrl, sanitizeSocialLinks, publicLinkedInUrl } from "../lib/professional/profile-links.ts";
 import { safeSocialLinks, safeHttpUrl } from "../lib/professional/links.ts";
 
+test("profile links reject URL credentials at both write and render boundaries", () => {
+  for (const input of [
+    "https://demo:sample@example.invalid/portfolio",
+    "http://demo@example.invalid/",
+    "https://:sample@example.invalid/",
+    "https://de%6Do:sa%6Dple@example.invalid/",
+    "https://www.linkedin.com@elsewhere.invalid/company/example/",
+  ]) {
+    assert.equal(sanitizeUrl(input), null);
+    assert.equal(safeHttpUrl(input), null);
+  }
+});
+
+test("all social platforms drop credential-bearing links without changing safe neighbors", () => {
+  for (const platform of ["instagram", "linkedin", "facebook", "tiktok"] as const) {
+    const input: Parameters<typeof sanitizeSocialLinks>[0] = {};
+    input[platform] = "https://demo:sample@example.invalid/";
+    assert.equal(sanitizeSocialLinks(input)[platform], undefined);
+    assert.deepEqual(safeSocialLinks(input), {});
+  }
+  const input = { instagram: "https://demo:sample@example.invalid/", facebook: "https://facebook.com/page" };
+  assert.equal(sanitizeSocialLinks(input).facebook, input.facebook);
+  assert.equal(safeSocialLinks(input).facebook, input.facebook);
+});
+
+test("LinkedIn rejects embedded credentials before public admin normalization", () => {
+  for (const input of [
+    "https://demo:sample@www.linkedin.com/company/146496927/admin/dashboard/",
+    "https://demo@linkedin.com/in/example/",
+    "https://:sample@www.linkedin.com/company/146496927/",
+  ]) assert.equal(publicLinkedInUrl(input), null);
+});
+
+test("ordinary at-signs outside URL credentials remain valid unchanged", () => {
+  for (const input of [
+    "https://www.tiktok.com/@example",
+    "https://example.invalid/portfolio/@work?contact=hello@example.invalid#@section",
+    "http://example.invalid/path?next=https%3A%2F%2Fexample.invalid%2F%40work",
+  ]) {
+    assert.equal(sanitizeUrl(input), input);
+    assert.equal(safeHttpUrl(input), input);
+  }
+});
+
 /**
  * lib/professional/self-profile.ts#updateMyProfessionalProfile applies
  * these before ever writing to professional_profiles — same trust tier as

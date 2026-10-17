@@ -1,5 +1,11 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-17 — privacidad de enlaces profesionales y planner propio
+
+Base main remoto5c7d729, producción READY confirmada. Los sanitizadores de enlace profesional rechazan URLs con usuario/contraseña incrustados antes de guardar o mostrar href/src; protegen también lectura de valores antiguos, sin migrar datos. Enlaces HTTP(S) ordinarios y @ dentro de ruta/query se conservan. No es protección universal de todos los módulos ni configura OAuth.
+
+215 pruebas PASS,19 focalizadas (4 nuevas),TypeScript/build/diff PASS,lint0errores/7warnings existentes; revisión independiente producto/security/complianceGO. Sin JSX/estilos, cuentas, esquema, permisos, secretos ni presupuesto. Estado final PR/CI/producción en tarea central evolusa-profile-url-credentials-20261017; handoff docs/cerebro/2026-10-17-profile-link-credentials.md. Planner propio versión4 paraOct18, pieza3original y caption, listo aquí/no publicado; guardado autenticado propio pendiente.
+
 ## 2026-10-16 — LinkedIn público y continuación del planner
 
 PR55 ya integrado y producción READY en 567dcc8; reemplaza el estado histórico de preparado del 15. Nuevo ajuste pequeño: enlaces LinkedIn company/admin se presentan como página pública y se normalizan en futuros guardados, sin migrar cuentas. 211 pruebas, TypeScript, lint (7 warnings existentes), build y diff check PASS; revisión independiente seguridad/compliance GO. Estado de entrega y límites en docs/cerebro/2026-10-16-public-linkedin-profile.md. Planner propio actualizado bajo su identidad, versión3, para Oct17 reutilizando pieza web original; listo aquí, no programado/publicado. Guardado autenticado y OAuth no se dan por verificados.

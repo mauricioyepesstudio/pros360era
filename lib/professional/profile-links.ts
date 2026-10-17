@@ -22,6 +22,8 @@ export function sanitizeUrl(url: string | null): string | null {
   if (!url) return null;
   try {
     const parsed = new URL(url);
+    // Public profile destinations must never carry URL-embedded credentials.
+    if (parsed.username || parsed.password) return null;
     return parsed.protocol === "https:" || parsed.protocol === "http:" ? url : null;
   } catch {
     return null;

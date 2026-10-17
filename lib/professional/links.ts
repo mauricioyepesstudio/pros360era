@@ -15,6 +15,8 @@ export function safeHttpUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
     const parsed = new URL(url);
+    // Also protect legacy stored values before rendering public href/src.
+    if (parsed.username || parsed.password) return null;
     return parsed.protocol === "https:" || parsed.protocol === "http:" ? url : null;
   } catch {
     return null;
