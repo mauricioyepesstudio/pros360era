@@ -25,9 +25,9 @@ export default function Home() {
       <main className="bg-[var(--background)] text-[var(--foreground)]">
         <HeroArtboard />
         <Hero />
+        <JourneyOverview />
         <ProductReveal />
         <ExplainerInteractive />
-        <JourneyOverview />
         <LifeStory />
         <StageSelector />
         <StageServices />

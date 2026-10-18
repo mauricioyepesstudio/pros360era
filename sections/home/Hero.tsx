@@ -1,5 +1,6 @@
 "use client";
 import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
+import Link from "next/link";
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -58,7 +59,12 @@ export default function Hero() {
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
-            <HomeAccountEntry />
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <HomeAccountEntry />
+              <Link href="#journey" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-blue-on-dark)] underline decoration-white/30 underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4">
+                Explorar las 6 etapas
+              </Link>
+            </div>
           </div>
         </motion.div>
 
