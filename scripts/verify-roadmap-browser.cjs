@@ -62,8 +62,10 @@ const fs = require('node:fs');
   await page.getByLabel('Correo electrónico', { exact: true }).fill('synthetic@example.invalid');
   await page.getByLabel('Contraseña', { exact: true }).fill('Synthetic-Password-123!');
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
-  await page.getByRole('alert').waitFor();
-  assert.equal(await page.getByRole('alert').textContent(), 'El servicio de cuentas no pudo completar la solicitud. El administrador debe revisar la configuración de acceso y correo.');
+  // Next's route announcer also has role=alert; assert the actual form error.
+  const errorNotice = page.locator('form [role="alert"]');
+  await errorNotice.waitFor();
+  assert.equal(await errorNotice.textContent(), 'El servicio de cuentas no pudo completar la solicitud. El administrador debe revisar la configuración de acceso y correo.');
   assert.equal(interceptedSignups, 1);
   assert.equal(await page.getByLabel('Correo electrónico', { exact: true }).inputValue(), 'synthetic@example.invalid');
   checks++;
