@@ -1,5 +1,12 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-18 — reserva sin credenciales incrustadas y planner propio
+
+Base main remoto6b0802a. `safeBookingHref` omite enlaces antiguos HTTP(S) con usuario/contraseña antes de mostrar «Agendar videollamada» al miembro. Conserva URLs normales y @ en ruta/query; no cambia datos, JSX, estilos, autenticación, esquema, permisos o proveedores. Ocho pruebas dedicadas y suite217 PASS; TypeScript/lint0errores7warnings existentes. Build/CI/PR/producción finales en tarea central evolusa-booking-url-credentials-20261018.
+
+HV original y planner vigentes leídos. Planner versión5 conserva identidad e historial y añadeOct19 con pieza1original y caption, listo aquí/no programado/no publicado. Cuenta propia separada de ADMIN, sin escrituras de cuenta. Creativo EvolUSA equivalente del15 conservado. Handoff: docs/cerebro/2026-10-18-booking-link-credentials.md. Recorrido autenticado y autorización publicadora por canal siguen pendientes; no se afirma calendario conectado.
+
+
 ## 2026-10-17 — privacidad de enlaces profesionales y planner propio
 
 Base main remoto5c7d729, producción READY confirmada. Los sanitizadores de enlace profesional rechazan URLs con usuario/contraseña incrustados antes de guardar o mostrar href/src; protegen también lectura de valores antiguos, sin migrar datos. Enlaces HTTP(S) ordinarios y @ dentro de ruta/query se conservan. No es protección universal de todos los módulos ni configura OAuth.
