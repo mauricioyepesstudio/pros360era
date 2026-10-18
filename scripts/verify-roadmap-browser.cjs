@@ -44,15 +44,17 @@ const fs = require('node:fs');
     }
   }
   const context = await browser.newContext({ viewport: { width: 375, height: 1000 } });
+  const corsHeaders = { 'access-control-allow-origin': 'http://localhost:3002', 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'apikey, authorization, content-type, x-client-info, x-supabase-api-version' };
   await context.route('**/*', async route => {
     const request = route.request();
     const url = new URL(request.url());
     if (url.origin === 'http://localhost:3002') return route.continue();
+    if (url.hostname === 'auth-test.invalid' && request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: corsHeaders });
     if (url.hostname === 'auth-test.invalid' && url.pathname === '/auth/v1/signup' && request.method() === 'POST') {
       interceptedSignups++;
-      return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ code: 'unexpected_failure', msg: 'Error sending confirmation email' }) });
+      return route.fulfill({ status: 500, headers: corsHeaders, contentType: 'application/json', body: JSON.stringify({ code: 'unexpected_failure', msg: 'Error sending confirmation email' }) });
     }
-    if (url.hostname === 'auth-test.invalid' && url.pathname === '/auth/v1/settings') return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ external: { google: false } }) });
+    if (url.hostname === 'auth-test.invalid' && url.pathname === '/auth/v1/settings') return route.fulfill({ headers: corsHeaders, contentType: 'application/json', body: JSON.stringify({ external: { google: false } }) });
     return route.abort();
   });
   const page = await context.newPage();
@@ -60,7 +62,8 @@ const fs = require('node:fs');
   await page.getByLabel('Correo electrónico', { exact: true }).fill('synthetic@example.invalid');
   await page.getByLabel('Contraseña', { exact: true }).fill('Synthetic-Password-123!');
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
-  await page.getByText('No se pudo enviar el correo de acceso. El administrador debe revisar la configuración de correo.', { exact: true }).waitFor();
+  await page.getByRole('alert').waitFor();
+  assert.equal(await page.getByRole('alert').textContent(), 'El servicio de cuentas no pudo completar la solicitud. El administrador debe revisar la configuración de acceso y correo.');
   assert.equal(interceptedSignups, 1);
   assert.equal(await page.getByLabel('Correo electrónico', { exact: true }).inputValue(), 'synthetic@example.invalid');
   checks++;

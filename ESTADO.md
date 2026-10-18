@@ -6,7 +6,7 @@ Solicitud directa del dueño: home coloca seis etapas canónicas inmediatamente 
 
 Diagnóstico vivo de solo lectura: cuatro errores500 en /signup durante la ventanaOct17–18 indican rechazo SMTP550 de Resend en modo pruebas, que solo permite enviar al dueño del proveedor. Requiere dominio remitente verificado y dirección from de ese dominio; NO resuelto por esta modificación. No se cambian secretos, confirmación, cuentas, roles o permisos ni se envían correos de prueba. Google es independiente y no se afirma habilitado.
 
-222 pruebas PASS, TypeScript/build PASS, lint0errores/7warnings existentes; CI responsive375/768/1024/1280 y movimiento reducido preparado (no declarar aprobado antes del cierre). PR/preview/producción y revisión final en tarea central evolusa-roadmap-signup-user-20261018. Handoff: docs/cerebro/2026-10-18-roadmap-signup.md.
+225 pruebas PASS, TypeScript/build y lint finales en cierre central; lint previo0errores/7warnings existentes. Navegador cubre375/768/1024/1280/1440/1536 y movimiento reducido. Corrige cruces del hero en1280 y mantiene composición1536. El SDK descarta cuerpo/código en HTTP500: se conserva status y se informa fallo del servicio sin atribuir todo500 a SMTP. PR/preview/producción y revisión final en tarea central evolusa-roadmap-signup-user-20261018. Handoff: docs/cerebro/2026-10-18-roadmap-signup.md.
 
 
 ## 2026-10-18 — reserva sin credenciales incrustadas y planner propio

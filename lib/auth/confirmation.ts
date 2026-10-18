@@ -6,7 +6,7 @@ export const confirmationRequestMessage = "Si hay una cuenta pendiente de confir
 export function normalizeAuthEmail(email: string): string { return email.trim().toLowerCase(); }
 export function isUnconfirmedEmail(error: { message: string; code?: string }): boolean { return error.code === "email_not_confirmed" || /email not confirmed/i.test(error.message); }
 export function isExistingSignup(error: { message: string; code?: string }): boolean { return error.code === "user_already_exists" || /user already registered/i.test(error.message); }
-export function translateAuthError(error: string | { message: string; code?: string }): string {
+export function translateAuthError(error: string | { message: string; code?: string; status?: number }): string {
   const message = typeof error === "string" ? error : error.message;
   const code = typeof error === "string" ? undefined : error.code;
   // Only allowlisted copy reaches the UI; provider messages can contain personal data.
@@ -21,6 +21,12 @@ export function translateAuthError(error: string | { message: string; code?: str
     invalid_credentials: "Correo o contraseña incorrectos.",
   };
   if (code && Object.hasOwn(byCode, code)) return byCode[code];
+  // auth-js can discard the response body for retryable server failures.
+  // Status alone cannot distinguish mail configuration from other service errors.
+  const status = typeof error === "string" ? undefined : error.status;
+  if (typeof status === "number" && status >= 500 && status <= 599) {
+    return "El servicio de cuentas no pudo completar la solicitud. El administrador debe revisar la configuración de acceso y correo.";
+  }
   const known: [RegExp, string][] = [
     [/invalid login credentials/i, "Correo o contraseña incorrectos."],
     [/password should be at least/i, "La contraseña debe tener al menos 6 caracteres."],
@@ -34,7 +40,7 @@ export function translateAuthError(error: string | { message: string; code?: str
 }
 
 interface ConfirmationClient {
-  resend(credentials: { type: "signup"; email: string }): Promise<{ error: { message: string; code?: string } | null }>;
+  resend(credentials: { type: "signup"; email: string }): Promise<{ error: { message: string; code?: string; status?: number } | null }>;
 }
 /** UX cooldown only; Supabase enforces its own server limits. Never assume email delivery. */
 export async function requestConfirmation(client: ConfirmationClient, email: string, cooldown: number) {

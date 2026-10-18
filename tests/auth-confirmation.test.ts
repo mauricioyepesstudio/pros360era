@@ -89,3 +89,25 @@ test("resend preserves structured provider codes with opaque messages and no suc
   assert.match(result.message, /administrador.*configuración de correo/);
   assert.doesNotMatch(result.message, /private@example|opaque|email_address_not_authorized/);
 });
+
+test("retryable SDK server errors remain actionable when their response body is lost", () => {
+  for (const status of [500, 503, 530, 599]) {
+    assert.equal(translateAuthError({ message: "{}", status }), "El servicio de cuentas no pudo completar la solicitud. El administrador debe revisar la configuración de acceso y correo.");
+  }
+  const result = translateAuthError({ message: "private@example.invalid details", status: 500 });
+  assert.doesNotMatch(result, /private@example|details|SMTP|enviado/);
+  assert.match(translateAuthError({ code: "weak_password", message: "{}", status: 500 }), /contraseña.*requisitos/);
+});
+
+test("nonserver and malformed statuses do not imply a server configuration failure", () => {
+  const generic = "No pudimos completar la solicitud. Intenta de nuevo en unos minutos.";
+  for (const status of [0, 400, 499, 600, NaN, "500"]) {
+    assert.equal(translateAuthError({ message: "{}", status } as { message: string; status: number }), generic);
+  }
+});
+
+test("resend retains retryable SDK status without claiming a mail was sent", async () => {
+  const result = await requestConfirmation({ resend: async () => ({ error: { message: "{}", status: 500 } }) }, "a@example.com", 0);
+  assert.equal(result.requested, false);
+  assert.match(result.message, /administrador.*acceso y correo/);
+});
