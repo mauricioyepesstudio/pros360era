@@ -8,7 +8,7 @@ const fs = require('node:fs');
   fs.mkdirSync('browser-evidence', { recursive: true });
   let checks = 0;
   let interceptedSignups = 0;
-  for (const width of [375, 768, 1024, 1280]) {
+  for (const width of [375, 768, 1024, 1280, 1440, 1536]) {
     for (const reducedMotion of ['no-preference', 'reduce']) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion });
       await context.route('**/*', route => {
@@ -17,10 +17,15 @@ const fs = require('node:fs');
       });
       const page = await context.newPage();
       await page.goto('http://localhost:3002', { waitUntil: 'networkidle' });
+      // Exercise the first-visit tour's real close control before visual QA.
+      await page.getByRole('button', { name: 'Saltar', exact: true }).click({ timeout: 10000 });
+      await page.getByRole('button', { name: 'Saltar', exact: true }).waitFor({ state: 'hidden' });
       const explore = page.getByRole('link', { name: 'Explorar las 6 etapas', exact: true }).filter({ visible: true });
       assert.equal(await explore.count(), 1);
       const entryBox = await explore.boundingBox();
       const pathBox = await page.locator('[data-tour="hero-path"]').filter({ visible: true }).boundingBox();
+      console.log(JSON.stringify({ width, reducedMotion, entryBox, pathBox }));
+      await page.locator('section#home').filter({ visible: true }).screenshot({ path: `browser-evidence/hero-${width}-${reducedMotion}.png` });
       assert.ok(entryBox && pathBox && entryBox.y + entryBox.height <= pathBox.y + 1, `hero controls overlap path ${width}`);
       await explore.click();
       await page.locator('#journey').waitFor({ state: 'visible' });

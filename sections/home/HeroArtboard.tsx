@@ -72,8 +72,8 @@ export default function HeroArtboard() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="absolute text-white"
-          style={{ left: "6.3%", top: "16%", width: "46%" }}
+          className="absolute top-[10%] text-white 2xl:top-[16%]"
+          style={{ left: "6.3%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
             <span className="block text-[clamp(2rem,3.4vw,3.25rem)] font-light text-white">TU SUEÑO</span>
