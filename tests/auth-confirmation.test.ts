@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { authEntryDestination, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation } from "../lib/auth/confirmation.ts";
+import { authEntryDestination, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "../lib/auth/confirmation.ts";
 
 test("confirmed/obfuscated signup copy does not claim delivery or disclose account existence", () => {
   assert.equal(isExistingSignup({ code: "user_already_exists", message: "opaque" }), true);
@@ -43,4 +43,71 @@ test("unconfirmed login offers recovery and professional entry cannot elevate ro
 test("admin professional entry uses the professional panel without changing default member entry", () => {
   assert.equal(authEntryDestination("/dashboard/professional", "ADMIN"), "/panel-profesional");
   assert.equal(authEntryDestination("/dashboard", "ADMIN"), "/dashboard");
+});
+
+test("structured auth codes provide actionable copy even with opaque messages", () => {
+  const cases: [string, RegExp][] = [
+    ["email_address_not_authorized", /administrador.*configuración de correo/],
+    ["signup_disabled", /registro.*deshabilitado/],
+    ["weak_password", /contraseña.*requisitos de seguridad/],
+    ["email_address_invalid", /correo no parece válido/],
+    ["over_email_send_rate_limit", /límite temporal de envíos/],
+    ["over_request_rate_limit", /demasiados intentos/],
+  ];
+  for (const [code, expected] of cases) {
+    assert.match(translateAuthError({ code, message: "opaque" }), expected);
+  }
+});
+
+test("recognized code takes priority over contradictory legacy error wording", () => {
+  const result = translateAuthError({ code: "over_request_rate_limit", message: "Email rate limit exceeded" });
+  assert.match(result, /demasiados intentos/);
+  assert.doesNotMatch(result, /envíos de correo/);
+});
+
+test("legacy auth translations remain supported and mail failures do not claim delivery", () => {
+  assert.equal(translateAuthError("Invalid login credentials"), "Correo o contraseña incorrectos.");
+  assert.match(translateAuthError("Password should be at least 6 characters"), /al menos 6 caracteres/);
+  for (const message of ["Error sending confirmation email", "Error sending recovery email"]) {
+    const result = translateAuthError(message);
+    assert.match(result, /No se pudo enviar.*administrador/);
+    assert.doesNotMatch(result, /enviado|recibirás/);
+  }
+});
+
+test("unknown errors never expose provider details, codes or account existence", () => {
+  const generic = "No pudimos completar la solicitud. Intenta de nuevo en unos minutos.";
+  for (const message of ["User not found private@example.invalid", "User already registered private@example.invalid", "Database error saving new user: private@example.invalid", "opaque"]) {
+    assert.equal(translateAuthError({ code: "unexpected_private_code", message }), generic);
+  }
+  assert.equal(translateAuthError({ code: "constructor", message: "opaque" }), generic);
+});
+
+test("resend preserves structured provider codes with opaque messages and no success", async () => {
+  const result = await requestConfirmation({ resend: async () => ({ error: { code: "email_address_not_authorized", message: "opaque private@example.invalid" } }) }, "a@example.com", 0);
+  assert.equal(result.requested, false);
+  assert.match(result.message, /administrador.*configuración de correo/);
+  assert.doesNotMatch(result.message, /private@example|opaque|email_address_not_authorized/);
+});
+
+test("retryable SDK server errors remain actionable when their response body is lost", () => {
+  for (const status of [500, 503, 530, 599]) {
+    assert.equal(translateAuthError({ message: "{}", status }), "El servicio de cuentas no pudo completar la solicitud. El administrador debe revisar la configuración de acceso y correo.");
+  }
+  const result = translateAuthError({ message: "private@example.invalid details", status: 500 });
+  assert.doesNotMatch(result, /private@example|details|SMTP|enviado/);
+  assert.match(translateAuthError({ code: "weak_password", message: "{}", status: 500 }), /contraseña.*requisitos/);
+});
+
+test("nonserver and malformed statuses do not imply a server configuration failure", () => {
+  const generic = "No pudimos completar la solicitud. Intenta de nuevo en unos minutos.";
+  for (const status of [0, 400, 499, 600, NaN, "500"]) {
+    assert.equal(translateAuthError({ message: "{}", status } as { message: string; status: number }), generic);
+  }
+});
+
+test("resend retains retryable SDK status without claiming a mail was sent", async () => {
+  const result = await requestConfirmation({ resend: async () => ({ error: { message: "{}", status: 500 } }) }, "a@example.com", 0);
+  assert.equal(result.requested, false);
+  assert.match(result.message, /administrador.*acceso y correo/);
 });

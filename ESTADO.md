@@ -1,5 +1,14 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-18 — Roadmap protagonista y causa del registro identificada
+
+Solicitud directa del dueño: home coloca seis etapas canónicas inmediatamente después del hero, tarjetas numeradas, acceso «Explorar las 6 etapas» y CTA público a onboarding, con aviso educativo. Sin catálogo paralelo, cambios del motor, fotos o servicios habilitados. Auth conserva códigos y traduce fallos conocidos sin mostrar texto sensible del proveedor ni revelar cuentas.
+
+Diagnóstico vivo de solo lectura: cuatro errores500 en /signup durante la ventanaOct17–18 indican rechazo SMTP550 de Resend en modo pruebas, que solo permite enviar al dueño del proveedor. Requiere dominio remitente verificado y dirección from de ese dominio; NO resuelto por esta modificación. No se cambian secretos, confirmación, cuentas, roles o permisos ni se envían correos de prueba. Google es independiente y no se afirma habilitado.
+
+225 pruebas PASS, TypeScript/build y lint finales en cierre central; lint previo0errores/7warnings existentes. Navegador cubre375/768/1024/1280/1440/1536 y movimiento reducido. Corrige cruces del hero en1280 y mantiene composición1536. El SDK descarta cuerpo/código en HTTP500: se conserva status y se informa fallo del servicio sin atribuir todo500 a SMTP. PR/preview/producción y revisión final en tarea central evolusa-roadmap-signup-user-20261018. Handoff: docs/cerebro/2026-10-18-roadmap-signup.md.
+
+
 ## 2026-10-18 — reserva sin credenciales incrustadas y planner propio
 
 Base main remoto6b0802a. `safeBookingHref` omite enlaces antiguos HTTP(S) con usuario/contraseña antes de mostrar «Agendar videollamada» al miembro. Conserva URLs normales y @ en ruta/query; no cambia datos, JSX, estilos, autenticación, esquema, permisos o proveedores. Ocho pruebas dedicadas y suite217 PASS; TypeScript/lint0errores7warnings existentes. Build/CI/PR/producción finales en tarea central evolusa-booking-url-credentials-20261018.

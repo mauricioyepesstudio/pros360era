@@ -1,5 +1,6 @@
 "use client";
 import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
+import Link from "next/link";
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -10,7 +11,7 @@ import PhotoSlot from "@/components/evolusa/PhotoSlot";
 import ProductRevealPanel from "./ProductRevealPanel";
 
 /**
- * Desktop-only (`lg:` and up). This is NOT a screenshot — every element
+ * Desktop-only (`xl:` and up). This is NOT a screenshot — every element
  * below is a real, live component (BrandMark, EvolusaPath, ProductRevealPanel
  * with real generateRoadmap() data, real <Link>s). What's different from a
  * normal fluid layout is the CONTAINING FRAME: an "artboard" locked to the
@@ -37,7 +38,7 @@ export default function HeroArtboard() {
   const ART_H = 1024;
 
   return (
-    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] lg:block">
+    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] xl:block">
       <div
         className="relative mx-auto overflow-hidden"
         style={{
@@ -71,8 +72,8 @@ export default function HeroArtboard() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="absolute text-white"
-          style={{ left: "6.3%", top: "16%", width: "46%" }}
+          className="absolute top-[10%] text-white 2xl:top-[16%]"
+          style={{ left: "6.3%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
             <span className="block text-[clamp(2rem,3.4vw,3.25rem)] font-light text-white">TU SUEÑO</span>
@@ -101,7 +102,12 @@ export default function HeroArtboard() {
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
             </div>
-            <HomeAccountEntry />
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <HomeAccountEntry />
+              <Link href="#journey" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-blue-on-dark)] underline decoration-white/30 underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4">
+                Explorar las 6 etapas
+              </Link>
+            </div>
           </div>
         </motion.div>
 
