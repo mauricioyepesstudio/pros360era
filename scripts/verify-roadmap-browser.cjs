@@ -16,7 +16,7 @@ const fs = require('node:fs');
         return url.origin === 'http://localhost:3002' ? route.continue() : route.abort();
       });
       const page = await context.newPage();
-      await page.goto('http://localhost:3002', { waitUntil: 'networkidle' });
+      await page.goto('http://localhost:3002', { waitUntil: 'domcontentloaded' });
       // Exercise the first-visit tour's real close control before visual QA.
       await page.getByRole('button', { name: 'Saltar', exact: true }).click({ timeout: 10000 });
       await page.getByRole('button', { name: 'Saltar', exact: true }).waitFor({ state: 'hidden' });
@@ -56,7 +56,7 @@ const fs = require('node:fs');
     return route.abort();
   });
   const page = await context.newPage();
-  await page.goto('http://localhost:3002/signup', { waitUntil: 'networkidle' });
+  await page.goto('http://localhost:3002/signup', { waitUntil: 'domcontentloaded' });
   await page.getByLabel('Correo electrónico', { exact: true }).fill('synthetic@example.invalid');
   await page.getByLabel('Contraseña', { exact: true }).fill('Synthetic-Password-123!');
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
