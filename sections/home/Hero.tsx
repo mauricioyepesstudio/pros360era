@@ -10,7 +10,7 @@ import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
 
 /**
- * Mobile/tablet only (`lg:hidden` — desktop uses HeroArtboard.tsx instead).
+ * Fluid layout below `xl:` — larger desktops use HeroArtboard.tsx instead.
  *
  * MEASURED from the approved reference's Phone 1 mockup: the mobile photo is
  * NOT a tall full-bleed band cropped from the same wide frame as desktop —
@@ -24,7 +24,7 @@ import PhotoSlot from "@/components/evolusa/PhotoSlot";
  */
 export default function Hero() {
   return (
-    <section id="home" aria-labelledby="hero-title" className="relative lg:hidden">
+    <section id="home" aria-labelledby="hero-title" className="relative xl:hidden">
       <div className="relative aspect-[16/9] w-full overflow-hidden">
         <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center 15%" />
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[var(--brand-navy)] to-transparent" />

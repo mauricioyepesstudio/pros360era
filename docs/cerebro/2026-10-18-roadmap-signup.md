@@ -1,5 +1,7 @@
 # Roadmap y registro — petición del dueño, 2026-10-18
 
+PR de entrega: https://github.com/mauricioyepesstudio/pros360era/pull/61 . Primera QA de navegador detectó superposición del hero fijo a1024px; corregido usando hero y panel en flujo normal por debajo de1280px. El check de superposición se conserva; resultados del commit corregido y capturas requieren nueva CI antes de integrar.
+
 Base remota main5e95c77393d45321bd0a8ff766e170af5f216c5d en checkout aislado. Lease target_repository_implementation evolusa-roadmap-signup-user-20261018. PR45/52/56/57 ajenos preservados, en especial PR56 Auth en borrador; no se incorpora su callback/retorno sin revisión.
 
 ## Home

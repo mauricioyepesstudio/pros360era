@@ -11,7 +11,7 @@ import PhotoSlot from "@/components/evolusa/PhotoSlot";
 import ProductRevealPanel from "./ProductRevealPanel";
 
 /**
- * Desktop-only (`lg:` and up). This is NOT a screenshot — every element
+ * Desktop-only (`xl:` and up). This is NOT a screenshot — every element
  * below is a real, live component (BrandMark, EvolusaPath, ProductRevealPanel
  * with real generateRoadmap() data, real <Link>s). What's different from a
  * normal fluid layout is the CONTAINING FRAME: an "artboard" locked to the
@@ -38,7 +38,7 @@ export default function HeroArtboard() {
   const ART_H = 1024;
 
   return (
-    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] lg:block">
+    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] xl:block">
       <div
         className="relative mx-auto overflow-hidden"
         style={{
