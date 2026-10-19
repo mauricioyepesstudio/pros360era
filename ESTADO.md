@@ -1,5 +1,11 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-19 — navegación móvil y continuación propia
+
+Base main6515d0c. Menú público cierra al alcanzar escritorio1280, restaura overflow previo y Escape devuelve foco al control. Sin rediseño, cambios de Roadmap, servidor, cuentas, esquema, permisos o secretos. QA navegador existente ampliado con seis recorridos de navegación, además de13 comprobaciones previas; resultados finales de pruebas/CI/producción en tarea central `evolusa-mobile-nav-lifecycle-20261019`.
+
+HV y planner fuente5 leídos; continuaciónOct20 reutiliza RG_02.png original con caption/contacto y canales explícitos, conservando historial y assets. Listo aquí, no programado ni publicado. Perfil propio mauricioyepes01@gmail.com separado deADMIN; guardado/recarga pendiente de sesión autorizada. Handoff: docs/cerebro/2026-10-19-mobile-nav-planner.md. No se afirma entrega SMTP u OAuth por esta modificación.
+
 ## 2026-10-18 — Roadmap protagonista y causa del registro identificada
 
 Solicitud directa del dueño: home coloca seis etapas canónicas inmediatamente después del hero, tarjetas numeradas, acceso «Explorar las 6 etapas» y CTA público a onboarding, con aviso educativo. Sin catálogo paralelo, cambios del motor, fotos o servicios habilitados. Auth conserva códigos y traduce fallos conocidos sin mostrar texto sensible del proveedor ni revelar cuentas.

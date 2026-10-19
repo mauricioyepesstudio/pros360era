@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
@@ -30,6 +30,7 @@ const navigation = [
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Use the visible hero to switch contrast; interior pages use the light header.
@@ -49,9 +50,28 @@ export default function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.overflow = menuOpen ? "hidden" : "";
+    if (!menuOpen) return;
+
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    const desktop = window.matchMedia("(min-width: 1280px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMenuOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenuOpen(false);
+      menuToggleRef.current?.focus();
+    };
+
+    root.style.overflow = "hidden";
+    closeOnDesktop();
+    desktop.addEventListener("change", closeOnDesktop);
+    window.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.documentElement.style.overflow = "";
+      root.style.overflow = previousOverflow;
+      desktop.removeEventListener("change", closeOnDesktop);
+      window.removeEventListener("keydown", closeOnEscape);
     };
   }, [menuOpen]);
 
@@ -83,6 +103,7 @@ export default function SiteHeader() {
         <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-4"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>
 
         <button
+          ref={menuToggleRef}
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label={menuOpen ? "Cerrar navegación" : "Abrir navegación"}

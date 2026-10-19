@@ -7,6 +7,7 @@ const fs = require('node:fs');
   const browser = await chromium.launch();
   fs.mkdirSync('browser-evidence', { recursive: true });
   let checks = 0;
+  let navigationChecks = 0;
   let interceptedSignups = 0;
   for (const width of [375, 768, 1024, 1280, 1440, 1536]) {
     for (const reducedMotion of ['no-preference', 'reduce']) {
@@ -20,6 +21,40 @@ const fs = require('node:fs');
       // Exercise the first-visit tour's real close control before visual QA.
       await page.getByRole('button', { name: 'Saltar', exact: true }).click({ timeout: 10000 });
       await page.getByRole('button', { name: 'Saltar', exact: true }).waitFor({ state: 'hidden' });
+      if (width < 1280) {
+        const toggle = page.getByRole('button', { name: 'Abrir navegación', exact: true });
+        const mobileNav = page.getByRole('navigation', { name: 'Navegación móvil', exact: true });
+        // A pre-existing inline overflow value belongs to the caller, not this menu.
+        await page.evaluate(() => { document.documentElement.style.overflow = 'auto'; });
+        await toggle.click();
+        await mobileNav.waitFor({ state: 'visible' });
+        assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'hidden');
+        await mobileNav.getByRole('link', { name: 'Etapas', exact: true }).focus();
+        await page.keyboard.press('Escape');
+        await mobileNav.waitFor({ state: 'detached' });
+        assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+        assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'auto');
+        assert.ok(await toggle.evaluate(element => element === document.activeElement));
+
+        await toggle.click();
+        await mobileNav.waitFor({ state: 'visible' });
+        await page.setViewportSize({ width: 1280, height: 1000 });
+        await mobileNav.waitFor({ state: 'detached' });
+        assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'auto');
+        await page.setViewportSize({ width, height: 1000 });
+        assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+        assert.equal(await mobileNav.count(), 0);
+
+        await toggle.click();
+        await mobileNav.waitFor({ state: 'visible' });
+        assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'hidden');
+        await mobileNav.getByRole('link', { name: 'Etapas', exact: true }).click();
+        await mobileNav.waitFor({ state: 'detached' });
+        assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'auto');
+        assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+        await page.evaluate(() => { document.documentElement.style.overflow = ''; window.scrollTo({ top: 0, behavior: 'instant' }); });
+        navigationChecks++;
+      }
       const explore = page.getByRole('link', { name: 'Explorar las 6 etapas', exact: true }).filter({ visible: true });
       assert.equal(await explore.count(), 1);
       const entryBox = await explore.boundingBox();
@@ -71,5 +106,5 @@ const fs = require('node:fs');
   checks++;
   await context.close();
   await browser.close();
-  console.log(JSON.stringify({ checks, interceptedSignups, realAuthRequests: 0 }));
+  console.log(JSON.stringify({ checks, navigationChecks, interceptedSignups, realAuthRequests: 0 }));
 })().catch(error => { console.error(error); process.exit(1); });
