@@ -1,5 +1,19 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-20 — Decisión del consejo de fundadores: corregir el rumbo
+
+- Veredicto y razones: `control-plane/consejo/CONSEJO.md` en AI-Projects-Control-Plane (fuente: `consejo.json`).
+- Objetivos: Solicitudes de profesionales respondidas en menos de 48 h (meta 30 días: 100; 90 días: 100); Profesionales verificados (meta 30 días: 10; 90 días: 25); Primera membresía de profesional pagada (meta 30 días: 0; 90 días: 1).
+- Se desecha si: Menos de 15 profesionales verificados y ninguna membresía pagada en 90 días: se archiva como producto y su contenido se usa para la tienda y el portafolio. Fecha de revisión: 2027-01-18.
+- Agentes del consejo instalados en `.claude/agents/`: producto-pmf, seo-contenido-es, ventas-entrada, alianzas-canales, analista-metricas, finanzas-unitarias. Reglas: no envían, publican, cobran ni gastan sin aprobación de Mauricio; null = sin medir.
+- Tareas:
+  - cj-010 · 2026-10-24 · Mauricio: Hacer los 3 pasos de Google en Supabase y decir «merge» al PR #56
+  - cj-011 · 2026-10-22 · Mauricio: Decir «prepara» y enviar las respuestas a las 4 solicitudes de profesional
+  - cj-012 · 2026-10-31 · Mauricio: Dar un dominio para el correo de EVOLUSA y poner sus DNS
+  - cj-013 · 2026-11-02 · producto-pmf: Congelar funciones nuevas y reescribir la portada con una sola propuesta: directorio verificado de profesionales de negocio hispanos en Florida
+  - cj-014 · 2026-10-26 · analista-metricas: Medir cada semana profesionales verificados y tiempo de respuesta a solicitudes
+  - cj-015 · 2026-11-02 · alianzas-canales: Lista de 10 cámaras de comercio y asociaciones hispanas de Florida para traer profesionales (solo borradores)
+
 ## 2026-10-20 — Jarvis, el cerebro de EVOLUSA en /admin/cerebro
 
 Pedido directo del dueño: panel «3D Pixel Jarvis» solo para ADMIN con escena isométrica pixel art de los módulos del cerebro (CRM, redes, planner, publicación, captación, correo, Roadmap, cobros), su estado con evidencia de PR, el portón «no invitar profesionales hasta que todo funcione» y misiones diarias rotativas (fijas mientras haya un bloqueo). Estados curados en `lib/admin/jarvis.ts`, no medidos en vivo: actualizar ese archivo en el PR que cambie cada módulo. Sin esquema, permisos, cuentas ni secretos nuevos; las marcas de tareas viven solo en el navegador.
