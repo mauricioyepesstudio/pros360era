@@ -40,6 +40,8 @@ Comandos: `npm run dev | lint | test | build`, `npx tsc --noEmit`.
 Producto/ingeniería: `orchestrator` (primero en tareas ambiguas), `evolusa-product-architect`, `frontend-engineer`, `supabase-architect`, `security-reviewer`, `qa-engineer`, `ui-ux-designer`.
 Cumplimiento/negocio: `compliance-reviewer` (última revisión), `legal-risk-reviewer`, `finance-analyst`, `revenue-analyst` (solo lectura; nunca toca Stripe).
 Marketing (nunca tocan código de app ni `claims.ts`): `growth-marketing-strategist`, `marketing-strategist`, `social-content-lead`, `social-media-manager`, `brand-taste-lead`, `taste`.
+Investigación: `research-analyst` (solo lectura, fuentes con fecha).
+Agencia por departamentos y tareas recurrentes: `docs/cerebro/agencia.md`.
 Nuevos del cerebro: `migration-steward` (numeración/estado de migraciones), `estado-keeper` (mantiene ESTADO.md vs git log), `growth-automation-guard` (revisa el módulo Growth Automation/CRM contra las reglas de cumplimiento).
 
 Todo claim, testimonio o estadística de marketing → `compliance-reviewer` antes de salir.
