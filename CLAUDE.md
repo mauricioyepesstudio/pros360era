@@ -49,6 +49,9 @@ Todo claim, testimonio o estadística de marketing → `compliance-reviewer` ant
 ## Skills del repo
 `evolusa-compliance`, `evolusa-product`, `git-safe-workflow`, `postgres-rls`, `supabase-auth` (en `.claude/skills/`).
 
+## Equipos de skills (15-oct-2026)
+Marketing, redes, diseño, documentos, finanzas y legal como plugins fijados a un commit: ver `.claude/equipos/LEEME.md`. Los genera el cerebro central (`AI-Projects-Control-Plane/equipos-skills`); no editar a mano. Los skills legales son de revisión interna: EVOLUSA nunca da orientación legal, migratoria, de impuestos ni notarial, y todo lo que salga de marketing/redes pasa por `compliance-reviewer`.
+
 ## Capacidades (conectores, skills, agentes)
 Justificadas por código/docs:
 | Capacidad | Por qué |
