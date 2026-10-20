@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import PageHeader from "@/components/account/PageHeader";
 import InitialCallInbox from "@/components/initial-call/InitialCallInbox";
@@ -32,6 +33,17 @@ export default async function AdminPage() {
         title="EVOLUSA en números"
         description="Miembros, profesionales y aplicaciones pendientes de revisión."
       />
+
+      <Link
+        href="/admin/cerebro"
+        className="flex items-center justify-between gap-4 rounded-[var(--radius-lg)] bg-[var(--brand-navy)] p-5 text-white hover:bg-[var(--brand-navy-strong)]"
+      >
+        <span>
+          <span className="block text-xs font-bold uppercase tracking-[0.2em] text-[var(--brand-blue-on-dark)]">3D Pixel Jarvis</span>
+          <span className="mt-1 block text-lg font-bold">Cerebro EVOLUSA: módulos, bloqueos y misiones de hoy</span>
+        </span>
+        <span aria-hidden className="text-2xl">→</span>
+      </Link>
 
       <InitialCallInbox />
 
