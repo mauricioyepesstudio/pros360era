@@ -1,5 +1,9 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-20 — Jarvis, el cerebro de EVOLUSA en /admin/cerebro
+
+Pedido directo del dueño: panel «3D Pixel Jarvis» solo para ADMIN con escena isométrica pixel art de los módulos del cerebro (CRM, redes, planner, publicación, captación, correo, Roadmap, cobros), su estado con evidencia de PR, el portón «no invitar profesionales hasta que todo funcione» y misiones diarias rotativas (fijas mientras haya un bloqueo). Estados curados en `lib/admin/jarvis.ts`, no medidos en vivo: actualizar ese archivo en el PR que cambie cada módulo. Sin esquema, permisos, cuentas ni secretos nuevos; las marcas de tareas viven solo en el navegador.
+
 ## 2026-10-19 — navegación móvil y continuación propia
 
 Base main6515d0c. Menú público cierra al alcanzar escritorio1280, restaura overflow previo y Escape devuelve foco al control. Sin rediseño, cambios de Roadmap, servidor, cuentas, esquema, permisos o secretos. QA navegador existente ampliado con seis recorridos de navegación, además de13 comprobaciones previas; resultados finales de pruebas/CI/producción en tarea central `evolusa-mobile-nav-lifecycle-20261019`.
