@@ -41,7 +41,7 @@ Sacadas de `ESTADO.md` (Siguiente y Bloqueado, 2026-10-20). Al cerrar una, `esta
 **QA y pruebas**
 1. Cada PR: `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`; adjuntar resultado al PR.
 2. Recorridos en navegador 375/768/1280 de home, onboarding, `/aplicar-profesional`.
-3. Recorridos autenticados MEMBER y PROFESSIONAL: **bloqueado** hasta que el dueño cree las cuentas de prueba (ver más abajo). No crear cuentas ni cambiar roles para sortearlo.
+3. Recorridos autenticados MEMBER y PROFESSIONAL. **Desde 2026-10-20 las cuentas de prueba existen** y están guardadas como secretos de GitHub Actions `E2E_MEMBER_EMAIL`, `E2E_MEMBER_PASSWORD`, `E2E_PRO_EMAIL`, `E2E_PRO_PASSWORD`. Tarea prioritaria: workflow `.github/workflows/acceptance.yml` **solo manual** (`workflow_dispatch`) que, con Playwright contra producción, inicia sesión con cada cuenta y recorre las 11 tareas bloqueadas (navegación por rol, perfil y enlaces, reserva, planner, CRM), con datos marcados `[E2E]` y borrados al final cuando la app lo permita. Nunca imprimir los secretos. Si la cuenta PRO no tiene rol PROFESSIONAL, reportarlo como bloqueo para el dueño; no cambiar roles.
 
 **Aprobación y cumplimiento**
 1. Antes de pedir merge: `compliance-reviewer` (claims y categorías), `security-reviewer` si toca auth/datos. Aceptación: "GO" escrito en el PR.
