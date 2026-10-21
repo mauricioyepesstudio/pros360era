@@ -1,9 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Button from "@/components/ui/Button";
 import StatusBadge from "@/components/ui/StatusBadge";
-import { updateApplicationStatusAction } from "@/app/(account)/actions";
+import { approveApplicationProfileAction, updateApplicationStatusAction } from "@/app/(account)/actions";
+import { approvalLabels } from "@/lib/admin/profile-approval";
 import type { ProfessionalApplicationRow } from "@/lib/admin/persistence";
 
 const statusLabel: Record<ProfessionalApplicationRow["status"], string> = {
@@ -20,10 +21,28 @@ const statusToBadge: Record<ProfessionalApplicationRow["status"], "current" | "u
 
 function ApplicationRow({ application }: { application: ProfessionalApplicationRow }) {
   const [pending, startTransition] = useTransition();
+  const [confirming, setConfirming] = useState(false);
+  const [approved, setApproved] = useState(false);
+  const [message, setMessage] = useState("");
+  const approvalState = approved ? "APPROVED" : application.approvalState;
+  function approve() {
+    startTransition(async () => {
+      setMessage("");
+      try {
+        const result = await approveApplicationProfileAction(application.id);
+        setMessage(result.message);
+        if (result.saved) {setApproved(true); setConfirming(false);}
+      } catch {setMessage("No se pudo confirmar la aprobación. Actualiza la página");}
+    });
+  }
 
   function setStatus(status: ProfessionalApplicationRow["status"]) {
     startTransition(async () => {
-      await updateApplicationStatusAction(application.id, status);
+      setMessage("");
+      try {
+        const result = await updateApplicationStatusAction(application.id, status);
+        if (!result.saved) setMessage("No se pudo guardar el estado de la solicitud");
+      } catch {setMessage("No se pudo confirmar el cambio. Actualiza la página");}
     });
   }
 
@@ -46,6 +65,21 @@ function ApplicationRow({ application }: { application: ProfessionalApplicationR
 
       {application.bio && <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{application.bio}</p>}
       {application.notes && <p className="mt-2 text-sm italic leading-6 text-[var(--muted)]">&ldquo;{application.notes}&rdquo;</p>}
+
+      <section className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] p-4" aria-label="Aprobación del perfil profesional">
+        <p className="text-sm font-semibold text-[var(--brand-navy)]">{approvalLabels[approvalState]}</p>
+        {approvalState === "APPROVABLE" && (
+          confirming ? <div className="mt-3 space-y-3">
+            <p className="text-sm text-[var(--muted)]">¿Aprobar el perfil vinculado a {application.email}? Podrá aparecer entre los profesionales aprobados. Esto no verifica su identidad ni sus credenciales.</p>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" disabled={pending} onClick={approve}>{pending ? "Guardando…" : "Confirmar aprobación"}</Button>
+              <Button type="button" variant="secondary" disabled={pending} onClick={() => setConfirming(false)}>Cancelar</Button>
+            </div>
+          </div> : <Button type="button" variant="secondary" disabled={pending} onClick={() => setConfirming(true)}>Aprobar perfil profesional</Button>
+        )}
+        <p className="mt-2 text-sm text-[var(--muted)]">La aprobación del perfil es independiente de la revisión y el contacto de esta solicitud.</p>
+        {message && <p className="mt-2 text-sm text-[var(--brand-navy)]" role="status">{message}</p>}
+      </section>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {application.status !== "REVIEWED" && (
