@@ -1,4 +1,5 @@
 "use client";
+import { invalidateEditedApprovals } from "@/lib/professional-planner/weekly-review";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -172,7 +173,7 @@ export default function PublicationPlanner({
     setNotice(null);
     try {
       const result = await savePlannerAction({ posts: next });
-      setNotice({ text: message && result.saved ? message : result.message, failed: !result.saved });
+      setNotice({ text: result.saved && "approvalReset" in result && result.approvalReset ? result.message : message && result.saved ? message : result.message, failed: !result.saved });
       if (result.saved) {
         setIsSaved(true);
         router.refresh();
@@ -197,9 +198,10 @@ export default function PublicationPlanner({
       return;
     }
     const clean = { ...editing, title: editing.title.trim(), time: editing.date ? editing.time : null, note: editing.note?.trim() ? editing.note : null };
-    const next = sortPosts([...posts.filter((post) => post.id !== clean.id), clean]);
+    const next = sortPosts(invalidateEditedApprovals(posts, [...posts.filter((post) => post.id !== clean.id), clean]));
     setPosts(next);
-    if (await persist(next, "Publicación guardada.")) setEditing(null);
+    const reset = clean.status === "READY" && next.find(p => p.id === clean.id)?.status === "DRAFT";
+    if (await persist(next, reset ? "Guardado como borrador: revisa y aprueba nuevamente el contenido editado." : "Publicación guardada.")) setEditing(null);
   }
 
   async function removeEditing() {
@@ -339,6 +341,8 @@ export default function PublicationPlanner({
 
   return (
     <div className="space-y-6">
+      {suggestions.some(s => s.id.startsWith("week-") && !posts.some(p => p.id === s.id)) && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-5"><h2 className="font-bold">Tienes propuestas nuevas para esta semana</h2><p className="mt-2 text-sm">Revisa posts, un carrusel y un guion para reel. Son plantillas editables: todavía no incluyen imágenes ni video generado.</p><button type="button" onClick={() => setShowSuggestions(true)} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white">Revisar propuestas de la semana</button></section>}
+
       {!isSaved && proposedFromKit ? (
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-lg)] bg-[var(--brand-navy)] p-5 text-white">
           <p className="max-w-2xl leading-7">
