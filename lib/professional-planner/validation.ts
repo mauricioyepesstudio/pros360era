@@ -1,3 +1,4 @@
+import { parsePrivateCreativeRequest } from "./private-creative-url.ts";
 /**
  * Publication planner for professionals: a private calendar of posts they
  * review privately. The separate publisher may send eligible READY posts
@@ -75,6 +76,7 @@ function isValidDate(value: string): boolean {
 export function safePlannerImageUrl(value: unknown): string | null | undefined {
   if (value === null || value === "") return null;
   if (typeof value !== "string" || value.length > 2048) return undefined;
+  if (value.startsWith("/api/professional/creative-proposal?") && parsePrivateCreativeRequest("https://evolusa.invalid"+value)) return value;
   if (/^\/professionals\/kits\/[a-z0-9-]+\/[a-z0-9-]+\.(png|jpe?g|webp)$/.test(value)) return value;
   try {
     const url = new URL(value);

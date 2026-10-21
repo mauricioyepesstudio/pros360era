@@ -2,6 +2,7 @@
 import { invalidateEditedApprovals } from "@/lib/professional-planner/weekly-review";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, List, Plus, Trash2, X } from "lucide-react";
@@ -341,7 +342,7 @@ export default function PublicationPlanner({
 
   return (
     <div className="space-y-6">
-      {suggestions.some(s => s.id.startsWith("week-") && !posts.some(p => p.id === s.id)) && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-5"><h2 className="font-bold">Tienes propuestas nuevas para esta semana</h2><p className="mt-2 text-sm">Revisa posts, un carrusel y un guion para reel. Son plantillas editables: todavía no incluyen imágenes ni video generado.</p><button type="button" onClick={() => setShowSuggestions(true)} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white">Revisar propuestas de la semana</button></section>}
+      {suggestions.some(s => s.id.startsWith("week-") && !posts.some(p => p.id === s.id)) && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-5"><h2 className="font-bold">Tienes propuestas nuevas para esta semana</h2><p className="mt-2 text-sm">Revisa las propuestas gráficas privadas y los textos de la semana. Las imágenes se preparan localmente; la propuesta de reel incluye una portada y un guion, no un video.</p><button type="button" onClick={() => setShowSuggestions(true)} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white">Revisar propuestas de la semana</button></section>}
 
       {!isSaved && proposedFromKit ? (
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-lg)] bg-[var(--brand-navy)] p-5 text-white">
@@ -395,9 +396,9 @@ export default function PublicationPlanner({
       </div>
 
       {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
-        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Ideas para tu próxima publicación</h2>
+        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Propuestas gráficas y textos de la semana</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
-        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label></li>)}</ul>
+        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
         <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
       </section>}

@@ -1,3 +1,4 @@
+import { isPrivateCreativeImage } from "./private-creative-url.ts";
 /**
  * Automatic publishing of planner posts to Instagram and Facebook: the pure rules.
  *
@@ -80,7 +81,7 @@ export const autoPublishPlatforms = ["instagram", "facebook"] as const;
 export type AutoPublishPlatform = (typeof autoPublishPlatforms)[number];
 
 export function isAutoPublishable(post: PlannerPost): post is PlannerPost & { platform: AutoPublishPlatform } {
-  return post.status === "READY" && (autoPublishPlatforms as readonly string[]).includes(post.platform) && post.date !== null;
+  return !isPrivateCreativeImage(post.imageUrl) && post.status === "READY" && (autoPublishPlatforms as readonly string[]).includes(post.platform) && post.date !== null;
 }
 
 function publicImageUrl(imageUrl: string, siteUrl: string): string {
@@ -111,6 +112,7 @@ export type InstagramMediaRequest =
  * format Instagram takes) from the public site; 9:16 goes out as a Story.
  */
 export function instagramMediaRequest(post: PlannerPost, siteUrl: string): InstagramMediaRequest {
+  if(isPrivateCreativeImage(post.imageUrl)) return {ok:false,error:"Esta propuesta es privada. Descarga, revisa y adjunta la imagen aprobada antes de publicarla."};
   if (post.format === "text" || !post.imageUrl) return { ok: false, error: "Instagram necesita una imagen. Elige una y vuelve a programarla." };
   const imageUrl = publicImageUrl(post.imageUrl, siteUrl);
   if (post.format === "9x16") return { ok: true, kind: "STORY", params: { media_type: "STORIES", image_url: imageUrl } };
@@ -143,6 +145,7 @@ export type FacebookRequest =
 
 /** Facebook takes text-only posts too; 9:16 with an image goes out as a Page Story. */
 export function facebookRequest(post: PlannerPost, siteUrl: string): FacebookRequest {
+  if(isPrivateCreativeImage(post.imageUrl)) return {ok:false,error:"Esta propuesta es privada. Descarga, revisa y adjunta la imagen aprobada antes de publicarla."};
   if (post.format === "text" || !post.imageUrl) {
     return post.caption.trim() ? { ok: true, request: { kind: "TEXT", message: post.caption } } : { ok: false, error: "La publicación no tiene texto ni imagen." };
   }
