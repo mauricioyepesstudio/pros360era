@@ -113,6 +113,7 @@ test("approval RPC operates on synthetic PostgreSQL fixtures with real roles and
  assert.equal(p.category,"IMMIGRATION_DOCUMENT_SUPPORT");assert.equal(p.is_approved,false);assert.equal(p.is_accepting_clients,false);
  assert.equal((await db.query<{n:number}>("select count(*)::int n from private.professional_category_change_events")).rows[0].n,1);
  });
+ await db.exec(`select set_config('request.jwt.claim.role','service_role',false);update public.professional_profiles set is_approved=false where id='00000000-0000-0000-0000-000000000102';select set_config('request.jwt.claim.role','',false);`);
  });
  assert.equal((await db.query<{n:number}>("select count(*)::int as n from public.professional_profiles where is_approved")).rows[0].n,0);
  assert.equal((await db.query<{n:number}>("select count(*)::int as n from private.professional_profile_approval_events")).rows[0].n,0);
