@@ -28,6 +28,7 @@ export default async function ProfessionalPanelPage() {
   const categoryLabel = profile ? getProfessionalCategory(profile.category)?.label : undefined;
 
   const tools = [
+    {href:"/profesionales/planes",title:"Servicios para mi negocio",description:"Marca, web, WhatsApp Business, Google, contenido y seguimiento según tu operación.",detail:"Ver alcances y solicitar cotización",icon:Rocket},
     {
       href: "/panel-profesional/oportunidades",
       title: "Oportunidades",
