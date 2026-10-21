@@ -1,5 +1,6 @@
+import type {BrandReference} from "./brand-reference.ts";
 import {parsePrivateCreativeRequest} from "./private-creative-url.ts";
-export type CreativeOwner={displayName:string;category:string};
+export type CreativeOwner={displayName:string;category:string;reference?:BrandReference|null};
 const headers={"Cache-Control":"private, no-store, max-age=0","Vary":"Cookie","X-Content-Type-Options":"nosniff"};
 export async function handlePrivateCreative(request:Request,deps:{owner:()=>Promise<CreativeOwner|null>;render:(owner:CreativeOwner,concept:number,format:"4x5"|"9x16")=>Promise<Uint8Array>}){
  const p=parsePrivateCreativeRequest(request.url);

@@ -1,3 +1,4 @@
+import {loadOwnerBrandReference} from "@/lib/professional-planner/owner-brand-source";
 import {readFile} from "node:fs/promises";
 import path from "node:path";
 import {createSupabaseServerClient} from "@/lib/supabase/server";
@@ -10,9 +11,10 @@ export async function GET(request:Request){
  owner:async()=>{
  const db=await createSupabaseServerClient();if(!db)return null;
  const {data:{user},error}=await db.auth.getUser();if(error||!user)return null;
- const [role,profile]=await Promise.all([db.from("profiles").select("role").eq("id",user.id).maybeSingle(),db.from("professional_profiles").select("display_name,category").eq("user_id",user.id).maybeSingle()]);
+ const [role,profile]=await Promise.all([db.from("profiles").select("role").eq("id",user.id).maybeSingle(),db.from("professional_profiles").select("display_name,category,photo_url,social_links").eq("user_id",user.id).maybeSingle()]);
  if(role.error||profile.error||!["PROFESSIONAL","ADMIN"].includes(role.data?.role)||!profile.data)return null;
- return {displayName:profile.data.display_name,category:profile.data.category};
+ const reference=await loadOwnerBrandReference(user.id,profile.data).catch(()=>null);
+ return {displayName:profile.data.display_name,category:profile.data.category,reference};
  },
  render:async(owner,concept,format)=>{
  const css=await readFile(path.join(process.cwd(),"app/globals.css"),"utf8");
