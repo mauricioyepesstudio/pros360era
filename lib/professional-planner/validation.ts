@@ -1,7 +1,7 @@
 /**
  * Publication planner for professionals: a private calendar of posts they
- * plan to publish themselves. Nothing here connects to a social network,
- * schedules a real publication or posts on anyone's behalf.
+ * review privately. The separate publisher may send eligible READY posts
+ * through connected networks; IDEA and DRAFT are never publication approval.
  *
  * Stored as one versioned row in onboarding_responses (same pattern as the
  * professional schedule), so it needs no new table or migration.
