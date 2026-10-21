@@ -76,6 +76,7 @@ function blankPost(date: string | null): PlannerPost {
 
 export default function PublicationPlanner({
   initial,
+  openSuggestions = false,
   saved,
   proposedFromKit,
   today,
@@ -85,6 +86,7 @@ export default function PublicationPlanner({
   suggestions,
 }: {
   initial: ProfessionalPlanner;
+  openSuggestions?: boolean;
   saved: boolean;
   proposedFromKit: boolean;
   today: string;
@@ -145,7 +147,7 @@ export default function PublicationPlanner({
   const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [publicImageConsent, setPublicImageConsent] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(openSuggestions);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [suggestionDate, setSuggestionDate] = useState(today);
 
@@ -395,7 +397,7 @@ export default function PublicationPlanner({
         </div>
       </div>
 
-      {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
+      {showSuggestions && <section id="propuestas" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Propuestas gráficas y textos de la semana</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
         <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>
