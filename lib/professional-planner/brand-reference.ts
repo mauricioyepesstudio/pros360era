@@ -20,9 +20,10 @@ export function ownPortfolioPhoto(value:unknown):string|null{
  if(u.pathname==="/images/mauricio.png"||(u.pathname==="/_next/image"&&u.searchParams.get("url")==="/images/mauricio.png"))return u.origin+"/images/mauricio.png";
  }catch{}return null;
 }
+export const portfolioBrandLogo="https://mauricio-portfolio-v2.vercel.app/brand/rge/rge-lockup-black.png";
 /** No credentials leave the Graph request. Streaming cap applies even without Content-Length. */
 export async function readBrandImage(url:string,fetcher:Fetch=fetch,portfolio=false):Promise<Buffer|null>{
- if(!(portfolio?ownPortfolioPhoto(url):brandImageUrl(url)))return null;
+ if(!(portfolio?(ownPortfolioPhoto(url)||url===portfolioBrandLogo):brandImageUrl(url)))return null;
  try{const r=await fetcher(url,{redirect:"error",cache:"no-store",signal:AbortSignal.timeout(5000)});
  if(!r.ok||!/^image\/(jpeg|png|webp)(;|$)/i.test(r.headers.get("content-type")||"")||!r.body)return null;
  const max=5_000_000,len=Number(r.headers.get("content-length"));if(len>max){await r.body.cancel();return null;}
