@@ -13,8 +13,9 @@ import { plannerSuggestions } from "@/lib/professional-planner/suggestions";
  * marked ready for Instagram or Facebook go out on their own once the
  * professional has connected that network in Redes (lib/professional-planner/publisher.ts).
  */
-export default async function ProfessionalPlannerPage() {
+export default async function ProfessionalPlannerPage({ searchParams }: { searchParams: Promise<{ review?: string }> }) {
   await requireProfessionalArea();
+  const openSuggestions = (await searchParams).review === "weekly";
   const today = new Date().toISOString().slice(0, 10);
   const [result, kit, profile] = await Promise.all([getMyProfessionalPlanner(today), getMyPreparedKit(), getMyProfessionalProfile()]);
   const imageOptions: PlannerImageOption[] = kit
@@ -31,7 +32,7 @@ export default async function ProfessionalPlannerPage() {
         description="Organiza qué vas a publicar y cuándo. Con tu Instagram y tu Facebook conectados, lo que marques «Listo para publicar» sale solo a su hora."
       />
       {result.available ? (
-        <PublicationPlanner initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} suggestions={[...weeklyPlannerSuggestions(profile, today), ...plannerSuggestions(kit, profile?.displayName ?? null)]} />
+        <PublicationPlanner key={openSuggestions ? "weekly-review" : "calendar"} openSuggestions={openSuggestions} initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} suggestions={[...weeklyPlannerSuggestions(profile, today), ...plannerSuggestions(kit, profile?.displayName ?? null)]} />
       ) : (
         <p role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
           No pudimos abrir tu planner. Necesitas un perfil profesional propio; reintenta más tarde.

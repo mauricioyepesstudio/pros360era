@@ -67,7 +67,7 @@ export const BRAIN_MODULES: readonly BrainModule[] = [
     name: "Planner de publicaciones",
     area: "Contenido",
     status: "live",
-    summary: "Planner con propuestas semanales, PNG privados con referencias del perfil o su Instagram compatible; fallback ilustrativo EVOLUSA. Sin API de generación paga.",
+    summary: "Creativos muestra las propuestas semanales y enlaza su revision en el planner. Planner con propuestas semanales, PNG privados con referencias del perfil o su Instagram compatible; fallback ilustrativo EVOLUSA. Sin API de generación paga.",
     next: "Recorrido autenticado completo del dueño aún sin verificar en navegador.",
     evidence: "Contexto visual propio: 309 pruebas, tipos y build; Graph simulado. Sesiones reales pendientes.",
     grid: { x: 5, y: 1 },
