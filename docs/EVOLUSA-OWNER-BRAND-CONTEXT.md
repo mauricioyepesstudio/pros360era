@@ -1,0 +1,10 @@
+# Owner-sourced brand context
+Private creative previews now try current session owner sources, without requiring users to upload material already connected.
+- Existing profile photo: only Mauricio's previously saved portfolio origin and exact /images/mauricio.png, restricted to his existing professional user ID. No arbitrary website scraping.
+- Otherwise: existing own ACTIVE unexpired Instagram connection with instagram_business_basic; declared Instagram handle must match when present. The server reads its own account avatar and up to three media entries from fixed Graph endpoints. No scopes added or writes.
+- A fresh Graph username mismatch fails closed. No token leaves Graph; CDN downloads have no credentials, redirects disabled, five-second timeout, 5MB streaming cap, JPEG/PNG/WebP only, and Sharp20MP cap.
+- Profile avatar is a reference image, not a verified logo, identity or credential. Recent media is contextual reference, not a new AI photograph. An accent inferred from media is labelled paleta sugerida and is not a confirmed brandbook.
+- Sources remain transient, private/no-store. No public asset copies, automatic posts, profile/media storage writes or changes to existing saved planner rows. New suggestion IDs preserve previous records. Publication of private URLs remains blocked.
+- If Meta or an image fails, use the existing labelled EVOLUSA illustration. This fallback must not be reported as a successfully imported personal brand.
+Live observations2026-10-21: connectedonemigration/akma.invest/evolusa.us; Laura/Miguel photo_urlnull. Mauricio profile points RGE while connection is EVOLUSA; they are not interchangeable. Some historical CDN URLs403, Miguel2images200. Mauricio actual portfolio image fetched200 and rendered locally. No authenticated live Meta brand extraction or pilot browser session verified in this change.
+Source docs: https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/get-started (profile_picture_url); existing repository Instagram version and connection encryption reused. Calls are Meta API reads, not paid AI; actual production usage unmeasured.

@@ -21,7 +21,7 @@ export function weeklyPlannerSuggestions(profile:Context|null,today:string):Plan
  {title:"Post educativo: prepara tu próximo paso",caption:`En ${brand}, te invitamos a ${subject}. Reúne tus preguntas y revisa qué información necesitas antes de iniciar una conversación.`},
  {title:"Carrusel: así puedes preparar tu consulta",caption:"1. Define qué necesitas.\n2. Organiza la información que ya tienes.\n3. Anota tus dudas.\n4. Confirma el alcance del servicio antes de empezar."},
  {title:"Guion para reel: una pregunta antes de empezar",caption:`Guion sugerido para ${brand}:\n0–3 s: ¿Qué necesitas organizar antes de dar tu próximo paso?\n3–12 s: Presenta una lista breve de preguntas y documentos, sin mostrar datos personales.\n12–20 s: Invita a consultar el alcance del servicio.\nCierre: Guarda esta lista para preparar tu conversación.`,format:"9x16" as const}
- ].map((item,i)=>({...item,id:`week-${week}-${scope}-visual2-${i+1}`,imageUrl:privateCreativeImage(i+1,i===2?"9x16":"4x5"),source:"Plantilla editable" as const,note:regulated?"Borrador educativo: revisión humana obligatoria. No determina elegibilidad ni ofrece asesoría legal.":"Define colores, tipografía e imagen de tu marca antes de producir la pieza."}));
+ ].map((item,i)=>({...item,id:`week-${week}-${scope}-brandref3-${i+1}`,imageUrl:privateCreativeImage(i+1,i===2?"9x16":"4x5"),source:"Plantilla editable" as const,note:regulated?"Borrador educativo: revisión humana obligatoria. No determina elegibilidad ni ofrece asesoría legal.":"Define colores, tipografía e imagen de tu marca antes de producir la pieza."}));
 }
 export function pendingWeeklySuggestions(suggestions:PlannerSuggestion[],posts:PlannerPost[]){
  return suggestions.filter(s=>!posts.some(p=>p.id===s.id));
