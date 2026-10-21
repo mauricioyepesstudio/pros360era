@@ -93,6 +93,12 @@ test("approval RPC operates on synthetic PostgreSQL fixtures with real roles and
  await t.test("document support classification requires ADMIN, expected category, reason; revokes approval and client availability",async()=>{
  await db.exec("alter table public.professional_profiles add column is_accepting_clients boolean default true");
  await db.exec(fs.readFileSync(new URL("../supabase/migrations/20261021144900_professional_activity_classification.sql",import.meta.url),"utf8"));
+ await db.exec(`select set_config('request.jwt.claim.role','service_role',false);update public.professional_profiles set is_approved=true,is_accepting_clients=true where id='${uid(102)}';select set_config('request.jwt.claim.role','',false);`);
+ for(const jwtRole of ["authenticated",""]){
+ await assert.rejects(()=>actor("authenticated",uid(2),()=>db.exec(`update public.professional_profiles set category='IMMIGRATION_DOCUMENT_SUPPORT' where id='${uid(102)}'`),jwtRole),/authorized operator/);
+ await assert.rejects(()=>actor("authenticated",uid(2),()=>db.exec(`update public.professional_profiles set is_approved=false where id='${uid(102)}'`),jwtRole),/authorized administrator/);
+ }
+ await assert.rejects(()=>actor("authenticated",uid(2),()=>db.query("select * from private.professional_category_change_events")),/permission denied/);
  const call=(expected="BUSINESS_MARKETING",reason="Owner authorized documentary classification")=>db.query<{state:string}>(`select public.admin_classify_document_support('${uid(102)}','${expected}','${reason}') as state`);
  await assert.rejects(()=>actor("authenticated",uid(2),()=>call()),/not authorized/);
  await assert.rejects(()=>actor("anon","",()=>call()),/permission denied/);
