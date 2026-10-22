@@ -1,5 +1,14 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-22 — aliados (1MIGRATION), mensaje para profesionales y demo sin cifras
+
+Pedido del dueño (20-oct): Laura/1MIGRATION como clienta de herramientas y aliada que recomienda EVOLUSA a su comunidad. Rama `claude/aliados-profesionales-20261020`, sin merge.
+- Nueva página `/aliados/1migration` (config en `data/partners.ts`, `regulated: true`): «Recomendado por 1MIGRATION», Journey, Roadmap, guías y profesionales aprobados en categorías permitidas, con aviso `partner-regulated-services` de `claims.ts`: EVOLUSA no ofrece servicios ni orientación migratoria; los trámites se contratan directamente con el aliado, que no es bufete. Sitio web y WhatsApp del aliado vacíos hasta que el dueño los confirme.
+- Atribución: `?ref=<slug>` o la página de aliado guardan cookie propia validada de 30 días; el registro con correo la envía como `options.data.ref`. Solo atribución: sin pagos, comisiones ni migración. Google OAuth no la envía todavía. `user_metadata` lo puede editar el usuario: no sirve para pagos.
+- `/aplicar-profesional` empieza por marketing automatizado (planner), CRM, estudio creativo, perfil y agenda; después las solicitudes de miembros en categorías permitidas.
+- `/professional-demo` reescrita como «Ejemplo ilustrativo» sin likes, proyecciones, ingresos ni 70/30 (tutorial sin 70/30). Las rutas demo siguen pausadas por redirección en `next.config.ts`.
+- Pendiente: `compliance-reviewer` y OK del dueño antes de publicar la página de aliado; la regla provisional del 2026-09-30 sigue vigente (sin automatización ni reparto para categorías reguladas) y hay que decidir si vender herramientas a 1MIGRATION entra en ella.
+
 ## 2026-10-20 — Decisión del consejo de fundadores: corregir el rumbo
 
 - Veredicto y razones: `control-plane/consejo/CONSEJO.md` en AI-Projects-Control-Plane (fuente: `consejo.json`).

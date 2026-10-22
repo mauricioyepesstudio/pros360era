@@ -76,20 +76,19 @@ const steps = [
     title: "Cierras tus ventas",
     description: "Tú haces lo que sabes hacer mejor: cerrar clientes y darles un excelente servicio.",
     details: [
-      "✅ Ganas 70% de cada venta",
-      "✅ Nosotros nos quedamos con 30%",
-      "✅ Para mantener el sistema funcionando"
+      "✅ La relación con tu cliente es tuya",
+      "✅ Sin reparto de ingresos en categorías reguladas",
+      "✅ Sin resultados prometidos"
     ],
     color: "#2563EB"
   },
   {
     number: 8,
-    title: "Dashboard en tiempo real",
-    description: "Ves todo lo que está pasando: posts, leads, conversiones, ingresos. Todo en un lugar.",
+    title: "Tu panel",
+    description: "Ves lo que pasa con tus propios datos: publicaciones, contactos y solicitudes.",
     details: [
-      "✅ Actualizaciones en vivo",
-      "✅ Analytics detallados",
-      "✅ Proyecciones futuras"
+      "✅ Solo tus datos reales",
+      "✅ Sin proyecciones de seguidores ni ingresos"
     ],
     color: "#2563EB"
   },
