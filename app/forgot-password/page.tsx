@@ -26,7 +26,7 @@ function ForgotPasswordForm() {
       const { error: authError } = await createSupabaseBrowserClient().auth.resetPasswordForEmail(email.trim().toLowerCase(), {
         redirectTo: recoveryCallbackUrl(window.location.origin),
       });
-      if (authError) { setError(translateAuthError(`${authError.code ?? ""} ${authError.message}`)); return; }
+      if (authError) { setError(translateAuthError(authError)); return; }
       setSent(true);
     } catch {
       setError("No fue posible procesar la solicitud. Inténtalo nuevamente.");

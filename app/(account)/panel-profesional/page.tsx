@@ -1,3 +1,5 @@
+import { weeklyPlannerSuggestions, pendingWeeklySuggestions } from "@/lib/professional-planner/weekly-review";
+import { getMyProfessionalPlanner } from "@/lib/professional-planner/persistence";
 import Link from "next/link";
 import { ArrowRight, AtSign, Briefcase, CalendarDays, IdCard, ImageIcon, Rocket, Users } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
@@ -19,10 +21,14 @@ export default async function ProfessionalPanelPage() {
   await requireProfessionalArea();
 
   const [profile, opportunities, kit, instagram] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional(), getMyPreparedKit(), getMyInstagramState()]);
+  const today = new Date().toISOString().slice(0,10);
+  const planner = await getMyProfessionalPlanner(today);
+  const weeklyPending = planner.available ? pendingWeeklySuggestions(weeklyPlannerSuggestions(profile,today),planner.planner.posts).length : 0;
   const waitingForContact = opportunities.filter((opportunity) => opportunity.effectiveStatus === "ROUTED").length;
   const categoryLabel = profile ? getProfessionalCategory(profile.category)?.label : undefined;
 
   const tools = [
+    {href:"/profesionales/planes",title:"Servicios para mi negocio",description:"Marca, web, WhatsApp Business, Google, contenido y seguimiento según tu operación.",detail:"Ver alcances y solicitar cotización",icon:Rocket},
     {
       href: "/panel-profesional/oportunidades",
       title: "Oportunidades",
@@ -93,6 +99,7 @@ export default async function ProfessionalPanelPage() {
         description="Aquí gestionas tu presencia en EVOLUSA y las personas que te contactan. Los miembros no ven este panel."
       />
 
+      {weeklyPending > 0 && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-6"><h2 className="font-bold">Tienes {weeklyPending} propuestas de contenido para esta semana</h2><p className="mt-2 text-sm">Revisa los textos, el carrusel y el guion para reel. No se publican al seleccionarlos.</p><Link href="/panel-profesional/planner" className="mt-3 inline-flex min-h-11 items-center font-bold underline">Revisar propuestas en mi planner</Link></section>}
       {kit ? <PreparedKitWelcome kit={kit} hasPhoto={Boolean(profile?.photoUrl)} /> : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">

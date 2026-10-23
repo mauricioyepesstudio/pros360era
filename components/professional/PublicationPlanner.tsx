@@ -1,6 +1,8 @@
 "use client";
+import { invalidateEditedApprovals } from "@/lib/professional-planner/weekly-review";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, List, Plus, Trash2, X } from "lucide-react";
@@ -74,6 +76,7 @@ function blankPost(date: string | null): PlannerPost {
 
 export default function PublicationPlanner({
   initial,
+  openSuggestions = false,
   saved,
   proposedFromKit,
   today,
@@ -83,6 +86,7 @@ export default function PublicationPlanner({
   suggestions,
 }: {
   initial: ProfessionalPlanner;
+  openSuggestions?: boolean;
   saved: boolean;
   proposedFromKit: boolean;
   today: string;
@@ -143,7 +147,7 @@ export default function PublicationPlanner({
   const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [publicImageConsent, setPublicImageConsent] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(openSuggestions);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [suggestionDate, setSuggestionDate] = useState(today);
 
@@ -172,7 +176,7 @@ export default function PublicationPlanner({
     setNotice(null);
     try {
       const result = await savePlannerAction({ posts: next });
-      setNotice({ text: message && result.saved ? message : result.message, failed: !result.saved });
+      setNotice({ text: result.saved && "approvalReset" in result && result.approvalReset ? result.message : message && result.saved ? message : result.message, failed: !result.saved });
       if (result.saved) {
         setIsSaved(true);
         router.refresh();
@@ -197,9 +201,10 @@ export default function PublicationPlanner({
       return;
     }
     const clean = { ...editing, title: editing.title.trim(), time: editing.date ? editing.time : null, note: editing.note?.trim() ? editing.note : null };
-    const next = sortPosts([...posts.filter((post) => post.id !== clean.id), clean]);
+    const next = sortPosts(invalidateEditedApprovals(posts, [...posts.filter((post) => post.id !== clean.id), clean]));
     setPosts(next);
-    if (await persist(next, "Publicación guardada.")) setEditing(null);
+    const reset = clean.status === "READY" && next.find(p => p.id === clean.id)?.status === "DRAFT";
+    if (await persist(next, reset ? "Guardado como borrador: revisa y aprueba nuevamente el contenido editado." : "Publicación guardada.")) setEditing(null);
   }
 
   async function removeEditing() {
@@ -215,6 +220,48 @@ export default function PublicationPlanner({
       return;
     }
     setEditing(blankPost(date));
+  }
+
+  async function createDesignedPost() {
+    if (!editing) return;
+    if (!publicImageConsent) {
+      setNotice({ text: "Confirma el uso público de la imagen para crearla y guardarla.", failed: true });
+      return;
+    }
+    const title = editing.title.trim() || "Descubre lo que podemos construir juntos";
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = editing.format === "9x16" ? 1920 : 1350;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) { setNotice({ text: "Este navegador no permite crear la imagen.", failed: true }); return; }
+    const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    bg.addColorStop(0, "#071e3d");
+    bg.addColorStop(1, "#086d91");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    ctx.beginPath(); ctx.arc(900, 230, 390, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#54d4ef"; ctx.fillRect(86, 160, 140, 12);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 44px sans-serif";
+    ctx.fillText("EVOLUSA  /  PROFESIONALES", 86, 115);
+    ctx.font = "bold 88px sans-serif";
+    const words = title.split(/\s+/);
+    let line = "", y = 380;
+    for (const word of words) {
+      const next = line ? line + " " + word : word;
+      if (ctx.measureText(next).width > 890 && line) {
+        ctx.fillText(line, 86, y); y += 110; line = word;
+      } else line = next;
+      if (y > canvas.height - 360) break;
+    }
+    if (line && y < canvas.height - 260) ctx.fillText(line, 86, y);
+    ctx.fillStyle = "#a6e9f7"; ctx.font = "38px sans-serif";
+    ctx.fillText("Conecta. Descubre. Crece.", 86, canvas.height - 165);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 38px sans-serif";
+    ctx.fillText("EVOLUSA", 86, canvas.height - 90);
+    canvas.toBlob(async (blob) => {
+      if (!blob) { setNotice({ text: "No se pudo exportar la imagen.", failed: true }); return; }
+      await uploadImage(new File([blob], "evolusa-publicacion.jpg", { type: "image/jpeg" }));
+    }, "image/jpeg", .87);
   }
 
   async function uploadImage(file: File) {
@@ -297,6 +344,8 @@ export default function PublicationPlanner({
 
   return (
     <div className="space-y-6">
+      {suggestions.some(s => s.id.startsWith("week-") && !posts.some(p => p.id === s.id)) && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-5"><h2 className="font-bold">Tienes propuestas nuevas para esta semana</h2><p className="mt-2 text-sm">Revisa las propuestas gráficas privadas y los textos de la semana. Las imágenes se preparan localmente; la propuesta de reel incluye una portada y un guion, no un video.</p><button type="button" onClick={() => setShowSuggestions(true)} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white">Revisar propuestas de la semana</button></section>}
+
       {!isSaved && proposedFromKit ? (
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-lg)] bg-[var(--brand-navy)] p-5 text-white">
           <p className="max-w-2xl leading-7">
@@ -348,16 +397,16 @@ export default function PublicationPlanner({
         </div>
       </div>
 
-      {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
-        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Ideas para tu próxima publicación</h2>
+      {showSuggestions && <section id="propuestas" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
+        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Propuestas gráficas y textos de la semana</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
-        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label></li>)}</ul>
+        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
         <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
       </section>}
 
       <PlannerImport posts={posts} busy={busy} save={async (next) => {
-        if (!await persist(next, "Parrilla guardada como Ideas.")) return false;
+        if (!await persist(next, "Planner guardado como Ideas.")) return false;
         setPosts(next);
         const date = next.find((post) => !posts.some((current) => current.id === post.id))?.date;
         if (date) setMonth(monthKey(date));
@@ -477,6 +526,8 @@ export default function PublicationPlanner({
                 {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
                   <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={publicImageConsent} onChange={(event) => setPublicImageConsent(event.target.checked)} className="mt-0.5 size-4 shrink-0" />Esta imagen será accesible públicamente para compartirla en redes. Tengo permiso para usarla. No subiré documentos privados.</label>
                   <label className="mt-3 block text-sm font-semibold">{uploading ? "Subiendo imagen…" : "Subir imagen desde tu dispositivo"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={!publicImageConsent || uploading} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void uploadImage(file); }} className="mt-2 block w-full text-xs file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-4 file:font-semibold file:text-white disabled:opacity-60" /></label>
+                  <button type="button" disabled={uploading || !publicImageConsent} onClick={() => void createDesignedPost()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 text-sm font-bold text-white disabled:opacity-50">Crear diseño con el título del post</button>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Genera una pieza original EVOLUSA en tu navegador, sin subir un archivo externo. Puedes editar el título y volver a generarla.</p>
                   <p className="mt-2 text-xs text-[var(--muted)]">JPG, PNG o WebP de menos de 4 MB. Se convierte a JPG y se eliminan metadatos. Hasta 200 imágenes por cuenta.</p>
                 </div>}
                 {editing.imageUrl ? (

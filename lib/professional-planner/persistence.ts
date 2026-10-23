@@ -1,3 +1,4 @@
+import { reviewPlannerSave } from "./weekly-review";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPreparedKit } from "@/data/professional/prepared-kits";
 import { createHash } from "node:crypto";
@@ -71,10 +72,17 @@ export async function getMyProfessionalPlanner(today: string): Promise<PlannerRe
 }
 
 export async function saveMyProfessionalPlanner(input: unknown) {
-  const planner = parseProfessionalPlanner(input);
+  let planner = parseProfessionalPlanner(input);
   if (!planner) return { saved: false, message: "Revisa las publicaciones: cada una necesita título, red, formato y estado válidos." };
   const owner = await plannerOwner();
   if (!owner) return { saved: false, message: "Necesitas acceso profesional y un perfil propio para guardar tu planner." };
+  const review = await reviewPlannerSave(planner.posts,async()=>{
+    const {data,error}=await owner.db.from("onboarding_responses").select("answers").eq("id",professionalPlannerId(owner.user.id)).eq("user_id",owner.user.id).eq("roadmap_version",professionalPlannerVersion).maybeSingle();
+    return {answers:data?.answers,exists:Boolean(data),failed:Boolean(error)};
+  });
+  if(!review.ok)return {saved:false,message:"No pudimos comprobar el planner guardado. Reintenta sin cerrar tus cambios."};
+  const approvalReset=review.approvalReset;
+  planner={posts:review.posts};
   const { data, error } = await owner.db
     .from("onboarding_responses")
     .upsert(
@@ -85,5 +93,5 @@ export async function saveMyProfessionalPlanner(input: unknown) {
     .single();
   return error || !parseProfessionalPlanner(data?.answers)
     ? { saved: false, message: "No pudimos guardar. Tus cambios siguen en pantalla." }
-    : { saved: true, message: "Planner guardado." };
+    : { saved: true, approvalReset, message: approvalReset ? "Guardado como borrador: el contenido editado necesita nueva revisión. Una publicación ya iniciada debe comprobarse en la red." : "Planner guardado." };
 }

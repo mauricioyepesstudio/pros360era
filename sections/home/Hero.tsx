@@ -1,5 +1,6 @@
 "use client";
 import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
+import Link from "next/link";
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -9,7 +10,7 @@ import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
 
 /**
- * Mobile/tablet only (`lg:hidden` — desktop uses HeroArtboard.tsx instead).
+ * Fluid layout below `xl:` — larger desktops use HeroArtboard.tsx instead.
  *
  * MEASURED from the approved reference's Phone 1 mockup: the mobile photo is
  * NOT a tall full-bleed band cropped from the same wide frame as desktop —
@@ -23,7 +24,7 @@ import PhotoSlot from "@/components/evolusa/PhotoSlot";
  */
 export default function Hero() {
   return (
-    <section id="home" aria-labelledby="hero-title" className="relative lg:hidden">
+    <section id="home" aria-labelledby="hero-title" className="relative xl:hidden">
       <div className="relative aspect-[16/9] w-full overflow-hidden">
         <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center 15%" />
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[var(--brand-navy)] to-transparent" />
@@ -58,7 +59,12 @@ export default function Hero() {
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
-            <HomeAccountEntry />
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <HomeAccountEntry />
+              <Link href="#journey" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-blue-on-dark)] underline decoration-white/30 underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4">
+                Explorar las 6 etapas
+              </Link>
+            </div>
           </div>
         </motion.div>
 

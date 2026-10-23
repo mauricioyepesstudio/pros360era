@@ -9,6 +9,8 @@ export function safeBookingHref(url: string | null): string | null {
   if (!url) return null;
   try {
     const parsed = new URL(url);
+    // Legacy owner-set links must not expose embedded credentials in hrefs.
+    if (parsed.username || parsed.password) return null;
     return parsed.protocol === "https:" || parsed.protocol === "http:" ? url : null;
   } catch {
     return null;

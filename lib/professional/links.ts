@@ -1,4 +1,5 @@
-import { socialLinkPlatforms, type ProfessionalSocialLinks } from "@/data/professional/types";
+import { socialLinkPlatforms, type ProfessionalSocialLinks } from "../../data/professional/types.ts";
+import { publicLinkedInUrl } from "./profile-links.ts";
 
 /**
  * photo_url/portfolio_url/website_url/social_links (migration 0015) are
@@ -14,6 +15,8 @@ export function safeHttpUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
     const parsed = new URL(url);
+    // Also protect legacy stored values before rendering public href/src.
+    if (parsed.username || parsed.password) return null;
     return parsed.protocol === "https:" || parsed.protocol === "http:" ? url : null;
   } catch {
     return null;
@@ -26,7 +29,9 @@ export function safeSocialLinks(socialLinks: ProfessionalSocialLinks | null | un
   if (!socialLinks) return result;
 
   for (const platform of socialLinkPlatforms) {
-    const href = safeHttpUrl(socialLinks[platform]);
+    const href = platform === "linkedin"
+      ? publicLinkedInUrl(socialLinks[platform] ?? null)
+      : safeHttpUrl(socialLinks[platform]);
     if (href) result[platform] = href;
   }
   return result;

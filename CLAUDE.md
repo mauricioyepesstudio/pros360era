@@ -40,12 +40,17 @@ Comandos: `npm run dev | lint | test | build`, `npx tsc --noEmit`.
 Producto/ingeniería: `orchestrator` (primero en tareas ambiguas), `evolusa-product-architect`, `frontend-engineer`, `supabase-architect`, `security-reviewer`, `qa-engineer`, `ui-ux-designer`.
 Cumplimiento/negocio: `compliance-reviewer` (última revisión), `legal-risk-reviewer`, `finance-analyst`, `revenue-analyst` (solo lectura; nunca toca Stripe).
 Marketing (nunca tocan código de app ni `claims.ts`): `growth-marketing-strategist`, `marketing-strategist`, `social-content-lead`, `social-media-manager`, `brand-taste-lead`, `taste`.
+Investigación: `research-analyst` (solo lectura, fuentes con fecha).
+Agencia por departamentos y tareas recurrentes: `docs/cerebro/agencia.md`.
 Nuevos del cerebro: `migration-steward` (numeración/estado de migraciones), `estado-keeper` (mantiene ESTADO.md vs git log), `growth-automation-guard` (revisa el módulo Growth Automation/CRM contra las reglas de cumplimiento).
 
 Todo claim, testimonio o estadística de marketing → `compliance-reviewer` antes de salir.
 
 ## Skills del repo
 `evolusa-compliance`, `evolusa-product`, `git-safe-workflow`, `postgres-rls`, `supabase-auth` (en `.claude/skills/`).
+
+## Equipos de skills (15-oct-2026)
+Marketing, redes, diseño, documentos, finanzas y legal como plugins fijados a un commit: ver `.claude/equipos/LEEME.md`. Los genera el cerebro central (`AI-Projects-Control-Plane/equipos-skills`); no editar a mano. Los skills legales son de revisión interna: EVOLUSA nunca da orientación legal, migratoria, de impuestos ni notarial, y todo lo que salga de marketing/redes pasa por `compliance-reviewer`.
 
 ## Capacidades (conectores, skills, agentes)
 Justificadas por código/docs:

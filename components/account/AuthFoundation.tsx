@@ -89,7 +89,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         provider: "google",
         options: { redirectTo: authCallbackUrl(window.location.origin, next) },
       });
-      if (oauthError) setError(translateAuthError(oauthError.message));
+      if (oauthError) setError(translateAuthError(oauthError));
     } catch {
       setError("No pudimos iniciar sesión con Google. Inténtalo nuevamente.");
     } finally { setSubmitting(false); }
@@ -112,7 +112,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
             setCooldown(confirmationCooldownSeconds);
             return;
           }
-          setError(translateAuthError(signUpError.message));
+          setError(translateAuthError(signUpError));
           return;
         }
         if (data.session) {
@@ -125,7 +125,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (signInError) {
           if (isUnconfirmedEmail(signInError)) { setConfirmationSent(true); setCooldown(0); return; }
-          setError(translateAuthError(signInError.message));
+          setError(translateAuthError(signInError));
           return;
         }
         await enterAccount();

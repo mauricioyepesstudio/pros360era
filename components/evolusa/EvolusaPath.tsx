@@ -45,16 +45,25 @@ function Node({ stage, index, activeId, activeIndex, tokens }: { stage: JourneyS
   const isPast = activeIndex >= 0 && index < activeIndex;
   return (
     <li key={stage.id} aria-current={isActive ? "step" : undefined} className="relative flex flex-1 flex-col items-center gap-3 text-center">
+      {/* Fixed-height slot so every dot, idle or active, centers on the track line. */}
+      <span aria-hidden className="relative z-10 flex h-6 items-center justify-center">
+        {isActive && <span className="absolute size-6 rounded-full bg-[var(--brand-red)] opacity-60 motion-safe:animate-ping" />}
+        <span
+          className={cn(
+            "flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300",
+            isActive
+              ? cn("size-6", activeColor, "border-white shadow-[0_0_0_6px_rgba(242,13,36,0.3),0_0_22px_rgba(242,13,36,0.7)]")
+              : cn("size-4", isPast ? fillColor : dotIdle, isPast && (dark ? "border-[var(--brand-blue-on-dark)]" : "border-[var(--brand-blue)]")),
+          )}
+        />
+      </span>
       <span
-        aria-hidden
         className={cn(
-          "relative z-10 flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300",
-          isActive
-            ? cn("size-5", activeColor, "border-[var(--brand-red)] shadow-[0_0_0_6px_rgba(242,13,36,0.25)]")
-            : cn("size-3", isPast ? fillColor : dotIdle, isPast && (dark ? "border-[var(--brand-blue-on-dark)]" : "border-[var(--brand-blue)]")),
+          "text-xs font-bold uppercase tracking-wide transition-colors sm:text-[13px]",
+          isActive ? (dark ? "text-white" : "text-[var(--brand-navy)]") : labelColor,
+          dark && "[text-shadow:0_1px_6px_rgba(0,0,0,0.85)]",
         )}
-      />
-      <span className={cn("text-xs font-semibold uppercase tracking-wide transition-colors", isActive ? (dark ? "text-white" : "text-[var(--brand-navy)]") : labelColor)}>
+      >
         {stage.shortLabel}
       </span>
     </li>
@@ -84,11 +93,11 @@ function Row({
   const rowProgress = activeIndex < fillFrom ? 0 : activeIndex >= fillTo ? 1 : (activeIndex - fillFrom) / span;
   return (
     <ol className="relative flex gap-0">
-      <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[0.5rem] h-px", trackColor)} />
+      <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[10px] h-1 rounded-full", trackColor)} />
       {showFill && (
         <span
           aria-hidden
-          className={cn("absolute left-[8.3%] top-[0.5rem] h-px transition-all duration-700 ease-out", fillColor)}
+          className={cn("absolute left-[8.3%] top-[10px] h-1 rounded-full transition-all duration-700 ease-out", fillColor)}
           style={{ width: `calc(83.4% * ${rowProgress})` }}
         />
       )}
@@ -117,11 +126,13 @@ export default function EvolusaPath({ activeId, theme = "light", className, scro
 
   const tokens: PathTokens = {
     dark,
-    trackColor: dark ? "bg-white/15" : "bg-[var(--border)]",
-    fillColor: dark ? "bg-[var(--brand-blue-on-dark)]" : "bg-[var(--brand-blue)]",
+    trackColor: dark ? "bg-white/35 shadow-[0_0_10px_rgba(0,0,0,0.45)]" : "bg-[var(--border)]",
+    fillColor: dark
+      ? "bg-[var(--brand-blue-on-dark)] shadow-[0_0_14px_rgba(120,170,255,0.85)]"
+      : "bg-[var(--brand-blue)]",
     activeColor: "bg-[var(--brand-red)]",
-    labelColor: dark ? "text-white/80" : "text-[var(--muted)]",
-    dotIdle: dark ? "border-white/35 bg-[var(--brand-navy)]" : "border-[var(--border)] bg-[var(--surface)]",
+    labelColor: dark ? "text-white/90" : "text-[var(--muted)]",
+    dotIdle: dark ? "border-white bg-[var(--brand-navy)] shadow-[0_0_10px_rgba(255,255,255,0.45)]" : "border-[var(--border)] bg-[var(--surface)]",
   };
   const showFill = scrollProgress !== undefined || activeIndex >= 0;
 
@@ -129,18 +140,18 @@ export default function EvolusaPath({ activeId, theme = "light", className, scro
     <div className={cn("relative", className)} aria-label="El camino EVOLUSA">
       {/* sm+ : one continuous row of 6, with optional live scroll-linked fill */}
       <ol className="relative hidden sm:flex">
-        <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[0.5rem] h-px", tokens.trackColor)} />
+        <span aria-hidden className={cn("absolute inset-x-[8.3%] top-[10px] h-1 rounded-full", tokens.trackColor)} />
         {showFill &&
           (scrollProgress ? (
             <motion.span
               aria-hidden
-              className={cn("absolute left-[8.3%] top-[0.5rem] h-px origin-left", tokens.fillColor)}
+              className={cn("absolute left-[8.3%] top-[10px] h-1 rounded-full origin-left", tokens.fillColor)}
               style={{ width: "83.4%", scaleX: scrollProgress }}
             />
           ) : (
             <span
               aria-hidden
-              className={cn("absolute left-[8.3%] top-[0.5rem] h-px transition-all duration-700 ease-out", tokens.fillColor)}
+              className={cn("absolute left-[8.3%] top-[10px] h-1 rounded-full transition-all duration-700 ease-out", tokens.fillColor)}
               style={{ width: `calc(83.4% * ${total > 1 ? Math.max(activeIndex, 0) / (total - 1) : 0})` }}
             />
           ))}

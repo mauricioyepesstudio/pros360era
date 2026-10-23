@@ -1,6 +1,6 @@
 import type { ServiceCategory } from "../compliance/claims";
 
-export const professionalCategoryIds = ["BUSINESS_MARKETING", "BUSINESS_OPERATIONS", "NOTARY"] as const;
+export const professionalCategoryIds = ["BUSINESS_MARKETING", "BUSINESS_OPERATIONS", "NOTARY", "IMMIGRATION_DOCUMENT_SUPPORT"] as const;
 export type ProfessionalCategoryId = (typeof professionalCategoryIds)[number];
 
 export const consultationModes = ["VIRTUAL", "IN_PERSON", "BOTH"] as const;

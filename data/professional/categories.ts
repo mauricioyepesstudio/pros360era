@@ -54,6 +54,7 @@ export const professionalCategories = [
     group: "REGULATED",
     mapsToServiceCategory: "NOTARY",
   },
+  { id: "IMMIGRATION_DOCUMENT_SUPPORT", label: "Preparación documental migratoria", group: "REGULATED", mapsToServiceCategory: "IMMIGRATION" },
 ] as const satisfies readonly ProfessionalCategory[];
 
 export function getProfessionalCategory(id: string) {

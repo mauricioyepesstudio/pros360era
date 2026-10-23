@@ -1,5 +1,62 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-22 — Continuación de PR56: retorno de enlaces de cuenta
+
+PR56 actualizado contra main remoto fdb86e6, conservando las mejoras posteriores de errores de registro. Confirmación, reenvío, Google y recuperación solicitan retorno a /auth/callback del sitio; /auth/confirm admite enlaces token_hash de las plantillas configuradas. Recuperación conserva códigos y status del proveedor para mensajes seguros y accionables. Nueva regresión verifica callback y status juntos.
+
+Revisión independiente de producto, seguridad y cumplimiento: GO. Validación final y commit de producción se registran en la cola central; esta entrada no afirma entrega de correo ni acceso Google. Comprobación viva del 22 de octubre: Google sigue deshabilitado y existen seis identidades de correo. Requisito externo conjunto: cliente Google configurado y remitente de dominio propio verificado en Resend/Supabase SMTP, seguido de prueba autorizada de login y recuperación. Sin cambios de DNS, secretos, roles, perfiles o esquema; no se enviaron correos. Creativos recientes conservados, sin duplicar contenido ni publicación externa.
+
+
+## 2026-10-20 — Decisión del consejo de fundadores: corregir el rumbo
+
+- Veredicto y razones: `control-plane/consejo/CONSEJO.md` en AI-Projects-Control-Plane (fuente: `consejo.json`).
+- Objetivos: Solicitudes de profesionales respondidas en menos de 48 h (meta 30 días: 100; 90 días: 100); Profesionales verificados (meta 30 días: 10; 90 días: 25); Primera membresía de profesional pagada (meta 30 días: 0; 90 días: 1).
+- Se desecha si: Menos de 15 profesionales verificados y ninguna membresía pagada en 90 días: se archiva como producto y su contenido se usa para la tienda y el portafolio. Fecha de revisión: 2027-01-18.
+- Agentes del consejo instalados en `.claude/agents/`: producto-pmf, seo-contenido-es, ventas-entrada, alianzas-canales, analista-metricas, finanzas-unitarias. Reglas: no envían, publican, cobran ni gastan sin aprobación de Mauricio; null = sin medir.
+- Tareas:
+  - cj-010 · 2026-10-24 · Mauricio: Hacer los 3 pasos de Google en Supabase y decir «merge» al PR #56
+  - cj-011 · 2026-10-22 · Mauricio: Decir «prepara» y enviar las respuestas a las 4 solicitudes de profesional
+  - cj-012 · 2026-10-31 · Mauricio: Dar un dominio para el correo de EVOLUSA y poner sus DNS
+  - cj-013 · 2026-11-02 · producto-pmf: Congelar funciones nuevas y reescribir la portada con una sola propuesta: directorio verificado de profesionales de negocio hispanos en Florida
+  - cj-014 · 2026-10-26 · analista-metricas: Medir cada semana profesionales verificados y tiempo de respuesta a solicitudes
+  - cj-015 · 2026-11-02 · alianzas-canales: Lista de 10 cámaras de comercio y asociaciones hispanas de Florida para traer profesionales (solo borradores)
+
+## 2026-10-20 — Jarvis, el cerebro de EVOLUSA en /admin/cerebro
+
+Pedido directo del dueño: panel «3D Pixel Jarvis» solo para ADMIN con escena isométrica pixel art de los módulos del cerebro (CRM, redes, planner, publicación, captación, correo, Roadmap, cobros), su estado con evidencia de PR, el portón «no invitar profesionales hasta que todo funcione» y misiones diarias rotativas (fijas mientras haya un bloqueo). Estados curados en `lib/admin/jarvis.ts`, no medidos en vivo: actualizar ese archivo en el PR que cambie cada módulo. Sin esquema, permisos, cuentas ni secretos nuevos; las marcas de tareas viven solo en el navegador.
+
+## 2026-10-19 — navegación móvil y continuación propia
+
+Base main6515d0c. Menú público cierra al alcanzar escritorio1280, restaura overflow previo y Escape devuelve foco al control. Sin rediseño, cambios de Roadmap, servidor, cuentas, esquema, permisos o secretos. QA navegador existente ampliado con seis recorridos de navegación, además de13 comprobaciones previas; resultados finales de pruebas/CI/producción en tarea central `evolusa-mobile-nav-lifecycle-20261019`.
+
+HV y planner fuente5 leídos; continuaciónOct20 reutiliza RG_02.png original con caption/contacto y canales explícitos, conservando historial y assets. Listo aquí, no programado ni publicado. Perfil propio mauricioyepes01@gmail.com separado deADMIN; guardado/recarga pendiente de sesión autorizada. Handoff: docs/cerebro/2026-10-19-mobile-nav-planner.md. No se afirma entrega SMTP u OAuth por esta modificación.
+
+## 2026-10-18 — Roadmap protagonista y causa del registro identificada
+
+Solicitud directa del dueño: home coloca seis etapas canónicas inmediatamente después del hero, tarjetas numeradas, acceso «Explorar las 6 etapas» y CTA público a onboarding, con aviso educativo. Sin catálogo paralelo, cambios del motor, fotos o servicios habilitados. Auth conserva códigos y traduce fallos conocidos sin mostrar texto sensible del proveedor ni revelar cuentas.
+
+Diagnóstico vivo de solo lectura: cuatro errores500 en /signup durante la ventanaOct17–18 indican rechazo SMTP550 de Resend en modo pruebas, que solo permite enviar al dueño del proveedor. Requiere dominio remitente verificado y dirección from de ese dominio; NO resuelto por esta modificación. No se cambian secretos, confirmación, cuentas, roles o permisos ni se envían correos de prueba. Google es independiente y no se afirma habilitado.
+
+225 pruebas PASS, TypeScript/build y lint finales en cierre central; lint previo0errores/7warnings existentes. Navegador cubre375/768/1024/1280/1440/1536 y movimiento reducido. Corrige cruces del hero en1280 y mantiene composición1536. El SDK descarta cuerpo/código en HTTP500: se conserva status y se informa fallo del servicio sin atribuir todo500 a SMTP. PR/preview/producción y revisión final en tarea central evolusa-roadmap-signup-user-20261018. Handoff: docs/cerebro/2026-10-18-roadmap-signup.md.
+
+
+## 2026-10-18 — reserva sin credenciales incrustadas y planner propio
+
+Base main remoto6b0802a. `safeBookingHref` omite enlaces antiguos HTTP(S) con usuario/contraseña antes de mostrar «Agendar videollamada» al miembro. Conserva URLs normales y @ en ruta/query; no cambia datos, JSX, estilos, autenticación, esquema, permisos o proveedores. Ocho pruebas dedicadas y suite217 PASS; TypeScript/lint0errores7warnings existentes. Build/CI/PR/producción finales en tarea central evolusa-booking-url-credentials-20261018.
+
+HV original y planner vigentes leídos. Planner versión5 conserva identidad e historial y añadeOct19 con pieza1original y caption, listo aquí/no programado/no publicado. Cuenta propia separada de ADMIN, sin escrituras de cuenta. Creativo EvolUSA equivalente del15 conservado. Handoff: docs/cerebro/2026-10-18-booking-link-credentials.md. Recorrido autenticado y autorización publicadora por canal siguen pendientes; no se afirma calendario conectado.
+
+
+## 2026-10-17 — privacidad de enlaces profesionales y planner propio
+
+Base main remoto5c7d729, producción READY confirmada. Los sanitizadores de enlace profesional rechazan URLs con usuario/contraseña incrustados antes de guardar o mostrar href/src; protegen también lectura de valores antiguos, sin migrar datos. Enlaces HTTP(S) ordinarios y @ dentro de ruta/query se conservan. No es protección universal de todos los módulos ni configura OAuth.
+
+215 pruebas PASS,19 focalizadas (4 nuevas),TypeScript/build/diff PASS,lint0errores/7warnings existentes; revisión independiente producto/security/complianceGO. Sin JSX/estilos, cuentas, esquema, permisos, secretos ni presupuesto. Estado final PR/CI/producción en tarea central evolusa-profile-url-credentials-20261017; handoff docs/cerebro/2026-10-17-profile-link-credentials.md. Planner propio versión4 paraOct18, pieza3original y caption, listo aquí/no publicado; guardado autenticado propio pendiente.
+
+## 2026-10-16 — LinkedIn público y continuación del planner
+
+PR55 ya integrado y producción READY en 567dcc8; reemplaza el estado histórico de preparado del 15. Nuevo ajuste pequeño: enlaces LinkedIn company/admin se presentan como página pública y se normalizan en futuros guardados, sin migrar cuentas. 211 pruebas, TypeScript, lint (7 warnings existentes), build y diff check PASS; revisión independiente seguridad/compliance GO. Estado de entrega y límites en docs/cerebro/2026-10-16-public-linkedin-profile.md. Planner propio actualizado bajo su identidad, versión3, para Oct17 reutilizando pieza web original; listo aquí, no programado/publicado. Guardado autenticado y OAuth no se dan por verificados.
+
 ## 2026-10-15 — continuación PR55 y planner propio
 
 PR55 sigue preparado, no integrado/desplegado. Acceso común conserva resolución del rol en servidor y reservas con profesional emparejado; comprobación de disponibilidad Google aislada y cubierta por 5 regresiones fail-closed. 205 pruebas, TypeScript, lint (0 errores/7 warnings), build y diff check pasan; revisión producto/seguridad/compliance GO. Falta QA responsive y autenticado, no se afirma OAuth funcional ni entrega de correo. Producción actual READY a309fa6. Ver docs/cerebro/2026-10-15-account-entry-provider-check.md. HV y planner vigentes del dueño leídos; continuación Oct16 reutiliza branding existente, sin transferir datos de ADMIN ni publicar en redes. Resultado de reemplazo del planner e imagen en cerebro central.

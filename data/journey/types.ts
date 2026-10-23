@@ -7,4 +7,8 @@ export type JourneyStage = {
   icon: "Compass" | "FolderCheck" | "Rocket" | "ShieldCheck" | "TrendingUp" | "Sparkles";
   colorToken: string; primaryGoal: string; serviceIds: readonly string[]; resourceIds: readonly string[];
   recommendedNextStage: StageId | null; leadIntent: string; roadmapQuestions: readonly RoadmapQuestionId[]; cta: JourneyCta;
+  /** Concrete things the stage covers, shown as a checklist on the home cards. */
+  includes: readonly string[];
+  /** What the person has in hand once the stage is done. No numbers or guaranteed results. */
+  outcome: string;
 };

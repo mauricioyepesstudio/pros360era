@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { applicationApprovalState, requestProfileApproval, type ApplicationApprovalState } from "./profile-approval";
 
 export type ProfessionalApplicationStatus = "PENDING" | "REVIEWED" | "CONTACTED";
 
@@ -15,6 +16,7 @@ export type ProfessionalApplicationRow = {
   notes: string | null;
   status: ProfessionalApplicationStatus;
   reviewedAt: string | null;
+  approvalState: ApplicationApprovalState;
 };
 
 export type AdminDashboardStats = {
@@ -37,7 +39,14 @@ export async function getProfessionalApplications(): Promise<ProfessionalApplica
   const supabase = await createSupabaseServerClient();
   if (!supabase) return [];
 
-  const { data } = await supabase.rpc("admin_list_professional_applications");
+  const [{data}, approvalResult] = await Promise.all([
+    supabase.rpc("admin_list_professional_applications"),
+    supabase.rpc("admin_application_approval_states"),
+  ]);
+  const approvals = new Map<string, ApplicationApprovalState>(
+    (approvalResult.error || !Array.isArray(approvalResult.data) ? [] : approvalResult.data)
+      .map((row: Record<string, unknown>) => [String(row.application_id), applicationApprovalState(row.approval_state)]),
+  );
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
     id: row.id as string,
@@ -52,6 +61,7 @@ export async function getProfessionalApplications(): Promise<ProfessionalApplica
     notes: (row.notes as string | null) ?? null,
     status: row.status as ProfessionalApplicationStatus,
     reviewedAt: (row.reviewed_at as string | null) ?? null,
+    approvalState: approvals.get(String(row.id)) ?? "UNAVAILABLE",
   }));
 }
 
@@ -85,4 +95,11 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats | nu
     contactedOpportunities: Number(row.contacted_opportunities ?? 0),
     completedOpportunities: Number(row.completed_opportunities ?? 0),
   };
+}
+
+
+export async function approveApplicationProfile(applicationId: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return {saved: false, message: "No se pudo conectar con la cuenta"};
+  return requestProfileApproval(supabase, applicationId);
 }
