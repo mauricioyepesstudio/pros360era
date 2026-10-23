@@ -8,6 +8,7 @@ import { authEntryHref } from "@/lib/initial-call/auth-intent";
 import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/professional/actions";
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { authCallbackUrl } from "@/lib/auth/email-link";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { canUseGoogleOAuth } from "@/lib/auth/provider-capability";
 
@@ -36,7 +37,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => linkErrorMessage(searchParams.get("error")));
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [resending, setResending] = useState(false);
@@ -52,7 +53,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     if (resending || cooldown > 0) return;
     setResending(true); setError(null); setResendNotice("");
     try {
-      const result = await requestConfirmation(createSupabaseBrowserClient().auth, email, cooldown);
+      const result = await requestConfirmation(createSupabaseBrowserClient().auth, email, cooldown, authCallbackUrl(window.location.origin, next));
       setCooldown(confirmationCooldownSeconds);
       if (result.requested) setResendNotice("Solicitud de reenvío recibida. Si tu cuenta necesita confirmación, revisa tu correo.");
       else setError(result.message);
@@ -86,7 +87,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     try {
       const { error: oauthError } = await createSupabaseBrowserClient().auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+        options: { redirectTo: authCallbackUrl(window.location.origin, next) },
       });
       if (oauthError) setError(translateAuthError(oauthError));
     } catch {
@@ -102,7 +103,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       const supabase = createSupabaseBrowserClient();
       const normalizedEmail = normalizeAuthEmail(email);
       if (signup) {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
+        const { data, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password, options: { emailRedirectTo: authCallbackUrl(window.location.origin, next) } });
         if (signUpError) {
           if (isExistingSignup(signUpError)) {
             // Never disclose account existence via the signup response — show the
@@ -242,4 +243,12 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </p>
     </div>
   );
+}
+
+/** Explains why a Google or email link sent the person back here. */
+function linkErrorMessage(code: string | null): string | null {
+  if (code === "link") return "El enlace del correo expiró o ya se usó. Entra con tu contraseña o pide uno nuevo.";
+  if (code === "oauth") return "No pudimos completar el acceso con Google. Inténtalo de nuevo o entra con tu correo.";
+  if (code === "config") return "El servicio de cuentas no está disponible en este momento.";
+  return null;
 }

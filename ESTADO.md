@@ -1,5 +1,12 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-22 — Continuación de PR56: retorno de enlaces de cuenta
+
+PR56 actualizado contra main remoto fdb86e6, conservando las mejoras posteriores de errores de registro. Confirmación, reenvío, Google y recuperación solicitan retorno a /auth/callback del sitio; /auth/confirm admite enlaces token_hash de las plantillas configuradas. Recuperación conserva códigos y status del proveedor para mensajes seguros y accionables. Nueva regresión verifica callback y status juntos.
+
+Revisión independiente de producto, seguridad y cumplimiento: GO. Validación final y commit de producción se registran en la cola central; esta entrada no afirma entrega de correo ni acceso Google. Comprobación viva del 22 de octubre: Google sigue deshabilitado y existen seis identidades de correo. Requisito externo conjunto: cliente Google configurado y remitente de dominio propio verificado en Resend/Supabase SMTP, seguido de prueba autorizada de login y recuperación. Sin cambios de DNS, secretos, roles, perfiles o esquema; no se enviaron correos. Creativos recientes conservados, sin duplicar contenido ni publicación externa.
+
+
 ## 2026-10-20 — Decisión del consejo de fundadores: corregir el rumbo
 
 - Veredicto y razones: `control-plane/consejo/CONSEJO.md` en AI-Projects-Control-Plane (fuente: `consejo.json`).

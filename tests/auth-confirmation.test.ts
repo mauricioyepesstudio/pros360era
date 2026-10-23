@@ -106,6 +106,18 @@ test("nonserver and malformed statuses do not imply a server configuration failu
   }
 });
 
+test("resend preserves callback and provider status together", async () => {
+  let credentials: unknown;
+  const callback = "https://evolusa.vercel.app/auth/callback?next=%2Fdashboard";
+  const result = await requestConfirmation({ resend: async (input) => {
+    credentials = input;
+    return { error: { message: "{}", status: 503 } };
+  } }, "a@example.com", 0, callback);
+  assert.deepEqual(credentials, { type: "signup", email: "a@example.com", options: { emailRedirectTo: callback } });
+  assert.equal(result.requested, false);
+  assert.match(result.message, /administrador.*acceso y correo/);
+});
+
 test("resend retains retryable SDK status without claiming a mail was sent", async () => {
   const result = await requestConfirmation({ resend: async () => ({ error: { message: "{}", status: 500 } }) }, "a@example.com", 0);
   assert.equal(result.requested, false);
