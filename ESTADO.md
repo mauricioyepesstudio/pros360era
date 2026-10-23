@@ -1,5 +1,9 @@
 # ESTADO — EVOLUSA
 
+## 2026-10-23 — PR80 preparado para revisión
+
+Continuación aislada del PR80 contra main 4b67152. El registro conserva emailRedirectTo y atribución validada. Se retiran promesas de publicación automática, captación 24/7 y resultados en 30 días; el tutorial identifica dependencias reales. Se elimina el monograma inventado del aliado. Pendiente aprobación específica de la página de aliado y aceptación autenticada; sin integración ni despliegue de esta entrega. Pruebas y revisión se registran en la cola central.
+
 ## 2026-10-22 — aliados (1MIGRATION), mensaje para profesionales y demo sin cifras
 
 Pedido del dueño (20-oct): Laura/1MIGRATION como clienta de herramientas y aliada que recomienda EVOLUSA a su comunidad. Rama `claude/aliados-profesionales-20261020`, sin merge.
@@ -8,6 +12,12 @@ Pedido del dueño (20-oct): Laura/1MIGRATION como clienta de herramientas y alia
 - `/aplicar-profesional` empieza por marketing automatizado (planner), CRM, estudio creativo, perfil y agenda; después las solicitudes de miembros en categorías permitidas.
 - `/professional-demo` reescrita como «Ejemplo ilustrativo» sin likes, proyecciones, ingresos ni 70/30 (tutorial sin 70/30). Las rutas demo siguen pausadas por redirección en `next.config.ts`.
 - Pendiente: `compliance-reviewer` y OK del dueño antes de publicar la página de aliado; la regla provisional del 2026-09-30 sigue vigente (sin automatización ni reparto para categorías reguladas) y hay que decidir si vender herramientas a 1MIGRATION entra en ella.
+## 2026-10-22 — Continuación de PR56: retorno de enlaces de cuenta
+
+PR56 actualizado contra main remoto fdb86e6, conservando las mejoras posteriores de errores de registro. Confirmación, reenvío, Google y recuperación solicitan retorno a /auth/callback del sitio; /auth/confirm admite enlaces token_hash de las plantillas configuradas. Recuperación conserva códigos y status del proveedor para mensajes seguros y accionables. Nueva regresión verifica callback y status juntos.
+
+Revisión independiente de producto, seguridad y cumplimiento: GO. Validación final y commit de producción se registran en la cola central; esta entrada no afirma entrega de correo ni acceso Google. Comprobación viva del 22 de octubre: Google sigue deshabilitado y existen seis identidades de correo. Requisito externo conjunto: cliente Google configurado y remitente de dominio propio verificado en Resend/Supabase SMTP, seguido de prueba autorizada de login y recuperación. Sin cambios de DNS, secretos, roles, perfiles o esquema; no se enviaron correos. Creativos recientes conservados, sin duplicar contenido ni publicación externa.
+
 
 ## 2026-10-20 — Decisión del consejo de fundadores: corregir el rumbo
 

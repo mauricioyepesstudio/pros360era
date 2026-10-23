@@ -1,17 +1,13 @@
 "use client";
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { persistPartnerRef } from "@/lib/partners/capture";
+import { normalizePartnerRef } from "@/lib/partners/ref";
 
-/**
- * Guarda la atribución del aliado (cookie propia, 30 días) cuando la visita
- * llega con ?ref=<slug> o desde /aliados/<slug>. Valores desconocidos se
- * ignoran. No renderiza nada.
- */
+/** Records only a configured partner slug; navigation updates refresh attribution. */
 export default function PartnerRefCapture({ slug }: { slug?: string }) {
-  useEffect(() => {
-    let queryRef: string | null = null;
-    try { queryRef = new URLSearchParams(window.location.search).get("ref"); } catch { /* URL no disponible */ }
-    persistPartnerRef(queryRef ?? slug ?? null);
-  }, [slug]);
+  const searchParams = useSearchParams();
+  const ref = normalizePartnerRef(searchParams.get("ref")) ?? normalizePartnerRef(slug);
+  useEffect(() => { persistPartnerRef(ref); }, [ref]);
   return null;
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { BookOpen, Compass, Map as MapIcon, Users } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
@@ -59,12 +60,11 @@ export default async function PartnerPage({ params }: PartnerPageProps) {
 
   return (
     <>
-      <PartnerRefCapture slug={partner.slug} />
+      <Suspense fallback={null}><PartnerRefCapture slug={partner.slug} /></Suspense>
       <SiteHeader />
       <main className="bg-[var(--background)] text-[var(--foreground)]">
         <Section className="pt-32 sm:pt-40" labelledBy="partner-title">
           <div className="flex items-center gap-3">
-            <span aria-hidden className="flex size-12 items-center justify-center rounded-full bg-[var(--brand-navy)] text-sm font-bold text-white">{partner.logoText}</span>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">Recomendado por {partner.name}</p>
           </div>
           <div className="mt-6">

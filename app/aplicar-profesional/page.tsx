@@ -17,8 +17,8 @@ import { brand } from "@/config/brand";
 const tools = [
   {
     icon: CalendarDays,
-    title: "Marketing automatizado",
-    body: "Planner de publicaciones: decides qué publicas y cuándo. Con tu Instagram y tu Facebook conectados, lo que marcas «Listo para publicar» sale solo a su hora.",
+    title: "Planner de contenido",
+    body: "Organiza y revisa tus publicaciones. La publicación externa requiere una cuenta conectada, autorización y disponibilidad del canal; no está incluida por crear un borrador.",
   },
   {
     icon: Users,
@@ -62,7 +62,7 @@ export default function AplicarProfesionalPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue-on-dark)]">Para profesionales</p>
             <h1 className="mt-3 text-balance text-4xl font-extrabold leading-tight sm:text-5xl">Herramientas para hacer crecer tu práctica profesional, en español.</h1>
             <p className="mt-5 max-w-xl text-lg leading-7 text-slate-200">
-              Marketing automatizado, CRM, estudio creativo y tu perfil profesional en un solo panel. Y cuando un miembro de EVOLUSA necesita tu servicio en una categoría permitida, te llega su solicitud.
+              Organiza contenido, contactos y enlaces de tu perfil profesional en un solo panel. El acceso a oportunidades depende de la revisión de tu perfil, la categoría y tu ubicación.
             </p>
           </div>
         </Container>
@@ -88,7 +88,7 @@ export default function AplicarProfesionalPage() {
 
             <h2 className="mt-12 text-xl font-bold text-[var(--brand-navy)]">Además: clientes que te buscan</h2>
             <p className="mt-4 max-w-lg leading-7 text-[var(--muted)]">
-              No te prometemos resultados garantizados — te prometemos un sistema honesto: tú apareces cuando de verdad puedes ayudar, y solo pagas por la conexión cuando ya es real.
+              Las oportunidades dependen de necesidades reales de miembros y de la elegibilidad de tu perfil. La aprobación del perfil, la identidad verificada y la contratación son pasos distintos.
             </p>
 
             <div className="mt-8 space-y-6">

@@ -5,8 +5,10 @@ export function persistPartnerRef(ref: string | null | undefined): string | null
   if (typeof document === "undefined" || !ref) return null;
   const cookie = serializePartnerRefCookie(ref, window.location.protocol === "https:");
   if (!cookie) return null;
-  try { document.cookie = cookie; } catch { return null; }
-  return readPartnerRefCookie(document.cookie) ?? null;
+  try {
+    document.cookie = cookie;
+    return readPartnerRefCookie(document.cookie);
+  } catch { return null; }
 }
 
 /** Ref vigente: ?ref= de la URL (si es válido) o la cookie guardada. */

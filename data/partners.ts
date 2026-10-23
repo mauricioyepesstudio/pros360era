@@ -11,8 +11,6 @@ export type Partner = {
   /** Slug en minúsculas, usado en /aliados/<slug> y en ?ref=<slug>. */
   slug: string;
   name: string;
-  /** Texto corto del logo (sin imagen hasta tener el archivo del aliado). */
-  logoText: string;
   shortDescription: string;
   /** El servicio del aliado es de categoría regulada (p. ej. inmigración). */
   regulated: boolean;
@@ -26,7 +24,6 @@ export const partners = [
   {
     slug: "1migration",
     name: "1MIGRATION",
-    logoText: "1M",
     shortDescription: "Preparación de documentos migratorios para la comunidad hispana.",
     regulated: true,
     serviceNotice:

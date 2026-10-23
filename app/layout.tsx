@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import { brand } from "@/config/brand";
 import PartnerRefCapture from "@/components/partners/PartnerRefCapture";
@@ -64,7 +65,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <PartnerRefCapture />
+        <Suspense fallback={null}><PartnerRefCapture /></Suspense>
         {children}
       </body>
     </html>

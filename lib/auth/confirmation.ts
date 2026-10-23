@@ -40,15 +40,15 @@ export function translateAuthError(error: string | { message: string; code?: str
 }
 
 interface ConfirmationClient {
-  resend(credentials: { type: "signup"; email: string }): Promise<{ error: { message: string; code?: string; status?: number } | null }>;
+  resend(credentials: { type: "signup"; email: string; options?: { emailRedirectTo?: string } }): Promise<{ error: { message: string; code?: string; status?: number } | null }>;
 }
 /** UX cooldown only; Supabase enforces its own server limits. Never assume email delivery. */
-export async function requestConfirmation(client: ConfirmationClient, email: string, cooldown: number) {
+export async function requestConfirmation(client: ConfirmationClient, email: string, cooldown: number, emailRedirectTo?: string) {
   if (cooldown > 0) return { requested: false, message: "Espera antes de solicitar otro enlace." };
   const normalized = normalizeAuthEmail(email);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return { requested: false, message: "Revisa tu correo electrónico." };
   try {
-    const { error } = await client.resend({ type: "signup", email: normalized });
+    const { error } = await client.resend({ type: "signup", email: normalized, ...(emailRedirectTo ? { options: { emailRedirectTo } } : {}) });
     if (error) return { requested: false, message: translateAuthError(error) };
     return { requested: true, message: confirmationRequestMessage };
   } catch { return { requested: false, message: "No pudimos conectar con el servicio de cuentas. Intenta de nuevo." }; }
