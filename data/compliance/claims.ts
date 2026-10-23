@@ -16,12 +16,15 @@ export const claims = [
   { id: "guaranteed-outcome", category: "BRAND", text: "Resultados garantizados.", status: "PROHIBITED", reason: "Es una promesa absoluta, no verificable y potencialmente engañosa." },
   { id: "legal-advice", category: "LEGAL", text: "Ofrecemos asesoría legal para tu caso.", status: "REQUIRES_VERIFICATION", reason: "Solo puede usarse si el servicio y el profesional autorizado están verificados.", safeAlternative: "Podemos ayudarte a encontrar un profesional legal independiente cuando corresponda." },
   { id: "immigration-advice", category: "IMMIGRATION", text: "Determinamos tu elegibilidad migratoria.", status: "PROHIBITED", reason: "No debe publicarse como servicio de EVOLUSA sin autoridad profesional confirmada." },
+  { id: "partner-no-immigration-services", category: "IMMIGRATION", text: "EVOLUSA no ofrece servicios ni orientación migratoria.", status: "ALLOWED", reason: "Aviso obligatorio en páginas de aliados de categoría regulada: delimita que el trámite lo presta el aliado, no EVOLUSA (2026-10-20)." },
+  { id: "partner-referral-paid", category: "IMMIGRATION", text: "Gana una comisión por cada persona que refieras para trámites migratorios.", status: "PROHIBITED", reason: "Las categorías reguladas son solo referral, sin fee por lead ni comisión (EVOLUSA-PROFESSIONAL-NETWORK.md; regla provisional 2026-09-30)." },
   { id: "tax-planning", category: "TAX", text: "Diseñamos la mejor estrategia fiscal para ti.", status: "REQUIRES_VERIFICATION", reason: "Implica asesoría profesional individualizada y un resultado superlativo.", safeAlternative: "Coordinamos servicios fiscales con el proveedor apropiado, sujeto a verificación." },
 ] as const satisfies readonly ClaimDefinition[];
 
 export const disclaimers = [
   { id: "general-education", short: "Información educativa general.", full: "La información presentada es educativa y no sustituye asesoría profesional individualizada.", appliesTo: ["EDUCATION"] },
   { id: "regulated-services", short: "La disponibilidad depende del proveedor y la jurisdicción.", full: "Los servicios legales, migratorios, fiscales, notariales y de seguros, cuando estén disponibles, son prestados por profesionales o proveedores apropiados según su licencia y jurisdicción.", appliesTo: ["LEGAL", "IMMIGRATION", "TAX", "NOTARY", "INSURANCE"] },
+  { id: "partner-regulated-services", short: "EVOLUSA no ofrece servicios ni orientación migratoria.", full: "EVOLUSA no ofrece servicios ni orientación migratoria, legal, fiscal ni notarial. Los trámites del aliado se contratan y se atienden directamente con el aliado, que es responsable de su servicio. EVOLUSA no cobra ni recibe comisión por esos trámites.", appliesTo: ["IMMIGRATION", "LEGAL", "TAX", "NOTARY"] },
   { id: "roadmap-guidance", short: "Tu Roadmap es una guía inicial.", full: "El Roadmap ofrece orientación operacional y educativa; no constituye asesoría legal, migratoria, fiscal, financiera ni de seguros.", appliesTo: ["EDUCATION", "BUSINESS_OPERATIONS"] },
 ] as const satisfies readonly Disclaimer[];
 

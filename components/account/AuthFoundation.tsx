@@ -11,6 +11,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { authCallbackUrl } from "@/lib/auth/email-link";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { canUseGoogleOAuth } from "@/lib/auth/provider-capability";
+import { currentPartnerRef } from "@/lib/partners/capture";
 
 import { confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
 
@@ -103,7 +104,15 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       const supabase = createSupabaseBrowserClient();
       const normalizedEmail = normalizeAuthEmail(email);
       if (signup) {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password, options: { emailRedirectTo: authCallbackUrl(window.location.origin, next) } });
+        const ref = currentPartnerRef(searchParams.get("ref"));
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+          options: {
+            emailRedirectTo: authCallbackUrl(window.location.origin, next),
+            ...(ref ? { data: { ref } } : {}),
+          },
+        });
         if (signUpError) {
           if (isExistingSignup(signUpError)) {
             // Never disclose account existence via the signup response — show the
