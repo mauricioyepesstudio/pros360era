@@ -47,7 +47,7 @@ export default function Hero() {
           <p className="mt-4 text-lg font-semibold">
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
-          <p className="mt-2 text-sm leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
+          <p className="mt-2 text-sm leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
               <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
