@@ -21,10 +21,10 @@ export const metadata: Metadata = {
   description: brand.description,
   keywords: [
     "inmigrantes hispanos Estados Unidos",
-    "orientación inmigrantes USA",
+    "profesionales de negocio hispanos Florida",
     "profesionales hispanohablantes USA",
     "emprender en Estados Unidos",
-    "notario hispano Florida",
+    "marketing y operaciones para negocios hispanos",
   ],
   openGraph: {
     title: brand.displayName,

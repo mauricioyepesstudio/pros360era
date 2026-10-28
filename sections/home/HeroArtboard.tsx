@@ -90,7 +90,7 @@ export default function HeroArtboard() {
           <p className="mt-4 text-xl font-semibold">
             <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
           </p>
-          <p className="mt-2 max-w-md text-base leading-6 text-white/70">Para hispanohablantes en EE. UU. y los profesionales aprobados que los acompañan.</p>
+          <p className="mt-2 max-w-md text-base leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
           <div className="mt-5 flex flex-col gap-4">
             <div className="flex gap-4">
               <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" title="Aplica como profesional aprobado">
