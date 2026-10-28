@@ -19,6 +19,13 @@ export default function CTA() {
             Conocer el Roadmap
           </ButtonLink>
         </div>
+        <p className="mx-auto mt-8 max-w-xl text-sm text-white/70">
+          ¿Ofreces marketing u operaciones de negocio en Florida?{" "}
+          <a href="/aplicar-profesional" className="font-semibold text-white underline underline-offset-4">
+            Aplica para tu perfil aprobado por EVOLUSA
+          </a>
+          .
+        </p>
       </div>
     </Section>
   );

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const files = ["app/layout.tsx", "sections/home/Hero.tsx", "sections/home/HeroArtboard.tsx"];
+const files = ["app/layout.tsx", "sections/home/Hero.tsx", "sections/home/HeroArtboard.tsx", "sections/home/CTA.tsx"];
 const regulated = /notari|migratori|abogad|impuest|orientación inmigrantes/i;
 
 test("home metadata and hero never advertise regulated services", () => {
