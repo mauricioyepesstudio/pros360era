@@ -1,3 +1,5 @@
+import {professionalToday} from "@/lib/professional-planner/reminders";
+import {getMyProfessionalBusiness} from "@/lib/professional-business/persistence";
 import Image from "next/image";
 import Link from "next/link";
 import PageHeader from "@/components/account/PageHeader";
@@ -9,8 +11,8 @@ import { weeklyPlannerSuggestions } from "@/lib/professional-planner/weekly-revi
 
 export default async function ProfessionalCreativesPage() {
   await requireProfessionalArea();
-  const [kit, profile] = await Promise.all([getMyPreparedKit(), getMyProfessionalProfile()]);
-  const proposals = weeklyPlannerSuggestions(profile, new Date().toISOString().slice(0, 10));
+  const [kit, profile, business] = await Promise.all([getMyPreparedKit(), getMyProfessionalProfile(), getMyProfessionalBusiness()]);
+  const proposals = weeklyPlannerSuggestions(profile?{...profile,business:business.business}:null, professionalToday());
   return (
     <div className="space-y-8">
       <PageHeader eyebrow="Panel profesional" title="Tus creativos"

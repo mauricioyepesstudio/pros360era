@@ -1,3 +1,9 @@
+# 2026-10-28 — Contexto privado del negocio y propuestas propias
+
+Formulario en perfil para 10 actividades, negocio, público, servicios, oferta y zona. Persistencia autenticada por propietario en onboarding_responses (versión interna separada del Roadmap), sin migraciones. Propuestas y piezas privadas adaptadas al negocio; revisiones nuevas no reescriben publicaciones aprobadas. Alertas internas de planner por fechas, fallos, permisos, imágenes privadas y cuenta de Instagram distinta del perfil. Fecha de Florida compartida. Creativos visible para todos los profesionales.
+
+Validación: TypeScript y lint sin errores (5 advertencias preexistentes), 331 pruebas aprobadas y build de producción correcto. Perfil existente probado en producción: guardado y recarga conservan website y LinkedIn. Detectada diferencia entre Instagram declarado y conectado; sin cambiar conexiones. Pendiente: publicación de esta rama y prueba autenticada del formulario nuevo → recarga → propuesta → aprobación → planner → CRM propio. No se afirma publicación social, alertas por email, scraping de LinkedIn, generación IA ni cobros.
+
 # ESTADO — EVOLUSA
 
 ## 2026-10-23 — PR80 preparado para revisión

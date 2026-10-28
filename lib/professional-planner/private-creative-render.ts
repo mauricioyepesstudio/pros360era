@@ -1,3 +1,4 @@
+import {businessActivity} from "../../data/professional/business-activities.ts";
 import sharp from "sharp";
 import type {CreativeOwner} from "./private-creative-handler.ts";
 import {loadCreativeMedia} from "./creative-media.ts";
@@ -11,10 +12,11 @@ const wrap=(text:string,max:number)=>{const rows:string[]=[];let line="";for(con
 export function creativeSvg(owner:CreativeOwner,concept:number,format:"4x5"|"9x16",p:Palette){
  if(!["4x5","9x16"].includes(format)||![1,2,3].includes(concept)||!Object.values(p).every(v=>/^#[a-fA-F0-9]{6}$/.test(v)))throw Error("Invalid render");
  const own=owner.reference;
- const name=owner.displayName.replace(/[\u0000-\u001f]/g," ").slice(0,42);
+ const name=(owner.business?.businessName||owner.displayName).replace(/[\u0000-\u001f]/g," ").slice(0,42);
  const document=["IMMIGRATION_DOCUMENT_SUPPORT","NOTARY"].includes(owner.category);
- const headlines=["Prepara tu próximo paso","Organiza tu conversación","Una pregunta para empezar"];
- const body=document?"Organiza tus documentos y prepara tus preguntas. Confirma el alcance del servicio antes de comenzar.":"Define tu proyecto, organiza tus ideas y prepara las preguntas para tu próxima conversación.";
+ const activity=owner.business?businessActivity(owner.business.activity):null;
+ const headlines=activity?[activity.headline,"Prepara tus preguntas",`Conoce nuestro proceso`]:["Prepara tu próximo paso","Organiza tu conversación","Una pregunta para empezar"];
+ const body=activity?"Organiza tus preguntas para "+activity.topic+". Confirma el alcance antes de comenzar.":document?"Organiza tus documentos y prepara tus preguntas. Confirma el alcance del servicio antes de comenzar.":"Define tu proyecto, organiza tus ideas y prepara las preguntas para tu próxima conversación.";
  const h=format==="4x5"?1350:1920,photoEnd=format==="4x5"?720:1120;
  const title=wrap(headlines[concept-1],25),lines=wrap(body,43);
  const text=(rows:string[],y:number,size:number,gap:number)=>rows.map((s,i)=>'<text x="88" y="'+(y+i*gap)+'" font-size="'+size+'" fill="'+p.background+'">'+escape(s)+'</text>').join("");
