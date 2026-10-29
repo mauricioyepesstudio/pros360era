@@ -71,6 +71,7 @@ export default function ProfessionalProfileView({
   const socialLinks = safeSocialLinks(professional.socialLinks);
   const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
   const externalLinks = [
+    category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && socialLinks.whatsapp ? { href: socialLinks.whatsapp, label: "Contactar por WhatsApp", icon: Link2 } : null,
     websiteHref ? { href: websiteHref, label: "Sitio web", icon: Globe } : null,
     portfolioHref ? { href: portfolioHref, label: "Portafolio", icon: Globe } : null,
     socialLinks.instagram ? { href: socialLinks.instagram, label: "Instagram", icon: Link2 } : null,

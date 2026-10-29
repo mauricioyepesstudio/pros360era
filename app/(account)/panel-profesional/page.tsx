@@ -48,9 +48,9 @@ export default async function ProfessionalPanelPage() {
     },
     {
       href: "/crm",
-      title: "Clientes",
+      title: "Clientes y seguimiento",
       description: "Tus contactos, conversaciones y seguimiento en un solo lugar.",
-      detail: "Herramienta de gestión",
+      detail: "Próxima acción y borrador por prospecto",
       icon: Users,
     },
     {

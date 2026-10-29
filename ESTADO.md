@@ -1,3 +1,13 @@
+# 2026-10-29 - WhatsApp de contacto y seguimiento por prospecto
+
+Implementado en rama local existente: el propietario puede guardar su enlace publico https://wa.me/numero internacional usando social_links y la accion de perfil con user_id autenticado. Lectura y escritura filtran host, protocolo, credenciales, ruta numerica, query y fragmento. En el perfil publico se muestra solo para SERVICE_BUSINESS y aceptando clientes; no altera aprobacion ni categorias reguladas.
+
+CRM: cada prospecto propio propone una proxima accion desde su estado guardado. Agregar borrador a mis notas lo agrega una sola vez por estado; Guardar seguimiento conserva la propuesta mediante el PATCH existente con propietario y control de version. No envia mensajes ni equivale a un agente LLM o una bandeja WhatsApp conectada. No hay migracion, cambio de consentimiento ni consumo de proveedor.
+
+Arquitectura: reutiliza perfil, CRM, notas y acciones existentes; no agrega otra fuente de verdad. Cumplimiento: no asesoramiento ni claims de resultados; bloqueado contacto publico regulado; no publica ni cambia conexiones.
+
+Validacion: typecheck, lint sin errores (5 advertencias anteriores), build PASS. Pruebas finales y aceptacion visual/autenticada se registran en reports de WS12. Pendiente: revision visual y guardar/recargar con la cuenta propia; conectar WhatsApp Business API por propietario requiere onboarding, permisos y webhook reales. No hay commit, push o despliegue de estos cambios.
+
 # 2026-10-28 — Contexto privado del negocio y propuestas propias
 
 Formulario en perfil para 10 actividades, negocio, público, servicios, oferta y zona. Persistencia autenticada por propietario en onboarding_responses (versión interna separada del Roadmap), sin migraciones. Propuestas y piezas privadas adaptadas al negocio; revisiones nuevas no reescriben publicaciones aprobadas. Alertas internas de planner por fechas, fallos, permisos, imágenes privadas y cuenta de Instagram distinta del perfil. Fecha de Florida compartida. Creativos visible para todos los profesionales.
