@@ -6,7 +6,7 @@ export type ProfessionalCategoryId = (typeof professionalCategoryIds)[number];
 export const consultationModes = ["VIRTUAL", "IN_PERSON", "BOTH"] as const;
 export type ConsultationMode = (typeof consultationModes)[number];
 
-export const socialLinkPlatforms = ["instagram", "facebook", "linkedin", "x", "tiktok"] as const;
+export const socialLinkPlatforms = ["instagram", "facebook", "linkedin", "x", "tiktok", "whatsapp"] as const;
 export type SocialLinkPlatform = (typeof socialLinkPlatforms)[number];
 export type ProfessionalSocialLinks = Partial<Record<SocialLinkPlatform, string>>;
 
@@ -16,6 +16,7 @@ export const socialLinkPlatformLabels: Record<SocialLinkPlatform, string> = {
   linkedin: "LinkedIn",
   x: "X (Twitter)",
   tiktok: "TikTok",
+  whatsapp: "WhatsApp",
 };
 
 /**

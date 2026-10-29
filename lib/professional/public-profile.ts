@@ -88,7 +88,13 @@ export async function getPublicProfessionals(): Promise<ProfessionalProfilePubli
     .order("display_name", { ascending: true });
 
   if (!data) return [];
-  return data.map(mapProfileRow);
+  const profiles = data.map(mapProfileRow);
+  // The owner confirmed these two accounts represent himself. Prefer his
+  // complete profile in the directory only; retain both accounts, direct
+  // profile URLs, approval state and all client history. If the canonical
+  // profile is unavailable, the legacy listing remains visible.
+  const hasCanonicalMauricio = profiles.some(profile => profile.slug === "mauricio-yepes-b96cae");
+  return profiles.filter(profile => !hasCanonicalMauricio || profile.slug !== "mauricio-yepes-marketing");
 }
 
 /**

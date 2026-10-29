@@ -1,5 +1,5 @@
 import { socialLinkPlatforms, type ProfessionalSocialLinks } from "../../data/professional/types.ts";
-import { publicLinkedInUrl } from "./profile-links.ts";
+import { publicLinkedInUrl, publicWhatsAppUrl } from "./profile-links.ts";
 
 /**
  * photo_url/portfolio_url/website_url/social_links (migration 0015) are
@@ -29,7 +29,7 @@ export function safeSocialLinks(socialLinks: ProfessionalSocialLinks | null | un
   if (!socialLinks) return result;
 
   for (const platform of socialLinkPlatforms) {
-    const href = platform === "linkedin"
+    const href = platform === "whatsapp" ? publicWhatsAppUrl(socialLinks[platform]) : platform === "linkedin"
       ? publicLinkedInUrl(socialLinks[platform] ?? null)
       : safeHttpUrl(socialLinks[platform]);
     if (href) result[platform] = href;

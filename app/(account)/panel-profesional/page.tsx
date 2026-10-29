@@ -1,3 +1,6 @@
+import PlannerAlerts from "@/components/professional/PlannerAlerts";
+import {professionalToday} from "@/lib/professional-planner/reminders";
+import {getMyProfessionalBusiness} from "@/lib/professional-business/persistence";
 import { weeklyPlannerSuggestions, pendingWeeklySuggestions } from "@/lib/professional-planner/weekly-review";
 import { getMyProfessionalPlanner } from "@/lib/professional-planner/persistence";
 import Link from "next/link";
@@ -20,10 +23,10 @@ import { getMyInstagramState } from "@/lib/social/connections";
 export default async function ProfessionalPanelPage() {
   await requireProfessionalArea();
 
-  const [profile, opportunities, kit, instagram] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional(), getMyPreparedKit(), getMyInstagramState()]);
-  const today = new Date().toISOString().slice(0,10);
+  const [profile, opportunities, kit, instagram, business] = await Promise.all([getMyProfessionalProfile(), getMyRoutedOpportunitiesForProfessional(), getMyPreparedKit(), getMyInstagramState(), getMyProfessionalBusiness()]);
+  const today = professionalToday();
   const planner = await getMyProfessionalPlanner(today);
-  const weeklyPending = planner.available ? pendingWeeklySuggestions(weeklyPlannerSuggestions(profile,today),planner.planner.posts).length : 0;
+  const weeklyPending = planner.available ? pendingWeeklySuggestions(weeklyPlannerSuggestions(profile?{...profile,business:business.business}:null,today),planner.planner.posts).length : 0;
   const waitingForContact = opportunities.filter((opportunity) => opportunity.effectiveStatus === "ROUTED").length;
   const categoryLabel = profile ? getProfessionalCategory(profile.category)?.label : undefined;
 
@@ -45,9 +48,9 @@ export default async function ProfessionalPanelPage() {
     },
     {
       href: "/crm",
-      title: "Clientes",
+      title: "Clientes y seguimiento",
       description: "Tus contactos, conversaciones y seguimiento en un solo lugar.",
-      detail: "Herramienta de gestión",
+      detail: "Próxima acción y borrador por prospecto",
       icon: Users,
     },
     {
@@ -57,17 +60,15 @@ export default async function ProfessionalPanelPage() {
       detail: "Configura tu horario",
       icon: CalendarDays,
     },
-    ...(kit
-      ? [
+    ...[
           {
             href: "/panel-profesional/creativos",
             title: "Creativos",
             description: "Tus piezas por concepto y formato, listas para revisar y descargar.",
-            detail: `${kit.creatives.concepts.length} conceptos · ${kit.creatives.formats.length} formatos`,
+            detail: kit ? `${kit.creatives.concepts.length} conceptos · ${kit.creatives.formats.length} formatos` : "Propuestas de tu actividad",
             icon: ImageIcon,
           },
-        ]
-      : []),
+        ],
     {
       href: "/panel-profesional/planner",
       title: "Planner de publicaciones",
@@ -99,7 +100,9 @@ export default async function ProfessionalPanelPage() {
         description="Aquí gestionas tu presencia en EVOLUSA y las personas que te contactan. Los miembros no ven este panel."
       />
 
-      {weeklyPending > 0 && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-6"><h2 className="font-bold">Tienes {weeklyPending} propuestas de contenido para esta semana</h2><p className="mt-2 text-sm">Revisa los textos, el carrusel y el guion para reel. No se publican al seleccionarlos.</p><Link href="/panel-profesional/planner" className="mt-3 inline-flex min-h-11 items-center font-bold underline">Revisar propuestas en mi planner</Link></section>}
+      {profile && business.available && !business.business && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6"><h2 className="font-bold">Personaliza el contenido para tu actividad</h2><p className="mt-2 text-sm">Completa el negocio, público, servicios y oferta. Tus propuestas usarán ese contexto.</p><Link href="/panel-profesional/perfil#mi-negocio" className="inline-flex min-h-11 items-center font-bold underline">Completar mi negocio</Link></section>}
+      {weeklyPending > 0 && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-6"><h2 className="font-bold">Tienes {weeklyPending} propuestas de contenido para esta semana</h2><p className="mt-2 text-sm">Revisa los textos, el carrusel y el guion para reel. No se publican al seleccionarlos.</p><Link href="/panel-profesional/planner?review=weekly#propuestas" className="mt-3 inline-flex min-h-11 items-center font-bold underline">Revisar propuestas en mi planner</Link></section>}
+      <PlannerAlerts planner={planner} today={today} instagram={profile?.socialLinks.instagram} />
       {kit ? <PreparedKitWelcome kit={kit} hasPhoto={Boolean(profile?.photoUrl)} /> : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">

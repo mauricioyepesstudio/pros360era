@@ -41,8 +41,19 @@ export function publicLinkedInUrl(url: string | null): string | null {
   return `https://www.linkedin.com/company/${companyAdmin[1]}/`;
 }
 
+/** Explicit public contact destination; never an inbox connection. */
+export function publicWhatsAppUrl(value: string | null | undefined): string | null {
+  if (!value || value.trim() !== value) return null;
+  try {
+    const u = new URL(value);
+    if (u.protocol !== "https:" || u.hostname !== "wa.me" || u.port || u.username || u.password || u.search || u.hash) return null;
+    return /^\/[1-9]\d{7,14}$/.test(u.pathname) ? "https://wa.me" + u.pathname : null;
+  } catch { return null; }
+}
+
 export function sanitizeSocialLinks(links: ProfessionalSocialLinks): ProfessionalSocialLinks {
   return {
+    ...(publicWhatsAppUrl(links.whatsapp) ? {whatsapp: publicWhatsAppUrl(links.whatsapp)!} : {}),
     instagram: sanitizeUrl(links.instagram ?? null) ?? undefined,
     linkedin: publicLinkedInUrl(links.linkedin ?? null) ?? undefined,
     facebook: sanitizeUrl(links.facebook ?? null) ?? undefined,
