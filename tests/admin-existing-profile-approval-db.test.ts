@@ -112,6 +112,7 @@ test("approval RPC operates on synthetic PostgreSQL fixtures with real roles and
  await t.test("only ADMIN can list and manually approve an unapplied immigration-document-support profile",async()=>{
   await db.exec(`insert into public.professional_profiles(id,user_id,category,is_approved,display_name,city) values ('${uid(108)}','${uid(8)}','IMMIGRATION_DOCUMENT_SUPPORT',false,'1MIGRATION','Miami')`);
   await db.exec(fs.readFileSync(new URL("../supabase/migrations/20261102130000_admin_existing_profile_document_support.sql",import.meta.url),"utf8"));
+  await db.exec(fs.readFileSync(new URL("../supabase/migrations/20261102183704_fix_admin_unapplied_profiles_email_type.sql",import.meta.url),"utf8"));
   const list=()=>db.query<{profile_id:string;category:string;display_name:string}>("select * from public.admin_list_unapplied_professional_profiles()");
   const call=(reason="Manual approval for document support")=>db.query<{state:string}>(`select public.admin_approve_existing_profile('${uid(108)}','IMMIGRATION_DOCUMENT_SUPPORT','${reason}') as state`);
   await assert.rejects(()=>actor("authenticated",uid(2),list),/not authorized/);
