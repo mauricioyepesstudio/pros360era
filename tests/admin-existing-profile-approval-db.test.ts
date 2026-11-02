@@ -16,7 +16,7 @@ test("approval RPC operates on synthetic PostgreSQL fixtures with real roles and
  create function auth.role() returns text language sql stable as $$ select nullif(current_setting('request.jwt.claim.role',true),'') $$;
  grant usage on schema auth to anon,authenticated,service_role;
  create table public.profiles(id uuid primary key,role text not null);
- create table public.professional_profiles(id uuid primary key,user_id uuid unique,category text,is_approved boolean default false);
+ create table public.professional_profiles(id uuid primary key,user_id uuid unique,category text,is_approved boolean default false,display_name text default 'Fixture',city text,created_at timestamptz default now());
  create table public.professional_applications(id uuid primary key,email text,category_of_interest text,status text default 'REVIEWED');
  alter table public.profiles enable row level security;
  create policy profile_self on public.profiles for select to authenticated using(id=auth.uid());
@@ -30,7 +30,7 @@ test("approval RPC operates on synthetic PostgreSQL fixtures with real roles and
    insert into public.profiles values ('${uid(n)}','${n===1?"ADMIN":n===7?"MEMBER":"PROFESSIONAL"}');`);
  }
  for(const n of [2,4,5,6,7]){
-  await db.exec(`insert into public.professional_profiles values ('${uid(n+100)}','${uid(n)}','${n===5?"BUSINESS_OPERATIONS":n===6?"NOTARY":"BUSINESS_MARKETING"}',false)`);
+  await db.exec(`insert into public.professional_profiles(id,user_id,category,is_approved) values ('${uid(n+100)}','${uid(n)}','${n===5?"BUSINESS_OPERATIONS":n===6?"NOTARY":"BUSINESS_MARKETING"}',false)`);
  }
  for(let n=2;n<=9;n++){
   await db.exec(`insert into public.professional_applications values ('${aid(n)}','${n===8?"absent@example.test":n===9?"ambiguous@example.test":"fixture"+n+"@example.test"}','${n===6?"NOTARY":"BUSINESS_MARKETING"}','REVIEWED')`);
@@ -107,6 +107,27 @@ test("approval RPC operates on synthetic PostgreSQL fixtures with real roles and
    await db.exec(`update public.professional_profiles set is_approved=true where user_id='${uid(2)}'`);
    await db.exec(`update public.professional_profiles set category='BUSINESS_OPERATIONS',is_approved=true where user_id='${uid(2)}'`);
    assert.equal((await db.query<{is_approved:boolean}>(`select is_approved from public.professional_profiles where user_id='${uid(2)}'`)).rows[0].is_approved,false);
+  });
+ });
+ await t.test("only ADMIN can list and manually approve an unapplied immigration-document-support profile",async()=>{
+  await db.exec(`insert into public.professional_profiles(id,user_id,category,is_approved,display_name,city) values ('${uid(108)}','${uid(8)}','IMMIGRATION_DOCUMENT_SUPPORT',false,'1MIGRATION','Miami')`);
+  await db.exec(fs.readFileSync(new URL("../supabase/migrations/20261102130000_admin_existing_profile_document_support.sql",import.meta.url),"utf8"));
+  const list=()=>db.query<{profile_id:string;category:string;display_name:string}>("select * from public.admin_list_unapplied_professional_profiles()");
+  const call=(reason="Manual approval for document support")=>db.query<{state:string}>(`select public.admin_approve_existing_profile('${uid(108)}','IMMIGRATION_DOCUMENT_SUPPORT','${reason}') as state`);
+  await assert.rejects(()=>actor("authenticated",uid(2),list),/not authorized/);
+  await assert.rejects(()=>actor("anon","",list),/permission denied/);
+  await actor("authenticated",uid(1),async()=>{
+    const profiles=(await list()).rows;
+    assert.deepEqual(profiles.map(p=>[p.profile_id,p.category,p.display_name]),[[uid(108),"IMMIGRATION_DOCUMENT_SUPPORT","1MIGRATION"]]);
+    assert.equal((await call("too short")).rows[0].state,"REASON_REQUIRED");
+    assert.equal((await call()).rows[0].state,"APPROVED");
+    await db.exec("reset role");
+    assert.equal((await db.query<{n:number}>(`select count(*)::int n from private.professional_profile_approval_events where professional_profile_id='${uid(108)}' and approved_by='${uid(1)}' and approval_reason='Manual approval for document support'`)).rows[0].n,1);
+  });
+  await db.exec(`insert into public.professional_profiles(id,user_id,category,is_approved) values ('${uid(109)}','${uid(9)}','IMMIGRATION_DOCUMENT_SUPPORT',false);
+    insert into public.professional_applications values ('${aid(99)}','fixture9@example.test','IMMIGRATION_DOCUMENT_SUPPORT','REVIEWED')`);
+  await actor("authenticated",uid(1),async()=>{
+    assert.equal((await db.query<{state:string}>(`select public.admin_approve_application_profile('${aid(99)}') as state`)).rows[0].state,"CATEGORY_NOT_ENABLED");
   });
  });
  assert.equal((await db.query<{n:number}>("select count(*)::int as n from public.professional_profiles where is_approved")).rows[0].n,0);

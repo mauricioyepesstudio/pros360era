@@ -169,6 +169,14 @@ export default function ProfessionalProfileView({
         </Section>
       )}
 
+      {professional.category === "IMMIGRATION_DOCUMENT_SUPPORT" && (
+        <Section labelledBy="immigration-document-notice">
+          <div id="immigration-document-notice" className="max-w-3xl rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--sky-surface)] p-6 text-sm leading-6 text-[var(--brand-navy)]">
+            Este profesional ofrece apoyo documental. EVOLUSA no da asesoría migratoria ni es una agencia de inmigración. Para orientación legal o migratoria, consulta a un profesional debidamente autorizado.
+          </div>
+        </Section>
+      )}
+
       {hasLinks && (
         <Section className="bg-[var(--surface-subtle)]" labelledBy="professional-links-title">
           <Heading id="professional-links-title" eyebrow="Más de este profesional">
