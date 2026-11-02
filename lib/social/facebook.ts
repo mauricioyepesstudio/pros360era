@@ -87,10 +87,15 @@ export async function connectFacebookPage(config: FacebookConfig, code: string, 
   pagesUrl.searchParams.set("fields", "id,name,access_token,tasks");
   pagesUrl.searchParams.set("access_token", userToken);
   const pages = await readJson(await fetchImpl(pagesUrl, { cache: "no-store" }));
-  const candidates = (Array.isArray(pages.data) ? pages.data : []).filter(
+  const rows = Array.isArray(pages.data) ? pages.data : [];
+  const candidates = rows.filter(
     (row: { id?: unknown; name?: unknown; access_token?: unknown; tasks?: unknown }) =>
       typeof row?.id === "string" && typeof row.name === "string" && typeof row.access_token === "string" && Array.isArray(row.tasks) && row.tasks.includes("CREATE_CONTENT"),
   ) as { id: string; name: string; access_token: string }[];
+  if (candidates.length === 0) {
+    // Counts only: never ids, names or tokens.
+    console.warn("facebook_no_page", { returned: rows.length, withToken: rows.filter((r: { access_token?: unknown }) => typeof r?.access_token === "string").length, withTasks: rows.filter((r: { tasks?: unknown }) => Array.isArray(r?.tasks)).length, granted: grantedScopes.length });
+  }
   if (candidates.length > 1 || pages.paging && typeof pages.paging === "object" && "next" in pages.paging) throw new FacebookMultiplePagesError("facebook_multiple_pages");
   const page = candidates[0];
   if (!page) throw new FacebookNoPageError("facebook_no_page");
