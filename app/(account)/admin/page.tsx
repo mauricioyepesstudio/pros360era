@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import PageHeader from "@/components/account/PageHeader";
 import InitialCallInbox from "@/components/initial-call/InitialCallInbox";
 import ApplicationsTable from "@/components/admin/ApplicationsTable";
+import ExistingProfilesTable from "@/components/admin/ExistingProfilesTable";
 import { getCurrentRole } from "@/lib/account/persistence";
-import { getAdminDashboardStats, getProfessionalApplications } from "@/lib/admin/persistence";
+import { getAdminDashboardStats, getProfessionalApplications, getUnappliedProfessionalProfiles } from "@/lib/admin/persistence";
 
 /**
  * Page-level role gate — a UX nicety, not the real security boundary.
@@ -18,9 +19,10 @@ export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "ADMIN") redirect("/dashboard");
 
-  const [stats, applications] = await Promise.all([
+  const [stats, applications, existingProfiles] = await Promise.all([
     getAdminDashboardStats(),
     getProfessionalApplications(),
+    getUnappliedProfessionalProfiles(),
   ]);
 
   const pending = applications.filter((application) => application.status === "PENDING");
@@ -64,6 +66,12 @@ export default async function AdminPage() {
         <div className="mt-4">
           <ApplicationsTable applications={pending} />
         </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Perfiles sin solicitud ({existingProfiles.length})</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">Perfiles existentes sin una solicitud asociada. Requieren motivo y confirmación del administrador.</p>
+        <div className="mt-4"><ExistingProfilesTable profiles={existingProfiles} /></div>
       </div>
 
       {reviewed.length > 0 && (

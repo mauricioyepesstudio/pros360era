@@ -11,6 +11,8 @@ export const approvalLabels = {
   APPLICATION_NOT_FOUND: "No se encontró la solicitud",
   UPDATE_NOT_CONFIRMED: "No se confirmó la aprobación. Actualiza e inténtalo de nuevo",
   UNAVAILABLE: "No se pudo consultar la aprobación. Actualiza la página",
+  PROFILE_NOT_FOUND: "No se encontró el perfil",
+  REASON_REQUIRED: "Escribe un motivo de 12 a 500 caracteres",
 } as const;
 export type ApplicationApprovalState = keyof typeof approvalLabels;
 export function applicationApprovalState(value: unknown): ApplicationApprovalState {
@@ -31,4 +33,16 @@ export async function requestProfileApproval(client: ApprovalClient, application
   } catch {
     return {saved: false, message: "No se pudo confirmar la aprobación. Actualiza antes de intentarlo otra vez"};
   }
+}
+
+type ExistingApprovalClient = { rpc: (name: string, args: {p_profile_id: string; p_expected_category: string; p_reason: string}) => PromiseLike<{data: unknown; error: unknown}> };
+export async function requestExistingProfileApproval(client: ExistingApprovalClient, profileId: string, expectedCategory: string, reason: string) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileId)) return {saved: false, message: "El perfil no es válido"};
+  if (reason.trim().length < 12 || reason.trim().length > 500) return {saved: false, message: approvalLabels.REASON_REQUIRED};
+  try {
+    const {data, error} = await client.rpc("admin_approve_existing_profile", {p_profile_id: profileId, p_expected_category: expectedCategory, p_reason: reason.trim()});
+    if (error) return {saved: false, message: "No se pudo aprobar el perfil. Comprueba tu sesión de administrador"};
+    const state = applicationApprovalState(data);
+    return {saved: state === "APPROVED", message: approvalLabels[state]};
+  } catch { return {saved: false, message: "No se pudo confirmar la aprobación. Actualiza antes de intentarlo otra vez"}; }
 }

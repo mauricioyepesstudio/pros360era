@@ -15,7 +15,7 @@ import {
   declineOpportunity,
 } from "@/lib/opportunities/persistence";
 import { createConnectionFeeCheckout } from "@/lib/opportunities/payment";
-import { approveApplicationProfile, updateApplicationStatus, type ProfessionalApplicationStatus } from "@/lib/admin/persistence";
+import { approveApplicationProfile, approveExistingProfile, updateApplicationStatus, type ProfessionalApplicationStatus } from "@/lib/admin/persistence";
 import { updateMyProfessionalProfile } from "@/lib/professional/self-profile";
 import type { RoadmapCategory, UserProfile } from "@/data/account/types";
 import type { ConsentDataCategory, DeclineReason, IntentReadiness } from "@/data/opportunities/types";
@@ -159,6 +159,18 @@ export async function updateMyProfessionalProfileAction(fields: ProfessionalProf
 
 export async function approveApplicationProfileAction(applicationId: string) {
   const result = await approveApplicationProfile(applicationId);
+  if (result.saved) {
+    revalidatePath("/admin");
+    revalidatePath("/panel-profesional", "layout");
+    revalidatePath("/dashboard/professional");
+    revalidatePath("/profesionales", "layout");
+    revalidatePath("/conexiones");
+  }
+  return result;
+}
+
+export async function approveExistingProfileAction(profileId: string, expectedCategory: string, reason: string) {
+  const result = await approveExistingProfile(profileId, expectedCategory, reason);
   if (result.saved) {
     revalidatePath("/admin");
     revalidatePath("/panel-profesional", "layout");

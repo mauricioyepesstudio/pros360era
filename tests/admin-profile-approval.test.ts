@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {requestProfileApproval,applicationApprovalState} from "../lib/admin/profile-approval.ts";
+import {requestExistingProfileApproval,requestProfileApproval,applicationApprovalState} from "../lib/admin/profile-approval.ts";
 const id="10000000-0000-0000-0000-000000000001";
 test("approval requires a valid application and sends no user, category, role or approval flag",async()=>{
  let received:unknown;
@@ -19,4 +19,10 @@ test("RPC and transport failures do not expose raw errors or optimistic approval
  assert.equal(denied.saved,false);assert.doesNotMatch(denied.message,/private SQL/);
  const network=await requestProfileApproval({rpc:async()=>{throw Error("network")}},id);
  assert.equal(network.saved,false);assert.match(network.message,/confirmar/);
+});
+test("existing-profile approval forwards only profile, expected category and bounded audit reason",async()=>{
+ let received:unknown;
+ const r=await requestExistingProfileApproval({rpc:async(...args)=>{received=args;return {data:"APPROVED",error:null}}},id,"IMMIGRATION_DOCUMENT_SUPPORT","Manual approval for document support");
+ assert.equal(r.saved,true);assert.deepEqual(received,["admin_approve_existing_profile",{p_profile_id:id,p_expected_category:"IMMIGRATION_DOCUMENT_SUPPORT",p_reason:"Manual approval for document support"}]);
+ let calls=0;assert.equal((await requestExistingProfileApproval({rpc:async()=>{calls++;return {data:null,error:null}}},id,"BUSINESS_MARKETING","short")).saved,false);assert.equal(calls,0);
 });
