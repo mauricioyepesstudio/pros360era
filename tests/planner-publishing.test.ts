@@ -159,3 +159,32 @@ for (const [label, data, error] of [
     await assert.rejects(connectFacebookPage(config, "code", fake), error);
   });
 }
+
+test("Facebook finds a business-portfolio Page through the per-Page grant when /me/accounts is empty", async () => {
+  const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
+  const fake = (async (input: string | URL) => {
+    const url = new URL(String(input));
+    if (url.pathname.endsWith("/oauth/access_token")) return json({ access_token: "user" });
+    if (url.pathname.endsWith("/me/permissions")) return json({ data: [{ permission: "pages_manage_posts", status: "granted" }] });
+    if (url.pathname.endsWith("/me/accounts")) return json({ data: [] });
+    if (url.pathname.endsWith("/debug_token")) return json({ data: { granular_scopes: [{ scope: "pages_manage_posts", target_ids: ["1359298860589803"] }] } });
+    if (url.pathname.endsWith("/1359298860589803")) return json({ id: "1359298860589803", name: "Evolusa", access_token: "page-token" });
+    return json({});
+  }) as typeof fetch;
+  const result = await connectFacebookPage(config, "code", fake);
+  assert.equal(result.page.id, "1359298860589803");
+  assert.equal(result.page.accessToken, "page-token");
+});
+
+test("Facebook still refuses several granted Pages when /me/accounts is empty", async () => {
+  const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
+  const fake = (async (input: string | URL) => {
+    const url = new URL(String(input));
+    if (url.pathname.endsWith("/oauth/access_token")) return json({ access_token: "user" });
+    if (url.pathname.endsWith("/me/permissions")) return json({ data: [] });
+    if (url.pathname.endsWith("/me/accounts")) return json({ data: [] });
+    if (url.pathname.endsWith("/debug_token")) return json({ data: { granular_scopes: [{ scope: "pages_manage_posts", target_ids: ["1", "2"] }] } });
+    return json({});
+  }) as typeof fetch;
+  await assert.rejects(connectFacebookPage(config, "code", fake), FacebookMultiplePagesError);
+});
