@@ -93,12 +93,12 @@ export default function HeroArtboard() {
           <p className="mt-2 max-w-md text-base leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
           <div className="mt-5 flex flex-col gap-4">
             <div className="flex gap-4">
-              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" title="Aplica como profesional aprobado">
-                Soy profesional
+              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="member" title="Ver profesionales aprobados">
+                Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
-              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="primary" title="Ver profesionales aprobados">
-                Busco un profesional
+              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="pro" title="Aplica como profesional aprobado">
+                Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
             </div>

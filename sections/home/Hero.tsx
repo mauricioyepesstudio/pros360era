@@ -50,12 +50,12 @@ export default function Hero() {
           <p className="mt-2 text-sm leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
-              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
-                Soy profesional
+              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="member" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
+                Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
-              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
-                Busco un profesional
+              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="pro" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
+                Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>

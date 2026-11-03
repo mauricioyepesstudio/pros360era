@@ -4,16 +4,11 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
 import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
-import ExplainerInteractive from "@/sections/home/ExplainerInteractive";
 import ProductReveal from "@/sections/home/ProductReveal";
-import JourneyOverview from "@/sections/home/JourneyOverview";
-import LifeStory from "@/sections/home/LifeStory";
-import StageSelector from "@/sections/home/StageSelector";
-import StageServices from "@/sections/home/StageServices";
-import HowItWorks from "@/sections/home/HowItWorks";
+import RoleSplit from "@/sections/home/RoleSplit";
+import StageJourney from "@/sections/home/StageJourney";
 import TrustAndTransparency from "@/sections/home/TrustAndTransparency";
 import FAQ from "@/sections/home/FAQ";
-import CTA from "@/sections/home/CTA";
 import Footer from "@/sections/home/Footer";
 
 export default function Home() {
@@ -25,16 +20,11 @@ export default function Home() {
       <main className="bg-[var(--background)] text-[var(--foreground)]">
         <HeroArtboard />
         <Hero />
-        <JourneyOverview />
         <ProductReveal />
-        <ExplainerInteractive />
-        <LifeStory />
-        <StageSelector />
-        <StageServices />
-        <HowItWorks />
+        <RoleSplit />
+        <StageJourney />
         <TrustAndTransparency />
         <FAQ />
-        <CTA />
       </main>
 
       <Footer />
