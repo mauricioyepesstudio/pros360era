@@ -111,8 +111,8 @@ export default function ParaProfesionalesPage() {
       <SiteHeader />
       <main className="pt-24">
         <section aria-labelledby="pro-hero-title" className="relative bg-[var(--brand-navy)] text-white">
-          <div className="relative aspect-[4/3] w-full">
-            <Image src="/images/journey/achievement.jpg" alt="Una profesional sonríe con los brazos cruzados frente a la ciudad" fill priority sizes="100vw" className="object-cover" />
+          <div className="relative aspect-[1456/1088] w-full">
+            <Image src="/images/professionals/pro-hero.jpg" alt="Un profesional hispano sonríe mientras atiende a una clienta en su oficina frente a la bahía de Miami" fill priority sizes="100vw" className="object-cover" />
             <div aria-hidden className="absolute inset-0 hidden bg-gradient-to-l from-[var(--brand-navy)]/90 via-[var(--brand-navy)]/45 via-45% to-transparent to-65% lg:block" />
           </div>
           <div className="px-5 py-12 lg:absolute lg:inset-0 lg:flex lg:items-center lg:justify-end lg:px-[clamp(2rem,6vw,7rem)] lg:py-10">
