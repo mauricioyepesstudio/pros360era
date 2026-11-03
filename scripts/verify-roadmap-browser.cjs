@@ -39,7 +39,10 @@ const fs = require('node:fs');
         await toggle.click();
         await mobileNav.waitFor({ state: 'visible' });
         await page.setViewportSize({ width: 1280, height: 1000 });
-        await mobileNav.waitFor({ state: 'detached' });
+        // getByRole stops matching the xl:hidden menu as soon as the layout is
+        // desktop, before the matchMedia "change" event closes it. Wait for the
+        // real close (menu removed and scroll lock released), not just hidden.
+        await page.waitForFunction(() => !document.querySelector('nav[aria-label="Navegación móvil"]') && document.documentElement.style.overflow === 'auto', null, { timeout: 5000 });
         assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'auto');
         await page.setViewportSize({ width, height: 1000 });
         assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
