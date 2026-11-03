@@ -84,7 +84,7 @@ export default function StageJourney() {
           ) : null}
           <p className="text-sm leading-6 text-[var(--muted)]"><strong className="text-[var(--brand-navy)]">Al terminar:</strong> {stage.outcome}</p>
           <ButtonLink href="/onboarding" variant="member" className="mt-auto w-full sm:w-fit">
-            Crear mi roadmap <ArrowRight aria-hidden className="ml-2" size={16} />
+            Crear mi plan <ArrowRight aria-hidden className="ml-2" size={16} />
           </ButtonLink>
         </div>
       </div>

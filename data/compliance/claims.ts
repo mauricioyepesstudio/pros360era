@@ -25,7 +25,7 @@ export const disclaimers = [
   { id: "general-education", short: "Información educativa general.", full: "La información presentada es educativa y no sustituye asesoría profesional individualizada.", appliesTo: ["EDUCATION"] },
   { id: "regulated-services", short: "La disponibilidad depende del proveedor y la jurisdicción.", full: "Los servicios legales, migratorios, fiscales, notariales y de seguros, cuando estén disponibles, son prestados por profesionales o proveedores apropiados según su licencia y jurisdicción.", appliesTo: ["LEGAL", "IMMIGRATION", "TAX", "NOTARY", "INSURANCE"] },
   { id: "partner-regulated-services", short: "EVOLUSA no ofrece servicios ni orientación migratoria.", full: "EVOLUSA no ofrece servicios ni orientación migratoria, legal, fiscal ni notarial. Los trámites del aliado se contratan y se atienden directamente con el aliado, que es responsable de su servicio. EVOLUSA no cobra ni recibe comisión por esos trámites.", appliesTo: ["IMMIGRATION", "LEGAL", "TAX", "NOTARY"] },
-  { id: "roadmap-guidance", short: "Tu Roadmap es una guía inicial.", full: "El Roadmap ofrece orientación operacional y educativa; no constituye asesoría legal, migratoria, fiscal, financiera ni de seguros.", appliesTo: ["EDUCATION", "BUSINESS_OPERATIONS"] },
+  { id: "roadmap-guidance", short: "Tu plan es una guía inicial.", full: "El plan ofrece orientación operacional y educativa; no constituye asesoría legal, migratoria, fiscal, financiera ni de seguros.", appliesTo: ["EDUCATION", "BUSINESS_OPERATIONS"] },
 ] as const satisfies readonly Disclaimer[];
 
 export const serviceCompliance = [

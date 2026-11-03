@@ -41,16 +41,17 @@
   --brand-gold: #f5b942;
   --brand-gold-strong: #9a6500;
   /* ===== Color por rol (3-nov-2026) =====
-     Usuario/miembro = azul. Profesional = dorado. Se usan en el home
-     (mitades), en los botones de entrada y en todo el panel de cada rol,
-     para que nadie confunda dónde está. Dorado como fondo siempre con
-     texto navy (contraste AA); para texto dorado sobre blanco usar -strong. */
+     Usuario/miembro = azul. Profesional = rojo EVOLUSA (owner, 3-nov:
+     "no me gusta el amarillo, prefiero el rojo"). Se usan en el home
+     (mitades), en los botones de entrada y en todo el panel de cada rol.
+     El fondo rojo usa el tono -strong (#c4001a) para que el texto blanco
+     pase AA (~6:1); el rojo vivo #f20d24 con texto blanco no llega a 4.5:1. */
   --role-member: var(--brand-blue);
   --role-member-strong: var(--brand-blue-strong);
   --role-member-soft: #eff6ff;
-  --role-pro: var(--brand-gold);
-  --role-pro-strong: var(--brand-gold-strong);
-  --role-pro-soft: #fdf3dc;
+  --role-pro: var(--brand-red-strong);
+  --role-pro-strong: var(--brand-red-strong);
+  --role-pro-soft: #fdecee;
   --warm-canvas: #fafaf8;
   --sky-surface: #eff6ff;
   --stone-surface: #f2f0ea;

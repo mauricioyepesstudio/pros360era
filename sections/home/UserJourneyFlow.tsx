@@ -16,7 +16,7 @@ const steps = [
     number: 2,
     icon: ArrowRight,
     title: "Recibe orientación clara",
-    description: "Tu roadmap personal con acciones ahora, esta semana y próximamente. Totalmente a tu ritmo.",
+    description: "Tu plan personal con acciones ahora, esta semana y próximamente. Totalmente a tu ritmo.",
   },
   {
     number: 3,
@@ -40,7 +40,7 @@ const steps = [
     number: 6,
     icon: Star,
     title: "Finaliza y califica",
-    description: "Marca como completado. Califica al profesional. Descubre tu próximo paso en el roadmap.",
+    description: "Marca como completado. Califica al profesional. Descubre tu próximo paso en el plan.",
   },
 ];
 

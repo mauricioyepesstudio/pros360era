@@ -33,10 +33,10 @@ const roles: Record<Role, {
     title: "Tu próximo paso en EE. UU., claro y en español.",
     steps: [
       "Responde unas preguntas cortas sobre tu situación.",
-      "Recibe tu roadmap: qué hacer ahora y qué sigue.",
+      "Recibe tu plan: qué hacer ahora y qué sigue.",
       "Conecta con un profesional con perfil aprobado cuando lo necesites.",
     ],
-    cta: { href: "/onboarding", label: "Crear mi roadmap" },
+    cta: { href: "/onboarding", label: "Crear mi plan" },
     secondary: { href: "/profesionales", label: "Ver profesionales" },
     icon: UserRound,
   },
@@ -80,7 +80,7 @@ export default function RoleSplit() {
                   selected
                     ? key === "usuario"
                       ? "bg-[var(--role-member)] text-white"
-                      : "bg-[var(--role-pro)] text-[var(--brand-navy)]"
+                      : "bg-[var(--role-pro)] text-white"
                     : "text-[var(--muted)]",
                 )}
               >
@@ -104,11 +104,11 @@ export default function RoleSplit() {
               className={cn(
                 "px-6 py-12 sm:px-10 lg:block lg:px-14 lg:py-20 xl:px-20",
                 active === key ? "block" : "hidden",
-                isPro ? "bg-[var(--role-pro)] text-[var(--brand-navy)]" : "bg-[var(--role-member)] text-white",
+                isPro ? "bg-[var(--role-pro)] text-white" : "bg-[var(--role-member)] text-white",
               )}
             >
               <div className="mx-auto max-w-xl">
-                <p className={cn("flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em]", isPro ? "text-[var(--brand-navy)]/80" : "text-white/85")}>
+                <p className={cn("flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em]", "text-white/85")}>
                   <Icon aria-hidden size={18} />
                   {role.eyebrow}
                 </p>
@@ -116,7 +116,7 @@ export default function RoleSplit() {
                 <ol className="mt-8 space-y-4">
                   {role.steps.map((step, index) => (
                     <li key={step} className="flex items-start gap-4">
-                      <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold", isPro ? "bg-[var(--brand-navy)] text-[var(--role-pro)]" : "bg-white text-[var(--role-member)]")}>
+                      <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold", isPro ? "bg-white text-[var(--role-pro)]" : "bg-white text-[var(--role-member)]")}>
                         {index + 1}
                       </span>
                       <span className="pt-1 text-base font-semibold leading-6 sm:text-lg">{step}</span>

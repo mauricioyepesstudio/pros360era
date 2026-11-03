@@ -13,9 +13,9 @@ export default function ButtonLink({ children, className, variant = "primary", .
     primary: "bg-[var(--brand-red)] text-white shadow-[0_14px_30px_-18px_rgb(242_13_36_/_0.5)] hover:bg-[var(--brand-red-strong)]",
     secondary: "border border-[var(--border)] bg-[var(--brand-navy)] text-white hover:bg-[var(--brand-navy-strong)]",
     ghost: "text-[var(--brand-navy)] hover:bg-[var(--surface-subtle)]",
-    // Color por rol: azul = usuario/miembro, dorado = profesional.
+    // Color por rol: azul = usuario/miembro, rojo = profesional.
     member: "bg-[var(--role-member)] text-white hover:bg-[var(--role-member-strong)]",
-    pro: "bg-[var(--role-pro)] text-[var(--brand-navy)] hover:brightness-95",
+    pro: "bg-[var(--role-pro)] text-white hover:brightness-95",
   };
   return <Link className={cn("inline-flex min-h-11 items-center justify-center rounded-[var(--radius-pill)] px-6 py-3 text-sm font-semibold transition hover:-translate-y-0.5", variants[variant], className)} {...props}>{children}</Link>;
 }

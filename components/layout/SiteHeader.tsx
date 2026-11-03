@@ -10,7 +10,7 @@ import { cn } from "@/lib/cn";
 const navigation = [
   { label: "Para ti", href: "#como-funciona" },
   { label: "Etapas", href: "#journey" },
-  { label: "Roadmap", href: "#roadmap" },
+  { label: "Plan", href: "#roadmap" },
   { label: "Confianza", href: "#trust" },
   { label: "Preguntas", href: "#faq" },
 ] as const;
@@ -85,11 +85,11 @@ export default function SiteHeader() {
       {!scrolled && !menuOpen && (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-black/30 to-transparent" />
       )}
-      <Container className="flex min-h-24 items-center justify-between gap-2 sm:gap-4">
+      <Container className="flex min-h-24 max-w-none items-center justify-between gap-2 sm:gap-4 xl:px-[clamp(2rem,4vw,5rem)]">
         <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
           <BrandMark size="lg" theme={scrolled && !menuOpen ? "light" : "dark"} className="[&_img]:!h-auto [&_img]:!w-24 xl:[&_img]:!h-10 xl:[&_img]:!w-auto" />
         </Link>
-        <nav className="hidden items-center gap-5 xl:flex" aria-label="Navegación principal">
+        <nav className="hidden items-center gap-5 xl:flex 2xl:gap-9" aria-label="Navegación principal">
           {navigation.map((item) => (
             <Link
               key={item.href}

@@ -269,9 +269,9 @@ export default function ProfessionalProfileView({
       <Section className="bg-[var(--brand-navy)]">
         <div className="mx-auto max-w-xl text-center">
           <p className="text-balance text-2xl font-bold text-white sm:text-3xl">¿Quieres seguir explorando tu camino?</p>
-          <p className="mt-3 leading-7 text-white/70">Tu Roadmap te ayuda a identificar el próximo paso adecuado para ti.</p>
+          <p className="mt-3 leading-7 text-white/70">Tu plan te ayuda a identificar el próximo paso adecuado para ti.</p>
           <ButtonLink href="/roadmap" className="mt-6">
-            Volver al Roadmap
+            Volver al plan
           </ButtonLink>
         </div>
       </Section>

@@ -121,11 +121,11 @@ export default async function ProfessionalPanelPage() {
         ) : null}
       </div>
 
-      <section className="flex flex-col gap-5 rounded-[var(--radius-lg)] bg-[var(--role-pro)] p-6 text-[var(--brand-navy)] sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <section className="flex flex-col gap-5 rounded-[var(--radius-lg)] bg-[var(--role-pro)] p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--brand-navy)]/75">Tu siguiente paso</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/80">Tu siguiente paso</p>
           <h2 className="mt-2 text-2xl font-extrabold">{nextStep.title}</h2>
-          <p className="mt-1 max-w-xl text-sm leading-6 text-[var(--brand-navy)]/80">{nextStep.body}</p>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-white/85">{nextStep.body}</p>
         </div>
         <Link href={nextStep.href} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] px-6 font-bold text-white hover:bg-[var(--brand-navy-strong)]">
           {nextStep.cta}<ArrowRight aria-hidden className="ml-2" size={18} />

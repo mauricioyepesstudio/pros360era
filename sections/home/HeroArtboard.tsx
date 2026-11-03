@@ -38,34 +38,38 @@ export default function HeroArtboard() {
   const ART_H = 1024;
 
   return (
-    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden bg-[var(--brand-navy)] xl:block">
+    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden overflow-hidden bg-[var(--brand-navy)] xl:block">
+      {/* Full-bleed photo (owner, 3-nov: "se ve horrible el corte"). The photo
+          and scrims now cover the whole section width, so wide monitors no
+          longer show navy bands with the photo cut off at the 1536px edge.
+          Only the text/path/panel stay inside the 1536px artboard below. */}
+      <div aria-hidden className="absolute inset-0">
+        {/* Background photo — bottom-anchored 1.15x scale. Measured the actual
+              source file directly: ~13.9% of the top is empty sky before the
+              first building appears, while the water at the bottom runs to the
+              very edge (0% margin there). Anchoring the scale at the bottom
+              means the family's feet/legs stay exactly where they already were
+              (nothing already-visible gets cropped) while that empty sky margin
+              gets trimmed and the family sits slightly higher/larger in frame. */}
+          <div className="absolute inset-0" style={{ transform: "scale(1.28)", transformOrigin: "center bottom" }}>
+            <motion.div style={{ scale: imageScale }} className="absolute inset-0">
+              <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center" sizes="2000px" />
+            </motion.div>
+          </div>
+
+          {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
+              scrim covers the left ~55% width and full height for text safety, fading
+              out toward the family on the right. Stronger opacity for text legibility. */}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)]/95 via-[var(--brand-navy)]/80 to-transparent" style={{ width: "max(62%, calc((100% - 1536px) / 2 + 952px))" }} />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/90 to-transparent" />
+      </div>
       <div
-        className="relative mx-auto overflow-hidden"
+        className="relative mx-auto"
         style={{
           width: "min(100%, 1536px)",
           aspectRatio: `${ART_W} / ${ART_H}`,
         }}
       >
-        {/* Background photo — bottom-anchored 1.15x scale. Measured the actual
-            source file directly: ~13.9% of the top is empty sky before the
-            first building appears, while the water at the bottom runs to the
-            very edge (0% margin there). Anchoring the scale at the bottom
-            means the family's feet/legs stay exactly where they already were
-            (nothing already-visible gets cropped) while that empty sky margin
-            gets trimmed and the family sits slightly higher/larger in frame. */}
-        <div className="absolute inset-0" style={{ transform: "scale(1.28)", transformOrigin: "center bottom" }}>
-          <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-            <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center" sizes="2000px" />
-          </motion.div>
-        </div>
-
-        {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
-            scrim covers the left ~55% width and full height for text safety, fading
-            out toward the family on the right. Stronger opacity for text legibility. */}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)]/95 via-[var(--brand-navy)]/80 to-transparent" style={{ width: "62%" }} />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/90 to-transparent" />
-
-
         {/* Headline block — MEASURED bounds: x=[6.3%,51.8%] y=[17.4%,38.8%] (headline);
             swoosh y=[38.8%,40.4%]; copy y=[42.1%,51.7%]; CTA row y=[55.4%,59.7%]. */}
         <motion.div
