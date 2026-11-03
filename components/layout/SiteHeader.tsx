@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
@@ -51,7 +51,10 @@ export default function SiteHeader() {
     };
   }, []);
 
-  useEffect(() => {
+  // Layout effect so the scroll lock is released in the same commit that
+  // removes the mobile menu: a passive effect's cleanup can run after the
+  // menu is already gone, leaving <html> at overflow:hidden for a moment.
+  useLayoutEffect(() => {
     if (!menuOpen) return;
 
     const root = document.documentElement;
