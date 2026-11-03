@@ -26,7 +26,6 @@ export default function Home() {
         <BleedQuote
           src="/images/journey/arrival.jpg"
           alt="Un hombre llega a Miami con su maleta"
-          position="center 22%"
           quote="Llegar es el primer paso. Lo que sigue no lo tienes que hacer solo."
           cite="EVOLUSA · Tu próximo paso"
         />

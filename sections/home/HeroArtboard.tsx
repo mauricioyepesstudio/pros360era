@@ -3,41 +3,37 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 /**
- * Home hero (owner-approved mockup v6, 3-nov): one full-bleed photo, no
- * framed/shaped photos, white type over a navy scrim on the left; the key phrase is set in brand red (no underline or highlight bars, owner 3-nov). On phones
- * the photo sits on top and the copy below it on navy, so text never covers
- * faces.
+ * Home hero (owner feedback 3-nov): split, full-bleed. The photo keeps its
+ * own 3:2 shape so nothing is cropped, and the copy sits on navy beside it,
+ * never on top of the photo. Phones: photo on top, copy below.
  *
  * Copy rules: no regulated services in the subline, "perfil aprobado por
  * EVOLUSA" (never "verificado"), no promised outcomes.
  */
 export default function HeroArtboard() {
   return (
-    <section id="home" aria-labelledby="hero-title" className="relative overflow-hidden bg-[var(--brand-navy)] text-white md:flex md:min-h-[min(88vh,820px)] md:items-center">
-      <div className="relative h-[340px] md:absolute md:inset-0 md:h-auto">
+    <section id="home" aria-labelledby="hero-title" className="grid bg-[var(--brand-navy)] text-white lg:min-h-[33.34vw] lg:grid-cols-2">
+      <div className="relative aspect-[3/2] lg:order-2 lg:aspect-auto">
         <Image
           src="/images/hero/hero-family-2x.webp"
           alt="Una familia hispana frente a la bahía de Miami al atardecer"
           fill
           priority
-          sizes="100vw"
-          className="object-cover object-[65%_center] md:object-center"
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover"
         />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-transparent from-60% to-[var(--brand-navy)] md:bg-gradient-to-r md:from-[var(--brand-navy)]/85 md:from-0% md:via-[var(--brand-navy)]/55 md:via-40% md:to-transparent md:to-70%" />
       </div>
 
-      <div className="relative mx-auto -mt-10 w-full max-w-[1200px] px-5 pb-12 md:mt-0 md:py-20">
-        <div className="max-w-[600px]">
-          <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em]">
-            <span aria-hidden className="h-[3px] w-8 rounded-full bg-[var(--brand-red)]" />
+      <div className="flex items-center px-5 py-12 lg:px-[clamp(2rem,5vw,6rem)] lg:py-10">
+        <div className="max-w-[560px]">
+          <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[#ff7a87]">
+            <span aria-hidden className="h-[3px] w-8 rounded-full bg-current" />
             Florida · en español
           </p>
-          <h1 id="hero-title" className="mt-4 text-balance text-[2.4rem] font-extrabold leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-[4.2rem]">
-            Tu vida en EE.&nbsp;UU.,{" "}
-            <span className="text-[var(--brand-red)]">paso a paso</span>
-            , con un profesional a tu lado.
+          <h1 id="hero-title" className="mt-4 text-balance text-[2.2rem] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] xl:text-[3.25rem]">
+            Tu vida en EE.&nbsp;UU., paso a paso, con un profesional a tu lado.
           </h1>
-          <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-white/90">
+          <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-white/90">
             Te mostramos tu camino en 6 etapas: qué hacer ahora y qué sigue. En cada paso te conectamos con un profesional en Florida que habla tu idioma.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -49,9 +45,9 @@ export default function HeroArtboard() {
             </Link>
           </div>
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">
-            <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Empiezas gratis</li>
-            <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Cada profesional con perfil aprobado por EVOLUSA</li>
-            <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Todo en español</li>
+            <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Empiezas gratis</li>
+            <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Cada profesional con perfil aprobado por EVOLUSA</li>
+            <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Todo en español</li>
           </ul>
         </div>
       </div>

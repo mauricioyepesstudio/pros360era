@@ -111,26 +111,25 @@ export default function ParaProfesionalesPage() {
     <>
       <SiteHeader />
       <main className="pt-24">
-        <section aria-labelledby="pro-hero-title" className="relative overflow-hidden bg-[var(--brand-navy)] text-white md:flex md:min-h-[min(88vh,820px)] md:items-center">
-          <div className="relative h-[340px] md:absolute md:inset-0 md:h-auto">
-            <Image src="/images/journey/achievement.jpg" alt="Una profesional sonríe con los brazos cruzados frente a la ciudad" fill priority sizes="100vw" className="object-cover object-[20%_center]" />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-transparent from-60% to-[var(--brand-navy)] md:bg-gradient-to-l md:from-[var(--brand-navy)]/85 md:from-0% md:via-[var(--brand-navy)]/55 md:via-40% md:to-transparent md:to-70%" />
+        <section aria-labelledby="pro-hero-title" className="grid bg-[var(--brand-navy)] text-white lg:min-h-[37.5vw] lg:grid-cols-2">
+          <div className="relative aspect-[4/3] lg:aspect-auto">
+            <Image src="/images/journey/achievement.jpg" alt="Una profesional sonríe con los brazos cruzados frente a la ciudad" fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
-          <div className="relative mx-auto -mt-10 w-full max-w-[1200px] px-5 pb-12 md:mt-0 md:py-20">
-            <div className="max-w-[600px] md:ml-auto">
-              <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em]"><span aria-hidden className="h-[3px] w-8 rounded-full bg-[var(--brand-red)]" />Para profesionales en Florida</p>
-              <h1 id="pro-hero-title" className="mt-4 text-balance text-[2.4rem] font-extrabold leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-[4.2rem]">
-                Tú atiendes. <span className="text-[var(--brand-red)]">Nosotros te traemos</span> los clientes.
+          <div className="flex items-center px-5 py-12 lg:px-[clamp(2rem,5vw,6rem)] lg:py-10">
+            <div className="max-w-[560px]">
+              <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[#ff7a87]"><span aria-hidden className="h-[3px] w-8 rounded-full bg-current" />Para profesionales en Florida</p>
+              <h1 id="pro-hero-title" className="mt-4 text-[2.2rem] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] xl:text-[3.25rem]">
+                Tú atiendes.<br />Nosotros te traemos los clientes.
               </h1>
-              <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-white/90">Al registrarte recibes tu página profesional, tus redes planeadas, un CRM para tus clientes y solicitudes de hispanos que ya buscan lo que tú haces.</p>
+              <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-white/90">Al registrarte recibes tu página profesional, tus redes planeadas, un CRM para tus clientes y solicitudes de hispanos que ya buscan lo que tú haces.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="/aplicar-profesional" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]">Aplicar en 5 minutos <ArrowRight aria-hidden size={18} /></Link>
                 <Link href="#lo-que-recibes" className="inline-flex min-h-14 items-center rounded-full px-7 font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10">Ver lo que recibes</Link>
               </div>
               <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">
-                <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Un nicho definido</li>
-                <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Todo en un panel</li>
-                <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Español primero</li>
+                <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Un nicho definido</li>
+                <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Todo en un panel</li>
+                <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Español primero</li>
               </ul>
             </div>
           </div>
@@ -174,7 +173,7 @@ export default function ParaProfesionalesPage() {
           </div>
         </section>
 
-        <BleedQuote src="/images/journey/growth.jpg" alt="Un dueño de negocio trabaja en su laptop en su taller" position="center 30%" quote="Tus clientes hablan español y buscan en el celular. Que te encuentren a ti." cite="Por qué EVOLUSA y no un directorio cualquiera" />
+        <BleedQuote src="/images/journey/growth.jpg" alt="Un dueño de negocio trabaja en su laptop en su taller" photoSide="right" quote="Tus clientes hablan español y buscan en el celular. Que te encuentren a ti." cite="Por qué EVOLUSA y no un directorio cualquiera" />
 
         <section aria-labelledby="apply-title" className="border-t-[6px] border-[var(--brand-red)] bg-white py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1200px] items-end gap-10 px-5 md:grid-cols-[1.2fr_1fr] md:gap-14">

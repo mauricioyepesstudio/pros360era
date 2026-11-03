@@ -75,8 +75,8 @@ export default function StageJourney() {
         </div>
       </div>
 
-      <div id="stage-panel" role="tabpanel" aria-labelledby={`stage-tab-${current}`} className="mt-16 grid bg-[#fafaf8] md:grid-cols-2">
-        <div className="relative min-h-[320px] md:min-h-[540px]">
+      <div id="stage-panel" role="tabpanel" aria-labelledby={`stage-tab-${current}`} className="mt-16 grid bg-[#fafaf8] md:min-h-[37.5vw] md:grid-cols-2">
+        <div className="relative aspect-[4/3] md:aspect-auto">
           <Image key={stage.img} src={stage.img} alt={stage.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
         </div>
         <div className="flex flex-col justify-center gap-5 px-5 py-10 md:px-16 md:py-16 lg:pr-[max(1.25rem,calc((100vw-1200px)/2+1.25rem))]">
