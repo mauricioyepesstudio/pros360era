@@ -8,8 +8,8 @@ import Container from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 
 const navigation = [
-  { label: "Etapas", href: "#stage-selector" },
-  { label: "Servicios", href: "#stage-services" },
+  { label: "Para ti", href: "#como-funciona" },
+  { label: "Etapas", href: "#journey" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "Confianza", href: "#trust" },
   { label: "Preguntas", href: "#faq" },

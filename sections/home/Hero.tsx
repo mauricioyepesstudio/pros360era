@@ -50,19 +50,19 @@ export default function Hero() {
           <p className="mt-2 text-sm leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
-              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="primary" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
-                Soy profesional
+              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="member" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
+                Busco un profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
-              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="primary" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
-                Busco un profesional
+              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="pro" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
+                Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
             </div>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <HomeAccountEntry />
-              <Link href="#journey" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-blue-on-dark)] underline decoration-white/30 underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4">
-                Explorar las 6 etapas
+              <Link href="#como-funciona" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-blue-on-dark)] underline decoration-white/30 underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4">
+                Cómo funciona para ti
               </Link>
             </div>
           </div>

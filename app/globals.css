@@ -40,6 +40,17 @@
   --brand-blue-on-dark: #93c5fd;
   --brand-gold: #f5b942;
   --brand-gold-strong: #9a6500;
+  /* ===== Color por rol (3-nov-2026) =====
+     Usuario/miembro = azul. Profesional = dorado. Se usan en el home
+     (mitades), en los botones de entrada y en todo el panel de cada rol,
+     para que nadie confunda dónde está. Dorado como fondo siempre con
+     texto navy (contraste AA); para texto dorado sobre blanco usar -strong. */
+  --role-member: var(--brand-blue);
+  --role-member-strong: var(--brand-blue-strong);
+  --role-member-soft: #eff6ff;
+  --role-pro: var(--brand-gold);
+  --role-pro-strong: var(--brand-gold-strong);
+  --role-pro-soft: #fdf3dc;
   --warm-canvas: #fafaf8;
   --sky-surface: #eff6ff;
   --stone-surface: #f2f0ea;
