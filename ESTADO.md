@@ -1,3 +1,9 @@
+# 2026-11-03 — solicitud profesional recuperable ante errores de envío
+
+Preparado desde main remoto 3e315216: un rechazo de la acción ya no deja el botón en Enviando; conserva datos, muestra el error existente y permite reintentar. Sin cambios de permisos, esquema, aprobación, categorías u OAuth. Producto GO y cumplimiento ALLOWED. Validación: 354/354 pruebas, TypeScript, lint (0 errores, 5 advertencias previas), build y diff-check PASS; harness de cuatro casos sobre TSX con dobles PASS, sin afirmar navegador ni producción.
+
+Estado: preparado y probado; no integrado ni desplegado. PR propio #52 sigue abierto: se conserva rama independiente sin abrir un segundo PR propio ni sobrescribir el alcance del anterior. Evidencia y siguiente paso: docs/EVOLUSA-APPLICATION-RECOVERY-20261103.md y docs/cerebro/2026-11-03-application-recovery.md.
+
 # 2026-11-03 — Cerebro fase 1: perfil de voz y motor de IA central
 
 Rama `claude/cerebro-voz-motor-ia-20261103`. Nuevo `lib/cerebro/`: perfil de voz por profesional (tono, idioma, cómo habla, palabras sí/no, llamado a la acción, aviso obligatorio, emojis) guardado por propietario en `onboarding_responses` (sin migración), y un solo motor de IA que arma el prompt en español con la voz y el negocio, valida el JSON con zod, agrega el aviso y pasa el filtro de cumplimiento (cifras, «verificado», «notario», categorías reguladas, claims de `claims.ts`, palabras a evitar). Sin texto de respaldo inventado: si falta la clave o falla, error claro. Formulario «Mi voz» con «Probar mi voz» en /panel-profesional/perfil (borrador de prueba, no se guarda ni publica). Growth Automation usa el motor; se borra el generador viejo. Jarvis: módulo «ia» bloqueado hasta `ANTHROPIC_API_KEY` en Vercel. Plan completo: https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU
