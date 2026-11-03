@@ -58,22 +58,25 @@ const fs = require('node:fs');
       const explore = page.getByRole('link', { name: 'Explorar las 6 etapas', exact: true }).filter({ visible: true });
       assert.equal(await explore.count(), 1);
       const entryBox = await explore.boundingBox();
-      const pathBox = await page.locator('[data-tour="hero-path"]').filter({ visible: true }).boundingBox();
-      console.log(JSON.stringify({ width, reducedMotion, entryBox, pathBox }));
+      const heroBox = await page.locator('section#home').filter({ visible: true }).boundingBox();
+      console.log(JSON.stringify({ width, reducedMotion, entryBox, heroBox }));
       await page.locator('section#home').filter({ visible: true }).screenshot({ path: `browser-evidence/hero-${width}-${reducedMotion}.png` });
-      assert.ok(entryBox && pathBox && entryBox.y + entryBox.height <= pathBox.y + 1, `hero controls overlap path ${width}`);
+      // Hero CTAs sit inside the hero, fully on screen (no clipped controls).
+      assert.ok(entryBox && heroBox && entryBox.x >= 0 && entryBox.x + entryBox.width <= width + 1 && entryBox.y + entryBox.height <= heroBox.y + heroBox.height + 1, `hero controls clipped ${width}`);
+      assert.ok(await page.getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true }).isVisible());
       await explore.click();
       await page.locator('#journey').waitFor({ state: 'visible' });
       // Las 6 etapas aparecen una sola vez, como pestañas, con una sola acción.
-      assert.deepEqual((await page.locator('#journey [role="tab"]').allTextContents()).map(t => t.replace(/^\d+/, '')), ['Llega', 'Establécete', 'Emprende', 'Protégete', 'Crece', 'Evoluciona']);
-      assert.equal(await page.locator('#journey a[href="/onboarding"]').count(), 1);
+      assert.deepEqual(await page.locator('#journey [role="tab"]').evaluateAll(tabs => tabs.map(tab => tab.getAttribute('aria-label'))), ['Llega', 'Establécete', 'Emprende', 'Protégete', 'Crece', 'Evoluciona']);
+      // Una sola acción hacia las preguntas iniciales, en "Así empiezas".
+      assert.equal(await page.locator('#como-funciona a[href="/onboarding"]').count(), 1);
       await page.locator('#journey [role="tab"]').nth(2).click();
       assert.equal(await page.locator('#journey [role="tab"]').nth(2).getAttribute('aria-selected'), 'true');
       assert.ok(await page.locator('#journey').getByText('Guía educativa EVOLUSA').isVisible());
       assert.ok(await page.locator('#journey').getByText(/no constituye asesoría legal/).isVisible());
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `overflow ${width}`);
       await page.locator('#journey').screenshot({ path: `browser-evidence/roadmap-${width}-${reducedMotion}.png` });
-      await page.locator('#journey').getByRole('link', { name: 'Crear mi plan', exact: true }).click();
+      await page.locator('#como-funciona').getByRole('link', { name: 'Empezar las preguntas', exact: true }).click();
       await page.waitForURL('**/onboarding');
       assert.ok(!page.url().includes('signup'));
       checks++;

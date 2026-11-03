@@ -26,7 +26,7 @@ const steps: TourStep[] = [
   {
     target: "hero-busco",
     title: "¿Buscas ayuda?",
-    body: "En “Busco ayuda” ves cómo funciona: tus pasos en orden y un profesional aprobado para cada uno.",
+    body: "En “Empezar gratis” ves cómo funciona: tus pasos en orden y un profesional aprobado para cada uno.",
   },
   {
     target: "hero-login",

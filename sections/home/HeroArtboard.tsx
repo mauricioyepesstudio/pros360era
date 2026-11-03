@@ -1,130 +1,59 @@
-"use client";
-import HomeAccountEntry from "@/components/layout/HomeAccountEntry";
+import Image from "next/image";
 import Link from "next/link";
-
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import ButtonLink from "@/components/ui/ButtonLink";
-import EvolusaPath from "@/components/evolusa/EvolusaPath";
-import PhotoSlot from "@/components/evolusa/PhotoSlot";
 
 /**
- * Desktop-only (`xl:` and up). This is NOT a screenshot — every element
- * below is a real, live component (BrandMark, EvolusaPath, ProductRevealPanel
- * with real generateRoadmap() data, real <Link>s). What's different from a
- * normal fluid layout is the CONTAINING FRAME: an "artboard" locked to the
- * aspect ratio of the approved reference, capped at max-width so it doesn't
- * distort on ultra-wide monitors — the surrounding <section> supplies solid
- * navy on either side rather than the composition stretching indefinitely.
+ * Home hero (owner-approved mockup v6, 3-nov): one full-bleed photo, no
+ * framed/shaped photos, white type over a navy scrim on the left. On phones
+ * the photo sits on top and the copy below it on navy, so text never covers
+ * faces.
  *
- * CORRECTION (owner-confirmed): the artboard was previously 1024x890, per an
- * even earlier in-code note claiming 1536x1024 "doesn't match the reference
- * file." That earlier measurement was wrong. The owner confirmed the real
- * reference is 1536x1024 (3:2) — which also happens to match hero-family.webp's
- * own native aspect ratio (~1.5) almost exactly, which is why the photo no
- * longer needs any extra scale/crop transform below: at matching aspect
- * ratios, object-fit:cover shows the whole photo with no distortion.
+ * Copy rules: no regulated services in the subline, "perfil aprobado por
+ * EVOLUSA" (never "verificado"), no promised outcomes.
  */
 export default function HeroArtboard() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.02]);
-  const pathProgress = useTransform(scrollYProgress, [0, 0.85], [0.02, 1]);
-
-  // Was 1536 x 1024 with the "Tu plan" panel in the bottom 29%. The owner
-  // asked (3-nov) for a lighter home, so the panel left the hero and the
-  // artboard is shorter; the plan lives inside the account.
-  const ART_W = 1536;
-  const ART_H = 860;
-
   return (
-    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden overflow-hidden bg-[var(--brand-navy)] xl:block">
-      {/* Full-bleed photo (owner, 3-nov: "se ve horrible el corte"). The photo
-          and scrims now cover the whole section width, so wide monitors no
-          longer show navy bands with the photo cut off at the 1536px edge.
-          Only the text/path/panel stay inside the 1536px artboard below. */}
-      <div aria-hidden className="absolute inset-0">
-        {/* Background photo — bottom-anchored 1.15x scale. Measured the actual
-              source file directly: ~13.9% of the top is empty sky before the
-              first building appears, while the water at the bottom runs to the
-              very edge (0% margin there). Anchoring the scale at the bottom
-              means the family's feet/legs stay exactly where they already were
-              (nothing already-visible gets cropped) while that empty sky margin
-              gets trimmed and the family sits slightly higher/larger in frame. */}
-          <div className="absolute inset-0" style={{ transform: "scale(1.28)", transformOrigin: "center bottom" }}>
-            <motion.div style={{ scale: imageScale }} className="absolute inset-0">
-              <PhotoSlot id="hero" tone="luminous" priority className="h-full w-full" objectPosition="center" sizes="2000px" />
-            </motion.div>
-          </div>
-
-          {/* Scrim — MEASURED: headline/copy/CTA occupy x=[6%,52%] y=[17%,60%], so the
-              scrim covers the left ~55% width and full height for text safety, fading
-              out toward the family on the right. Stronger opacity for text legibility. */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[var(--brand-navy)]/95 via-[var(--brand-navy)]/80 to-transparent" style={{ width: "max(62%, calc((100% - 1536px) / 2 + 952px))" }} />
-          <div aria-hidden className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[var(--brand-navy)] via-[var(--brand-navy)]/90 to-transparent" />
+    <section id="home" aria-labelledby="hero-title" className="relative overflow-hidden bg-[var(--brand-navy)] text-white md:flex md:min-h-[min(88vh,820px)] md:items-center">
+      <div className="relative h-[340px] md:absolute md:inset-0 md:h-auto">
+        <Image
+          src="/images/hero/hero-family-2x.webp"
+          alt="Una familia hispana frente a la bahía de Miami al atardecer"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[65%_center] md:object-center"
+        />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-transparent from-60% to-[var(--brand-navy)] md:bg-gradient-to-r md:from-[var(--brand-navy)]/85 md:from-0% md:via-[var(--brand-navy)]/55 md:via-40% md:to-transparent md:to-70%" />
       </div>
-      <div
-        className="relative mx-auto"
-        style={{
-          width: "min(100%, 1536px)",
-          aspectRatio: `${ART_W} / ${ART_H}`,
-        }}
-      >
-        {/* Headline block — MEASURED bounds: x=[6.3%,51.8%] y=[17.4%,38.8%] (headline);
-            swoosh y=[38.8%,40.4%]; copy y=[42.1%,51.7%]; CTA row y=[55.4%,59.7%]. */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="absolute top-[14%] text-white 2xl:top-[19%]"
-          style={{ left: "6.3%", width: "46%" }}
-        >
-          <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
-            <span className="block text-[clamp(2rem,3.4vw,3.25rem)] font-light text-white">TU SUEÑO</span>
-            <span className="block text-[clamp(3rem,4.95vw,4.75rem)] font-extrabold text-white">TIENE UN</span>
-            <span className="block text-[clamp(3rem,4.95vw,4.75rem)] font-extrabold text-white">CAMINO.</span>
+
+      <div className="relative mx-auto -mt-10 w-full max-w-[1200px] px-5 pb-12 md:mt-0 md:py-20">
+        <div className="max-w-[600px]">
+          <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em]">
+            <span aria-hidden className="h-[3px] w-8 rounded-full bg-[var(--brand-red)]" />
+            Florida · en español
+          </p>
+          <h1 id="hero-title" className="mt-4 text-balance text-[2.4rem] font-extrabold leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-[4.2rem]">
+            Tu vida en EE.&nbsp;UU.,{" "}
+            <span className="underline decoration-[var(--brand-red)] decoration-[0.11em] underline-offset-[0.14em] [text-decoration-skip-ink:none]">paso a paso</span>
+            , con un profesional a tu lado.
           </h1>
-          <motion.span
-            aria-hidden
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
-            className="mt-3 block h-2 w-56 origin-left rounded-full bg-[var(--brand-red)]"
-          />
-          <p className="mt-4 text-xl font-semibold text-white">Tus trámites en EE. UU., paso a paso y en español.</p>
-          <p className="mt-2 max-w-md text-base leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta, en cada paso, con un profesional con perfil aprobado por EVOLUSA.</p>
-          <div className="mt-5 flex flex-col gap-4">
-            <div className="flex gap-4">
-              <ButtonLink href="#como-funciona" data-tour="hero-busco" variant="member" title="Ver cómo te ayuda EVOLUSA">
-                Busco ayuda
-                <ArrowRight aria-hidden className="ml-2" size={18} />
-              </ButtonLink>
-              <ButtonLink href="#para-profesionales" data-tour="hero-pro" variant="pro" title="Ver qué gana un profesional en EVOLUSA">
-                Soy profesional
-                <ArrowRight aria-hidden className="ml-2" size={18} />
-              </ButtonLink>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <HomeAccountEntry />
-              <Link href="#journey" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-blue-on-dark)] underline decoration-white/30 underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4">
-                Explorar las 6 etapas
-              </Link>
-            </div>
+          <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-white/90">
+            Te mostramos tu camino en 6 etapas: qué hacer ahora y qué sigue. En cada paso te conectamos con un profesional en Florida que habla tu idioma.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="#como-funciona" data-tour="hero-busco" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Empezar gratis <ArrowRight aria-hidden size={18} />
+            </Link>
+            <Link href="#journey" data-tour="hero-path" className="inline-flex min-h-14 items-center rounded-full px-7 font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Explorar las 6 etapas
+            </Link>
           </div>
-        </motion.div>
-
-        {/* Path — MEASURED: x=[5.4%,95.2%] y=[63.3%,70.2%]. */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          data-tour="hero-path" className="absolute"
-          style={{ left: "5.4%", right: "4.8%", top: "80%" }}
-        >
-          <EvolusaPath theme="dark" activeId="LLEGA" scrollProgress={pathProgress} />
-        </motion.div>
-
+          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">
+            <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Empiezas gratis</li>
+            <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Cada profesional con perfil aprobado por EVOLUSA</li>
+            <li><span aria-hidden className="mr-1.5 font-black text-[var(--brand-red)]">✓</span>Todo en español</li>
+          </ul>
+        </div>
       </div>
     </section>
   );

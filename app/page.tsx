@@ -1,30 +1,36 @@
 import { MotionConfig } from "framer-motion";
 import GuidedTour from "@/components/layout/GuidedTour";
 import SiteHeader from "@/components/layout/SiteHeader";
-import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
-import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
-import ForMembers from "@/sections/home/ForMembers";
-import ForProfessionals from "@/sections/home/ForProfessionals";
+import TrustStrip from "@/sections/home/TrustStrip";
 import StageJourney from "@/sections/home/StageJourney";
-import TrustAndTransparency from "@/sections/home/TrustAndTransparency";
-import FAQ from "@/sections/home/FAQ";
+import ThreeSteps from "@/sections/home/ThreeSteps";
+import BleedQuote from "@/sections/home/BleedQuote";
+import ProBand from "@/sections/home/ProBand";
 import Footer from "@/sections/home/Footer";
 
+/**
+ * Home (owner-approved mockup v6, 3-nov): full-bleed photos, no framed
+ * cards, sections told apart by the three brand colors (white, red, navy).
+ */
 export default function Home() {
   return (
     <MotionConfig reducedMotion="user">
       <SiteHeader />
-      <RoadmapScrollFix />
 
-      <main className="bg-[var(--background)] text-[var(--foreground)]">
+      <main className="bg-white pt-24 text-[var(--foreground)]">
         <HeroArtboard />
-        <Hero />
-        <ForMembers />
+        <TrustStrip />
         <StageJourney />
-        <ForProfessionals />
-        <TrustAndTransparency />
-        <FAQ />
+        <ThreeSteps />
+        <BleedQuote
+          src="/images/journey/arrival.jpg"
+          alt="Un hombre llega a Miami con su maleta"
+          position="center 22%"
+          quote="Llegar es el primer paso. Lo que sigue no lo tienes que hacer solo."
+          cite="EVOLUSA · Tu próximo paso"
+        />
+        <ProBand />
       </main>
 
       <Footer />
