@@ -120,7 +120,7 @@ export default function ParaProfesionalesPage() {
             <div className="max-w-[600px] md:ml-auto">
               <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em]"><span aria-hidden className="h-[3px] w-8 rounded-full bg-[var(--brand-red)]" />Para profesionales en Florida</p>
               <h1 id="pro-hero-title" className="mt-4 text-balance text-[2.4rem] font-extrabold leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-[4.2rem]">
-                Tú atiendes. <span className="underline decoration-[var(--brand-red)] decoration-[0.11em] underline-offset-[0.14em] [text-decoration-skip-ink:none]">Nosotros te traemos</span> los clientes.
+                Tú atiendes. <span className="text-[var(--brand-red)]">Nosotros te traemos</span> los clientes.
               </h1>
               <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-white/90">Al registrarte recibes tu página profesional, tus redes planeadas, un CRM para tus clientes y solicitudes de hispanos que ya buscan lo que tú haces.</p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -176,13 +176,23 @@ export default function ParaProfesionalesPage() {
 
         <BleedQuote src="/images/journey/growth.jpg" alt="Un dueño de negocio trabaja en su laptop en su taller" position="center 30%" quote="Tus clientes hablan español y buscan en el celular. Que te encuentren a ti." cite="Por qué EVOLUSA y no un directorio cualquiera" />
 
-        <section aria-labelledby="apply-title" className="bg-[var(--brand-red-strong)] py-20 text-white sm:py-24">
-          <div className="mx-auto max-w-[1200px] px-5">
-            <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em]"><span aria-hidden className="h-[3px] w-7 rounded-full bg-white" />Aplica hoy</p>
-            <h2 id="apply-title" className="mt-3 text-4xl font-bold tracking-[-0.02em] sm:text-5xl">Aplica en 5 minutos.</h2>
-            <p className="mt-4 text-lg text-white/95">Revisamos tu perfil y te avisamos por correo.</p>
-            <Link href="/aplicar-profesional" className="mt-10 inline-flex min-h-14 items-center gap-2 rounded-full bg-white px-7 font-bold text-[var(--brand-red-strong)] transition hover:-translate-y-0.5">Aplicar como profesional <ArrowRight aria-hidden size={18} /></Link>
-            <p className="mt-10 max-w-[84ch] text-[12.5px] leading-5 text-white/90">No prometemos un número de clientes. Revisamos cada perfil antes de publicarlo como perfil aprobado; eso no es una verificación de identidad. Ningún pago cambia tu posición ni tu aprobación. Hoy recibimos marketing, operaciones de negocio, notaría y preparación documental, en Florida.</p>
+        <section aria-labelledby="apply-title" className="border-t-[6px] border-[var(--brand-red)] bg-white py-20 sm:py-24">
+          <div className="mx-auto grid max-w-[1200px] items-end gap-10 px-5 md:grid-cols-[1.2fr_1fr] md:gap-14">
+            <div>
+              <Eyebrow>Aplica hoy</Eyebrow>
+              <h2 id="apply-title" className="mt-3 text-4xl font-bold tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">Aplica en <span className="text-[var(--brand-red)]">5 minutos</span>.</h2>
+              <p className="mt-4 text-lg text-[var(--muted)]">Revisamos tu perfil y te avisamos por correo.</p>
+              <Link href="/aplicar-profesional" className="mt-10 inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]">Aplicar como profesional <ArrowRight aria-hidden size={18} /></Link>
+            </div>
+            <ol className="border-t-2 border-[var(--brand-navy)] text-[var(--brand-navy)]">
+              {["Llenas tu solicitud", "Revisamos tu perfil", "Publicamos tu perfil aprobado"].map((item, index) => (
+                <li key={item} className="flex items-baseline gap-5 border-b border-[var(--border)] py-4 text-[17px] font-semibold">
+                  <span aria-hidden className="text-2xl font-extrabold text-[var(--brand-red)]">{String(index + 1).padStart(2, "0")}</span>
+                  {item}
+                </li>
+              ))}
+            </ol>
+            <p className="max-w-[84ch] text-[12.5px] leading-5 text-[var(--muted)] md:col-span-2">No prometemos un número de clientes. Revisamos cada perfil antes de publicarlo como perfil aprobado; eso no es una verificación de identidad. Ningún pago cambia tu posición ni tu aprobación. Hoy recibimos marketing, operaciones de negocio, notaría y preparación documental, en Florida.</p>
           </div>
         </section>
       </main>

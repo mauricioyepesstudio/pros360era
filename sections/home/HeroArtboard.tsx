@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 /**
  * Home hero (owner-approved mockup v6, 3-nov): one full-bleed photo, no
- * framed/shaped photos, white type over a navy scrim on the left. On phones
+ * framed/shaped photos, white type over a navy scrim on the left; the key phrase is set in brand red (no underline or highlight bars, owner 3-nov). On phones
  * the photo sits on top and the copy below it on navy, so text never covers
  * faces.
  *
@@ -34,7 +34,7 @@ export default function HeroArtboard() {
           </p>
           <h1 id="hero-title" className="mt-4 text-balance text-[2.4rem] font-extrabold leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-[4.2rem]">
             Tu vida en EE.&nbsp;UU.,{" "}
-            <span className="underline decoration-[var(--brand-red)] decoration-[0.11em] underline-offset-[0.14em] [text-decoration-skip-ink:none]">paso a paso</span>
+            <span className="text-[var(--brand-red)]">paso a paso</span>
             , con un profesional a tu lado.
           </h1>
           <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-white/90">
