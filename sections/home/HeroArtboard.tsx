@@ -3,29 +3,31 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 /**
- * Home hero (owner feedback 3-nov): split, full-bleed. The photo keeps its
- * own 3:2 shape so nothing is cropped, and the copy sits on navy beside it,
- * never on top of the photo. Phones: photo on top, copy below.
+ * Home hero. Owner rules (3-nov): photos edge to edge, never cropped, never
+ * in containers, never repeated. The photo keeps its full 3:2 frame; on
+ * desktop the copy sits over the open water on the left (the family is on
+ * the right), on phones it goes below the photo on navy.
  *
  * Copy rules: no regulated services in the subline, "perfil aprobado por
  * EVOLUSA" (never "verificado"), no promised outcomes.
  */
 export default function HeroArtboard() {
   return (
-    <section id="home" aria-labelledby="hero-title" className="grid bg-[var(--brand-navy)] text-white lg:min-h-[33.34vw] lg:grid-cols-2">
-      <div className="relative aspect-[3/2] lg:order-2 lg:aspect-auto">
+    <section id="home" aria-labelledby="hero-title" className="relative bg-[var(--brand-navy)] text-white">
+      <div className="relative aspect-[3/2] w-full">
         <Image
           src="/images/hero/hero-family-2x.webp"
           alt="Una familia hispana frente a la bahía de Miami al atardecer"
           fill
           priority
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          sizes="100vw"
           className="object-cover"
         />
+        <div aria-hidden className="absolute inset-0 hidden bg-gradient-to-r from-[var(--brand-navy)]/90 via-[var(--brand-navy)]/45 via-45% to-transparent to-65% lg:block" />
       </div>
 
-      <div className="flex items-center px-5 py-12 lg:px-[clamp(2rem,5vw,6rem)] lg:py-10">
-        <div className="max-w-[560px]">
+      <div className="px-5 py-12 lg:absolute lg:inset-0 lg:flex lg:items-center lg:px-[clamp(2rem,6vw,7rem)] lg:py-10">
+        <div className="max-w-[540px]">
           <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[#ff7a87]">
             <span aria-hidden className="h-[3px] w-8 rounded-full bg-current" />
             Florida · en español

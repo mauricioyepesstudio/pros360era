@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
-import BleedQuote from "@/sections/home/BleedQuote";
 import Footer from "@/sections/home/Footer";
 
 export const metadata: Metadata = {
@@ -111,12 +110,13 @@ export default function ParaProfesionalesPage() {
     <>
       <SiteHeader />
       <main className="pt-24">
-        <section aria-labelledby="pro-hero-title" className="grid bg-[var(--brand-navy)] text-white lg:min-h-[37.5vw] lg:grid-cols-2">
-          <div className="relative aspect-[4/3] lg:aspect-auto">
-            <Image src="/images/journey/achievement.jpg" alt="Una profesional sonríe con los brazos cruzados frente a la ciudad" fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+        <section aria-labelledby="pro-hero-title" className="relative bg-[var(--brand-navy)] text-white">
+          <div className="relative aspect-[4/3] w-full">
+            <Image src="/images/journey/achievement.jpg" alt="Una profesional sonríe con los brazos cruzados frente a la ciudad" fill priority sizes="100vw" className="object-cover" />
+            <div aria-hidden className="absolute inset-0 hidden bg-gradient-to-l from-[var(--brand-navy)]/90 via-[var(--brand-navy)]/45 via-45% to-transparent to-65% lg:block" />
           </div>
-          <div className="flex items-center px-5 py-12 lg:px-[clamp(2rem,5vw,6rem)] lg:py-10">
-            <div className="max-w-[560px]">
+          <div className="px-5 py-12 lg:absolute lg:inset-0 lg:flex lg:items-center lg:justify-end lg:px-[clamp(2rem,6vw,7rem)] lg:py-10">
+            <div className="max-w-[540px]">
               <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[#ff7a87]"><span aria-hidden className="h-[3px] w-8 rounded-full bg-current" />Para profesionales en Florida</p>
               <h1 id="pro-hero-title" className="mt-4 text-[2.2rem] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] xl:text-[3.25rem]">
                 Tú atiendes.<br />Nosotros te traemos los clientes.
@@ -173,7 +173,6 @@ export default function ParaProfesionalesPage() {
           </div>
         </section>
 
-        <BleedQuote src="/images/journey/growth.jpg" alt="Un dueño de negocio trabaja en su laptop en su taller" photoSide="right" quote="Tus clientes hablan español y buscan en el celular. Que te encuentren a ti." cite="Por qué EVOLUSA y no un directorio cualquiera" />
 
         <section aria-labelledby="apply-title" className="border-t-[6px] border-[var(--brand-red)] bg-white py-20 sm:py-24">
           <div className="mx-auto grid max-w-[1200px] items-end gap-10 px-5 md:grid-cols-[1.2fr_1fr] md:gap-14">

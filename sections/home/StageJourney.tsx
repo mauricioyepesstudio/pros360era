@@ -75,11 +75,11 @@ export default function StageJourney() {
         </div>
       </div>
 
-      <div id="stage-panel" role="tabpanel" aria-labelledby={`stage-tab-${current}`} className="mt-16 grid bg-[#fafaf8] md:min-h-[37.5vw] md:grid-cols-2">
-        <div className="relative aspect-[4/3] md:aspect-auto">
-          <Image key={stage.img} src={stage.img} alt={stage.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+      <div id="stage-panel" role="tabpanel" aria-labelledby={`stage-tab-${current}`} className="mt-16 grid items-center bg-[#fafaf8] xl:grid-cols-2">
+        <div className="relative aspect-[4/3] w-full">
+          <Image key={stage.img} src={stage.img} alt={stage.alt} fill sizes="(min-width: 1280px) 50vw, 100vw" className="object-cover" />
         </div>
-        <div className="flex flex-col justify-center gap-5 px-5 py-10 md:px-16 md:py-16 lg:pr-[max(1.25rem,calc((100vw-1200px)/2+1.25rem))]">
+        <div className="flex flex-col justify-center gap-5 px-5 py-10 md:px-16 md:py-16 xl:pr-[max(1.25rem,calc((100vw-1200px)/2+1.25rem))]">
           <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">Etapa {current + 1} de 6 · {stage.sub}</p>
           <h3 className="text-4xl font-bold tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">{stage.label}</h3>
           <ul className="grid gap-3 text-[17px] text-[var(--brand-navy)]">
