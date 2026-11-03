@@ -8,6 +8,7 @@ export const approvalLabels = {
   INELIGIBLE_ROLE: "La cuenta no tiene un rol profesional",
   CATEGORY_MISMATCH: "La categoría de la solicitud no coincide con la del perfil",
   CATEGORY_NOT_ENABLED: "Esta categoría requiere un proceso de aprobación específico",
+  VERIFICATION_REQUIRED: "Falta verificar la comisión de Notary Public antes de aprobar",
   APPLICATION_NOT_FOUND: "No se encontró la solicitud",
   UPDATE_NOT_CONFIRMED: "No se confirmó la aprobación. Actualiza e inténtalo de nuevo",
   UNAVAILABLE: "No se pudo consultar la aprobación. Actualiza la página",
