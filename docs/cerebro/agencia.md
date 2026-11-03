@@ -12,8 +12,8 @@ Flujo diario: **Investigación → Producto → Ingeniería → QA → Aprobaci�
 | Ingeniería | `frontend-engineer`, `supabase-architect`, `migration-steward` | Implementa en rama; migraciones solo con plan y revisión |
 | QA y pruebas | `qa-engineer`, `security-reviewer` | Pruebas, build, RLS/grants, recorridos en navegador |
 | Aprobación y cumplimiento | `compliance-reviewer`, `legal-risk-reviewer`, `growth-automation-guard` | Gate antes de pedir merge/publicar: claims, categorías reguladas, 70/30 |
-| Crecimiento y contenido | `growth-marketing-strategist`, `marketing-strategist`, `social-content-lead`, `social-media-manager`, `brand-taste-lead`, `taste` | Reclutamiento de profesionales, adquisición de miembros, planner del dueño |
-| Operaciones y datos | `finance-analyst`, `revenue-analyst` | Métricas de embudo reales, costos; solo lectura de Stripe |
+| Crecimiento y contenido | `growth-marketing-strategist`, `growth-marketing-strategist`, `social-content-lead`, `social-content-lead`, `taste` | Reclutamiento de profesionales, adquisición de miembros, planner del dueño |
+| Operaciones y datos | `revenue-analyst`, `revenue-analyst` | Métricas de embudo reales, costos; solo lectura de Stripe |
 
 ## Tareas recurrentes por departamento
 
