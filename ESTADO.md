@@ -1,3 +1,7 @@
+# 2026-11-03 — Cerebro fase 1: perfil de voz y motor de IA central
+
+Rama `claude/cerebro-voz-motor-ia-20261103`. Nuevo `lib/cerebro/`: perfil de voz por profesional (tono, idioma, cómo habla, palabras sí/no, llamado a la acción, aviso obligatorio, emojis) guardado por propietario en `onboarding_responses` (sin migración), y un solo motor de IA que arma el prompt en español con la voz y el negocio, valida el JSON con zod, agrega el aviso y pasa el filtro de cumplimiento (cifras, «verificado», «notario», categorías reguladas, claims de `claims.ts`, palabras a evitar). Sin texto de respaldo inventado: si falta la clave o falla, error claro. Formulario «Mi voz» con «Probar mi voz» en /panel-profesional/perfil (borrador de prueba, no se guarda ni publica). Growth Automation usa el motor; se borra el generador viejo. Jarvis: módulo «ia» bloqueado hasta `ANTHROPIC_API_KEY` en Vercel. Plan completo: https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU
+
 # 2026-10-29 - WhatsApp de contacto y seguimiento por prospecto
 
 Implementado en rama local existente: el propietario puede guardar su enlace publico https://wa.me/numero internacional usando social_links y la accion de perfil con user_id autenticado. Lectura y escritura filtran host, protocolo, credenciales, ruta numerica, query y fragmento. En el perfil publico se muestra solo para SERVICE_BUSINESS y aceptando clientes; no altera aprobacion ni categorias reguladas.
@@ -101,13 +105,13 @@ _Actualizado: 2026-10-06 (formulario de profesionales en producción; resto desd
 **Reclutar profesionales y crecer miembros** en las próximas semanas (respuesta del dueño, 2026-09-30). Stripe Live **no** es prioridad.
 
 ## Siguiente (máx. 5; una tarea = un PR)
-1. **Kit de reclutamiento de profesionales**: pulir `docs/marketing/professional-recruitment-outreach.md` y la página `/aplicar-profesional` (copy alineado a `claims.ts`; solo categorías no reguladas: marketing y operaciones de negocio en Florida). Pasa por `compliance-reviewer`.
-2. **Captación en `/aplicar-profesional`: HECHO 2026-10-06** (PR #19). Siguiente paso: revisar cada semana las solicitudes `PENDING` (runbook en `supabase/migrations/0014_…`) y contactar a quien aplique.
-3. **Adquisición de miembros**: plan de 4 semanas (canales, guías SEO, calendario social) con `growth-marketing-strategist` + `social-content-lead`; ampliar `app/guias` con 1–2 guías nuevas en español.
-4. **Métricas de embudo**: definir y medir registro → diagnóstico → Roadmap → oportunidad (`docs/EVOLUSA-LAUNCH-METRICS.md`, `lib/opportunities/analytics.ts`), con datos reales.
-5. **Actualizar README, `ci.yml` y `docs/CURRENT-STATE.md`** (desfasados) para que un profesional nuevo o un colaborador entienda el proyecto.
+1. **Dueño**: poner `ANTHROPIC_API_KEY` en Vercel (Production) para encender el motor del cerebro.
+2. **Cerebro fase 2**: bitácora de corridas de automatizaciones (tabla con RLS) y Jarvis leyendo estados reales. Migración con `security-reviewer` + OK del dueño.
+3. **Cerebro fase 3**: agentes del producto sobre `lib/cerebro` (redactor del planner, clasificador de prospectos del CRM). Solo borradores.
+4. **Cerebro fase 4**: planner en tabla propia y primera publicación real programada de punta a punta.
+5. **Correo**: dominio propio verificado en Resend y remitente en Supabase SMTP (bloquea registros reales).
 
-_Plan de migraciones (0015/0017) y revisión de Growth Automation están documentados abajo y en `docs/cerebro/decisiones.md`; no se ejecutan aún._
+_Plan por fases (3-nov-2026): https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU. El «Siguiente» anterior (septiembre) quedó superado por el cerebro._
 
 ## En curso / Bloqueado
 - **Bloqueado — verificar datos**: confirmar que producción (Vercel) usa el proyecto `ovialqdazxkekvqqgdiu` (ver sección abajo).

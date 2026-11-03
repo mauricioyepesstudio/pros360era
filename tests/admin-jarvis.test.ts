@@ -10,8 +10,8 @@ test("same day gives the same missions, the next day rotates", () => {
 test("a blocked module pins its task first, every day", () => {
   for (const day of ["2026-10-20", "2026-11-03", "2027-01-01"]) {
     const tasks = tasksForDay(day);
-    assert.equal(tasks[0].id, "resend-domain");
-    assert.equal(tasks.length, 1 + ROTATING_TASKS_PER_DAY);
+    assert.deepEqual(tasks.slice(0, 2).map((t) => t.id).sort(), ["anthropic-key", "resend-domain"]);
+    assert.equal(tasks.length, 2 + ROTATING_TASKS_PER_DAY);
     assert.equal(new Set(tasks.map((t) => t.id)).size, tasks.length);
   }
 });

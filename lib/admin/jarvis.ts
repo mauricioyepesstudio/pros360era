@@ -150,6 +150,17 @@ export const BRAIN_MODULES: readonly BrainModule[] = [
     grid: { x: 0, y: 0 },
     launchGate: false,
   },
+  {
+    id: "ia",
+    name: "Motor de IA y perfil de voz",
+    area: "Contenido",
+    status: "blocked",
+    summary: "Un solo motor (lib/cerebro) redacta borradores con la voz de cada profesional y pasa el filtro de cumplimiento.",
+    next: "Falta ANTHROPIC_API_KEY en Vercel (Production); sin ella el motor responde «apagado» y no inventa texto.",
+    evidence: "Rama claude/cerebro-voz-motor-ia-20261103",
+    grid: { x: 6, y: 0 },
+    launchGate: true,
+  },
 ];
 
 export type DailyTask = {
@@ -163,6 +174,14 @@ export type DailyTask = {
 };
 
 export const DAILY_TASK_POOL: readonly DailyTask[] = [
+  {
+    id: "anthropic-key",
+    title: "Poner ANTHROPIC_API_KEY en Vercel → evolusa → Environment Variables (Production)",
+    why: "Sin la clave el cerebro no puede redactar borradores con la voz de cada profesional.",
+    owner: "Tú",
+    area: "Contenido",
+    pinnedWhileBlocked: "ia",
+  },
   {
     id: "resend-domain",
     title: "Verificar un dominio propio en Resend y cambiar el remitente SMTP en Supabase",
