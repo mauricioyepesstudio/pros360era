@@ -9,6 +9,7 @@ import { creativeSrc, type PreparedKit } from "@/data/professional/prepared-kits
  */
 export default function PreparedKitWelcome({ kit, hasPhoto }: { kit: PreparedKit; hasPhoto: boolean }) {
   const preview = kit.creatives.concepts.slice(0, 3);
+  const linked = [kit.profile.socialLinks.linkedin ? "tu LinkedIn" : null, kit.project?.name ?? null].filter((item): item is string => Boolean(item));
   const pending = hasPhoto ? kit.pendingConfirmations.filter((item) => !item.startsWith("Sube tu foto")) : kit.pendingConfirmations;
 
   return (
@@ -23,7 +24,7 @@ export default function PreparedKitWelcome({ kit, hasPhoto }: { kit: PreparedKit
             {kit.firstName}, tu espacio profesional ya está montado.
           </h2>
           <p className="mt-3 max-w-xl leading-7 text-white/80">
-            Pasamos tu hoja de vida a tu perfil, enlazamos tu LinkedIn{kit.project ? ` y ${kit.project.name}` : ""}, y dejamos tus creativos organizados por formato. Revísalo todo: nada se publica sin tu visto bueno.
+            Pasamos tu hoja de vida a tu perfil{linked.length ? `, enlazamos ${linked.join(" y ")}` : ""} y dejamos tus creativos organizados por formato. Revísalo todo: nada se publica sin tu visto bueno.
           </p>
 
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
