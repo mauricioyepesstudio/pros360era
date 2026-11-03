@@ -73,7 +73,7 @@ const fs = require('node:fs');
       assert.ok(await page.locator('#journey').getByText(/no constituye asesoría legal/).isVisible());
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `overflow ${width}`);
       await page.locator('#journey').screenshot({ path: `browser-evidence/roadmap-${width}-${reducedMotion}.png` });
-      await page.locator('#journey').getByRole('link', { name: 'Crear mi roadmap', exact: true }).click();
+      await page.locator('#journey').getByRole('link', { name: 'Crear mi plan', exact: true }).click();
       await page.waitForURL('**/onboarding');
       assert.ok(!page.url().includes('signup'));
       checks++;
