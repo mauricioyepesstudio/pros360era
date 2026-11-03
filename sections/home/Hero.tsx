@@ -45,7 +45,7 @@ export default function Hero() {
             className="mt-3 block h-1.5 w-40 origin-left rounded-full bg-[var(--brand-red)]"
           />
           <p className="mt-4 text-lg font-semibold text-white">Tus trámites en EE. UU., paso a paso y en español.</p>
-          <p className="mt-2 text-sm leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta con un profesional aprobado para cada paso.</p>
+          <p className="mt-2 text-sm leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta, en cada paso, con un profesional con perfil aprobado por EVOLUSA.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
               <ButtonLink href="#como-funciona" data-tour="hero-busco" variant="member" className="justify-center py-3.5 text-base" title="Ver cómo te ayuda EVOLUSA">

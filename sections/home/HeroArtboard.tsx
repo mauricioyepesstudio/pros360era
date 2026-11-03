@@ -93,7 +93,7 @@ export default function HeroArtboard() {
             className="mt-3 block h-2 w-56 origin-left rounded-full bg-[var(--brand-red)]"
           />
           <p className="mt-4 text-xl font-semibold text-white">Tus trámites en EE. UU., paso a paso y en español.</p>
-          <p className="mt-2 max-w-md text-base leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta con un profesional aprobado para cada paso.</p>
+          <p className="mt-2 max-w-md text-base leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta, en cada paso, con un profesional con perfil aprobado por EVOLUSA.</p>
           <div className="mt-5 flex flex-col gap-4">
             <div className="flex gap-4">
               <ButtonLink href="#como-funciona" data-tour="hero-busco" variant="member" title="Ver cómo te ayuda EVOLUSA">
