@@ -10,7 +10,7 @@ import { cn } from "@/lib/cn";
 const navigation = [
   { label: "Para ti", href: "#como-funciona" },
   { label: "Etapas", href: "#journey" },
-  { label: "Plan", href: "#roadmap" },
+  { label: "Profesionales", href: "#para-profesionales" },
   { label: "Confianza", href: "#trust" },
   { label: "Preguntas", href: "#faq" },
 ] as const;
@@ -35,10 +35,12 @@ export default function SiteHeader() {
   useEffect(() => {
     // Use the visible hero to switch contrast; interior pages use the light header.
     const onScroll = () => {
+      // Switch to the solid bar as soon as the page scrolls: staying
+      // transparent until the hero ended let the nav sit on top of hero
+      // content (owner screenshot, 3-nov).
       const candidates = document.querySelectorAll<HTMLElement>("#home");
       const hero = Array.from(candidates).find((el) => el.getClientRects().length > 0);
-      const pastHero = hero ? hero.getBoundingClientRect().bottom <= 0 : true;
-      setScrolled(pastHero);
+      setScrolled(hero ? window.scrollY > 24 : true);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });

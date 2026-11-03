@@ -4,8 +4,8 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
 import Hero from "@/sections/home/Hero";
 import HeroArtboard from "@/sections/home/HeroArtboard";
-import ProductReveal from "@/sections/home/ProductReveal";
-import RoleSplit from "@/sections/home/RoleSplit";
+import ForMembers from "@/sections/home/ForMembers";
+import ForProfessionals from "@/sections/home/ForProfessionals";
 import StageJourney from "@/sections/home/StageJourney";
 import TrustAndTransparency from "@/sections/home/TrustAndTransparency";
 import FAQ from "@/sections/home/FAQ";
@@ -20,9 +20,9 @@ export default function Home() {
       <main className="bg-[var(--background)] text-[var(--foreground)]">
         <HeroArtboard />
         <Hero />
-        <ProductReveal />
-        <RoleSplit />
+        <ForMembers />
         <StageJourney />
+        <ForProfessionals />
         <TrustAndTransparency />
         <FAQ />
       </main>

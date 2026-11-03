@@ -8,7 +8,6 @@ import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
 import EvolusaPath from "@/components/evolusa/EvolusaPath";
 import PhotoSlot from "@/components/evolusa/PhotoSlot";
-import ProductRevealPanel from "./ProductRevealPanel";
 
 /**
  * Desktop-only (`xl:` and up). This is NOT a screenshot — every element
@@ -33,9 +32,11 @@ export default function HeroArtboard() {
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.02]);
   const pathProgress = useTransform(scrollYProgress, [0, 0.85], [0.02, 1]);
 
-  // Corrected aspect ratio of the approved reference: 1536 x 1024 (3:2).
+  // Was 1536 x 1024 with the "Tu plan" panel in the bottom 29%. The owner
+  // asked (3-nov) for a lighter home, so the panel left the hero and the
+  // artboard is shorter; the plan lives inside the account.
   const ART_W = 1536;
-  const ART_H = 1024;
+  const ART_H = 860;
 
   return (
     <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="relative hidden overflow-hidden bg-[var(--brand-navy)] xl:block">
@@ -76,7 +77,7 @@ export default function HeroArtboard() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="absolute top-[10%] text-white 2xl:top-[16%]"
+          className="absolute top-[14%] text-white 2xl:top-[19%]"
           style={{ left: "6.3%", width: "46%" }}
         >
           <h1 id="hero-title" className="text-balance leading-[0.95] tracking-[-0.03em]">
@@ -91,17 +92,15 @@ export default function HeroArtboard() {
             transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
             className="mt-3 block h-2 w-56 origin-left rounded-full bg-[var(--brand-red)]"
           />
-          <p className="mt-4 text-xl font-semibold">
-            <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
-          </p>
-          <p className="mt-2 max-w-md text-base leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
+          <p className="mt-4 text-xl font-semibold text-white">Tus trámites en EE. UU., paso a paso y en español.</p>
+          <p className="mt-2 max-w-md text-base leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta con un profesional aprobado para cada paso.</p>
           <div className="mt-5 flex flex-col gap-4">
             <div className="flex gap-4">
-              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="member" title="Ver profesionales aprobados">
-                Busco un profesional
+              <ButtonLink href="#como-funciona" data-tour="hero-busco" variant="member" title="Ver cómo te ayuda EVOLUSA">
+                Busco ayuda
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
-              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="pro" title="Aplica como profesional aprobado">
+              <ButtonLink href="#para-profesionales" data-tour="hero-pro" variant="pro" title="Ver qué gana un profesional en EVOLUSA">
                 Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={18} />
               </ButtonLink>
@@ -121,16 +120,11 @@ export default function HeroArtboard() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
           data-tour="hero-path" className="absolute"
-          style={{ left: "5.4%", right: "4.8%", top: "63.3%" }}
+          style={{ left: "5.4%", right: "4.8%", top: "80%" }}
         >
           <EvolusaPath theme="dark" activeId="LLEGA" scrollProgress={pathProgress} />
         </motion.div>
 
-        {/* Product Reveal panel — MEASURED: x=[5.4%,95.2%] y=[71.0%,100%]. Real
-            generateRoadmap() data via the shared ProductRevealPanel component. */}
-        <div data-tour="hero-roadmap" id="roadmap-desktop" className="absolute" style={{ left: "5.4%", right: "4.8%", top: "71%", bottom: "0%" }}>
-          <ProductRevealPanel compact />
-        </div>
       </div>
     </section>
   );

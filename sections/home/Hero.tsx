@@ -44,17 +44,15 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
             className="mt-3 block h-1.5 w-40 origin-left rounded-full bg-[var(--brand-red)]"
           />
-          <p className="mt-4 text-lg font-semibold">
-            <span className="font-extrabold text-white">EVOLUSA</span> <span className="text-[var(--brand-blue-on-dark)]">te ayuda a convertirlo en un plan.</span>
-          </p>
-          <p className="mt-2 text-sm leading-6 text-white/70">Profesionales de negocio hispanos en Florida, con perfil aprobado por EVOLUSA, para tu marketing y tus operaciones.</p>
+          <p className="mt-4 text-lg font-semibold text-white">Tus trámites en EE. UU., paso a paso y en español.</p>
+          <p className="mt-2 text-sm leading-6 text-white/75"><span className="font-bold text-white">EVOLUSA</span> te dice qué sigue y te conecta con un profesional aprobado para cada paso.</p>
           <div className="mt-5 flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
-              <ButtonLink href="/profesionales" data-tour="hero-busco" variant="member" className="justify-center py-3.5 text-base" title="Ver profesionales aprobados">
-                Busco un profesional
+              <ButtonLink href="#como-funciona" data-tour="hero-busco" variant="member" className="justify-center py-3.5 text-base" title="Ver cómo te ayuda EVOLUSA">
+                Busco ayuda
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
-              <ButtonLink href="/aplicar-profesional" data-tour="hero-pro" variant="pro" className="justify-center py-3.5 text-base" title="Aplica como profesional aprobado">
+              <ButtonLink href="#para-profesionales" data-tour="hero-pro" variant="pro" className="justify-center py-3.5 text-base" title="Ver qué gana un profesional en EVOLUSA">
                 Soy profesional
                 <ArrowRight aria-hidden className="ml-2" size={16} />
               </ButtonLink>
