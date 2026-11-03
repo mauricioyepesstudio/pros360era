@@ -5,7 +5,7 @@ import { ArrowRight, Check } from "lucide-react";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Heading from "@/components/ui/Heading";
 import Section from "@/components/ui/Section";
-import { isServicePublishable } from "@/data/compliance/claims";
+import { disclaimers, isServicePublishable } from "@/data/compliance/claims";
 import { journeyStages } from "@/data/journey/stages";
 import type { StageId } from "@/data/journey/types";
 import { enabledServices } from "@/data/services/services";
@@ -18,6 +18,8 @@ import { cn } from "@/lib/cn";
  * the panel shows what it includes, the services available now, and one
  * action.
  */
+const roadmapGuidance = disclaimers.find((disclaimer) => disclaimer.id === "roadmap-guidance")!;
+
 const publishableServices = enabledServices.filter(
   (service) => isServicePublishable(service.category, false) && !service.requiresVerification,
 );
@@ -86,7 +88,7 @@ export default function StageJourney() {
           </ButtonLink>
         </div>
       </div>
-      <p className="mt-5 text-xs leading-5 text-[var(--muted)]">EVOLUSA ofrece orientación educativa y operacional. Los servicios regulados quedan fuera del catálogo hasta revisar proveedor, alcance y requisitos.</p>
+      <p className="mt-5 text-xs leading-5 text-[var(--muted)]"><strong className="text-[var(--brand-navy)]">Guía educativa EVOLUSA.</strong> {roadmapGuidance.full}</p>
     </Section>
   );
 }
