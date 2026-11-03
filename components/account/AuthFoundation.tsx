@@ -194,7 +194,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       <p className="mt-3 leading-7 text-[var(--muted)]">
         {signup
           ? (professional ? "Crea tu cuenta para entrar a tu espacio profesional. La aprobación de tu perfil se realiza por separado." : "Guarda tu diagnóstico y continúa tu camino personalizado.")
-          : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu Roadmap y revisa tu progreso.")}
+          : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu plan y revisa tu progreso.")}
       </p>
       {signup ? <div className="mt-5 space-y-2 rounded-xl bg-[var(--sky-surface)] p-4 text-sm">
         <p className="font-bold">¿Cómo quieres empezar?</p>

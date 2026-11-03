@@ -1,7 +1,7 @@
 import { roadmapRules } from "./rules.ts";
 import type { RoadmapAnswers, RoadmapItem, RoadmapResult } from "./types.ts";
 
-const disclaimer = "Este Roadmap ofrece orientación operacional y educativa general. No constituye asesoría legal, migratoria, fiscal, financiera ni de seguros.";
+const disclaimer = "Este plan ofrece orientación operacional y educativa general. No constituye asesoría legal, migratoria, fiscal, financiera ni de seguros.";
 
 function dedupe(items: RoadmapItem[]) {
   return [...new Map(items.map((item) => [item.id, item])).values()];

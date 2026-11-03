@@ -34,7 +34,7 @@ export const PROFESSIONAL_HOME = "/panel-profesional";
 
 const memberNav: readonly AccountNavItem[] = [
   { href: MEMBER_HOME, label: "Inicio", icon: "home" },
-  { href: "/roadmap", label: "Roadmap", icon: "map" },
+  { href: "/roadmap", label: "Plan", icon: "map" },
   { href: "/conexiones", label: "Conexiones", icon: "handshake" },
   { href: "/assistant", label: "Asistente", icon: "bot" },
   { href: "/profile", label: "Perfil", icon: "user" },

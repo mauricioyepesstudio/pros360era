@@ -30,7 +30,7 @@ const sections: readonly LegalSection[] = [
     body: (
       <ul>
         <li>Datos de tu cuenta: correo, nombre y la contraseña cifrada que gestiona nuestro proveedor de autenticación.</li>
-        <li>Lo que nos cuentas en el Journey y el Roadmap: tus respuestas, tus metas y el progreso de cada paso.</li>
+        <li>Lo que nos cuentas en el Journey y el plan: tus respuestas, tus metas y el progreso de cada paso.</li>
         <li>Si eres profesional: tu perfil, tu trayectoria, tu agenda, tu planner de publicaciones y los contactos que registras en tu CRM.</li>
         <li>Si pagas una tarifa de conexión: el resultado del pago. Los datos de tu tarjeta los procesa Stripe y nunca llegan a EVOLUSA.</li>
         <li>Si conectas Instagram: lo que se describe en la sección siguiente.</li>
@@ -70,7 +70,7 @@ const sections: readonly LegalSection[] = [
     title: "Para qué los usamos",
     body: (
       <ul>
-        <li>Para mostrarte tu Roadmap y tu próximo paso.</li>
+        <li>Para mostrarte tu plan y tu próximo paso.</li>
         <li>Para conectarte con un profesional, solo cuando tú lo pides.</li>
         <li>Para que los profesionales administren su perfil, su agenda, su contenido y sus contactos.</li>
         <li>Para la seguridad de la plataforma y para cumplir obligaciones legales.</li>
