@@ -1,16 +1,17 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
 import Container from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 
 const navigation = [
   { label: "Etapas", href: "/#journey" },
-  { label: "Cómo funciona", href: "/#como-funciona" },
-  { label: "Profesionales", href: "/para-profesionales" },
+  { label: "En video", href: "/#video" },
 ] as const;
 
 /**
@@ -30,6 +31,18 @@ export default function SiteHeader() {
   // the hero photo starts below the header instead of behind it.
   const [menuOpen, setMenuOpen] = useState(false);
   const menuToggleRef = useRef<HTMLButtonElement>(null);
+  // Signed in → one "Mi panel" button (/dashboard routes by role);
+  // signed out → one "Ingresar" (the login page asks usuario/profesional).
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    if (!getSupabaseEnv()) return;
+    const supabase = createSupabaseBrowserClient();
+    void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session)));
+    return () => data.subscription.unsubscribe();
+  }, []);
+  const accountHref = signedIn ? "/dashboard" : "/login?next=%2Fdashboard";
+  const accountLabel = signedIn ? "Mi panel" : "Ingresar";
 
   // Layout effect so the scroll lock is released in the same commit that
   // removes the mobile menu: a passive effect's cleanup can run after the
@@ -83,6 +96,7 @@ export default function SiteHeader() {
           ))}
         </nav>
         <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto hidden min-h-11 shrink-0 items-center justify-center rounded-full px-3 text-sm font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-red-strong)] focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>
+        <Link href={accountHref} className="relative z-10 hidden min-h-11 shrink-0 items-center justify-center rounded-full border-2 border-[var(--brand-navy)] px-5 text-sm font-bold text-[var(--brand-navy)] hover:bg-[var(--brand-navy)] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex">{accountLabel}</Link>
         <Link href="/para-profesionales" data-tour="hero-pro" className="relative z-10 inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-[var(--brand-red-strong)] px-5 text-sm font-bold text-white hover:bg-[#a90016] focus-visible:outline-2 focus-visible:outline-offset-4 max-sm:ml-auto">Soy profesional</Link>
 
         <button
@@ -115,8 +129,14 @@ export default function SiteHeader() {
             ))}
           </ul>
           <div className="mt-6 border-t border-white/10 pt-6">
-            <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">Entrar como usuario</Link>
-            <Link href="/login?next=%2Fdashboard%2Fprofessional" onClick={() => setMenuOpen(false)} className="block py-2 text-lg font-semibold text-white">Entrar como profesional</Link>
+            {signedIn ? (
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">Mi panel</Link>
+            ) : (
+              <>
+                <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-[var(--role-member)] text-lg font-bold text-white">Ingresar como usuario</Link>
+                <Link href="/login?next=%2Fdashboard%2Fprofessional" onClick={() => setMenuOpen(false)} className="mt-3 flex min-h-12 items-center justify-center rounded-full bg-[var(--role-pro)] text-lg font-bold text-white">Ingresar como profesional</Link>
+              </>
+            )}
           </div>
         </nav>
       )}
