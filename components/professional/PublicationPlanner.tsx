@@ -12,6 +12,7 @@ import {
   plannerMaxPosts,
   plannerPlatforms,
   plannerStatuses,
+  isPlannerVideo,
   sortPosts,
   type PlannerPost,
   type PlannerStatus,
@@ -305,7 +306,9 @@ export default function PublicationPlanner({
       onClick={() => setEditing(post)}
       className="flex w-full items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-white p-1.5 text-left text-xs transition hover:border-[var(--brand-blue)]"
     >
-      {post.imageUrl ? (
+      {isPlannerVideo(post.imageUrl) ? (
+        <video src={post.imageUrl!} muted playsInline preload="metadata" aria-hidden className="size-7 shrink-0 rounded object-cover" />
+      ) : post.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={post.imageUrl} alt="" className="size-7 shrink-0 rounded object-cover" />
       ) : (
@@ -321,7 +324,9 @@ export default function PublicationPlanner({
   const listRow = (post: PlannerPost) => (
     <li key={post.id}>
       <button type="button" onClick={() => setEditing(post)} className="flex w-full items-center gap-4 rounded-[var(--radius-md)] border border-[var(--border)] bg-white p-3 text-left transition hover:border-[var(--brand-blue)]">
-        {post.imageUrl ? (
+        {isPlannerVideo(post.imageUrl) ? (
+          <video src={post.imageUrl!} muted playsInline preload="metadata" aria-hidden className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover" />
+        ) : post.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={post.imageUrl} alt="" className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover" />
         ) : (
@@ -358,7 +363,7 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        <strong className="text-[var(--brand-navy)]">Publicación automática en Instagram y Facebook.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); el formato 9:16 sale como Story. Las demás redes las publicas tú desde su app.
+        <strong className="text-[var(--brand-navy)]">Publicación automática en Instagram y Facebook.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); el formato 9:16 sale como Story y el formato Reel publica su video como Reel (en Facebook, como video). Las demás redes las publicas tú desde su app.
         <span className="mt-2 block">
           Instagram: {networks.instagram?.canPublish ? <strong className="text-[var(--success)]">activa (@{networks.instagram.username})</strong> : <strong className="text-[var(--warning)]">{networks.instagram ? "vuelve a conectarla" : "sin conectar"}</strong>}
           {" · "}
@@ -532,8 +537,12 @@ export default function PublicationPlanner({
                 </div>}
                 {editing.imageUrl ? (
                   <div className="mt-2 flex items-start gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={editing.imageUrl} alt="" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                    {isPlannerVideo(editing.imageUrl) ? (
+                      <video src={editing.imageUrl} controls muted playsInline preload="metadata" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={editing.imageUrl} alt="" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                    )}
                     <div className="flex flex-col gap-2 text-sm">
                       <a href={editing.imageUrl} download className="inline-flex items-center gap-1 font-semibold text-[var(--brand-blue)] hover:underline">
                         <Download aria-hidden size={14} /> Descargar
@@ -553,7 +562,7 @@ export default function PublicationPlanner({
                   </div>
                 ) : null}
                 <label className="mt-2 block text-xs text-[var(--muted)]">
-                  O pega el enlace https de tu imagen
+                  O pega el enlace https de tu imagen (o de tu video MP4 si es un Reel)
                   <input type="url" maxLength={500} placeholder="https://…" value={editing.imageUrl?.startsWith("https://") ? editing.imageUrl : ""} onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value || null })} className={field} />
                 </label>
               </div>
@@ -580,7 +589,7 @@ export default function PublicationPlanner({
             {editing.status === "READY" && autoAccount(editing) !== undefined && editing.date && !publications[editing.id] ? (
               <p className="mt-4 text-sm text-[var(--muted)]">
                 {autoAccount(editing)?.canPublish
-                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : ""}.`
+                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : editing.format === "reel" ? (editing.platform === "instagram" ? " como Reel" : " como video") : ""}.`
                   : `Para que salga sola, conecta tu ${networkLabel(editing)} en Redes.`}
               </p>
             ) : null}

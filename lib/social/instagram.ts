@@ -151,14 +151,16 @@ export async function publishInstagramMedia(
   const creationId = typeof container.id === "string" ? container.id : null;
   if (!creationId) throw new InstagramPublishError("Instagram no aceptó la imagen.");
 
-  for (let attempt = 0; attempt < 6; attempt += 1) {
+  // A Reel takes longer: Instagram has to download and transcode the video.
+  const attempts = params.media_type === "REELS" ? 22 : 6;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     const statusUrl = new URL(`${base}/${creationId}`);
     statusUrl.searchParams.set("fields", "status_code");
     statusUrl.searchParams.set("access_token", accessToken);
     const status = await readPublishJson(await fetchImpl(statusUrl, { cache: "no-store" }));
     if (status.status_code === "FINISHED") break;
-    if (status.status_code === "ERROR" || status.status_code === "EXPIRED") throw new InstagramPublishError("Instagram no pudo procesar la imagen. Revisa que sea JPEG y pública.");
-    if (attempt === 5) throw new InstagramPublishError("Instagram tardó demasiado en procesar la imagen.");
+    if (status.status_code === "ERROR" || status.status_code === "EXPIRED") throw new InstagramPublishError("Instagram no pudo procesar la imagen. Revisa que sea JPEG o MP4 y público.");
+    if (attempt === attempts - 1) throw new InstagramPublishError("Instagram tardó demasiado en procesar el archivo.");
     await wait(2000);
   }
 

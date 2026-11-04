@@ -1,4 +1,6 @@
 import { parsePrivateCreativeRequest } from "./private-creative-url.ts";
+import { isPlannerVideo, plannerVideoPath } from "./media.ts";
+export { isPlannerVideo } from "./media.ts";
 /**
  * Publication planner for professionals: a private calendar of posts they
  * review privately. The separate publisher may send eligible READY posts
@@ -28,7 +30,8 @@ export const plannerPlatforms = {
 export const plannerFormats = {
   "1x1": "Cuadrado 1:1",
   "4x5": "Vertical 4:5",
-  "9x16": "Story / Reel 9:16",
+  "9x16": "Story 9:16",
+  reel: "Reel / video 9:16",
   text: "Solo texto",
 } as const;
 
@@ -78,6 +81,7 @@ export function safePlannerImageUrl(value: unknown): string | null | undefined {
   if (typeof value !== "string" || value.length > 2048) return undefined;
   if (value.startsWith("/api/professional/creative-proposal?") && parsePrivateCreativeRequest("https://evolusa.invalid"+value)) return value;
   if (/^\/professionals\/kits\/[a-z0-9-]+\/[a-z0-9-]+\.(png|jpe?g|webp)$/.test(value)) return value;
+  if (plannerVideoPath.test(value)) return value;
   try {
     const url = new URL(value);
     return url.protocol === "https:" && !url.username && !url.password ? url.href : undefined;
@@ -107,6 +111,8 @@ function parsePost(value: unknown): PlannerPost | null {
   const imageUrl = safePlannerImageUrl(v.imageUrl);
   const note = optionalText(v.note, 500);
   if (imageUrl === undefined || note === undefined) return null;
+  // A Reel needs a video, and a video only goes out as a Reel.
+  if ((v.format === "reel") !== isPlannerVideo(imageUrl) && !(v.format === "reel" && imageUrl === null)) return null;
   if (v.id.startsWith("ig-") && v.status !== "PUBLISHED") return null;
   if (v.status === "PUBLISHED" && v.date === null) return null;
   return {

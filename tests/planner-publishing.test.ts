@@ -188,3 +188,24 @@ test("Facebook still refuses several granted Pages when /me/accounts is empty", 
   }) as typeof fetch;
   await assert.rejects(connectFacebookPage(config, "code", fake), FacebookMultiplePagesError);
 });
+
+test("a Reel sends its MP4 to Instagram as REELS and to Facebook as a video", () => {
+  const site = "https://evolusa.vercel.app";
+  const reel = { ...post, format: "reel" as const, imageUrl: "/videos/usuario-9x16.mp4" };
+  assert.deepEqual(instagramMediaRequest(reel, site), { ok: true, kind: "REEL", params: { media_type: "REELS", video_url: `${site}/videos/usuario-9x16.mp4`, share_to_feed: "true", caption: "Texto" } });
+  assert.deepEqual(facebookRequest({ ...reel, platform: "facebook" }, site), { ok: true, request: { kind: "VIDEO", videoUrl: `${site}/videos/usuario-9x16.mp4`, caption: "Texto" } });
+  assert.equal(instagramMediaRequest({ ...reel, imageUrl: null }, site).ok, false, "a Reel without a video is refused");
+});
+
+test("Facebook videos go to the Page's videos edge with the caption as description", async () => {
+  const calls: string[] = [];
+  const fake = (async (input: string | URL, init?: RequestInit) => {
+    calls.push(`${String(input)} ${init?.body ? String(init.body) : ""}`);
+    if (String(input).endsWith("/99/videos")) return new Response(JSON.stringify({ id: "vid-1" }));
+    return new Response(JSON.stringify({ permalink_url: "https://facebook.com/vid-1" }));
+  }) as typeof fetch;
+  const result = await publishFacebookPost("99", "tok", { kind: "VIDEO", videoUrl: "https://x/a.mp4", caption: "Hola" }, fake);
+  assert.deepEqual(result, { mediaId: "vid-1", permalink: "https://facebook.com/vid-1" });
+  assert.match(calls[0], /file_url=https%3A%2F%2Fx%2Fa\.mp4/);
+  assert.match(calls[0], /description=Hola/);
+});
