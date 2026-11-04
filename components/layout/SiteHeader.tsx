@@ -11,7 +11,7 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 
 const navigation = [
   { label: "Inicio", href: "/#home" },
-  { label: "Cómo funciona", href: "/#journey" },
+  { label: "Etapas", href: "/#journey" },
   { label: "Videos", href: "/#video" },
   { label: "Profesionales", href: "/para-profesionales" },
 ] as const;
@@ -135,8 +135,7 @@ export default function SiteHeader() {
               <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">Mi panel</Link>
             ) : (
               <>
-                <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-[var(--role-member)] text-lg font-bold text-white">Ingresar como usuario</Link>
-                <Link href="/login?next=%2Fdashboard%2Fprofessional" onClick={() => setMenuOpen(false)} className="mt-3 flex min-h-12 items-center justify-center rounded-full bg-[var(--role-pro)] text-lg font-bold text-white">Ingresar como profesional</Link>
+                <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">Ingresar</Link>
               </>
             )}
           </div>
