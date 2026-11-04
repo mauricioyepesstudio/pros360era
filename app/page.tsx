@@ -21,8 +21,8 @@ export default function Home() {
       <main className="bg-white pt-24 text-[var(--foreground)]">
         <HeroArtboard />
         <TrustStrip />
-        <StageJourney />
         <ExplainerVideos />
+        <StageJourney />
         <ThreeSteps />
         <ProBand />
       </main>
