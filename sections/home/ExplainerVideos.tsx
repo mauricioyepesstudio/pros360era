@@ -4,7 +4,7 @@ import { useState } from "react";
 
 /**
  * Explainer videos (4-nov): one for users, one for professionals, with
- * burned-in subtitles and no audio yet (voice-over pending). Wide video on
+ * voice-over and burned-in subtitles. Wide video on
  * desktop, vertical on phones; preload="none" so nothing downloads until play.
  */
 const videos = {
@@ -78,7 +78,7 @@ export default function ExplainerVideos() {
             <span aria-hidden className="block h-1.5 w-12 rounded-full" style={{ background: v.accent }} />
             <h3 className="mt-5 text-2xl font-bold">{v.title}</h3>
             <p className="mt-3 text-base leading-relaxed text-white/75">{v.body}</p>
-            <p className="mt-6 text-sm text-white/60">Con subtítulos.</p>
+            <p className="mt-6 text-sm text-white/60">Con voz y subtítulos.</p>
           </div>
         </div>
       </div>
