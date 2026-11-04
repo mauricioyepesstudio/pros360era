@@ -47,7 +47,14 @@ async function publishingAccount(service: SupabaseClient, tokenKey: Buffer, user
   return token ? { accountId: data.provider_account_id, token } : null;
 }
 
-type Outcome = { ok: true; mediaId: string; permalink: string | null } | { ok: false; error: string; sent: boolean };
+type Outcome = { ok: true; mediaId: string; permalink: string | null } | { ok: false; error: string; sent: boolean; tokenInvalid?: boolean };
+
+const reconnectMessage = (network: string) => `No se publicó: tu conexión con ${network} venció o se cerró (por ejemplo, si cambiaste la contraseña). Vuelve a conectarla en Redes.`;
+
+/** Meta rejected the token: stop treating the connection as ACTIVE so Redes asks to reconnect it. */
+async function markConnectionExpired(service: SupabaseClient, userId: string, platform: AutoPublishPlatform) {
+  await service.from("social_connections").update({ status: "EXPIRED" }).eq("user_id", userId).eq("provider", platform).eq("status", "ACTIVE");
+}
 
 async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform }, account: Account): Promise<Outcome> {
   const network = networkName[post.platform];
@@ -57,6 +64,7 @@ async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform },
     try {
       return { ok: true, ...(await publishInstagramMedia(account.accountId, account.token, request.params)) };
     } catch (error) {
+      if (error instanceof InstagramPublishError && error.tokenInvalid) return { ok: false, error: reconnectMessage(network), sent: true, tokenInvalid: true };
       return { ok: false, error: `No se publicó: ${error instanceof InstagramPublishError ? error.message : `${network} no respondió.`}`, sent: true };
     }
   }
@@ -65,6 +73,7 @@ async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform },
   try {
     return { ok: true, ...(await publishFacebookPost(account.accountId, account.token, request.request)) };
   } catch (error) {
+    if (error instanceof FacebookPublishError && error.tokenInvalid) return { ok: false, error: reconnectMessage(network), sent: true, tokenInvalid: true };
     return { ok: false, error: `No se publicó: ${error instanceof FacebookPublishError ? error.message : `${network} no respondió.`}`, sent: true };
   }
 }
@@ -121,6 +130,11 @@ export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: 
         : { ...base, state: "FAILED", at: new Date().toISOString(), error: outcome.error.slice(0, 300) };
       if (outcome.ok) result.published += 1;
       else result.failed += 1;
+      if (!outcome.ok && outcome.tokenInvalid) {
+        await markConnectionExpired(service, userId, post.platform);
+        // The rest of this run's posts for that network wait until they reconnect.
+        accounts.set(post.platform, null);
+      }
       await saveLog(service, userId, log);
     }
     if (changed) await saveLog(service, userId, log);

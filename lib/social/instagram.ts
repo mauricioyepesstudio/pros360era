@@ -1,4 +1,5 @@
 import { readSocialTokenKey } from "./crypto.ts";
+import { isTokenInvalid } from "./meta-errors.ts";
 
 /**
  * Instagram API with Instagram Login (business/creator accounts). The old
@@ -120,15 +121,22 @@ function toToken(data: Record<string, unknown>, now: number): InstagramToken {
 /** Meta's own explanation, shortened, so the professional can see why a post didn't go out. */
 async function readPublishJson(response: Response): Promise<Record<string, unknown>> {
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  const error = data.error as { message?: unknown; error_user_msg?: unknown } | undefined;
+  const error = data.error as { message?: unknown; error_user_msg?: unknown; code?: unknown } | undefined;
   if (!response.ok || error) {
     const detail = typeof error?.error_user_msg === "string" ? error.error_user_msg : typeof error?.message === "string" ? error.message : `error ${response.status}`;
-    throw new InstagramPublishError(detail.slice(0, 200));
+    throw new InstagramPublishError(detail.slice(0, 200), isTokenInvalid(error?.code));
   }
   return data;
 }
 
-export class InstagramPublishError extends Error {}
+/** tokenInvalid: Meta rejected the token itself (OAuth code 190: expired, revoked or password changed). */
+export class InstagramPublishError extends Error {
+  readonly tokenInvalid: boolean;
+  constructor(message: string, tokenInvalid = false) {
+    super(message);
+    this.tokenInvalid = tokenInvalid;
+  }
+}
 
 export type InstagramPublication = { mediaId: string; permalink: string | null };
 
