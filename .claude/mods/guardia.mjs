@@ -23,6 +23,11 @@ const COMANDOS = [
   [/\bvercel\b[^\n]*(--prod\b|\bpromote\b)/i, 'Publicar en producción de Vercel: necesita el OK del dueño.'],
   [/\bstripe\b[^\n]*--live\b/i, 'Operar Stripe en modo Live.'],
   [/\brm\s+-rf?\s+(\/|~|\.)(\s|$)/i, 'Borrado masivo.'],
+  [/\bgh\s+api\b[^\n]*\/pulls\/\d+\/merge\b/i, 'Integrar un PR por la API: eso lo hace el dueño.'],
+  [/\bgit\s+push\b[^\n]*(\s--force(?!-with-lease)\b|\s-f\b)/i, 'Push forzado: reescribe historia que otros pueden tener.'],
+  [/\bgit\s+reset\s+--hard\b/i, 'git reset --hard borra trabajo sin commit; usa una rama nueva.'],
+  [/\bvercel\s+env\s+(add|rm|remove|pull)\b/i, 'Las variables de Vercel las pone o descarga el dueño, nunca un agente.'],
+  [/\bsupabase\s+secrets\s+(set|unset)\b/i, 'Los secretos de Supabase los pone el dueño.'],
   ...extra.comandos.map(([re, motivo]) => [new RegExp(re, 'i'), motivo]),
 ];
 
