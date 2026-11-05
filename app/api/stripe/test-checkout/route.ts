@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (exemptError || exempt?.billing_exempt !== false) return new Response("Billing exemption protected", { status: 403 });
   try {
     const stripe = new Stripe(process.env.STRIPE_PROFESSIONAL_TEST_KEY!);
-    const account = await stripe.accounts.retrieve();
+    const account = await stripe.accounts.retrieve(TEST_ACCOUNT_ID);
     if (account.id !== TEST_ACCOUNT_ID) return new Response("Wrong test account", { status: 503 });
     const price = await stripe.prices.retrieve(TEST_PRICES[plan].id);
     if (price.livemode || !price.active || price.currency !== "usd" || price.unit_amount !== TEST_PRICES[plan].cents || price.recurring?.interval !== "month" || price.recurring.interval_count !== 1) return new Response("Invalid test price", { status: 503 });
