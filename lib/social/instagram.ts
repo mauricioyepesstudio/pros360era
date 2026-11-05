@@ -128,7 +128,13 @@ async function readPublishJson(response: Response): Promise<Record<string, unkno
   return data;
 }
 
-export class InstagramPublishError extends Error {}
+export class InstagramPublishError extends Error {
+  readonly publicationUncertain: boolean;
+  constructor(message: string, publicationUncertain = false) {
+    super(message);
+    this.publicationUncertain = publicationUncertain;
+  }
+}
 
 export type InstagramPublication = { mediaId: string; permalink: string | null };
 
@@ -143,39 +149,55 @@ export async function publishInstagramMedia(
   params: Record<string, string>,
   fetchImpl: Fetch = fetch,
   wait: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  options: { deadline?: number; now?: () => number } = {},
 ): Promise<InstagramPublication> {
+  const now = options.now ?? Date.now;
+  const deadline = options.deadline ?? now() + 240_000;
+  const request = async (url: string | URL, init: RequestInit = {}) => {
+    const remaining = deadline - now();
+    if (remaining <= 0) throw new InstagramPublishError("Se agotó el tiempo de procesamiento. Revisa la publicación antes de reprogramarla.");
+    return readPublishJson(await fetchImpl(url, { ...init, cache: "no-store", signal: AbortSignal.timeout(Math.min(10_000, remaining)) }));
+  };
   const base = `https://graph.instagram.com/${INSTAGRAM_GRAPH_VERSION}`;
-  const container = await readPublishJson(
-    await fetchImpl(`${base}/${igUserId}/media`, { method: "POST", body: new URLSearchParams({ ...params, access_token: accessToken }), cache: "no-store" }),
-  );
+  const container = await request(`${base}/${igUserId}/media`, { method: "POST", body: new URLSearchParams({ ...params, access_token: accessToken }) });
   const creationId = typeof container.id === "string" ? container.id : null;
   if (!creationId) throw new InstagramPublishError("Instagram no aceptó la imagen.");
 
   // A Reel takes longer: Instagram has to download and transcode the video.
-  const attempts = params.media_type === "REELS" ? 22 : 6;
+  const isReel = params.media_type === "REELS";
+  const attempts = isReel ? 4 : 6;
+  const pollInterval = isReel ? 60_000 : 2_000;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const statusUrl = new URL(`${base}/${creationId}`);
     statusUrl.searchParams.set("fields", "status_code");
     statusUrl.searchParams.set("access_token", accessToken);
-    const status = await readPublishJson(await fetchImpl(statusUrl, { cache: "no-store" }));
+    const status = await request(statusUrl);
     if (status.status_code === "FINISHED") break;
     if (status.status_code === "ERROR" || status.status_code === "EXPIRED") throw new InstagramPublishError("Instagram no pudo procesar la imagen. Revisa que sea JPEG o MP4 y público.");
     if (attempt === attempts - 1) throw new InstagramPublishError("Instagram tardó demasiado en procesar el archivo.");
-    await wait(2000);
+    if (deadline - now() <= pollInterval) throw new InstagramPublishError("Se agotó el tiempo de procesamiento. Revisa la publicación antes de reprogramarla.");
+    await wait(pollInterval);
   }
 
-  const published = await readPublishJson(
-    await fetchImpl(`${base}/${igUserId}/media_publish`, { method: "POST", body: new URLSearchParams({ creation_id: creationId, access_token: accessToken }), cache: "no-store" }),
-  );
+  // Refuse before sending when the run has no budget. A timeout after sending
+  // is ambiguous: Meta may have published it, so never invite a blind retry.
+  if (deadline <= now()) throw new InstagramPublishError("Se agotó el tiempo antes de publicar.");
+  let published: Record<string, unknown>;
+  try {
+    published = await request(`${base}/${igUserId}/media_publish`, { method: "POST", body: new URLSearchParams({ creation_id: creationId, access_token: accessToken }) });
+  } catch (error) {
+    if (error instanceof InstagramPublishError) throw error;
+    throw new InstagramPublishError("No sabemos si llegó a publicarse. Revísalo en Instagram antes de volver a programarlo.", true);
+  }
   const mediaId = typeof published.id === "string" ? published.id : null;
-  if (!mediaId) throw new InstagramPublishError("Instagram no confirmó la publicación.");
+  if (!mediaId) throw new InstagramPublishError("Instagram no confirmó la publicación. Revísala en Instagram antes de reprogramarla.", true);
 
   let permalink: string | null = null;
   try {
     const linkUrl = new URL(`${base}/${mediaId}`);
     linkUrl.searchParams.set("fields", "permalink");
     linkUrl.searchParams.set("access_token", accessToken);
-    const link = await readPublishJson(await fetchImpl(linkUrl, { cache: "no-store" }));
+    const link = await request(linkUrl);
     permalink = typeof link.permalink === "string" && link.permalink.startsWith("https://") ? link.permalink : null;
   } catch {
     // Already published; the link is only a convenience.

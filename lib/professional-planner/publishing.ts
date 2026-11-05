@@ -22,6 +22,13 @@ export const plannerTimeZoneLabel = "hora de Florida";
 export const publishLateWindowMs = 48 * 60 * 60 * 1000;
 /** A run that died mid-publication is not retried blindly: Instagram may already show it. */
 export const staleClaimMs = 30 * 60 * 1000;
+/** Leave a minute of the 300-second function limit for storage and response. */
+export const plannerPublishRunBudgetMs = 240_000;
+/** Minimum useful reserve for a Reel; the shared deadline still caps every Instagram request. */
+export const plannerPublishAttemptBudgetMs = 220_000;
+export function canStartPlannerPublication(deadline: number, now: number): boolean {
+  return deadline - now >= plannerPublishAttemptBudgetMs;
+}
 const defaultTime = "12:00";
 
 export type PublishState = "PUBLISHING" | "PUBLISHED" | "FAILED";

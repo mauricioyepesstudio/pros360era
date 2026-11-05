@@ -2,7 +2,7 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { readSocialTokenKey, safeEqual } from "@/lib/social/crypto";
 import { publishDuePlannerPosts } from "@/lib/professional-planner/publisher";
 
-// A Reel waits for Instagram to transcode the video (up to ~45 s), so leave room for it.
+// Reel processing is bounded by a shared 240-second run budget; leave room for storage.
 export const maxDuration = 300;
 
 /**
