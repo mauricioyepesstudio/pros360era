@@ -7,6 +7,8 @@ import { InstagramPublishError, PUBLIC_APP_URL, publishInstagramMedia } from "@/
 import { parseProfessionalPlanner, professionalPlannerVersion, type PlannerPost } from "@/lib/professional-planner/validation";
 import {
   duePosts,
+  canStartPlannerPublication,
+  plannerPublishRunBudgetMs,
   facebookRequest,
   instagramMediaRequest,
   isAutoPublishable,
@@ -49,15 +51,17 @@ async function publishingAccount(service: SupabaseClient, tokenKey: Buffer, user
 
 type Outcome = { ok: true; mediaId: string; permalink: string | null } | { ok: false; error: string; sent: boolean };
 
-async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform }, account: Account): Promise<Outcome> {
+async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform }, account: Account, deadline: number): Promise<Outcome> {
   const network = networkName[post.platform];
   if (post.platform === "instagram") {
     const request = instagramMediaRequest(post, PUBLIC_APP_URL);
     if (!request.ok) return { ok: false, error: request.error, sent: false };
     try {
-      return { ok: true, ...(await publishInstagramMedia(account.accountId, account.token, request.params)) };
+      return { ok: true, ...(await publishInstagramMedia(account.accountId, account.token, request.params, undefined, undefined, { deadline })) };
     } catch (error) {
-      return { ok: false, error: `No se publicó: ${error instanceof InstagramPublishError ? error.message : `${network} no respondió.`}`, sent: true };
+      return { ok: false, error: error instanceof InstagramPublishError && error.publicationUncertain
+        ? error.message
+        : `No se publicó: ${error instanceof InstagramPublishError ? error.message : `${network} no respondió.`}`, sent: true };
     }
   }
   const request = facebookRequest(post, PUBLIC_APP_URL);
@@ -75,7 +79,8 @@ async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform },
  * network, so a run that dies halfway can't make the next run post it twice.
  */
 export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: Buffer, now = Date.now()) {
-  const result = { published: 0, failed: 0, notConnected: 0 };
+  const deadline = Date.now() + plannerPublishRunBudgetMs;
+  const result = { published: 0, failed: 0, notConnected: 0, deferred: 0 };
   const { data: planners, error } = await service
     .from("onboarding_responses")
     .select("user_id, answers")
@@ -104,6 +109,12 @@ export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: 
     const accounts = new Map<AutoPublishPlatform, Account | null>();
     for (const post of duePosts(planner, log, now)) {
       if (!isAutoPublishable(post)) continue;
+      // Leave unstarted posts unclaimed for the next cron run.
+      if (!canStartPlannerPublication(deadline, Date.now())) {
+        if (changed) await saveLog(service, userId, log);
+        result.deferred += 1;
+        return result;
+      }
       if (!accounts.has(post.platform)) accounts.set(post.platform, await publishingAccount(service, tokenKey, userId, post.platform));
       const account = accounts.get(post.platform);
       if (!account) {
@@ -115,7 +126,7 @@ export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: 
       log[post.id] = { ...base, state: "PUBLISHING" };
       await saveLog(service, userId, log);
       changed = false;
-      const outcome = await publishOne(post, account);
+      const outcome = await publishOne(post, account, deadline);
       log[post.id] = outcome.ok
         ? { ...base, state: "PUBLISHED", at: new Date().toISOString(), mediaId: outcome.mediaId, permalink: outcome.permalink }
         : { ...base, state: "FAILED", at: new Date().toISOString(), error: outcome.error.slice(0, 300) };
