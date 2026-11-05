@@ -73,6 +73,18 @@ export const applicationCategoryOptions: readonly ApplicationCategoryOption[] = 
     credentialHint: "Indica el estado y número de tu comisión notarial vigente para su revisión.",
   },
   {
+    id: "HEALTH_INSURANCE",
+    label: "Seguros de salud / médicos",
+    live: false,
+    credentialHint: "Indica tu licencia, jurisdicción y líneas de seguros autorizadas para su revisión.",
+  },
+  {
+    id: "AUTO_INSURANCE",
+    label: "Seguros de auto y accidentes de tránsito",
+    live: false,
+    credentialHint: "Indica tu licencia, jurisdicción y líneas de seguros autorizadas. La solicitud no confirma cobertura de accidentes.",
+  },
+  {
     id: "OTHER",
     label: "Otro / No estoy seguro",
     live: false,

@@ -1,3 +1,5 @@
+import GoogleAccountLink from "@/components/professional/GoogleAccountLink";
+import { getOwnGoogleLinkState } from "@/lib/account/google-link-state";
 import ProfessionalBusinessForm from "@/components/professional/ProfessionalBusinessForm";
 import {getMyProfessionalBusiness} from "@/lib/professional-business/persistence";
 import VoiceProfileForm from "@/components/professional/VoiceProfileForm";
@@ -17,7 +19,7 @@ import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 export default async function ProfessionalSelfProfilePage() {
   await requireProfessionalArea();
 
-  const [profile, business, voice] = await Promise.all([getMyProfessionalProfile(), getMyProfessionalBusiness(), getMyVoiceProfile()]);
+  const [profile, business, voice, accountAccess] = await Promise.all([getMyProfessionalProfile(), getMyProfessionalBusiness(), getMyVoiceProfile(), getOwnGoogleLinkState()]);
 
   return (
     <div className="space-y-8">
@@ -27,7 +29,7 @@ export default async function ProfessionalSelfProfilePage() {
         description="Esta es la información que ven los miembros de EVOLUSA emparejados contigo y, una vez aprobada, tu perfil público."
       />
       {profile ? (
-        <><section id="mi-negocio">{business.available?<ProfessionalBusinessForm initial={business.business} displayName={profile.displayName} location={[profile.city,profile.state].filter(Boolean).join(", ")} />:<p role="alert">No pudimos cargar el contexto de tu negocio. Reintenta antes de cambiarlo.</p>}</section><section id="mi-voz">{voice.available?<VoiceProfileForm initial={voice.voice} />:<p role="alert">No pudimos cargar tu perfil de voz. Reintenta antes de cambiarlo.</p>}</section><ProfessionalProfileEditor profile={profile} /></>
+        <><section id="mi-negocio">{business.available?<ProfessionalBusinessForm initial={business.business} displayName={profile.displayName} location={[profile.city,profile.state].filter(Boolean).join(", ")} />:<p role="alert">No pudimos cargar el contexto de tu negocio. Reintenta antes de cambiarlo.</p>}</section><section id="mi-voz">{voice.available?<VoiceProfileForm initial={voice.voice} />:<p role="alert">No pudimos cargar tu perfil de voz. Reintenta antes de cambiarlo.</p>}</section><ProfessionalProfileEditor profile={profile} /><GoogleAccountLink state={accountAccess} /></>
       ) : (
         <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-8 text-center">
           <p className="text-lg font-bold text-[var(--brand-navy)]">Todavía no encontramos tu perfil profesional.</p>

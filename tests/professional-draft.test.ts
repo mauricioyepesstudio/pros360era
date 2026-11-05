@@ -17,7 +17,7 @@ test('other category remains a private expression of interest', () => {
 });
 
 test('each authorized specialty survives the private draft handoff without approval', () => {
- for (const category of ['REAL_ESTATE','TAX','FINANCE','PARALEGAL','NOTARY']) {
+ for (const category of ['REAL_ESTATE','TAX','FINANCE','PARALEGAL','NOTARY','HEALTH_INSURANCE','AUTO_INSURANCE']) {
   const parsed = parseProfessionalDraft({ ...draft, category, role:'PROFESSIONAL', is_approved:true });
   assert.equal(parsed?.category, category);
   assert.equal('role' in parsed!,false);

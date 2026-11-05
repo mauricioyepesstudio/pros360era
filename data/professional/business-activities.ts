@@ -12,6 +12,8 @@ export const businessActivities = [
   {id:"accounting",label:"Contabilidad y bookkeeping",topic:"organizar registros y preguntas para tu profesional contable",headline:"Ordena tus documentos contables"},
   {id:"tax",label:"Preparación de impuestos / Taxes",topic:"organizar documentos y preguntas para tu profesional de impuestos",headline:"Prepara tu consulta de impuestos"},
   {id:"finance",label:"Finanzas y educación financiera",topic:"organizar tus objetivos y preguntas para una conversación sobre finanzas",headline:"Prepara tus preguntas sobre finanzas"},
+  {id:"health-insurance",label:"Seguros de salud / médicos",topic:"preparar documentos y preguntas para una conversación sobre seguros de salud",headline:"Prepara tus preguntas sobre seguros de salud"},
+  {id:"auto-insurance",label:"Seguros de auto y accidentes de tránsito",topic:"organizar tus preguntas sobre una póliza de auto y sus condiciones",headline:"Preguntas antes de revisar tu seguro de auto"},
   {id:"other",label:"Otra actividad",topic:"preparar tu próximo proyecto y confirmar su alcance",headline:"Prepara tu próximo proyecto"},
 ] as const;
 export type BusinessActivityId=(typeof businessActivities)[number]["id"];

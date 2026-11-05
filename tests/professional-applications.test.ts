@@ -64,7 +64,7 @@ test("a unique-violation on insert is treated as an already-saved duplicate", ()
 });
 
 test("specialties are preserved as applications without approval or account privileges", () => {
-  for (const id of ["REAL_ESTATE", "TAX", "FINANCE", "PARALEGAL", "NOTARY"]) {
+  for (const id of ["REAL_ESTATE", "TAX", "FINANCE", "PARALEGAL", "NOTARY", "HEALTH_INSURANCE", "AUTO_INSURANCE"]) {
     const option = applicationCategoryOptions.find(option => option.id === id);
     assert.ok(option);
     assert.equal(option.live, false, "intake does not promise enabled services");
