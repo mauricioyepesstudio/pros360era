@@ -45,9 +45,9 @@ test("a filled honeypot is flagged as spam", () => {
   assert.deepEqual(parseProfessionalApplicationInput({ ...valid, website: "http://spam.example" }), { ok: false, reason: "SPAM" });
 });
 
-test("regulated categories are not offered or accepted", () => {
+test("only owner-authorized specialties are accepted for intake", () => {
   const ids = applicationCategoryOptions.map((option) => option.id);
-  for (const regulated of ["NOTARY", "TAX", "LEGAL", "IMMIGRATION", "INSURANCE"]) {
+  for (const regulated of ["LEGAL", "IMMIGRATION", "INSURANCE"]) {
     assert.ok(!ids.includes(regulated), `${regulated} must not be offered`);
     assert.deepEqual(parseProfessionalApplicationInput({ ...valid, categoryOfInterest: regulated }), { ok: false, reason: "INVALID_CATEGORY" });
   }
@@ -61,4 +61,17 @@ test("a unique-violation on insert is treated as an already-saved duplicate", ()
   assert.equal(isDuplicateApplicationError({ code: "23505" }), true);
   assert.equal(isDuplicateApplicationError({ code: "42501" }), false);
   assert.equal(isDuplicateApplicationError(null), false);
+});
+
+test("specialties are preserved as applications without approval or account privileges", () => {
+  for (const id of ["REAL_ESTATE", "TAX", "FINANCE", "PARALEGAL", "NOTARY"]) {
+    const option = applicationCategoryOptions.find(option => option.id === id);
+    assert.ok(option);
+    assert.equal(option.live, false, "intake does not promise enabled services");
+    const result = parseProfessionalApplicationInput({ ...valid, categoryOfInterest: id });
+    assert.ok(result.ok);
+    assert.equal(result.row.category_of_interest, id);
+    assert.equal("is_approved" in result.row, false);
+    assert.equal("role" in result.row, false);
+  }
 });
