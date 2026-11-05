@@ -13,6 +13,7 @@ export type ProfessionalSubscriptionSnapshot = {
   plan: ProfessionalPlanId;
   status: "pilot" | "active" | "past_due" | "canceled" | "expired";
   pilotEndsAt?: string | null;
+  billingExempt?: boolean;
 };
 
 /** Use only with a server-verified subscription loaded from the database.
@@ -27,7 +28,7 @@ export function hasProfessionalEntitlement(
   if (!snapshot) return false;
   if (!PROFESSIONAL_BILLING_ENABLED) {
     if (snapshot.status !== "pilot" || snapshot.plan !== "pilot") return false;
-    if (snapshot.pilotEndsAt && new Date(snapshot.pilotEndsAt).getTime() <= now.getTime()) return false;
+    if (!snapshot.billingExempt && snapshot.pilotEndsAt && new Date(snapshot.pilotEndsAt).getTime() <= now.getTime()) return false;
     return entitlements.pilot.includes(entitlement);
   }
   if (snapshot.status !== "active" && snapshot.status !== "pilot") return false;
