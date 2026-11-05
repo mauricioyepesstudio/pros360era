@@ -58,7 +58,7 @@ const fs = require('node:fs');
         await page.evaluate(() => { document.documentElement.style.overflow = ''; window.scrollTo({ top: 0, behavior: 'instant' }); });
         navigationChecks++;
       }
-      const explore = page.getByRole('link', { name: 'Explorar las 6 etapas', exact: true }).filter({ visible: true });
+      const explore = page.getByRole('link', { name: 'Soy profesional · Crear mi perfil', exact: true }).filter({ visible: true });
       assert.equal(await explore.count(), 1);
       const entryBox = await explore.boundingBox();
       const heroBox = await page.locator('section#home').filter({ visible: true }).boundingBox();
@@ -66,8 +66,10 @@ const fs = require('node:fs');
       await page.locator('section#home').filter({ visible: true }).screenshot({ path: `browser-evidence/hero-${width}-${reducedMotion}.png` });
       // Hero CTAs sit inside the hero, fully on screen (no clipped controls).
       assert.ok(entryBox && heroBox && entryBox.x >= 0 && entryBox.x + entryBox.width <= width + 1 && entryBox.y + entryBox.height <= heroBox.y + heroBox.height + 1, `hero controls clipped ${width}`);
-      assert.ok(await page.getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true }).isVisible());
-      await explore.click();
+      assert.ok(await page.getByRole('link', { name: 'Soy usuario · Empezar gratis', exact: true }).filter({ visible: true }).isVisible());
+      assert.equal(await explore.getAttribute('href'), '/aplicar-profesional');
+      const userEntry = page.getByRole('link', { name: 'Soy usuario · Empezar gratis', exact: true }).filter({ visible: true });
+      assert.equal(await userEntry.getAttribute('href'), '/onboarding');
       await page.locator('#journey').waitFor({ state: 'visible' });
       // Las 6 etapas aparecen una sola vez, como pestañas, con una sola acción.
       assert.deepEqual(await page.locator('#journey [role="tab"]').evaluateAll(tabs => tabs.map(tab => tab.getAttribute('aria-label'))), ['Llega', 'Establécete', 'Emprende', 'Protégete', 'Crece', 'Evoluciona']);
