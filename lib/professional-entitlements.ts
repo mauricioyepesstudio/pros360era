@@ -1,4 +1,4 @@
-import { PROFESSIONAL_BILLING_ENABLED, type ProfessionalPlanId } from "@/lib/professional-plans";
+import { PROFESSIONAL_BILLING_ENABLED, type ProfessionalPlanId } from "./professional-plans.ts";
 
 export type ProfessionalEntitlement = "public_profile" | "lead_inbox" | "crm" | "planner" | "basic_automations" | "agents" | "advanced_workflows" | "reports" | "integrations";
 
