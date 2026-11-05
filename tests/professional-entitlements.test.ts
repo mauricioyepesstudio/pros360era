@@ -14,3 +14,9 @@ test("pilot can access basic inbox but not paid CRM", () => {
 test("paid selection cannot bypass disabled billing", () => {
   assert.equal(hasProfessionalEntitlement({ plan: "business", status: "active" }, "agents"), false);
 });
+
+test("grandfathered professionals retain pilot access after nominal expiry", () => {
+  const existing = { plan: "pilot", status: "pilot", pilotEndsAt: "2026-01-01T00:00:00Z", billingExempt: true } as const;
+  assert.equal(hasProfessionalEntitlement(existing, "lead_inbox", new Date("2027-01-01")), true);
+  assert.equal(hasProfessionalEntitlement(existing, "agents", new Date("2027-01-01")), false);
+});
