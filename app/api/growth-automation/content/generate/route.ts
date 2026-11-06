@@ -1,61 +1,24 @@
 import { isGrowthAutomationReady, growthUnavailableMessage } from "@/lib/growth-automation/readiness";
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { generateContent, generateWeekSchedule } from "@/lib/growth-automation/content-generator";
+import { draftWithMyVoice } from "@/lib/cerebro/persistence";
 
+/**
+ * Growth Automation ahora redacta con el motor central del cerebro
+ * (lib/cerebro): perfil de voz, filtro de cumplimiento y sin texto de respaldo
+ * inventado. La «semana completa» se arma en el planner, no aquí.
+ */
 export async function POST(request: NextRequest) {
   if (!isGrowthAutomationReady()) {
     return NextResponse.json({ error: growthUnavailableMessage }, { status: 503 });
   }
-  try {
-    const supabase = await createSupabaseServerClient();
-    if (!supabase) {
-      return NextResponse.json({ error: "Database not configured" }, { status: 503 });
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { type, niche, platform, topic, tone = "professional" } = body;
-
-    if (type === "generate") {
-      const content = await generateContent({
-        niche,
-        tone: tone || "professional",
-        platform,
-        topic,
-        includeHashtags: true,
-        includeEmojis: true,
-      });
-
-      return NextResponse.json(content);
-    }
-
-    if (type === "week") {
-      const schedule = await generateWeekSchedule(niche, platform);
-
-      // Generate content for each day
-      const contentItems = await Promise.all(
-        schedule.map((req) => generateContent(req))
-      );
-
-      return NextResponse.json({
-        schedule: schedule.map((s, idx) => ({
-          ...s,
-          ...contentItems[idx],
-        })),
-      });
-    }
-
-    return NextResponse.json({ error: "Invalid request type" }, { status: 400 });
-  } catch (error) {
-    console.error("Content generation API error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate content" },
-      { status: 500 }
-    );
+  const body = await request.json().catch(() => null);
+  if (!body || body.type !== "generate") {
+    return NextResponse.json({ error: "Usa el planner para preparar la semana; aquí solo se genera un borrador." }, { status: 400 });
   }
+  const result = await draftWithMyVoice({ platform: body.platform, topic: body.topic ?? body.niche });
+  if (!result.ok) {
+    const status = result.reason === "missing_key" ? 503 : result.reason === "not_ready" ? 400 : 502;
+    return NextResponse.json({ error: result.message }, { status });
+  }
+  return NextResponse.json({ caption: result.draft.caption, hashtags: result.draft.hashtags, contentIdeas: result.draft.idea ? [result.draft.idea] : [], compliance: result.draft.compliance });
 }

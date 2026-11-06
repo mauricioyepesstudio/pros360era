@@ -1,0 +1,451 @@
+/*
+ * Jarvis — escena isométrica pixel art del cerebro EVOLUSA.
+ * Colores desde los tokens de marca de app/globals.css.
+ */
+
+.shell {
+  --px: 4px;
+  --tile: 64px;
+  --grid: 7;
+  --floor: calc(var(--tile) * var(--grid));
+  --ink: #e6f0ff;
+  --ink-dim: color-mix(in srgb, var(--brand-blue-on-dark) 70%, transparent);
+  --night: var(--brand-navy-strong);
+  --panel: color-mix(in srgb, var(--brand-navy) 88%, black);
+  --glow: var(--brand-blue-on-dark);
+  --live: #3fd27f;
+  --ready: var(--brand-gold);
+  --building: #5b9bff;
+  --pending: #8a9bb5;
+  --blocked: var(--brand-red);
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--brand-blue) 28%, transparent), transparent 60%),
+    var(--night);
+  color: var(--ink);
+  border-radius: var(--radius-lg);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 0 var(--px) color-mix(in srgb, var(--glow) 20%, transparent);
+}
+
+/* Scanlines CRT, sutiles. */
+.shell::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.03) 0 2px, transparent 2px 4px);
+}
+
+.pixelTitle {
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 color-mix(in srgb, var(--brand-blue) 60%, black);
+}
+
+.pixelBox {
+  background: var(--panel);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--glow) 35%, transparent),
+    4px 4px 0 0 rgb(0 0 0 / 0.45);
+}
+
+/* ---------- Escena ---------- */
+
+.viewport {
+  height: 540px;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+  position: relative;
+}
+
+.scaler {
+  /* Sin tamaño propio: la escena queda centrada aunque sea más ancha que la pantalla. */
+  width: 0;
+  height: 0;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: scale(var(--scene-scale, 1));
+  transform-origin: center;
+}
+
+.stage {
+  position: absolute;
+  left: calc(var(--floor) / -2);
+  top: calc(var(--floor) / -2);
+  width: var(--floor);
+  height: var(--floor);
+  transform-style: preserve-3d;
+  transform: translateY(70px) rotateX(58deg) rotateZ(-45deg);
+}
+
+.floor {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(color-mix(in srgb, var(--glow) 22%, transparent) 2px, transparent 2px) 0 0 / var(--tile) var(--tile),
+    linear-gradient(90deg, color-mix(in srgb, var(--glow) 22%, transparent) 2px, transparent 2px) 0 0 / var(--tile) var(--tile),
+    color-mix(in srgb, var(--brand-navy) 75%, black);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--glow) 40%, transparent),
+    0 0 80px color-mix(in srgb, var(--brand-blue) 45%, transparent);
+}
+
+.link {
+  position: absolute;
+  height: 4px;
+  transform-origin: 0 50%;
+  background: repeating-linear-gradient(90deg, var(--link-color) 0 8px, transparent 8px 14px);
+  opacity: 0.55;
+}
+
+.pulse {
+  position: absolute;
+  top: -2px;
+  width: 8px;
+  height: 8px;
+  background: var(--link-color);
+  box-shadow: 0 0 10px var(--link-color);
+  animation: travel 2.8s linear infinite;
+}
+
+@keyframes travel {
+  from { left: 100%; }
+  to { left: 0%; }
+}
+
+/* Un cubo: cara superior + 4 laterales. --s ancho, --h alto, --c color. */
+.cube {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  transform-style: preserve-3d;
+}
+
+.face {
+  position: absolute;
+  background-color: var(--c);
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.18) 2px, transparent 2px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.18) 2px, transparent 2px);
+  background-size: 8px 8px;
+  image-rendering: pixelated;
+}
+
+.top {
+  inset: 0;
+  transform: translateZ(var(--h));
+  filter: brightness(1.25);
+  box-shadow: inset 0 0 0 3px rgb(255 255 255 / 0.35);
+}
+
+.south {
+  left: 0;
+  top: var(--s);
+  width: var(--s);
+  height: var(--h);
+  transform-origin: top;
+  transform: rotateX(90deg);
+  filter: brightness(0.85);
+}
+
+.north {
+  left: 0;
+  top: 0;
+  width: var(--s);
+  height: var(--h);
+  transform-origin: top;
+  transform: rotateX(90deg);
+  filter: brightness(0.6);
+}
+
+.east {
+  left: var(--s);
+  top: 0;
+  width: var(--h);
+  height: var(--s);
+  transform-origin: left;
+  transform: rotateY(-90deg);
+  filter: brightness(0.7);
+}
+
+.west {
+  left: 0;
+  top: 0;
+  width: var(--h);
+  height: var(--s);
+  transform-origin: left;
+  transform: rotateY(-90deg);
+  filter: brightness(0.55);
+}
+
+.moduleButton {
+  position: absolute;
+  width: var(--tile);
+  height: var(--tile);
+  transform-style: preserve-3d;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.moduleButton .cube {
+  left: calc((var(--tile) - var(--s)) / 2);
+  top: calc((var(--tile) - var(--s)) / 2);
+  transition: transform 200ms steps(4);
+}
+
+.moduleButton:hover .cube,
+.moduleButton:focus-visible .cube,
+.moduleButton[aria-pressed="true"] .cube {
+  transform: translateZ(14px);
+}
+
+.moduleButton:focus-visible {
+  outline: none;
+}
+
+.moduleButton:focus-visible .top,
+.moduleButton[aria-pressed="true"] .top {
+  box-shadow: inset 0 0 0 4px #fff;
+  filter: brightness(1.5);
+}
+
+.building .top {
+  animation: blink 1.2s steps(2) infinite;
+}
+
+.blocked .top {
+  animation: alarm 0.9s steps(2) infinite;
+}
+
+@keyframes blink {
+  50% { filter: brightness(0.9); }
+}
+
+@keyframes alarm {
+  50% { filter: brightness(1.7); }
+}
+
+/* Etiquetas que miran a la cámara. */
+.billboard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  transform: translateZ(var(--z)) rotateZ(45deg) rotateX(-58deg);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.badge {
+  display: block;
+  transform: translate(-50%, -100%);
+  min-width: 22px;
+  padding: 2px 5px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--night);
+  background: var(--c);
+  box-shadow: 0 0 0 2px var(--night), 3px 3px 0 0 rgb(0 0 0 / 0.5);
+  white-space: nowrap;
+}
+
+.badgeName {
+  margin-left: 6px;
+}
+
+/* Núcleo: el cerebro. */
+.core {
+  position: absolute;
+  left: calc(var(--tile) * 2.75);
+  top: calc(var(--tile) * 2.75);
+  width: calc(var(--tile) * 1.5);
+  height: calc(var(--tile) * 1.5);
+  transform-style: preserve-3d;
+}
+
+.core .cube {
+  --s: calc(var(--tile) * 1.5);
+  --h: 64px;
+  --c: var(--brand-blue);
+}
+
+.core .top {
+  background-image:
+    radial-gradient(circle, #fff 2px, transparent 3px),
+    linear-gradient(rgb(0 0 0 / 0.2) 2px, transparent 2px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.2) 2px, transparent 2px);
+  background-size: 24px 24px, 8px 8px, 8px 8px;
+  animation: corePulse 2.4s steps(6) infinite;
+}
+
+@keyframes corePulse {
+  50% { filter: brightness(1.6); }
+}
+
+.ring {
+  position: absolute;
+  inset: -26px;
+  border: 4px dashed color-mix(in srgb, var(--glow) 70%, transparent);
+  transform: translateZ(70px);
+  animation: spin 14s steps(48) infinite;
+}
+
+@keyframes spin {
+  to { transform: translateZ(70px) rotate(360deg); }
+}
+
+.hologram {
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: hover 3s steps(6) infinite alternate;
+}
+
+@keyframes hover {
+  to { margin-top: -10px; }
+}
+
+.face8 {
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 10px var(--glow));
+}
+
+.eye {
+  animation: eyeBlink 4.5s steps(1) infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes eyeBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 96% { transform: scaleY(0.2); }
+}
+
+.hologramLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--glow);
+  text-shadow: 0 0 6px var(--glow);
+}
+
+/* ---------- Paneles ---------- */
+
+.statusDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--c);
+  box-shadow: 0 0 0 2px var(--night), 0 0 8px var(--c);
+  flex: none;
+}
+
+.listButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.listButton:hover,
+.listButton[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--glow) 14%, transparent);
+}
+
+.listButton:focus-visible,
+.taskToggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.gateTrack {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+}
+
+.gateCell {
+  height: 18px;
+  background: color-mix(in srgb, var(--c) 85%, transparent);
+  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.3);
+}
+
+.taskToggle {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: var(--night);
+  box-shadow: 0 0 0 2px var(--glow);
+  color: var(--live);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.done {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.muted {
+  color: var(--ink-dim);
+}
+
+.typing::after {
+  content: "▋";
+  margin-left: 2px;
+  animation: caret 1s steps(1) infinite;
+}
+
+@keyframes caret {
+  50% { opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .viewport {
+    height: 300px;
+  }
+  .scaler {
+    --scene-scale: 0.5;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1100px) {
+  .scaler {
+    --scene-scale: 0.82;
+  }
+  .viewport {
+    height: 410px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell *,
+  .shell *::before,
+  .shell *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -12,6 +12,7 @@ const PAUSED_DEMO_ROUTES: { source: string; destination: string }[] = [
 ];
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {"/api/professional/creative-proposal": ["./app/globals.css","./public/brand/evolusa-primary.png","./public/images/journey/entrepreneurship.jpg","./public/images/journey/growth.jpg","./public/images/journey/stability.jpg"]},
   async redirects() {
     return PAUSED_DEMO_ROUTES.map((route) => ({ ...route, permanent: false }));
   },

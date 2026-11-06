@@ -4,10 +4,14 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 import { safeReturnPath, professionalWorkspacePath } from "@/lib/auth/return-path";
-import { initialCallDestination, authEntryHref } from "@/lib/initial-call/auth-intent";
+import { authEntryHref } from "@/lib/initial-call/auth-intent";
 import { initializeProfessionalDraftAction } from "@/app/(account)/dashboard/professional/actions";
 import { getAuthReadiness } from "@/lib/auth/config";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { authCallbackUrl } from "@/lib/auth/email-link";
+import { getSupabaseEnv } from "@/lib/supabase/env";
+import { canUseGoogleOAuth } from "@/lib/auth/provider-capability";
+import { currentPartnerRef } from "@/lib/partners/capture";
 
 import { confirmationCooldownSeconds, confirmationRequestMessage, isExistingSignup, isUnconfirmedEmail, normalizeAuthEmail, requestConfirmation, translateAuthError } from "@/lib/auth/confirmation";
 
@@ -19,12 +23,22 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   const next = safeReturnPath(searchParams.get("next"));
   const professional = next === professionalWorkspacePath;
 
-  const [initialCall, setInitialCall] = useState(searchParams.get("initialCall") === "1");
-  const callQuery = initialCall ? "&initialCall=1" : "";
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+
+  useEffect(() => {
+    const env = getSupabaseEnv();
+    if (!env) return;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
+    void canUseGoogleOAuth(env, controller.signal)
+      .then(enabled => { if (!controller.signal.aborted) setGoogleEnabled(enabled); })
+      .finally(() => window.clearTimeout(timeout));
+    return () => { controller.abort(); window.clearTimeout(timeout); };
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => linkErrorMessage(searchParams.get("error")));
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [resending, setResending] = useState(false);
@@ -40,7 +54,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     if (resending || cooldown > 0) return;
     setResending(true); setError(null); setResendNotice("");
     try {
-      const result = await requestConfirmation(createSupabaseBrowserClient().auth, email, cooldown);
+      const result = await requestConfirmation(createSupabaseBrowserClient().auth, email, cooldown, authCallbackUrl(window.location.origin, next));
       setCooldown(confirmationCooldownSeconds);
       if (result.requested) setResendNotice("Solicitud de reenvío recibida. Si tu cuenta necesita confirmación, revisa tu correo.");
       else setError(result.message);
@@ -51,7 +65,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
   async function enterAccount() {
     await restoreProfessionalInformation();
     // The authenticated server route owns role resolution and authorization.
-    router.push(initialCallDestination(next, initialCall));
+    router.push(next);
     router.refresh();
   }
 
@@ -67,6 +81,21 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
     } catch { /* Draft handoff must not prevent successful login. */ }
   }
 
+  async function signInWithGoogle() {
+    if (!googleEnabled || submitting) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const { error: oauthError } = await createSupabaseBrowserClient().auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: authCallbackUrl(window.location.origin, next) },
+      });
+      if (oauthError) setError(translateAuthError(oauthError));
+    } catch {
+      setError("No pudimos iniciar sesión con Google. Inténtalo nuevamente.");
+    } finally { setSubmitting(false); }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -75,7 +104,15 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       const supabase = createSupabaseBrowserClient();
       const normalizedEmail = normalizeAuthEmail(email);
       if (signup) {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
+        const ref = currentPartnerRef(searchParams.get("ref"));
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+          options: {
+            emailRedirectTo: authCallbackUrl(window.location.origin, next),
+            ...(ref ? { data: { ref } } : {}),
+          },
+        });
         if (signUpError) {
           if (isExistingSignup(signUpError)) {
             // Never disclose account existence via the signup response — show the
@@ -84,7 +121,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
             setCooldown(confirmationCooldownSeconds);
             return;
           }
-          setError(translateAuthError(signUpError.message));
+          setError(translateAuthError(signUpError));
           return;
         }
         if (data.session) {
@@ -97,7 +134,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (signInError) {
           if (isUnconfirmedEmail(signInError)) { setConfirmationSent(true); setCooldown(0); return; }
-          setError(translateAuthError(signInError.message));
+          setError(translateAuthError(signInError));
           return;
         }
         await enterAccount();
@@ -140,7 +177,7 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
         {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
         <button type="button" disabled={resending || cooldown > 0} onClick={resendConfirmation} className="mt-5 min-h-12 w-full rounded-full border border-[var(--brand-blue)] font-bold text-[var(--brand-blue)] disabled:opacity-50">{resending ? "Solicitando enlace…" : cooldown > 0 ? `Reenviar en ${cooldown} s` : "Reenviar confirmación"}</button>
         {(resending || resendNotice) && <p role="status" aria-live="polite" className="mt-3 text-sm text-[var(--muted)]">{resending ? "Solicitando otro enlace…" : resendNotice}</p>}
-        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={authEntryHref("login", next, initialCall)}>Ya tengo cuenta o ya confirmé: entrar</Link>
+        <Link className="mt-5 inline-block font-bold text-[var(--brand-blue)] underline" href={authEntryHref("login", next, false)}>Ya tengo cuenta o ya confirmé: entrar</Link>
         <button type="button" onClick={() => { setConfirmationSent(false); setError(null); }} className="mt-3 block min-h-10 w-full text-sm underline">{signup ? "Corregir correo" : "Volver a entrar"}</button>
       </div>
     );
@@ -157,14 +194,17 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       <p className="mt-3 leading-7 text-[var(--muted)]">
         {signup
           ? (professional ? "Crea tu cuenta para entrar a tu espacio profesional. La aprobación de tu perfil se realiza por separado." : "Guarda tu diagnóstico y continúa tu camino personalizado.")
-          : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu Roadmap y revisa tu progreso.")}
+          : (professional ? "Entra a tu espacio profesional y revisa los próximos pasos." : "Continúa tu plan y revisa tu progreso.")}
       </p>
-      <div className="mt-5 space-y-2 rounded-xl bg-[var(--sky-surface)] p-4 text-sm">
-        <p className="font-bold">Una cuenta, dos formas de participar</p>
-        <div className="flex flex-wrap gap-4"><Link href={`/${mode}?next=%2Fdashboard${callQuery}`} className="font-bold underline">Soy usuario</Link><Link href={`/${mode}?next=%2Fdashboard%2Fprofessional${callQuery}`} className="font-bold underline">Soy profesional</Link></div>
-        <p className="leading-6 text-[var(--muted)]">{professional ? "Si ya tienes acceso profesional habilitado, entrarás a tu panel. Si tu solicitud sigue en revisión, podrás preparar tu presentación privada." : "Como usuario, continúas tu camino. Si también ofreces servicios, entra por Soy profesional para preparar tu presentación."}</p>
+      <div role="group" aria-label="¿Cómo entras?" className="mt-5 grid grid-cols-2 gap-1.5 rounded-full bg-slate-100 p-1.5">
+        <Link href={authEntryHref(mode, "/dashboard", false)} aria-current={!professional ? "true" : undefined} className={`flex min-h-11 items-center justify-center rounded-full text-sm font-bold transition ${!professional ? "bg-[var(--role-member)] text-white shadow" : "text-[var(--brand-navy)] hover:bg-white"}`}>Soy usuario</Link>
+        <Link href={authEntryHref(mode, professionalWorkspacePath, false)} aria-current={professional ? "true" : undefined} className={`flex min-h-11 items-center justify-center rounded-full text-sm font-bold transition ${professional ? "bg-[var(--role-pro)] text-white shadow" : "text-[var(--brand-navy)] hover:bg-white"}`}>Soy profesional</Link>
       </div>
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+      <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{signup ? (professional ? "Para quienes ofrecen servicios." : "Para quienes buscan su siguiente paso o un profesional.") : "Usa el correo de tu cuenta. Al entrar, vas directo a tu panel según tu perfil."}</p>
+      <button type="button" onClick={signInWithGoogle} disabled={submitting || !googleEnabled} aria-describedby={!googleEnabled ? "google-status" : undefined} className="mt-6 flex min-h-14 w-full items-center justify-center gap-3 rounded-full border-2 border-[var(--brand-navy)] bg-white text-base font-bold text-[var(--brand-navy)] shadow-[var(--shadow-md)] transition hover:bg-slate-50 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-4 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:opacity-60 disabled:shadow-none"><svg aria-hidden viewBox="0 0 48 48" className="size-6"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>{googleEnabled ? "Continuar con Google" : "Google · no disponible todavía"}</button>
+      {!googleEnabled && <p id="google-status" className="mt-2 text-center text-xs text-[var(--muted)]">Por ahora, entra con tu correo y contraseña.</p>}
+      <p className="mt-4 text-center text-sm text-[var(--muted)]">O continúa con tu correo electrónico</p>
+      <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-[var(--brand-navy)]">
           Correo electrónico
           <input
@@ -190,7 +230,8 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
             placeholder="••••••••"
           />
         </label>
-        {signup && <label className="flex items-start gap-3 rounded-xl bg-[var(--sky-surface)] p-4 text-sm"><input type="checkbox" checked={initialCall} onChange={event => setInitialCall(event.target.checked)} className="mt-1 size-5 shrink-0"/><span><strong className="block">Quiero una videollamada inicial</strong>Después de entrar, podrás elegir el tema y tu disponibilidad. Este paso es opcional y no reserva una cita.</span></label>}
+        {!signup && <Link href="/forgot-password" className="block text-right text-sm font-bold text-[var(--brand-blue)] underline">¿Olvidaste tu contraseña?</Link>}
+
         {error && (
           <p role="alert" className="rounded-[var(--radius-md)] bg-rose-50 p-3 text-sm font-semibold text-rose-700">
             {error}
@@ -206,10 +247,18 @@ export default function AuthFoundation({ mode }: { mode: "login" | "signup" }) {
       </form>
       <p className="mt-6 text-center text-sm text-[var(--muted)]">
         {signup ? "¿Ya tienes cuenta?" : "¿Aún no tienes cuenta?"}{" "}
-        <Link className="font-bold text-[var(--brand-blue)]" href={authEntryHref(signup ? "login" : "signup", next, initialCall)}>
+        <Link className="font-bold text-[var(--brand-blue)]" href={authEntryHref(signup ? "login" : "signup", next, false)}>
           {signup ? "Entrar" : "Crear cuenta"}
         </Link>
       </p>
     </div>
   );
+}
+
+/** Explains why a Google or email link sent the person back here. */
+function linkErrorMessage(code: string | null): string | null {
+  if (code === "link") return "El enlace del correo expiró o ya se usó. Entra con tu contraseña o pide uno nuevo.";
+  if (code === "oauth") return "No pudimos completar el acceso con Google. Inténtalo de nuevo o entra con tu correo.";
+  if (code === "config") return "El servicio de cuentas no está disponible en este momento.";
+  return null;
 }

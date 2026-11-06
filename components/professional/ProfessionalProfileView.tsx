@@ -71,6 +71,7 @@ export default function ProfessionalProfileView({
   const socialLinks = safeSocialLinks(professional.socialLinks);
   const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
   const externalLinks = [
+    category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && socialLinks.whatsapp ? { href: socialLinks.whatsapp, label: "Contactar por WhatsApp", icon: Link2 } : null,
     websiteHref ? { href: websiteHref, label: "Sitio web", icon: Globe } : null,
     portfolioHref ? { href: portfolioHref, label: "Portafolio", icon: Globe } : null,
     socialLinks.instagram ? { href: socialLinks.instagram, label: "Instagram", icon: Link2 } : null,
@@ -168,6 +169,14 @@ export default function ProfessionalProfileView({
         </Section>
       )}
 
+      {professional.category === "IMMIGRATION_DOCUMENT_SUPPORT" && (
+        <Section labelledBy="immigration-document-notice">
+          <div id="immigration-document-notice" className="max-w-3xl rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--sky-surface)] p-6 text-sm leading-6 text-[var(--brand-navy)]">
+            Este profesional ofrece apoyo documental. EVOLUSA no da asesoría migratoria ni es una agencia de inmigración. Para orientación legal o migratoria, consulta a un profesional debidamente autorizado.
+          </div>
+        </Section>
+      )}
+
       {hasLinks && (
         <Section className="bg-[var(--surface-subtle)]" labelledBy="professional-links-title">
           <Heading id="professional-links-title" eyebrow="Más de este profesional">
@@ -260,9 +269,9 @@ export default function ProfessionalProfileView({
       <Section className="bg-[var(--brand-navy)]">
         <div className="mx-auto max-w-xl text-center">
           <p className="text-balance text-2xl font-bold text-white sm:text-3xl">¿Quieres seguir explorando tu camino?</p>
-          <p className="mt-3 leading-7 text-white/70">Tu Roadmap te ayuda a identificar el próximo paso adecuado para ti.</p>
+          <p className="mt-3 leading-7 text-white/70">Tu plan te ayuda a identificar el próximo paso adecuado para ti.</p>
           <ButtonLink href="/roadmap" className="mt-6">
-            Volver al Roadmap
+            Volver al plan
           </ButtonLink>
         </div>
       </Section>

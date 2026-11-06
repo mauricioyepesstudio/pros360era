@@ -29,3 +29,7 @@ Pruebas de parser, consentimiento/cancelación, aislamiento de intención/next, 
 
 ## Pendiente tras desplegar
 Verificar solicitud y cancelación en navegador autenticado; guardar/reabrir una agenda. Verificar commit exacto de producción. La cuenta profesional actual del usuario tiene PROFESSIONAL y perfil privado; sesión cloud disponible antes de este cambio es otra cuenta ADMIN. No confundirlas. Ninguna comunicación externa ni llamada se ejecutó.
+
+## Aclaración de enlaces de reserva — 2026-10-18
+
+El guard de lectura `lib/opportunities/booking.ts` omite enlaces HTTP(S) con usuario o contraseña incrustados antes de presentar «Agendar videollamada» al miembro. Conserva enlaces ordinarios y `@` en ruta/query. Protege valores antiguos al renderizar; no limpia filas ni conecta un calendario. El editor de agenda conserva su contrato HTTPS existente. Ocho pruebas dedicadas cubren protocolos, formato y credenciales. Recorrido autenticado pendiente de cuenta/proyecto de prueba autorizado.

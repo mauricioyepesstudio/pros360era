@@ -159,3 +159,53 @@ for (const [label, data, error] of [
     await assert.rejects(connectFacebookPage(config, "code", fake), error);
   });
 }
+
+test("Facebook finds a business-portfolio Page through the per-Page grant when /me/accounts is empty", async () => {
+  const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
+  const fake = (async (input: string | URL) => {
+    const url = new URL(String(input));
+    if (url.pathname.endsWith("/oauth/access_token")) return json({ access_token: "user" });
+    if (url.pathname.endsWith("/me/permissions")) return json({ data: [{ permission: "pages_manage_posts", status: "granted" }] });
+    if (url.pathname.endsWith("/me/accounts")) return json({ data: [] });
+    if (url.pathname.endsWith("/debug_token")) return json({ data: { granular_scopes: [{ scope: "pages_manage_posts", target_ids: ["1359298860589803"] }] } });
+    if (url.pathname.endsWith("/1359298860589803")) return json({ id: "1359298860589803", name: "Evolusa", access_token: "page-token" });
+    return json({});
+  }) as typeof fetch;
+  const result = await connectFacebookPage(config, "code", fake);
+  assert.equal(result.page.id, "1359298860589803");
+  assert.equal(result.page.accessToken, "page-token");
+});
+
+test("Facebook still refuses several granted Pages when /me/accounts is empty", async () => {
+  const config: FacebookConfig = { appId: "1", appSecret: "s", tokenKey: Buffer.alloc(32), redirectUri: "https://evolusa.vercel.app/api/social/facebook/callback" };
+  const fake = (async (input: string | URL) => {
+    const url = new URL(String(input));
+    if (url.pathname.endsWith("/oauth/access_token")) return json({ access_token: "user" });
+    if (url.pathname.endsWith("/me/permissions")) return json({ data: [] });
+    if (url.pathname.endsWith("/me/accounts")) return json({ data: [] });
+    if (url.pathname.endsWith("/debug_token")) return json({ data: { granular_scopes: [{ scope: "pages_manage_posts", target_ids: ["1", "2"] }] } });
+    return json({});
+  }) as typeof fetch;
+  await assert.rejects(connectFacebookPage(config, "code", fake), FacebookMultiplePagesError);
+});
+
+test("a Reel sends its MP4 to Instagram as REELS and to Facebook as a video", () => {
+  const site = "https://evolusa.vercel.app";
+  const reel = { ...post, format: "reel" as const, imageUrl: "/videos/usuario-9x16.mp4" };
+  assert.deepEqual(instagramMediaRequest(reel, site), { ok: true, kind: "REEL", params: { media_type: "REELS", video_url: `${site}/videos/usuario-9x16.mp4`, share_to_feed: "true", caption: "Texto" } });
+  assert.deepEqual(facebookRequest({ ...reel, platform: "facebook" }, site), { ok: true, request: { kind: "VIDEO", videoUrl: `${site}/videos/usuario-9x16.mp4`, caption: "Texto" } });
+  assert.equal(instagramMediaRequest({ ...reel, imageUrl: null }, site).ok, false, "a Reel without a video is refused");
+});
+
+test("Facebook videos go to the Page's videos edge with the caption as description", async () => {
+  const calls: string[] = [];
+  const fake = (async (input: string | URL, init?: RequestInit) => {
+    calls.push(`${String(input)} ${init?.body ? String(init.body) : ""}`);
+    if (String(input).endsWith("/99/videos")) return new Response(JSON.stringify({ id: "vid-1" }));
+    return new Response(JSON.stringify({ permalink_url: "https://facebook.com/vid-1" }));
+  }) as typeof fetch;
+  const result = await publishFacebookPost("99", "tok", { kind: "VIDEO", videoUrl: "https://x/a.mp4", caption: "Hola" }, fake);
+  assert.deepEqual(result, { mediaId: "vid-1", permalink: "https://facebook.com/vid-1" });
+  assert.match(calls[0], /file_url=https%3A%2F%2Fx%2Fa\.mp4/);
+  assert.match(calls[0], /description=Hola/);
+});

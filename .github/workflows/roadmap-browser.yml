@@ -1,0 +1,43 @@
+name: Roadmap browser QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sections/home/**'
+      - 'components/account/AuthFoundation.tsx'
+      - 'lib/auth/confirmation.ts'
+      - 'scripts/verify-roadmap-browser.cjs'
+      - '.github/workflows/roadmap-browser.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://auth-test.invalid
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: synthetic-public-test-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm install --prefix "$RUNNER_TEMP/roadmap-browser" --ignore-scripts --no-package-lock playwright@1.62.1
+      - run: node "$RUNNER_TEMP/roadmap-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Verify responsive roadmap and intercepted signup error
+        shell: bash
+        run: |
+          npm run start -- --port 3002 > "$RUNNER_TEMP/roadmap-server.log" 2>&1 &
+          for attempt in {1..40}; do
+            if curl -fsS http://localhost:3002/ > /dev/null; then break; fi
+            sleep 1
+          done
+          NODE_PATH="$RUNNER_TEMP/roadmap-browser/node_modules" node scripts/verify-roadmap-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: roadmap-browser-evidence
+          path: browser-evidence
+          retention-days: 7

@@ -100,11 +100,13 @@ export default function ProfessionalApplicationForm() {
             {applicationCategoryOptions.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.label}
-                {!option.live ? " (próximamente)" : ""}
+                {!option.live ? " (sujeto a revisión)" : ""}
               </option>
             ))}
           </Select>
         </FormField>
+
+        <p className="text-sm text-[var(--muted)]">Recibimos solicitudes de distintas especialidades. Enviar tu información no aprueba tu perfil ni acredita licencias; revisamos los requisitos de cada servicio antes de habilitarlo.</p>
 
         <FormField id="credential" label="Credencial o licencia" hint={selectedCategory.credentialHint}>
           <Input id="credential" maxLength={200} value={credentialInfo} onChange={(event) => setCredentialInfo(event.target.value)} placeholder="Ej. Certificación, portafolio o años de experiencia" />

@@ -11,6 +11,7 @@ import RadioGroup from "@/components/ui/RadioGroup";
 import { updateMyProfessionalProfileAction } from "@/app/(account)/actions";
 import { getProfessionalCategory } from "@/data/professional/categories";
 import { consultationModeOptions } from "@/data/opportunities/copy";
+import { publicWhatsAppUrl } from "@/lib/professional/profile-links";
 import { parseCareer, serializeCareer, validateCareer } from "@/lib/professional/career";
 import type { ConsultationMode, ProfessionalProfileSelf, ProfessionalSocialLinks } from "@/data/professional/types";
 
@@ -26,6 +27,7 @@ const languageOptions: { code: string; label: string }[] = [
 
 type SocialKey = keyof ProfessionalSocialLinks;
 const socialFields: { key: SocialKey; label: string; placeholder: string }[] = [
+  { key: "whatsapp", label: "WhatsApp de contacto (público)", placeholder: "https://wa.me/13055551234" },
   { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/tu-usuario" },
   { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/tu-usuario" },
   { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/tu-pagina" },
@@ -64,6 +66,10 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (socialLinks.whatsapp?.trim() && !publicWhatsAppUrl(socialLinks.whatsapp.trim())) {
+      setFeedback({kind: "error", message: "Usa https://wa.me/ seguido del n\u00famero internacional, sin espacios, signos ni mensaje."});
+      return;
+    }
     const careerError = validateCareer(career);
     if (careerError) {
       setFeedback({ kind: "error", message: careerError });
@@ -86,6 +92,7 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
           portfolioUrl: orNull(portfolioUrl),
           websiteUrl: orNull(websiteUrl),
           socialLinks: {
+            whatsapp: orNull(socialLinks.whatsapp ?? "") ?? undefined,
             instagram: orNull(socialLinks.instagram ?? "") ?? undefined,
             linkedin: orNull(socialLinks.linkedin ?? "") ?? undefined,
             facebook: orNull(socialLinks.facebook ?? "") ?? undefined,
@@ -230,6 +237,7 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
 
       <Card className="space-y-6">
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Redes sociales</h2>
+        <p className="text-sm text-[var(--muted)]">El enlace de WhatsApp permite que te escriban. No conecta una bandeja ni activa respuestas automáticas. Se muestra como contacto público solo en categorías de negocio permitidas y si aceptas clientes.</p>
         <div className="grid gap-6 sm:grid-cols-2">
           {socialFields.map((field) => (
             <FormField key={field.key} id={`social-${field.key}`} label={field.label}>

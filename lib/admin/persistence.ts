@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { applicationApprovalState, requestExistingProfileApproval, requestProfileApproval, type ApplicationApprovalState } from "./profile-approval";
 
 export type ProfessionalApplicationStatus = "PENDING" | "REVIEWED" | "CONTACTED";
 
@@ -15,6 +16,7 @@ export type ProfessionalApplicationRow = {
   notes: string | null;
   status: ProfessionalApplicationStatus;
   reviewedAt: string | null;
+  approvalState: ApplicationApprovalState;
 };
 
 export type AdminDashboardStats = {
@@ -26,6 +28,7 @@ export type AdminDashboardStats = {
   contactedOpportunities: number;
   completedOpportunities: number;
 };
+export type AdminExistingProfileRow = { id: string; displayName: string; email: string; category: string; city: string | null; createdAt: string };
 
 /**
  * Every function here calls an ADMIN-gated SECURITY DEFINER RPC (0016) —
@@ -37,7 +40,14 @@ export async function getProfessionalApplications(): Promise<ProfessionalApplica
   const supabase = await createSupabaseServerClient();
   if (!supabase) return [];
 
-  const { data } = await supabase.rpc("admin_list_professional_applications");
+  const [{data}, approvalResult] = await Promise.all([
+    supabase.rpc("admin_list_professional_applications"),
+    supabase.rpc("admin_application_approval_states"),
+  ]);
+  const approvals = new Map<string, ApplicationApprovalState>(
+    (approvalResult.error || !Array.isArray(approvalResult.data) ? [] : approvalResult.data)
+      .map((row: Record<string, unknown>) => [String(row.application_id), applicationApprovalState(row.approval_state)]),
+  );
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
     id: row.id as string,
@@ -52,6 +62,7 @@ export async function getProfessionalApplications(): Promise<ProfessionalApplica
     notes: (row.notes as string | null) ?? null,
     status: row.status as ProfessionalApplicationStatus,
     reviewedAt: (row.reviewed_at as string | null) ?? null,
+    approvalState: approvals.get(String(row.id)) ?? "UNAVAILABLE",
   }));
 }
 
@@ -85,4 +96,29 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats | nu
     contactedOpportunities: Number(row.contacted_opportunities ?? 0),
     completedOpportunities: Number(row.completed_opportunities ?? 0),
   };
+}
+
+
+export async function approveApplicationProfile(applicationId: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return {saved: false, message: "No se pudo conectar con la cuenta"};
+  return requestProfileApproval(supabase, applicationId);
+}
+
+/** ADMIN-gated RPC: never reads professional_profiles directly. */
+export async function getUnappliedProfessionalProfiles(): Promise<AdminExistingProfileRow[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+  const {data, error} = await supabase.rpc("admin_list_unapplied_professional_profiles");
+  if (error || !Array.isArray(data)) return [];
+  return data.map((row: Record<string, unknown>) => ({
+    id: String(row.profile_id), displayName: String(row.display_name), email: String(row.email), category: String(row.category),
+    city: (row.city as string | null) ?? null, createdAt: String(row.created_at),
+  }));
+}
+
+export async function approveExistingProfile(profileId: string, expectedCategory: string, reason: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return {saved: false, message: "No se pudo conectar con la cuenta"};
+  return requestExistingProfileApproval(supabase, profileId, expectedCategory, reason);
 }

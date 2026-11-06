@@ -1,6 +1,8 @@
 "use client";
+import { invalidateEditedApprovals } from "@/lib/professional-planner/weekly-review";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, List, Plus, Trash2, X } from "lucide-react";
@@ -10,6 +12,7 @@ import {
   plannerMaxPosts,
   plannerPlatforms,
   plannerStatuses,
+  isPlannerVideo,
   sortPosts,
   type PlannerPost,
   type PlannerStatus,
@@ -20,8 +23,8 @@ import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-p
 import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
 import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
-import PlannerImport from "@/components/professional/PlannerImport";
 import { generatePlannerIdeasAction } from "@/app/(account)/panel-profesional/planner/ai-actions";
+import PlannerImport from "@/components/professional/PlannerImport";
 
 export type PlannerImageOption = { src: string; label: string };
 
@@ -75,6 +78,7 @@ function blankPost(date: string | null): PlannerPost {
 
 export default function PublicationPlanner({
   initial,
+  openSuggestions = false,
   saved,
   proposedFromKit,
   today,
@@ -84,6 +88,7 @@ export default function PublicationPlanner({
   suggestions,
 }: {
   initial: ProfessionalPlanner;
+  openSuggestions?: boolean;
   saved: boolean;
   proposedFromKit: boolean;
   today: string;
@@ -144,46 +149,26 @@ export default function PublicationPlanner({
   const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [publicImageConsent, setPublicImageConsent] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(openSuggestions);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [suggestionDate, setSuggestionDate] = useState(today);
   const [freshSuggestions, setFreshSuggestions] = useState<PlannerSuggestion[]>([]);
-  const [suggestionBatch, setSuggestionBatch] = useState(0);
-  const [suggestionImageChoice, setSuggestionImageChoice] = useState<Record<string, string>>({});
   const [aiTopic, setAiTopic] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
   const suggestionPool = [...suggestions, ...freshSuggestions];
   async function proposeWithAI() {
     if (aiLoading || aiTopic.trim().length < 8) return;
-    setAiLoading(true);
-    setAiError("");
+    setAiLoading(true); setAiError("");
     try {
       const result = await generatePlannerIdeasAction(aiTopic);
       if (!result.ok) { setAiError(result.error); return; }
-      const unique = `ai-${Date.now().toString(36)}`;
-      setFreshSuggestions((current) => [...current, ...result.posts.map((post, index): PlannerSuggestion => ({ id: `${unique}-${index}`, title: post.title, caption: post.caption, imageUrl: imageOptions[index % imageOptions.length]?.src ?? null, source: "Plantilla editable" }))]);
-      setShowSuggestions(true);
-    } catch { setAiError("No se pudo conectar con la IA."); }
+      const id = crypto.randomUUID();
+      setFreshSuggestions(current => [...current, ...result.posts.map((post, index): PlannerSuggestion => ({
+        id: "ai-" + id + "-" + index, title: post.title, caption: post.caption, imageUrl: null, source: "Plantilla editable",
+      }))]);
+    } catch { setAiError("No pudimos generar el borrador. Tus ideas anteriores siguen disponibles."); }
     finally { setAiLoading(false); }
-  }
-  function proposeMoreSuggestions() {
-    const themes = [
-      { title: "Un consejo útil para tus clientes", caption: "Comparte un consejo concreto sobre tu servicio y explica cuándo conviene aplicarlo." },
-      { title: "Detrás de nuestro trabajo", caption: "Muestra una etapa real de tu proceso y explica qué aporta a tus clientes." },
-      { title: "Tres preguntas antes de empezar", caption: "Responde tres preguntas frecuentes sobre tus servicios con información verificable." },
-      { title: "Lo que debes saber antes de contratar", caption: "Explica qué información necesita un cliente para evaluar el servicio." },
-      { title: "Un error frecuente y cómo evitarlo", caption: "Describe un error habitual de forma educativa, sin exagerar resultados." },
-      { title: "Conoce nuestros servicios", caption: "Presenta un servicio concreto, para quién está pensado y cómo solicitar información." },
-    ];
-    const batch = suggestionBatch + 1;
-    const next = Array.from({ length: 3 }, (_, index): PlannerSuggestion => {
-      const idea = themes[((batch - 1) * 3 + index) % themes.length];
-      return { id: `suggest-new-${batch}-${index}`, ...idea, imageUrl: imageOptions.length ? imageOptions[((batch - 1) * 3 + index) % imageOptions.length].src : null, source: "Plantilla editable" };
-    });
-    setFreshSuggestions((current) => [...current, ...next]);
-    setSuggestionBatch(batch);
-    setShowSuggestions(true);
   }
 
 
@@ -212,7 +197,7 @@ export default function PublicationPlanner({
     setNotice(null);
     try {
       const result = await savePlannerAction({ posts: next });
-      setNotice({ text: message && result.saved ? message : result.message, failed: !result.saved });
+      setNotice({ text: result.saved && "approvalReset" in result && result.approvalReset ? result.message : message && result.saved ? message : result.message, failed: !result.saved });
       if (result.saved) {
         setIsSaved(true);
         router.refresh();
@@ -237,9 +222,10 @@ export default function PublicationPlanner({
       return;
     }
     const clean = { ...editing, title: editing.title.trim(), time: editing.date ? editing.time : null, note: editing.note?.trim() ? editing.note : null };
-    const next = sortPosts([...posts.filter((post) => post.id !== clean.id), clean]);
+    const next = sortPosts(invalidateEditedApprovals(posts, [...posts.filter((post) => post.id !== clean.id), clean]));
     setPosts(next);
-    if (await persist(next, "Publicación guardada.")) setEditing(null);
+    const reset = clean.status === "READY" && next.find(p => p.id === clean.id)?.status === "DRAFT";
+    if (await persist(next, reset ? "Guardado como borrador: revisa y aprueba nuevamente el contenido editado." : "Publicación guardada.")) setEditing(null);
   }
 
   async function removeEditing() {
@@ -255,6 +241,48 @@ export default function PublicationPlanner({
       return;
     }
     setEditing(blankPost(date));
+  }
+
+  async function createDesignedPost() {
+    if (!editing) return;
+    if (!publicImageConsent) {
+      setNotice({ text: "Confirma el uso público de la imagen para crearla y guardarla.", failed: true });
+      return;
+    }
+    const title = editing.title.trim() || "Descubre lo que podemos construir juntos";
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = editing.format === "9x16" ? 1920 : 1350;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) { setNotice({ text: "Este navegador no permite crear la imagen.", failed: true }); return; }
+    const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    bg.addColorStop(0, "#071e3d");
+    bg.addColorStop(1, "#086d91");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    ctx.beginPath(); ctx.arc(900, 230, 390, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#54d4ef"; ctx.fillRect(86, 160, 140, 12);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 44px sans-serif";
+    ctx.fillText("EVOLUSA  /  PROFESIONALES", 86, 115);
+    ctx.font = "bold 88px sans-serif";
+    const words = title.split(/\s+/);
+    let line = "", y = 380;
+    for (const word of words) {
+      const next = line ? line + " " + word : word;
+      if (ctx.measureText(next).width > 890 && line) {
+        ctx.fillText(line, 86, y); y += 110; line = word;
+      } else line = next;
+      if (y > canvas.height - 360) break;
+    }
+    if (line && y < canvas.height - 260) ctx.fillText(line, 86, y);
+    ctx.fillStyle = "#a6e9f7"; ctx.font = "38px sans-serif";
+    ctx.fillText("Conecta. Descubre. Crece.", 86, canvas.height - 165);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 38px sans-serif";
+    ctx.fillText("EVOLUSA", 86, canvas.height - 90);
+    canvas.toBlob(async (blob) => {
+      if (!blob) { setNotice({ text: "No se pudo exportar la imagen.", failed: true }); return; }
+      await uploadImage(new File([blob], "evolusa-publicacion.jpg", { type: "image/jpeg" }));
+    }, "image/jpeg", .87);
   }
 
   async function uploadImage(file: File) {
@@ -281,7 +309,7 @@ export default function PublicationPlanner({
   }
 
   async function saveSuggestions() {
-    const next = addPlannerSuggestions(posts, suggestionPool.map((item) => ({ ...item, imageUrl: suggestionImageChoice[item.id] ?? item.imageUrl })), selectedSuggestions, suggestionDate);
+    const next = addPlannerSuggestions(posts, suggestionPool, selectedSuggestions, suggestionDate);
     if (!next) { setNotice({ text: `Revisa la fecha y el límite de ${plannerMaxPosts} publicaciones.`, failed: true }); return; }
     if (await persist(next, "Ideas añadidas al calendario. Revisa cada borrador antes de publicarlo.")) {
       setPosts(next);
@@ -298,7 +326,9 @@ export default function PublicationPlanner({
       onClick={() => setEditing(post)}
       className="flex w-full items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-white p-1.5 text-left text-xs transition hover:border-[var(--brand-blue)]"
     >
-      {post.imageUrl ? (
+      {isPlannerVideo(post.imageUrl) ? (
+        <video src={post.imageUrl!} muted playsInline preload="metadata" aria-hidden className="size-7 shrink-0 rounded object-cover" />
+      ) : post.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={post.imageUrl} alt="" className="size-7 shrink-0 rounded object-cover" />
       ) : (
@@ -314,7 +344,9 @@ export default function PublicationPlanner({
   const listRow = (post: PlannerPost) => (
     <li key={post.id}>
       <button type="button" onClick={() => setEditing(post)} className="flex w-full items-center gap-4 rounded-[var(--radius-md)] border border-[var(--border)] bg-white p-3 text-left transition hover:border-[var(--brand-blue)]">
-        {post.imageUrl ? (
+        {isPlannerVideo(post.imageUrl) ? (
+          <video src={post.imageUrl!} muted playsInline preload="metadata" aria-hidden className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover" />
+        ) : post.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={post.imageUrl} alt="" className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover" />
         ) : (
@@ -337,6 +369,8 @@ export default function PublicationPlanner({
 
   return (
     <div className="space-y-6">
+      {suggestions.some(s => s.id.startsWith("week-") && !posts.some(p => p.id === s.id)) && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-5"><h2 className="font-bold">Tienes propuestas nuevas para esta semana</h2><p className="mt-2 text-sm">Revisa las propuestas gráficas privadas y los textos de la semana. Las imágenes se preparan localmente; la propuesta de reel incluye una portada y un guion, no un video.</p><button type="button" onClick={() => setShowSuggestions(true)} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white">Revisar propuestas de la semana</button></section>}
+
       {!isSaved && proposedFromKit ? (
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-lg)] bg-[var(--brand-navy)] p-5 text-white">
           <p className="max-w-2xl leading-7">
@@ -349,7 +383,7 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        <strong className="text-[var(--brand-navy)]">Publicación automática en Instagram y Facebook.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); el formato 9:16 sale como Story. Las demás redes las publicas tú desde su app.
+        <strong className="text-[var(--brand-navy)]">Publicación automática en Instagram y Facebook.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); el formato 9:16 sale como Story y el formato Reel publica su video como Reel (en Facebook, como video). Las demás redes las publicas tú desde su app.
         <span className="mt-2 block">
           Instagram: {networks.instagram?.canPublish ? <strong className="text-[var(--success)]">activa (@{networks.instagram.username})</strong> : <strong className="text-[var(--warning)]">{networks.instagram ? "vuelve a conectarla" : "sin conectar"}</strong>}
           {" · "}
@@ -372,9 +406,8 @@ export default function PublicationPlanner({
             </span>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full border border-[var(--border)] px-4 font-semibold">Sugerencias actuales</button>
-          <button type="button" onClick={proposeMoreSuggestions} className="min-h-11 rounded-full border border-[var(--brand-blue)] px-4 font-semibold text-[var(--brand-blue)]">+ Sugerencias</button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" aria-expanded={showSuggestions} onClick={() => setShowSuggestions(!showSuggestions)} className="min-h-11 rounded-full bg-[var(--brand-coral)] px-5 font-bold text-white shadow-sm transition hover:bg-[var(--brand-navy)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--brand-coral)]">Sugerencias de publicaciones</button>
           <div className="hidden rounded-full border border-[var(--border)] bg-white p-1 md:flex">
             <button type="button" onClick={() => setView("calendar")} aria-pressed={view === "calendar"} className={`inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold ${view === "calendar" ? "bg-[var(--brand-navy)] text-white" : ""}`}>
               <CalendarDays aria-hidden size={16} /> Calendario
@@ -389,22 +422,23 @@ export default function PublicationPlanner({
         </div>
       </div>
 
-      {showSuggestions && <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
-        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Ideas para tu próxima publicación</h2>
-        <div className="mt-3 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-4">
-          <label className="block text-sm font-semibold">Generar tres propuestas con IA sobre tu negocio<input value={aiTopic} maxLength={240} onChange={(event) => setAiTopic(event.target.value)} placeholder="Ej.: Consejos para preparar una consulta inicial" className={field} /></label>
-          <button type="button" disabled={aiLoading || aiTopic.trim().length < 8} onClick={() => void proposeWithAI()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white disabled:opacity-60">{aiLoading ? "Generando propuestas…" : "Generar 3 propuestas con IA"}</button>
-          {aiError && <p role="alert" className="mt-2 text-sm text-red-700">{aiError}</p>}
-          <p className="mt-2 text-xs text-[var(--muted)]">Los textos se basan en tu perfil profesional. Revísalos antes de aprobar. Las imágenes se eligen de tu kit; aún no se generan con IA.</p>
+      {showSuggestions && <section id="propuestas" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
+        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Propuestas gráficas y textos de la semana</h2>
+        <div className="mt-4 space-y-3">
+          <label className="block text-sm font-semibold">Tema para un borrador con tu voz<input value={aiTopic} maxLength={240} onChange={event => setAiTopic(event.target.value)} className={field} /></label>
+          <button type="button" disabled={aiLoading || aiTopic.trim().length < 8} onClick={() => void proposeWithAI()} className="min-h-11 rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white disabled:opacity-60">{aiLoading ? "Generando borrador…" : "Generar un borrador"}</button>
+          <p className="text-xs text-[var(--muted)]">Usa tu voz y negocio guardados. Revisa el texto antes de añadirlo como Idea. No genera imágenes ni publica.</p>
+          {aiError && <p role="alert" className="text-sm text-red-700">{aiError}</p>}
         </div>
-        <p className="mt-2 text-sm text-[var(--muted)]">Propuestas editables de tu kit y nuevas ideas orientativas. Puedes escoger una imagen disponible; no son imágenes generadas por IA. Se guardan como Ideas, sin publicarse.</p>
-        <ul className="mt-4 space-y-3">{suggestionPool.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span><strong className="block">{item.title}</strong><span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}{imageOptions.length > 0 && <select aria-label={`Imagen para ${item.title}`} value={suggestionImageChoice[item.id] ?? item.imageUrl ?? ""} onChange={(event) => setSuggestionImageChoice((current) => ({ ...current, [item.id]: event.target.value }))} className="mt-2 w-full rounded border border-[var(--border)] p-2 text-sm"><option value="">Sin imagen</option>{imageOptions.map((option) => <option key={option.src} value={option.src}>{option.label}</option>)}</select>}</span></label></li>)}</ul>
+
+        <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
+        <ul className="mt-4 space-y-3">{suggestionPool.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.id.startsWith("ai-") ? "Borrador con tu voz" : item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
         <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
       </section>}
 
       <PlannerImport posts={posts} busy={busy} save={async (next) => {
-        if (!await persist(next, "Plantilla importada como Ideas.")) return false;
+        if (!await persist(next, "Planner guardado como Ideas.")) return false;
         setPosts(next);
         const date = next.find((post) => !posts.some((current) => current.id === post.id))?.date;
         if (date) setMonth(monthKey(date));
@@ -524,12 +558,18 @@ export default function PublicationPlanner({
                 {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
                   <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={publicImageConsent} onChange={(event) => setPublicImageConsent(event.target.checked)} className="mt-0.5 size-4 shrink-0" />Esta imagen será accesible públicamente para compartirla en redes. Tengo permiso para usarla. No subiré documentos privados.</label>
                   <label className="mt-3 block text-sm font-semibold">{uploading ? "Subiendo imagen…" : "Subir imagen desde tu dispositivo"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={!publicImageConsent || uploading} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void uploadImage(file); }} className="mt-2 block w-full text-xs file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-4 file:font-semibold file:text-white disabled:opacity-60" /></label>
+                  <button type="button" disabled={uploading || !publicImageConsent} onClick={() => void createDesignedPost()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 text-sm font-bold text-white disabled:opacity-50">Crear diseño con el título del post</button>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Genera una pieza original EVOLUSA en tu navegador, sin subir un archivo externo. Puedes editar el título y volver a generarla.</p>
                   <p className="mt-2 text-xs text-[var(--muted)]">JPG, PNG o WebP de menos de 4 MB. Se convierte a JPG y se eliminan metadatos. Hasta 200 imágenes por cuenta.</p>
                 </div>}
                 {editing.imageUrl ? (
                   <div className="mt-2 flex items-start gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={editing.imageUrl} alt="" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                    {isPlannerVideo(editing.imageUrl) ? (
+                      <video src={editing.imageUrl} controls muted playsInline preload="metadata" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={editing.imageUrl} alt="" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                    )}
                     <div className="flex flex-col gap-2 text-sm">
                       <a href={editing.imageUrl} download className="inline-flex items-center gap-1 font-semibold text-[var(--brand-blue)] hover:underline">
                         <Download aria-hidden size={14} /> Descargar
@@ -549,7 +589,7 @@ export default function PublicationPlanner({
                   </div>
                 ) : null}
                 <label className="mt-2 block text-xs text-[var(--muted)]">
-                  O pega el enlace https de tu imagen
+                  O pega el enlace https de tu imagen (o de tu video MP4 si es un Reel)
                   <input type="url" maxLength={500} placeholder="https://…" value={editing.imageUrl?.startsWith("https://") ? editing.imageUrl : ""} onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value || null })} className={field} />
                 </label>
               </div>
@@ -576,7 +616,7 @@ export default function PublicationPlanner({
             {editing.status === "READY" && autoAccount(editing) !== undefined && editing.date && !publications[editing.id] ? (
               <p className="mt-4 text-sm text-[var(--muted)]">
                 {autoAccount(editing)?.canPublish
-                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : ""}.`
+                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : editing.format === "reel" ? (editing.platform === "instagram" ? " como Reel" : " como video") : ""}.`
                   : `Para que salga sola, conecta tu ${networkLabel(editing)} en Redes.`}
               </p>
             ) : null}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import { brand } from "@/config/brand";
+import PartnerRefCapture from "@/components/partners/PartnerRefCapture";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -19,10 +21,10 @@ export const metadata: Metadata = {
   description: brand.description,
   keywords: [
     "inmigrantes hispanos Estados Unidos",
-    "orientación inmigrantes USA",
+    "profesionales de negocio hispanos Florida",
     "profesionales hispanohablantes USA",
     "emprender en Estados Unidos",
-    "notario hispano Florida",
+    "marketing y operaciones para negocios hispanos",
   ],
   openGraph: {
     title: brand.displayName,
@@ -63,6 +65,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        <Suspense fallback={null}><PartnerRefCapture /></Suspense>
         {children}
       </body>
     </html>

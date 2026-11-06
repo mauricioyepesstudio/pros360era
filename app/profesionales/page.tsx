@@ -39,6 +39,7 @@ export default async function ProfessionalesPage() {
             se indica explícitamente en cada perfil.
           </p>
 
+          <div className="mt-6"><ButtonLink href="/profesionales/planes">Servicios para tu negocio</ButtonLink></div>
           {professionals.length === 0 ? (
             <Card className="mt-10 max-w-xl">
               <p className="text-lg font-semibold text-[var(--brand-navy)]">Estamos sumando profesionales aprobados.</p>

@@ -6,102 +6,94 @@ import Link from "next/link";
 
 const steps = [
   {
-    number: 1,
-    title: "Conecta tu Instagram",
-    description: "Solo necesitas dar permisos una sola vez. El sistema se conecta de forma segura a tu cuenta.",
-    details: [
-      "✅ No compartimos tu contraseña",
-      "✅ No publicamos sin tu aprobación",
-      "✅ Puedes desconectar en cualquier momento"
+    "number": 1,
+    "title": "Revisa tus conexiones",
+    "description": "Las conexiones externas requieren autorización individual y disponibilidad del proveedor.",
+    "details": [
+      "El acceso depende de cada canal",
+      "Revisa los permisos antes de conectar"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 2,
-    title: "El sistema comienza a trabajar",
-    description: "Inmediatamente después, nuestros agentes de IA comienzan a crear contenido optimizado para tu nicho.",
-    details: [
-      "✅ 2-3 posts diarios automáticos",
-      "✅ Basados en tendencias reales",
-      "✅ Optimizados para máximo engagement"
+    "number": 2,
+    "title": "Prepara tu contenido",
+    "description": "Organiza borradores en el planner y revisa el texto y las piezas antes de usarlos.",
+    "details": [
+      "La generación con IA requiere proveedor y cuota disponibles",
+      "Crear un borrador no publica en redes"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 3,
-    title: "Captura automática de leads",
-    description: "El sistema monitorea todas tus plataformas 24/7 y captura leads de manera inteligente.",
-    details: [
-      "✅ Instagram (comentarios, DMs)",
-      "✅ WhatsApp (mensajes)",
-      "✅ Email (consultas)"
+    "number": 3,
+    "title": "Organiza tus contactos",
+    "description": "Registra y revisa contactos en el CRM del panel profesional.",
+    "details": [
+      "La captura desde canales externos requiere una integración verificada",
+      "No se promete monitoreo automático"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 4,
-    title: "CRM Automático",
-    description: "Todos los leads aparecen en un solo lugar, calificados por probabilidad de compra.",
-    details: [
-      "✅ Leads organizados automáticamente",
-      "✅ Calificación inteligente (HOT/Warm)",
-      "✅ Nada que hacer manualmente"
+    "number": 4,
+    "title": "Da seguimiento",
+    "description": "Revisa cada contacto y registra el siguiente paso según tu trabajo real.",
+    "details": [
+      "La atención y el seguimiento requieren tu participación",
+      "No se promete una probabilidad de compra"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 5,
-    title: "Tú atiendes los leads",
-    description: "Solo necesitas responder a los leads que te interesen. El sistema hace el resto.",
-    details: [
-      "✅ Responde cuando quieras",
-      "✅ Desde tu teléfono o computadora",
-      "✅ Sin compromisos"
+    "number": 5,
+    "title": "Revisa tus oportunidades",
+    "description": "Las solicitudes dependen de necesidades reales, la categoría y la elegibilidad de tu perfil.",
+    "details": [
+      "La aprobación del perfil y la identidad verificada son distintas",
+      "No se garantiza un volumen de solicitudes"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 6,
-    title: "Propuestas automáticas",
-    description: "El sistema puede sugerirte propuestas basadas en lo que necesita cada lead.",
-    details: [
-      "✅ Personalizadas por lead",
-      "✅ Basadas en su intención",
-      "✅ Tú decides si usarlas"
+    "number": 6,
+    "title": "Prepara tus propuestas",
+    "description": "Revisa y adapta cada propuesta al alcance que realmente puedes ofrecer.",
+    "details": [
+      "Los borradores necesitan revisión antes de compartir",
+      "Las herramientas de IA requieren configuración disponible"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 7,
-    title: "Cierras tus ventas",
-    description: "Tú haces lo que sabes hacer mejor: cerrar clientes y darles un excelente servicio.",
-    details: [
-      "✅ Ganas 70% de cada venta",
-      "✅ Nosotros nos quedamos con 30%",
-      "✅ Para mantener el sistema funcionando"
+    "number": 7,
+    "title": "Acuerda el servicio",
+    "description": "La contratación y las condiciones del servicio se acuerdan con el cliente.",
+    "details": [
+      "No se prometen ventas ni ingresos",
+      "Los servicios regulados mantienen sus requisitos"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 8,
-    title: "Dashboard en tiempo real",
-    description: "Ves todo lo que está pasando: posts, leads, conversiones, ingresos. Todo en un lugar.",
-    details: [
-      "✅ Actualizaciones en vivo",
-      "✅ Analytics detallados",
-      "✅ Proyecciones futuras"
+    "number": 8,
+    "title": "Consulta tu panel",
+    "description": "Revisa los registros disponibles de publicaciones, contactos y solicitudes.",
+    "details": [
+      "Una publicación externa requiere comprobante del canal",
+      "Solo los datos comprobados sirven como resultado"
     ],
-    color: "#2563EB"
+    "color": "var(--brand-blue)"
   },
   {
-    number: 9,
-    title: "Mide tu avance",
-    description: "Después de tu primer mes revisas lo que pasó con datos reales.",
-    details: [
-      "✅ Tus seguidores, contactos e ingresos reales en un panel",
-      "✅ Sin cifras prometidas: los resultados dependen de tu nicho y constancia"
+    "number": 9,
+    "title": "Evalúa tu avance",
+    "description": "Revisa las actividades realizadas y decide el siguiente paso con datos disponibles.",
+    "details": [
+      "Las métricas externas dependen de conexiones verificadas",
+      "No hay un plazo garantizado de resultados"
     ],
-    color: "#F20D24"
+    "color": "var(--brand-coral)"
   }
 ];
 
@@ -219,14 +211,14 @@ export default function ProfessionalDemoTutorial() {
               ¿Listo para empezar?
             </h3>
             <p className="mb-6" style={{ color: '#EFF6FF' }}>
-              Completa tu registro en 5 minutos y comienza a ver resultados en 30 días.
+              Revisa las herramientas disponibles y envía tu solicitud profesional.
             </p>
             <Link
-              href="/signup?professional_invite=true"
+              href="/aplicar-profesional"
               className="inline-block px-10 py-4 rounded-lg font-bold text-lg"
               style={{ backgroundColor: '#F20D24', color: 'white' }}
             >
-              Crear mi Cuenta Ahora
+              Enviar mi solicitud
             </Link>
           </div>
         )}

@@ -1,3 +1,5 @@
+import { isPrivateCreativeImage } from "./private-creative-url.ts";
+import { isPlannerVideo } from "./media.ts";
 /**
  * Automatic publishing of planner posts to Instagram and Facebook: the pure rules.
  *
@@ -20,6 +22,13 @@ export const plannerTimeZoneLabel = "hora de Florida";
 export const publishLateWindowMs = 48 * 60 * 60 * 1000;
 /** A run that died mid-publication is not retried blindly: Instagram may already show it. */
 export const staleClaimMs = 30 * 60 * 1000;
+/** Leave a minute of the 300-second function limit for storage and response. */
+export const plannerPublishRunBudgetMs = 240_000;
+/** Minimum useful reserve for a Reel; the shared deadline still caps every Instagram request. */
+export const plannerPublishAttemptBudgetMs = 220_000;
+export function canStartPlannerPublication(deadline: number, now: number): boolean {
+  return deadline - now >= plannerPublishAttemptBudgetMs;
+}
 const defaultTime = "12:00";
 
 export type PublishState = "PUBLISHING" | "PUBLISHED" | "FAILED";
@@ -80,7 +89,7 @@ export const autoPublishPlatforms = ["instagram", "facebook"] as const;
 export type AutoPublishPlatform = (typeof autoPublishPlatforms)[number];
 
 export function isAutoPublishable(post: PlannerPost): post is PlannerPost & { platform: AutoPublishPlatform } {
-  return post.status === "READY" && (autoPublishPlatforms as readonly string[]).includes(post.platform) && post.date !== null;
+  return !isPrivateCreativeImage(post.imageUrl) && post.status === "READY" && (autoPublishPlatforms as readonly string[]).includes(post.platform) && post.date !== null;
 }
 
 function publicImageUrl(imageUrl: string, siteUrl: string): string {
@@ -103,14 +112,22 @@ export function duePosts(planner: ProfessionalPlanner, log: PublishLog, now: num
 }
 
 export type InstagramMediaRequest =
-  | { ok: true; kind: "FEED" | "STORY"; params: Record<string, string> }
+  | { ok: true; kind: "FEED" | "STORY" | "REEL"; params: Record<string, string> }
   | { ok: false; error: string };
 
 /**
  * What Instagram is asked to publish. Kit images are served as JPEG (the only
- * format Instagram takes) from the public site; 9:16 goes out as a Story.
+ * format Instagram takes) from the public site; 9:16 goes out as a Story and
+ * the "reel" format sends its MP4 as a Reel that also shows in the feed.
  */
 export function instagramMediaRequest(post: PlannerPost, siteUrl: string): InstagramMediaRequest {
+  if(isPrivateCreativeImage(post.imageUrl)) return {ok:false,error:"Esta propuesta es privada. Descarga, revisa y adjunta la imagen aprobada antes de publicarla."};
+  if (post.format === "reel") {
+    if (!isPlannerVideo(post.imageUrl)) return { ok: false, error: "Un Reel necesita un video MP4. Elige uno y vuelve a programarlo." };
+    const params: Record<string, string> = { media_type: "REELS", video_url: publicImageUrl(post.imageUrl!, siteUrl), share_to_feed: "true" };
+    if (post.caption.trim()) params.caption = post.caption;
+    return { ok: true, kind: "REEL", params };
+  }
   if (post.format === "text" || !post.imageUrl) return { ok: false, error: "Instagram necesita una imagen. Elige una y vuelve a programarla." };
   const imageUrl = publicImageUrl(post.imageUrl, siteUrl);
   if (post.format === "9x16") return { ok: true, kind: "STORY", params: { media_type: "STORIES", image_url: imageUrl } };
@@ -138,11 +155,16 @@ export function publicationView(planner: ProfessionalPlanner, log: PublishLog, n
 }
 
 export type FacebookRequest =
-  | { ok: true; request: { kind: "TEXT"; message: string } | { kind: "PHOTO"; imageUrl: string; caption: string } | { kind: "STORY"; imageUrl: string } }
+  | { ok: true; request: { kind: "TEXT"; message: string } | { kind: "PHOTO"; imageUrl: string; caption: string } | { kind: "STORY"; imageUrl: string } | { kind: "VIDEO"; videoUrl: string; caption: string } }
   | { ok: false; error: string };
 
 /** Facebook takes text-only posts too; 9:16 with an image goes out as a Page Story. */
 export function facebookRequest(post: PlannerPost, siteUrl: string): FacebookRequest {
+  if(isPrivateCreativeImage(post.imageUrl)) return {ok:false,error:"Esta propuesta es privada. Descarga, revisa y adjunta la imagen aprobada antes de publicarla."};
+  if (post.format === "reel") {
+    if (!isPlannerVideo(post.imageUrl)) return { ok: false, error: "Un Reel necesita un video MP4. Elige uno y vuelve a programarlo." };
+    return { ok: true, request: { kind: "VIDEO", videoUrl: publicImageUrl(post.imageUrl!, siteUrl), caption: post.caption.trim() ? post.caption : "" } };
+  }
   if (post.format === "text" || !post.imageUrl) {
     return post.caption.trim() ? { ok: true, request: { kind: "TEXT", message: post.caption } } : { ok: false, error: "La publicación no tiene texto ni imagen." };
   }

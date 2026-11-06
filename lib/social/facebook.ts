@@ -87,14 +87,53 @@ export async function connectFacebookPage(config: FacebookConfig, code: string, 
   pagesUrl.searchParams.set("fields", "id,name,access_token,tasks");
   pagesUrl.searchParams.set("access_token", userToken);
   const pages = await readJson(await fetchImpl(pagesUrl, { cache: "no-store" }));
-  const candidates = (Array.isArray(pages.data) ? pages.data : []).filter(
+  const rows = Array.isArray(pages.data) ? pages.data : [];
+  let candidates = rows.filter(
     (row: { id?: unknown; name?: unknown; access_token?: unknown; tasks?: unknown }) =>
       typeof row?.id === "string" && typeof row.name === "string" && typeof row.access_token === "string" && Array.isArray(row.tasks) && row.tasks.includes("CREATE_CONTENT"),
   ) as { id: string; name: string; access_token: string }[];
+  if (candidates.length === 0) {
+    candidates = await pagesFromGrantedScope(config, userToken, fetchImpl);
+  }
+  if (candidates.length === 0) {
+    // Counts only: never ids, names or tokens.
+    console.warn("facebook_no_page", { returned: rows.length, withToken: rows.filter((r: { access_token?: unknown }) => typeof r?.access_token === "string").length, withTasks: rows.filter((r: { tasks?: unknown }) => Array.isArray(r?.tasks)).length, granted: grantedScopes.length });
+  }
   if (candidates.length > 1 || pages.paging && typeof pages.paging === "object" && "next" in pages.paging) throw new FacebookMultiplePagesError("facebook_multiple_pages");
   const page = candidates[0];
   if (!page) throw new FacebookNoPageError("facebook_no_page");
   return { page: { id: page.id, name: page.name, accessToken: page.access_token }, grantedScopes };
+}
+
+/**
+ * Pages owned by a business portfolio can be granted in Facebook's dialog yet missing from /me/accounts.
+ * Meta records each grant per Page (granular_scopes), so the Pages the person explicitly allowed to publish are read from there. The grant itself is the permission; the multiple-Pages rule still applies afterwards.
+ */
+async function pagesFromGrantedScope(config: FacebookConfig, userToken: string, fetchImpl: Fetch): Promise<{ id: string; name: string; access_token: string }[]> {
+  try {
+    const debugUrl = new URL(`${graph}/debug_token`);
+    debugUrl.searchParams.set("input_token", userToken);
+    debugUrl.searchParams.set("access_token", `${config.appId}|${config.appSecret}`);
+    const debug = await readJson(await fetchImpl(debugUrl, { cache: "no-store" }));
+    const info = (debug.data ?? {}) as { granular_scopes?: unknown };
+    const scopes = Array.isArray(info.granular_scopes) ? (info.granular_scopes as { scope?: unknown; target_ids?: unknown }[]) : [];
+    const ids = scopes.find((row) => row?.scope === FACEBOOK_PUBLISH_SCOPE)?.target_ids;
+    const targets = (Array.isArray(ids) ? ids : []).filter((id): id is string => typeof id === "string" && /^\d+$/.test(id));
+    if (targets.length !== 1) {
+      console.warn("facebook_granular", { targets: targets.length });
+      if (targets.length > 1) throw new FacebookMultiplePagesError("facebook_multiple_pages");
+      return [];
+    }
+    const pageUrl = new URL(`${graph}/${targets[0]}`);
+    pageUrl.searchParams.set("fields", "id,name,access_token");
+    pageUrl.searchParams.set("access_token", userToken);
+    const page = (await readJson(await fetchImpl(pageUrl, { cache: "no-store" }))) as { id?: unknown; name?: unknown; access_token?: unknown };
+    return typeof page.id === "string" && typeof page.name === "string" && typeof page.access_token === "string" ? [{ id: page.id, name: page.name, access_token: page.access_token }] : [];
+  } catch (error) {
+    if (error instanceof FacebookMultiplePagesError) throw error;
+    console.warn("facebook_granular_failed", error instanceof Error ? error.message : "unknown");
+    return [];
+  }
 }
 
 export class FacebookNoPageError extends Error {}
@@ -114,9 +153,10 @@ async function readPublishJson(response: Response): Promise<Record<string, unkno
 export type FacebookPostRequest =
   | { kind: "TEXT"; message: string }
   | { kind: "PHOTO"; imageUrl: string; caption: string }
-  | { kind: "STORY"; imageUrl: string };
+  | { kind: "STORY"; imageUrl: string }
+  | { kind: "VIDEO"; videoUrl: string; caption: string };
 
-/** Publishes on the Page: a text post, a photo post, or a photo Story. */
+/** Publishes on the Page: a text post, a photo post, a photo Story, or a video. */
 export async function publishFacebookPost(pageId: string, pageToken: string, request: FacebookPostRequest, fetchImpl: Fetch = fetch): Promise<{ mediaId: string; permalink: string | null }> {
   const post = (path: string, params: Record<string, string>) =>
     fetchImpl(`${graph}/${pageId}/${path}`, { method: "POST", body: new URLSearchParams({ ...params, access_token: pageToken }), cache: "no-store" }).then(readPublishJson);
@@ -124,6 +164,9 @@ export async function publishFacebookPost(pageId: string, pageToken: string, req
   let postId: string | null = null;
   if (request.kind === "TEXT") {
     const data = await post("feed", { message: request.message });
+    postId = typeof data.id === "string" ? data.id : null;
+  } else if (request.kind === "VIDEO") {
+    const data = await post("videos", request.caption ? { file_url: request.videoUrl, description: request.caption } : { file_url: request.videoUrl });
     postId = typeof data.id === "string" ? data.id : null;
   } else if (request.kind === "PHOTO") {
     const data = await post("photos", request.caption ? { url: request.imageUrl, caption: request.caption } : { url: request.imageUrl });

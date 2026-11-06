@@ -1,4 +1,97 @@
+# 2026-11-03 — Cerebro fase 1: perfil de voz y motor de IA central
+
+Rama `claude/cerebro-voz-motor-ia-20261103`. Nuevo `lib/cerebro/`: perfil de voz por profesional (tono, idioma, cómo habla, palabras sí/no, llamado a la acción, aviso obligatorio, emojis) guardado por propietario en `onboarding_responses` (sin migración), y un solo motor de IA que arma el prompt en español con la voz y el negocio, valida el JSON con zod, agrega el aviso y pasa el filtro de cumplimiento (cifras, «verificado», «notario», categorías reguladas, claims de `claims.ts`, palabras a evitar). Sin texto de respaldo inventado: si falta la clave o falla, error claro. Formulario «Mi voz» con «Probar mi voz» en /panel-profesional/perfil (borrador de prueba, no se guarda ni publica). Growth Automation usa el motor; se borra el generador viejo. Jarvis: módulo «ia» bloqueado hasta `ANTHROPIC_API_KEY` en Vercel. Plan completo: https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU
+
+# 2026-10-29 - WhatsApp de contacto y seguimiento por prospecto
+
+Implementado en rama local existente: el propietario puede guardar su enlace publico https://wa.me/numero internacional usando social_links y la accion de perfil con user_id autenticado. Lectura y escritura filtran host, protocolo, credenciales, ruta numerica, query y fragmento. En el perfil publico se muestra solo para SERVICE_BUSINESS y aceptando clientes; no altera aprobacion ni categorias reguladas.
+
+CRM: cada prospecto propio propone una proxima accion desde su estado guardado. Agregar borrador a mis notas lo agrega una sola vez por estado; Guardar seguimiento conserva la propuesta mediante el PATCH existente con propietario y control de version. No envia mensajes ni equivale a un agente LLM o una bandeja WhatsApp conectada. No hay migracion, cambio de consentimiento ni consumo de proveedor.
+
+Arquitectura: reutiliza perfil, CRM, notas y acciones existentes; no agrega otra fuente de verdad. Cumplimiento: no asesoramiento ni claims de resultados; bloqueado contacto publico regulado; no publica ni cambia conexiones.
+
+Validacion: typecheck, lint sin errores (5 advertencias anteriores), build PASS. Pruebas finales y aceptacion visual/autenticada se registran en reports de WS12. Pendiente: revision visual y guardar/recargar con la cuenta propia; conectar WhatsApp Business API por propietario requiere onboarding, permisos y webhook reales. No hay commit, push o despliegue de estos cambios.
+
+# 2026-10-28 — Contexto privado del negocio y propuestas propias
+
+Formulario en perfil para 10 actividades, negocio, público, servicios, oferta y zona. Persistencia autenticada por propietario en onboarding_responses (versión interna separada del Roadmap), sin migraciones. Propuestas y piezas privadas adaptadas al negocio; revisiones nuevas no reescriben publicaciones aprobadas. Alertas internas de planner por fechas, fallos, permisos, imágenes privadas y cuenta de Instagram distinta del perfil. Fecha de Florida compartida. Creativos visible para todos los profesionales.
+
+Validación: TypeScript y lint sin errores (5 advertencias preexistentes), 331 pruebas aprobadas y build de producción correcto. Perfil existente probado en producción: guardado y recarga conservan website y LinkedIn. Detectada diferencia entre Instagram declarado y conectado; sin cambiar conexiones. Pendiente: publicación de esta rama y prueba autenticada del formulario nuevo → recarga → propuesta → aprobación → planner → CRM propio. No se afirma publicación social, alertas por email, scraping de LinkedIn, generación IA ni cobros.
+
 # ESTADO — EVOLUSA
+
+## 2026-10-23 — PR80 preparado para revisión
+
+Continuación aislada del PR80 contra main 4b67152. El registro conserva emailRedirectTo y atribución validada. Se retiran promesas de publicación automática, captación 24/7 y resultados en 30 días; el tutorial identifica dependencias reales. Se elimina el monograma inventado del aliado. Pendiente aprobación específica de la página de aliado y aceptación autenticada; sin integración ni despliegue de esta entrega. Pruebas y revisión se registran en la cola central.
+
+## 2026-10-22 — aliados (1MIGRATION), mensaje para profesionales y demo sin cifras
+
+Pedido del dueño (20-oct): Laura/1MIGRATION como clienta de herramientas y aliada que recomienda EVOLUSA a su comunidad. Rama `claude/aliados-profesionales-20261020`, sin merge.
+- Nueva página `/aliados/1migration` (config en `data/partners.ts`, `regulated: true`): «Recomendado por 1MIGRATION», Journey, Roadmap, guías y profesionales aprobados en categorías permitidas, con aviso `partner-regulated-services` de `claims.ts`: EVOLUSA no ofrece servicios ni orientación migratoria; los trámites se contratan directamente con el aliado, que no es bufete. Sitio web y WhatsApp del aliado vacíos hasta que el dueño los confirme.
+- Atribución: `?ref=<slug>` o la página de aliado guardan cookie propia validada de 30 días; el registro con correo la envía como `options.data.ref`. Solo atribución: sin pagos, comisiones ni migración. Google OAuth no la envía todavía. `user_metadata` lo puede editar el usuario: no sirve para pagos.
+- `/aplicar-profesional` empieza por marketing automatizado (planner), CRM, estudio creativo, perfil y agenda; después las solicitudes de miembros en categorías permitidas.
+- `/professional-demo` reescrita como «Ejemplo ilustrativo» sin likes, proyecciones, ingresos ni 70/30 (tutorial sin 70/30). Las rutas demo siguen pausadas por redirección en `next.config.ts`.
+- Pendiente: `compliance-reviewer` y OK del dueño antes de publicar la página de aliado; la regla provisional del 2026-09-30 sigue vigente (sin automatización ni reparto para categorías reguladas) y hay que decidir si vender herramientas a 1MIGRATION entra en ella.
+## 2026-10-22 — Continuación de PR56: retorno de enlaces de cuenta
+
+PR56 actualizado contra main remoto fdb86e6, conservando las mejoras posteriores de errores de registro. Confirmación, reenvío, Google y recuperación solicitan retorno a /auth/callback del sitio; /auth/confirm admite enlaces token_hash de las plantillas configuradas. Recuperación conserva códigos y status del proveedor para mensajes seguros y accionables. Nueva regresión verifica callback y status juntos.
+
+Revisión independiente de producto, seguridad y cumplimiento: GO. Validación final y commit de producción se registran en la cola central; esta entrada no afirma entrega de correo ni acceso Google. Comprobación viva del 22 de octubre: Google sigue deshabilitado y existen seis identidades de correo. Requisito externo conjunto: cliente Google configurado y remitente de dominio propio verificado en Resend/Supabase SMTP, seguido de prueba autorizada de login y recuperación. Sin cambios de DNS, secretos, roles, perfiles o esquema; no se enviaron correos. Creativos recientes conservados, sin duplicar contenido ni publicación externa.
+
+
+## 2026-10-20 — Decisión del consejo de fundadores: corregir el rumbo
+
+- Veredicto y razones: `control-plane/consejo/CONSEJO.md` en AI-Projects-Control-Plane (fuente: `consejo.json`).
+- Objetivos: Solicitudes de profesionales respondidas en menos de 48 h (meta 30 días: 100; 90 días: 100); Profesionales verificados (meta 30 días: 10; 90 días: 25); Primera membresía de profesional pagada (meta 30 días: 0; 90 días: 1).
+- Se desecha si: Menos de 15 profesionales verificados y ninguna membresía pagada en 90 días: se archiva como producto y su contenido se usa para la tienda y el portafolio. Fecha de revisión: 2027-01-18.
+- Agentes del consejo instalados en `.claude/agents/`: producto-pmf, seo-contenido-es, ventas-entrada, alianzas-canales, analista-metricas, finanzas-unitarias. Reglas: no envían, publican, cobran ni gastan sin aprobación de Mauricio; null = sin medir.
+- Tareas:
+  - cj-010 · 2026-10-24 · Mauricio: Hacer los 3 pasos de Google en Supabase y decir «merge» al PR #56
+  - cj-011 · 2026-10-22 · Mauricio: Decir «prepara» y enviar las respuestas a las 4 solicitudes de profesional
+  - cj-012 · 2026-10-31 · Mauricio: Dar un dominio para el correo de EVOLUSA y poner sus DNS
+  - cj-013 · 2026-11-02 · producto-pmf: Congelar funciones nuevas y reescribir la portada con una sola propuesta: directorio verificado de profesionales de negocio hispanos en Florida
+  - cj-014 · 2026-10-26 · analista-metricas: Medir cada semana profesionales verificados y tiempo de respuesta a solicitudes
+  - cj-015 · 2026-11-02 · alianzas-canales: Lista de 10 cámaras de comercio y asociaciones hispanas de Florida para traer profesionales (solo borradores)
+
+## 2026-10-20 — Jarvis, el cerebro de EVOLUSA en /admin/cerebro
+
+Pedido directo del dueño: panel «3D Pixel Jarvis» solo para ADMIN con escena isométrica pixel art de los módulos del cerebro (CRM, redes, planner, publicación, captación, correo, Roadmap, cobros), su estado con evidencia de PR, el portón «no invitar profesionales hasta que todo funcione» y misiones diarias rotativas (fijas mientras haya un bloqueo). Estados curados en `lib/admin/jarvis.ts`, no medidos en vivo: actualizar ese archivo en el PR que cambie cada módulo. Sin esquema, permisos, cuentas ni secretos nuevos; las marcas de tareas viven solo en el navegador.
+
+## 2026-10-19 — navegación móvil y continuación propia
+
+Base main6515d0c. Menú público cierra al alcanzar escritorio1280, restaura overflow previo y Escape devuelve foco al control. Sin rediseño, cambios de Roadmap, servidor, cuentas, esquema, permisos o secretos. QA navegador existente ampliado con seis recorridos de navegación, además de13 comprobaciones previas; resultados finales de pruebas/CI/producción en tarea central `evolusa-mobile-nav-lifecycle-20261019`.
+
+HV y planner fuente5 leídos; continuaciónOct20 reutiliza RG_02.png original con caption/contacto y canales explícitos, conservando historial y assets. Listo aquí, no programado ni publicado. Perfil propio mauricioyepes01@gmail.com separado deADMIN; guardado/recarga pendiente de sesión autorizada. Handoff: docs/cerebro/2026-10-19-mobile-nav-planner.md. No se afirma entrega SMTP u OAuth por esta modificación.
+
+## 2026-10-18 — Roadmap protagonista y causa del registro identificada
+
+Solicitud directa del dueño: home coloca seis etapas canónicas inmediatamente después del hero, tarjetas numeradas, acceso «Explorar las 6 etapas» y CTA público a onboarding, con aviso educativo. Sin catálogo paralelo, cambios del motor, fotos o servicios habilitados. Auth conserva códigos y traduce fallos conocidos sin mostrar texto sensible del proveedor ni revelar cuentas.
+
+Diagnóstico vivo de solo lectura: cuatro errores500 en /signup durante la ventanaOct17–18 indican rechazo SMTP550 de Resend en modo pruebas, que solo permite enviar al dueño del proveedor. Requiere dominio remitente verificado y dirección from de ese dominio; NO resuelto por esta modificación. No se cambian secretos, confirmación, cuentas, roles o permisos ni se envían correos de prueba. Google es independiente y no se afirma habilitado.
+
+225 pruebas PASS, TypeScript/build y lint finales en cierre central; lint previo0errores/7warnings existentes. Navegador cubre375/768/1024/1280/1440/1536 y movimiento reducido. Corrige cruces del hero en1280 y mantiene composición1536. El SDK descarta cuerpo/código en HTTP500: se conserva status y se informa fallo del servicio sin atribuir todo500 a SMTP. PR/preview/producción y revisión final en tarea central evolusa-roadmap-signup-user-20261018. Handoff: docs/cerebro/2026-10-18-roadmap-signup.md.
+
+
+## 2026-10-18 — reserva sin credenciales incrustadas y planner propio
+
+Base main remoto6b0802a. `safeBookingHref` omite enlaces antiguos HTTP(S) con usuario/contraseña antes de mostrar «Agendar videollamada» al miembro. Conserva URLs normales y @ en ruta/query; no cambia datos, JSX, estilos, autenticación, esquema, permisos o proveedores. Ocho pruebas dedicadas y suite217 PASS; TypeScript/lint0errores7warnings existentes. Build/CI/PR/producción finales en tarea central evolusa-booking-url-credentials-20261018.
+
+HV original y planner vigentes leídos. Planner versión5 conserva identidad e historial y añadeOct19 con pieza1original y caption, listo aquí/no programado/no publicado. Cuenta propia separada de ADMIN, sin escrituras de cuenta. Creativo EvolUSA equivalente del15 conservado. Handoff: docs/cerebro/2026-10-18-booking-link-credentials.md. Recorrido autenticado y autorización publicadora por canal siguen pendientes; no se afirma calendario conectado.
+
+
+## 2026-10-17 — privacidad de enlaces profesionales y planner propio
+
+Base main remoto5c7d729, producción READY confirmada. Los sanitizadores de enlace profesional rechazan URLs con usuario/contraseña incrustados antes de guardar o mostrar href/src; protegen también lectura de valores antiguos, sin migrar datos. Enlaces HTTP(S) ordinarios y @ dentro de ruta/query se conservan. No es protección universal de todos los módulos ni configura OAuth.
+
+215 pruebas PASS,19 focalizadas (4 nuevas),TypeScript/build/diff PASS,lint0errores/7warnings existentes; revisión independiente producto/security/complianceGO. Sin JSX/estilos, cuentas, esquema, permisos, secretos ni presupuesto. Estado final PR/CI/producción en tarea central evolusa-profile-url-credentials-20261017; handoff docs/cerebro/2026-10-17-profile-link-credentials.md. Planner propio versión4 paraOct18, pieza3original y caption, listo aquí/no publicado; guardado autenticado propio pendiente.
+
+## 2026-10-16 — LinkedIn público y continuación del planner
+
+PR55 ya integrado y producción READY en 567dcc8; reemplaza el estado histórico de preparado del 15. Nuevo ajuste pequeño: enlaces LinkedIn company/admin se presentan como página pública y se normalizan en futuros guardados, sin migrar cuentas. 211 pruebas, TypeScript, lint (7 warnings existentes), build y diff check PASS; revisión independiente seguridad/compliance GO. Estado de entrega y límites en docs/cerebro/2026-10-16-public-linkedin-profile.md. Planner propio actualizado bajo su identidad, versión3, para Oct17 reutilizando pieza web original; listo aquí, no programado/publicado. Guardado autenticado y OAuth no se dan por verificados.
+
+## 2026-10-15 — continuación PR55 y planner propio
+
+PR55 sigue preparado, no integrado/desplegado. Acceso común conserva resolución del rol en servidor y reservas con profesional emparejado; comprobación de disponibilidad Google aislada y cubierta por 5 regresiones fail-closed. 205 pruebas, TypeScript, lint (0 errores/7 warnings), build y diff check pasan; revisión producto/seguridad/compliance GO. Falta QA responsive y autenticado, no se afirma OAuth funcional ni entrega de correo. Producción actual READY a309fa6. Ver docs/cerebro/2026-10-15-account-entry-provider-check.md. HV y planner vigentes del dueño leídos; continuación Oct16 reutiliza branding existente, sin transferir datos de ADMIN ni publicar en redes. Resultado de reemplazo del planner e imagen en cerebro central.
 
 ## 2026-10-13 — imágenes, sugerencias e importación de parrillas
 
@@ -12,13 +105,13 @@ _Actualizado: 2026-10-06 (formulario de profesionales en producción; resto desd
 **Reclutar profesionales y crecer miembros** en las próximas semanas (respuesta del dueño, 2026-09-30). Stripe Live **no** es prioridad.
 
 ## Siguiente (máx. 5; una tarea = un PR)
-1. **Kit de reclutamiento de profesionales**: pulir `docs/marketing/professional-recruitment-outreach.md` y la página `/aplicar-profesional` (copy alineado a `claims.ts`; solo categorías no reguladas: marketing y operaciones de negocio en Florida). Pasa por `compliance-reviewer`.
-2. **Captación en `/aplicar-profesional`: HECHO 2026-10-06** (PR #19). Siguiente paso: revisar cada semana las solicitudes `PENDING` (runbook en `supabase/migrations/0014_…`) y contactar a quien aplique.
-3. **Adquisición de miembros**: plan de 4 semanas (canales, guías SEO, calendario social) con `growth-marketing-strategist` + `social-content-lead`; ampliar `app/guias` con 1–2 guías nuevas en español.
-4. **Métricas de embudo**: definir y medir registro → diagnóstico → Roadmap → oportunidad (`docs/EVOLUSA-LAUNCH-METRICS.md`, `lib/opportunities/analytics.ts`), con datos reales.
-5. **Actualizar README, `ci.yml` y `docs/CURRENT-STATE.md`** (desfasados) para que un profesional nuevo o un colaborador entienda el proyecto.
+1. **Dueño**: poner `ANTHROPIC_API_KEY` en Vercel (Production) para encender el motor del cerebro.
+2. **Cerebro fase 2**: bitácora de corridas de automatizaciones (tabla con RLS) y Jarvis leyendo estados reales. Migración con `security-reviewer` + OK del dueño.
+3. **Cerebro fase 3**: agentes del producto sobre `lib/cerebro` (redactor del planner, clasificador de prospectos del CRM). Solo borradores.
+4. **Cerebro fase 4**: planner en tabla propia y primera publicación real programada de punta a punta.
+5. **Correo**: dominio propio verificado en Resend y remitente en Supabase SMTP (bloquea registros reales).
 
-_Plan de migraciones (0015/0017) y revisión de Growth Automation están documentados abajo y en `docs/cerebro/decisiones.md`; no se ejecutan aún._
+_Plan por fases (3-nov-2026): https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU. El «Siguiente» anterior (septiembre) quedó superado por el cerebro._
 
 ## En curso / Bloqueado
 - **Bloqueado — verificar datos**: confirmar que producción (Vercel) usa el proyecto `ovialqdazxkekvqqgdiu` (ver sección abajo).
@@ -199,3 +292,8 @@ PR #46 (Instagram) integrado. Nuevo: conexión de página de Facebook en Redes (
 ## 2026-10-12 — reloj del publicador en Supabase (preparado, sin aplicar)
 
 El horario de GitHub (`*/10`) no se disparó ni una vez en 4 h; la primera pieza de Instagram salió con un lanzamiento manual (run 38256644262, `published: 1`). Nuevo reloj: `supabase/migrations/20261012180000_planner_publish_cron.sql` (pg_cron + pg_net llaman al publicador cada 10 min, leyendo `CRON_SECRET` del Vault como `planner_cron_secret`). GitHub queda solo como botón manual para no tener dos relojes publicando a la vez. **Falta que el dueño guarde el secreto en el Vault y corra la migración.**
+
+
+## 2026-11-06 - PR52 reconciliado: borrador con voz propia
+
+Un borrador privado por intento mediante el motor central, conservando planner e importador actuales. Rechaza contenido bloqueado o pendiente de cumplimiento; solo seleccion y guardado explicitos crean una IDEA. Sin generador Anthropic paralelo, publicaciones, cambios de claves/cuota, roles, esquema o cobros. Pruebas y limites: docs/EVOLUSA-PLANNER-DRAFT-20261106.md. Preparado; CI, integracion, despliegue y aceptacion autenticada se registran separadamente.
