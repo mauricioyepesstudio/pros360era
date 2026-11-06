@@ -183,7 +183,7 @@ export default function PublicationPlanner({
   const shownStatus = (post: PlannerPost): PlannerStatus => (publicationStates[post.id]?.state === "PUBLISHED" ? "PUBLISHED" : post.status);
   const counts = (Object.keys(plannerStatuses) as PlannerStatus[]).map((status) => ({ status, count: posts.filter((post) => shownStatus(post) === status).length }));
   const networkLabel = (post: PlannerPost) => plannerPlatforms[post.platform];
-  const autoAccount = (post: PlannerPost) => (post.platform === "instagram" || post.platform === "facebook" ? networks[post.platform] : undefined);
+  const autoAccount = (post: PlannerPost) => (post.platform === "instagram" || post.platform === "facebook" || post.platform === "linkedin" || post.platform === "threads" ? networks[post.platform] ?? null : undefined);
   const publicationLine = (post: PlannerPost) => {
     const publication = publicationStates[post.id];
     if (!publication) return null;
@@ -383,12 +383,13 @@ export default function PublicationPlanner({
       ) : null}
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 text-sm leading-6 text-[var(--muted)]">
-        <strong className="text-[var(--brand-navy)]">Publicación automática en Instagram y Facebook.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); el formato 9:16 sale como Story y el formato Reel publica su video como Reel (en Facebook, como video). Las demás redes las publicas tú desde su app.
+        <strong className="text-[var(--brand-navy)]">Publicación programada en Instagram, Facebook, LinkedIn y Threads.</strong> Lo que marques «Listo para publicar» en esas redes sale solo a su fecha y hora ({plannerTimeZoneLabel}); en Instagram y Facebook, el formato 9:16 sale como Story y el formato Reel publica su video como Reel (en Facebook, como video). En LinkedIn y Threads activa también la casilla de publicación automática de cada pieza. LinkedIn publica en el perfil personal conectado; Threads requiere su propia conexión y textos de hasta 500 caracteres. Las demás redes las publicas tú desde su app.
         <span className="mt-2 block">
           Instagram: {networks.instagram?.canPublish ? <strong className="text-[var(--success)]">activa (@{networks.instagram.username})</strong> : <strong className="text-[var(--warning)]">{networks.instagram ? "vuelve a conectarla" : "sin conectar"}</strong>}
           {" · "}
           Facebook: {networks.facebook?.canPublish ? <strong className="text-[var(--success)]">activa ({networks.facebook.username})</strong> : <strong className="text-[var(--warning)]">{networks.facebook ? "vuelve a conectarla" : "sin conectar"}</strong>}
-          {networks.instagram?.canPublish && networks.facebook?.canPublish ? null : <> · Conéctalas en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>.</>}
+          {(["linkedin", "threads"] as const).map(provider => <span key={provider}> · {provider === "linkedin" ? "LinkedIn" : "Threads"}: <strong>{networks[provider]?.canPublish ? `activa (${networks[provider]?.username})` : networks[provider] ? "revisa la conexión" : "sin conectar"}</strong></span>)}
+          {networks.instagram?.canPublish && networks.facebook?.canPublish && networks.linkedin?.canPublish && networks.threads?.canPublish ? null : <> · Conéctalas en <Link href="/panel-profesional/redes" className="font-semibold text-[var(--brand-blue)] underline">Redes</Link>.</>}
         </span>
       </section>
 
@@ -535,7 +536,7 @@ export default function PublicationPlanner({
               <div className="grid grid-cols-3 gap-3">
                 <label className="block text-sm font-semibold">
                   Red
-                  <select value={editing.platform} onChange={(e) => setEditing({ ...editing, platform: e.target.value as PlannerPost["platform"] })} className={field}>
+                  <select value={editing.platform} onChange={(e) => setEditing({ ...editing, platform: e.target.value as PlannerPost["platform"], publishViaConnection: false })} className={field}>
                     {Object.entries(plannerPlatforms).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
                 </label>
@@ -553,6 +554,7 @@ export default function PublicationPlanner({
                 </label>
               </div>
 
+              {(editing.platform === "linkedin" || editing.platform === "threads") && <label className="flex items-start gap-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3 text-sm"><input type="checkbox" checked={editing.publishViaConnection === true} onChange={event => setEditing({ ...editing, publishViaConnection: event.target.checked })} />Publicar automáticamente esta pieza en mi cuenta conectada de {networkLabel(editing)} cuando esté lista y llegue su horario. Revisa el nombre de la cuenta en Redes.</label>}
               <div>
                 <p className="text-sm font-semibold">Imagen</p>
                 {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
@@ -613,10 +615,10 @@ export default function PublicationPlanner({
             </fieldset>
 
             {publications[editing.id] ? <p className="mt-4 rounded-[var(--radius-md)] bg-[var(--warm-canvas)] p-3 text-sm">{publicationLine(editing)}</p> : null}
-            {editing.status === "READY" && autoAccount(editing) !== undefined && editing.date && !publications[editing.id] ? (
+            {editing.status === "READY" && autoAccount(editing) !== undefined && editing.date && (!(editing.platform === "linkedin" || editing.platform === "threads") || editing.publishViaConnection) && !publications[editing.id] ? (
               <p className="mt-4 text-sm text-[var(--muted)]">
                 {autoAccount(editing)?.canPublish
-                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" ? " como Story" : editing.format === "reel" ? (editing.platform === "instagram" ? " como Reel" : " como video") : ""}.`
+                  ? `Saldrá sola en ${networkLabel(editing)} el ${dayLabel(editing.date)} a las ${editing.time ?? "12:00"} (${plannerTimeZoneLabel})${editing.format === "9x16" && (editing.platform === "instagram" || editing.platform === "facebook") ? " como Story" : editing.format === "reel" ? (editing.platform === "instagram" ? " como Reel" : " como video") : ""}.`
                   : `Para que salga sola, conecta tu ${networkLabel(editing)} en Redes.`}
               </p>
             ) : null}

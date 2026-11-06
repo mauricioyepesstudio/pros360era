@@ -1,3 +1,5 @@
+import { LINKEDIN_PUBLISH_SCOPE, LinkedInPublishError, publishLinkedInPost } from "@/lib/social/linkedin-publishing";
+import { ThreadsPublishError, publishThreadsMedia } from "@/lib/social/threads";
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decryptToken } from "@/lib/social/crypto";
@@ -10,6 +12,8 @@ import {
   canStartPlannerPublication,
   plannerPublishRunBudgetMs,
   facebookRequest,
+  linkedInRequest,
+  threadsRequest,
   instagramMediaRequest,
   isAutoPublishable,
   parsePublishLog,
@@ -24,8 +28,8 @@ import {
 
 const sha256 = (input: string) => createHash("sha256").update(input).digest("hex");
 export const plannerPublishLogId = (userId: string) => publishLogId(userId, sha256);
-const publishScopes: Record<AutoPublishPlatform, string> = { instagram: "instagram_business_content_publish", facebook: FACEBOOK_PUBLISH_SCOPE };
-const networkName: Record<AutoPublishPlatform, string> = { instagram: "Instagram", facebook: "Facebook" };
+const publishScopes: Record<AutoPublishPlatform, string> = { instagram: "instagram_business_content_publish", facebook: FACEBOOK_PUBLISH_SCOPE, linkedin: LINKEDIN_PUBLISH_SCOPE, threads: "threads_content_publish" };
+const networkName: Record<AutoPublishPlatform, string> = { instagram: "Instagram", facebook: "Facebook", linkedin: "LinkedIn", threads: "Threads" };
 
 async function saveLog(service: SupabaseClient, userId: string, log: PublishLog) {
   const { error } = await service
@@ -40,10 +44,11 @@ type Account = { accountId: string; token: string };
 async function publishingAccount(service: SupabaseClient, tokenKey: Buffer, userId: string, platform: AutoPublishPlatform): Promise<Account | null> {
   const { data } = await service
     .from("social_connections")
-    .select("provider_account_id, token_ciphertext, scopes, status")
+    .select("provider_account_id, token_ciphertext, scopes, status, token_expires_at")
     .eq("user_id", userId)
     .eq("provider", platform)
     .maybeSingle();
+  if (data?.token_expires_at && Date.parse(data.token_expires_at) <= Date.now()) return null;
   if (!data || data.status !== "ACTIVE" || !data.token_ciphertext || !Array.isArray(data.scopes) || !data.scopes.includes(publishScopes[platform])) return null;
   const token = decryptToken(data.token_ciphertext, tokenKey, tokenBinding(platform, data.provider_account_id));
   return token ? { accountId: data.provider_account_id, token } : null;
@@ -62,6 +67,21 @@ async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform },
       return { ok: false, error: error instanceof InstagramPublishError && error.publicationUncertain
         ? error.message
         : `No se publicó: ${error instanceof InstagramPublishError ? error.message : `${network} no respondió.`}`, sent: true };
+    }
+  }
+  if (post.platform === "linkedin" || post.platform === "threads") {
+    try {
+      if (post.platform === "linkedin") {
+        const request = linkedInRequest(post, PUBLIC_APP_URL);
+        if (!request.ok) return { ok: false, error: request.error, sent: false };
+        return { ok: true, ...(await publishLinkedInPost(account.accountId, account.token, request.request, undefined, undefined, { deadline })) };
+      }
+      const request = threadsRequest(post, PUBLIC_APP_URL);
+      if (!request.ok) return { ok: false, error: request.error, sent: false };
+      return { ok: true, ...(await publishThreadsMedia(account.accountId, account.token, request.params, undefined, undefined, { deadline })) };
+    } catch (error) {
+      const known = error instanceof LinkedInPublishError || error instanceof ThreadsPublishError;
+      return { ok: false, error: known && error.publicationUncertain ? error.message : `No se publicó: ${known ? error.message : `${network} no respondió.`}`, sent: true };
     }
   }
   const request = facebookRequest(post, PUBLIC_APP_URL);

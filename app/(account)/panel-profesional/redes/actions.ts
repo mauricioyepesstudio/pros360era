@@ -21,3 +21,9 @@ export async function disconnectFacebookAction() {
   revalidatePath(SOCIAL_PAGE);
   redirect(`${SOCIAL_PAGE}?${ok ? "desconectado=facebook" : "error=desconectar"}`);
 }
+
+export async function disconnectThreadsAction() {
+  const ok = await disconnectMySocial("threads");
+  revalidatePath(SOCIAL_PAGE);
+  redirect(`${SOCIAL_PAGE}?${ok ? "desconectado=threads" : "error=desconectar"}`);
+}

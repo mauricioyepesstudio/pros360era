@@ -85,11 +85,11 @@ export function parsePublishLog(value: unknown): PublishLog {
   return log;
 }
 
-export const autoPublishPlatforms = ["instagram", "facebook"] as const;
+export const autoPublishPlatforms = ["instagram", "facebook", "linkedin", "threads"] as const;
 export type AutoPublishPlatform = (typeof autoPublishPlatforms)[number];
 
 export function isAutoPublishable(post: PlannerPost): post is PlannerPost & { platform: AutoPublishPlatform } {
-  return !isPrivateCreativeImage(post.imageUrl) && post.status === "READY" && (autoPublishPlatforms as readonly string[]).includes(post.platform) && post.date !== null;
+  return (!(post.platform === "linkedin" || post.platform === "threads") || post.publishViaConnection === true) && !isPrivateCreativeImage(post.imageUrl) && post.status === "READY" && (autoPublishPlatforms as readonly string[]).includes(post.platform) && post.date !== null;
 }
 
 function publicImageUrl(imageUrl: string, siteUrl: string): string {
@@ -171,4 +171,25 @@ export function facebookRequest(post: PlannerPost, siteUrl: string): FacebookReq
   const imageUrl = publicImageUrl(post.imageUrl, siteUrl);
   if (post.format === "9x16") return { ok: true, request: { kind: "STORY", imageUrl } };
   return { ok: true, request: { kind: "PHOTO", imageUrl, caption: post.caption.trim() ? post.caption : "" } };
+}
+
+/** LinkedIn uploads approved public media; Threads fetches it from its public URL. */
+export function linkedInRequest(post: PlannerPost, siteUrl: string) {
+  if (isPrivateCreativeImage(post.imageUrl)) return { ok: false as const, error: "Esta imagen es privada. Adjunta un archivo público aprobado." };
+  if (post.format === "reel" && !isPlannerVideo(post.imageUrl)) return { ok: false as const, error: "LinkedIn necesita un video MP4 para este formato." };
+  return { ok: true as const, request: { caption: post.caption, title: post.title, mediaUrl: post.imageUrl ? publicImageUrl(post.imageUrl, siteUrl) : null, kind: post.format === "text" || !post.imageUrl ? "TEXT" as const : post.format === "reel" ? "VIDEO" as const : "IMAGE" as const } };
+}
+export function threadsRequest(post: PlannerPost, siteUrl: string) {
+  if (isPrivateCreativeImage(post.imageUrl)) return { ok: false as const, error: "Esta imagen es privada. Adjunta un archivo público aprobado." };
+  if (Array.from(post.caption).length > 500) return { ok: false as const, error: "Threads admite hasta 500 caracteres. Revisa el texto antes de programarlo." };
+  if (post.format === "reel" && !isPlannerVideo(post.imageUrl)) return { ok: false as const, error: "Threads necesita un video MP4 para este formato." };
+  const params: Record<string, string> = { text: post.caption };
+  if (post.format === "text" || !post.imageUrl) {
+    if (!post.caption.trim()) return { ok: false as const, error: "La publicación no tiene texto ni archivo." };
+    params.media_type = "TEXT";
+  } else {
+    params.media_type = post.format === "reel" ? "VIDEO" : "IMAGE";
+    params[post.format === "reel" ? "video_url" : "image_url"] = publicImageUrl(post.imageUrl, siteUrl);
+  }
+  return { ok: true as const, params };
 }
