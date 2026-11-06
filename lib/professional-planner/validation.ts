@@ -22,6 +22,7 @@ export const plannerPlatforms = {
   facebook: "Facebook",
   tiktok: "TikTok",
   linkedin: "LinkedIn",
+  threads: "Threads",
   youtube: "YouTube",
   whatsapp: "WhatsApp",
   other: "Otra",
@@ -60,11 +61,13 @@ export type PlannerPost = {
   imageUrl: string | null;
   status: PlannerStatus;
   note: string | null;
+  /** Explicit opt-in for newly supported LinkedIn/Threads publishers. Legacy READY records stay manual. */
+  publishViaConnection?: boolean;
 };
 
 export type ProfessionalPlanner = { posts: PlannerPost[] };
 
-const postKeys = ["id", "date", "time", "platform", "format", "title", "caption", "imageUrl", "status", "note"];
+const postKeys = ["id", "date", "time", "platform", "format", "title", "caption", "imageUrl", "status", "note", "publishViaConnection"];
 
 export function emptyPlanner(): ProfessionalPlanner {
   return { posts: [] };
@@ -108,6 +111,7 @@ function parsePost(value: unknown): PlannerPost | null {
   if (typeof v.status !== "string" || !Object.hasOwn(plannerStatuses, v.status)) return null;
   if (typeof v.title !== "string" || v.title.trim().length === 0 || v.title.length > 140) return null;
   if (typeof v.caption !== "string" || v.caption.length > plannerCaptionLimit) return null;
+  if (v.publishViaConnection !== undefined && typeof v.publishViaConnection !== "boolean") return null;
   const imageUrl = safePlannerImageUrl(v.imageUrl);
   const note = optionalText(v.note, 500);
   if (imageUrl === undefined || note === undefined) return null;
@@ -126,6 +130,7 @@ function parsePost(value: unknown): PlannerPost | null {
     imageUrl,
     status: v.status as PlannerStatus,
     note,
+    ...(v.publishViaConnection !== undefined ? { publishViaConnection: v.publishViaConnection } : {}),
   };
 }
 
