@@ -2,7 +2,8 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { readSocialTokenKey, safeEqual } from "@/lib/social/crypto";
 import { publishDuePlannerPosts } from "@/lib/professional-planner/publisher";
 
-export const maxDuration = 60;
+// Reel processing is bounded by a shared 240-second run budget; leave room for storage.
+export const maxDuration = 300;
 
 /**
  * Publishes planner posts whose time has come. Called every few minutes by

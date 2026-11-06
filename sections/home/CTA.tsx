@@ -16,7 +16,7 @@ export default function CTA() {
             <ArrowRight aria-hidden className="ml-2" size={18} />
           </ButtonLink>
           <ButtonLink href="#roadmap" variant="secondary" className="border-white/20">
-            Conocer el Roadmap
+            Conocer el plan
           </ButtonLink>
         </div>
         <p className="mx-auto mt-8 max-w-xl text-sm text-white/70">

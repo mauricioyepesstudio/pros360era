@@ -1,7 +1,7 @@
 import test from "node:test";import assert from "node:assert/strict";import fs from "node:fs";import sharp from "sharp";
 import{handlePrivateCreative}from"../lib/professional-planner/private-creative-handler.ts";
 import{isPrivateCreativeImage,parsePrivateCreativeRequest,privateCreativeImage}from"../lib/professional-planner/private-creative-url.ts";
-import{creativeSvg,paletteFromCss,renderPrivateCreative}from"../lib/professional-planner/private-creative-render.ts";
+import{creativeLayout,creativeSvg,paletteFromCss,renderPrivateCreative,renderCreativeText}from"../lib/professional-planner/private-creative-render.ts";
 import{parseProfessionalPlanner}from"../lib/professional-planner/validation.ts";
 import{isAutoPublishable,instagramMediaRequest,facebookRequest}from"../lib/professional-planner/publishing.ts";
 const endpoint="https://evolusa.example/api/professional/creative-proposal";
@@ -12,3 +12,22 @@ test("no own session means no render; responses never share cache",async()=>{let
 test("owner data stays scoped; downloads and renderfailures are private",async()=>{const r=await handlePrivateCreative(new Request(endpoint+"?concept=2&format=9x16&download=1"),{owner:async()=>owner,render:async(p,c,f)=>{assert.equal(p,owner);assert.equal(c,2);assert.equal(f,"9x16");return new Uint8Array([1,2])}});assert.equal(r.status,200);assert.equal(r.headers.get("vary"),"Cookie");assert.equal(r.headers.get("x-content-type-options"),"nosniff");assert.ok(r.headers.get("content-disposition")?.startsWith("attachment"));const failed=await handlePrivateCreative(new Request(endpoint+"?concept=1&format=4x5"),{owner:async()=>owner,render:async()=>{throw Error("private")}});assert.equal(failed.status,503);assert.ok(!(await failed.text()).includes("private"));});
 test("actual renderer escapes profile and produces bounded PNG formats",async()=>{assert.ok(creativeSvg(owner,1,"4x5",palette).includes("&lt;script&gt;"));for(const f of["4x5","9x16"]as const){const png=await renderPrivateCreative(owner,1,f,palette),m=await sharp(png).metadata();assert.equal(m.width,1080);assert.equal(m.height,f==="4x5"?1350:1920);assert.equal(m.format,"png");}});
 test("private planner artwork is allowed in drafts and blocked from networkpublication",()=>{const p={id:"test",title:"Test",caption:"Draft",imageUrl:privateCreativeImage(1,"4x5"),date:"2026-10-21",time:"12:00",platform:"instagram"as const,format:"4x5"as const,status:"READY"as const,note:null};assert.ok(parseProfessionalPlanner({posts:[p]}));for(const imageUrl of[p.imageUrl,endpoint+"?concept=1&format=4x5",endpoint+"/?concept=1&format=4x5","https://evolusa.example/api/professional/%63reative-proposal?concept=1&format=4x5"]){assert.equal(isPrivateCreativeImage(imageUrl),true);assert.equal(isAutoPublishable({...p,imageUrl}),false);assert.equal(instagramMediaRequest({...p,imageUrl},"https://evolusa.example").ok,false);assert.equal(facebookRequest({...p,imageUrl},"https://evolusa.example").ok,false);}});
+
+test("bundled Poppins rasterizes distinct Latin glyphs and Spanish accents instead of repeated tofu",async()=>{
+ const layer={left:0,top:0,width:900,size:64,color:palette.ink};
+ const [wide,narrow,accent,plain]=await Promise.all(["W","i","Ñ","N"].map(text=>renderCreativeText({...layer,text})));
+ const [w,i]=await Promise.all([sharp(wide).metadata(),sharp(narrow).metadata()]);
+ assert.ok(w.width!>i.width!*2,"W and i must have distinct glyph widths; repeated fallback squares do not");
+ assert.notDeepEqual(await sharp(accent).raw().toBuffer(),await sharp(plain).raw().toBuffer(),"Spanish Ñ must retain its accent");
+ const config=fs.readFileSync(new URL("../next.config.ts",import.meta.url),"utf8");
+ assert.ok(config.includes("./assets/fonts/poppins/*.ttf"),"serverless output must include font files");
+});
+test("three concepts vary composition and keep Laura, Miguel and Marie identity without borrowing RGE",()=>{
+ for(const [displayName,activity,category] of [["Laura · 1MIGRATION","paralegal","IMMIGRATION_DOCUMENT_SUPPORT"],["Miguel Acosta","finance","BUSINESS_OPERATIONS"],["Marie Fernandez","notary","NOTARY"]]){
+ const person={displayName,category,business:{businessName:displayName,activity},reference:{image:Buffer.from("own-reference"),avatar:null,label:"Own reference",accent:null}} as Parameters<typeof creativeLayout>[0];
+ const layouts=[1,2,3].map(concept=>creativeLayout(person,concept,"4x5",palette));
+ assert.deepEqual(layouts.map(layout=>layout.usesReference),[false,false,true]);
+ assert.equal(new Set(layouts.map(layout=>layout.shapes)).size,3);
+ for(const layout of layouts){assert.equal(layout.layers[0].text,displayName);assert.ok(!layout.layers.some(layer=>layer.text.includes("Real Group")));}
+ }
+});

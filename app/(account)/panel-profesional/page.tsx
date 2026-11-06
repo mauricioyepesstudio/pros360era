@@ -4,7 +4,7 @@ import {getMyProfessionalBusiness} from "@/lib/professional-business/persistence
 import { weeklyPlannerSuggestions, pendingWeeklySuggestions } from "@/lib/professional-planner/weekly-review";
 import { getMyProfessionalPlanner } from "@/lib/professional-planner/persistence";
 import Link from "next/link";
-import { ArrowRight, AtSign, Briefcase, CalendarDays, IdCard, ImageIcon, Rocket, Users } from "lucide-react";
+import { ArrowRight, AtSign, Briefcase, CalendarDays, IdCard, ImageIcon, Users } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 import PreparedKitWelcome from "@/components/professional/PreparedKitWelcome";
 import { getProfessionalCategory } from "@/data/professional/categories";
@@ -31,7 +31,6 @@ export default async function ProfessionalPanelPage() {
   const categoryLabel = profile ? getProfessionalCategory(profile.category)?.label : undefined;
 
   const tools = [
-    {href:"/profesionales/planes",title:"Servicios para mi negocio",description:"Marca, web, WhatsApp Business, Google, contenido y seguimiento según tu operación.",detail:"Ver alcances y solicitar cotización",icon:Rocket},
     {
       href: "/panel-profesional/oportunidades",
       title: "Oportunidades",
@@ -41,16 +40,16 @@ export default async function ProfessionalPanelPage() {
     },
     {
       href: "/panel-profesional/perfil",
-      title: "Mi perfil profesional",
+      title: "Mi perfil",
       description: "Tu foto, descripción, idiomas, enlaces y si estás aceptando clientes.",
       detail: profile ? (profile.isApproved ? "Perfil aprobado" : "Perfil en revisión") : "Perfil pendiente",
       icon: IdCard,
     },
     {
       href: "/crm",
-      title: "Clientes y seguimiento",
+      title: "Clientes",
       description: "Tus contactos, conversaciones y seguimiento en un solo lugar.",
-      detail: "Próxima acción y borrador por prospecto",
+      detail: "Contactos y conversaciones",
       icon: Users,
     },
     {
@@ -71,76 +70,88 @@ export default async function ProfessionalPanelPage() {
         ],
     {
       href: "/panel-profesional/planner",
-      title: "Planner de publicaciones",
+      title: "Planner",
       description: "Tu calendario de contenido: qué publicas, cuándo y en qué red.",
       detail: kit ? "Propuesta lista con tus creativos" : "Planifica tu contenido",
       icon: CalendarDays,
     },
     {
       href: "/panel-profesional/redes",
-      title: "Redes conectadas",
+      title: "Redes",
       description: "Conecta tu Instagram para que tu planner y tu CRM trabajen con tu cuenta.",
       detail: instagram.connection?.status === "ACTIVE" ? `Instagram: @${instagram.connection.username}` : "Sin redes conectadas",
       icon: AtSign,
     },
-    {
-      href: "/growth-automation",
-      title: "Crecimiento",
-      description: "Conexión de redes y automatizaciones aún no disponibles.",
-      detail: "En preparación",
-      icon: Rocket,
-    },
   ];
+
+  // Un solo "siguiente paso" en dorado: lo más importante que falta hacer.
+  // Los avisos sueltos de antes (negocio sin completar, propuestas de la
+  // semana) se convierten en este bloque en lugar de apilarse.
+  const igActive = instagram.connection?.status === "ACTIVE";
+  const nextStep = !profile
+    ? { title: "Termina tu aplicación", body: "Todavía no encontramos tu perfil profesional. Si ya aplicaste, lo estamos revisando.", href: "/aplicar-profesional", cta: "Ver mi aplicación" }
+    : waitingForContact > 0
+      ? { title: `Tienes ${waitingForContact} ${waitingForContact === 1 ? "persona" : "personas"} por contactar`, body: "Miembros emparejados contigo que autorizaron compartir su información.", href: "/panel-profesional/oportunidades", cta: "Contactar ahora" }
+      : business.available && !business.business
+        ? { title: "Completa tu negocio", body: "Público, servicios y oferta. Tus propuestas de contenido usarán ese contexto.", href: "/panel-profesional/perfil#mi-negocio", cta: "Completar mi negocio" }
+        : weeklyPending > 0
+          ? { title: `Revisa ${weeklyPending} propuestas de contenido`, body: "Textos, carrusel y guion para reel de esta semana. No se publican al seleccionarlos.", href: "/panel-profesional/planner?review=weekly#propuestas", cta: "Revisar propuestas" }
+          : !igActive
+            ? { title: "Conecta tu Instagram", body: "Así tu planner publica y tu CRM recibe comentarios y mensajes.", href: "/panel-profesional/redes", cta: "Conectar Instagram" }
+            : { title: "Planifica tu contenido de la semana", body: "Tu calendario: qué publicas, cuándo y en qué red.", href: "/panel-profesional/planner", cta: "Abrir planner" };
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        eyebrow="Panel profesional"
-        title={profile ? `Hola, ${profile.displayName}` : "Tu panel profesional"}
-        description="Aquí gestionas tu presencia en EVOLUSA y las personas que te contactan. Los miembros no ven este panel."
-      />
-
-      {profile && business.available && !business.business && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6"><h2 className="font-bold">Personaliza el contenido para tu actividad</h2><p className="mt-2 text-sm">Completa el negocio, público, servicios y oferta. Tus propuestas usarán ese contexto.</p><Link href="/panel-profesional/perfil#mi-negocio" className="inline-flex min-h-11 items-center font-bold underline">Completar mi negocio</Link></section>}
-      {weeklyPending > 0 && <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--brand-blue)] bg-[var(--sky-surface)] p-6"><h2 className="font-bold">Tienes {weeklyPending} propuestas de contenido para esta semana</h2><p className="mt-2 text-sm">Revisa los textos, el carrusel y el guion para reel. No se publican al seleccionarlos.</p><Link href="/panel-profesional/planner?review=weekly#propuestas" className="mt-3 inline-flex min-h-11 items-center font-bold underline">Revisar propuestas en mi planner</Link></section>}
-      <PlannerAlerts planner={planner} today={today} instagram={profile?.socialLinks.instagram} />
-      {kit ? <PreparedKitWelcome kit={kit} hasPhoto={Boolean(profile?.photoUrl)} /> : null}
-
-      <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
-        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[var(--brand-blue)]">Estado de tu perfil</h2>
+      <div>
+        <PageHeader
+          eyebrow="Panel profesional"
+          title={profile ? `Hola, ${profile.displayName}` : "Tu panel profesional"}
+          description="Tu negocio en EVOLUSA. Los miembros no ven este panel."
+        />
         {profile ? (
-          <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className={profile.isApproved ? "rounded-full bg-green-50 px-3 py-1.5 text-sm font-bold text-green-700" : "rounded-full bg-amber-50 px-3 py-1.5 text-sm font-bold text-amber-700"}>
               {profile.isApproved ? "Perfil aprobado" : "Perfil en revisión"}
             </span>
-            <span className="rounded-full bg-[var(--sky-surface)] px-3 py-1.5 text-sm font-semibold text-[var(--brand-navy)]">
+            <span className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-[var(--brand-navy)] ring-1 ring-[var(--border)]">
               {profile.isAcceptingClients ? "Aceptando clientes" : "No está aceptando clientes"}
             </span>
             {categoryLabel ? <span className="text-sm text-[var(--muted)]">{categoryLabel}</span> : null}
           </div>
-        ) : (
-          <p className="mt-4 leading-7 text-[var(--muted)]">
-            Todavía no encontramos tu perfil profesional. Si ya aplicaste, lo estamos revisando; si crees que es un error, contáctanos.
-          </p>
-        )}
+        ) : null}
+      </div>
+
+      <section className="flex flex-col gap-5 rounded-[var(--radius-lg)] bg-[var(--role-pro)] p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/80">Tu siguiente paso</p>
+          <h2 className="mt-2 text-2xl font-extrabold">{nextStep.title}</h2>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-white/85">{nextStep.body}</p>
+        </div>
+        <Link href={nextStep.href} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] px-6 font-bold text-white hover:bg-[var(--brand-navy-strong)]">
+          {nextStep.cta}<ArrowRight aria-hidden className="ml-2" size={18} />
+        </Link>
       </section>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        {tools.map(({ href, title, description, detail, icon: Icon }) => (
-          <Link key={href} href={href} className="group rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6 transition hover:border-[var(--brand-blue)]">
-            <div className="flex items-start gap-4">
-              <span className="rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3 text-[var(--brand-blue)]">
-                <Icon aria-hidden size={22} />
+      <PlannerAlerts planner={planner} today={today} instagram={profile?.socialLinks.instagram} />
+      {kit ? <PreparedKitWelcome kit={kit} hasPhoto={Boolean(profile?.photoUrl)} /> : null}
+
+      <section aria-labelledby="herramientas">
+        <h2 id="herramientas" className="mb-4 text-sm font-bold uppercase tracking-[0.12em] text-[var(--muted)]">Tus herramientas</h2>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {tools.map(({ href, title, detail, icon: Icon }) => (
+            <Link key={href} href={href} className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 transition hover:border-[var(--role-pro-strong)] sm:p-5">
+              <span className="w-fit rounded-[var(--radius-md)] bg-[var(--role-pro-soft)] p-2.5 text-[var(--role-pro-strong)]">
+                <Icon aria-hidden size={20} />
               </span>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-bold text-[var(--brand-navy)]">{title}</h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{description}</p>
-                <p className="mt-3 text-sm font-semibold text-[var(--brand-navy)]">{detail}</p>
-              </div>
-              <ArrowRight aria-hidden size={18} className="mt-1 text-[var(--muted)] transition group-hover:translate-x-1 group-hover:text-[var(--brand-blue)]" />
-            </div>
-          </Link>
-        ))}
-      </div>
+              <h3 className="mt-3 font-bold text-[var(--brand-navy)]">{title}</h3>
+              <p className="mt-1 text-xs leading-5 text-[var(--muted)] sm:text-sm">{detail}</p>
+            </Link>
+          ))}
+        </div>
+        <Link href="/profesionales/planes" className="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-[var(--brand-navy)] underline underline-offset-4">
+          ¿Necesitas marca, web o Google para tu negocio? Ver servicios
+        </Link>
+      </section>
     </div>
   );
 }

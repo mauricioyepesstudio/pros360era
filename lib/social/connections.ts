@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { professionalPlannerAllowed } from "@/lib/professional-planner/validation";
 import { decryptToken, encryptToken } from "@/lib/social/crypto";
 import { getInstagramConfig, refreshLongLivedToken, type InstagramAccount, type InstagramToken } from "@/lib/social/instagram";
+import { getThreadsConfig } from "@/lib/social/threads";
 import { getLinkedInConfig } from "@/lib/social/linkedin";
 import { getFacebookConfig } from "@/lib/social/facebook";
 import { needsRefresh, REFRESH_WINDOW_MS } from "@/lib/social/refresh-policy";
@@ -41,7 +42,7 @@ export async function socialConnectionOwner() {
   return { db, user };
 }
 
-export type SocialProvider = "instagram" | "linkedin" | "facebook";
+export type SocialProvider = "instagram" | "linkedin" | "facebook" | "threads";
 
 async function getMyConnection(provider: SocialProvider) {
   const owner = await socialConnectionOwner();
@@ -74,6 +75,13 @@ export async function getMyInstagramState(): Promise<MyInstagramState> {
 
 export async function getMyFacebookState(): Promise<MyInstagramState> {
   return { configured: getFacebookConfig() !== null, ...(await getMyConnection("facebook")) };
+}
+
+export async function getMyThreadsState(now = Date.now()): Promise<MyInstagramState> {
+  const state = await getMyConnection("threads");
+  const connection = state.connection;
+  const lapsed = connection?.status === "ACTIVE" && connection.tokenExpiresAt !== null && Date.parse(connection.tokenExpiresAt) <= now;
+  return { configured: getThreadsConfig() !== null, ...state, connection: connection && lapsed ? { ...connection, status: "EXPIRED" } : connection };
 }
 
 export async function getMyLinkedInState(now = Date.now()): Promise<MyInstagramState> {

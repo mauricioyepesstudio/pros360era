@@ -130,11 +130,11 @@ export const BRAIN_MODULES: readonly BrainModule[] = [
   },
   {
     id: "roadmap",
-    name: "Roadmap de 6 etapas",
+    name: "Plan de 6 etapas",
     area: "Plataforma",
     status: "live",
     summary: "Journey del miembro con su próximo paso y el asistente EvolUSAia.",
-    next: "Medir el embudo registro → diagnóstico → Roadmap → conexión.",
+    next: "Medir el embudo registro → diagnóstico → plan → conexión.",
     evidence: "PR #61",
     grid: { x: 6, y: 6 },
     launchGate: false,
@@ -248,7 +248,7 @@ export const DAILY_TASK_POOL: readonly DailyTask[] = [
   },
   {
     id: "funnel-metrics",
-    title: "Medir el embudo registro → diagnóstico → Roadmap → conexión",
+    title: "Medir el embudo registro → diagnóstico → plan → conexión",
     why: "Sin el embudo medido no sabemos dónde se cae la gente.",
     owner: "Jarvis",
     area: "Plataforma",

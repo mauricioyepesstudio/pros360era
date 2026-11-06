@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PartnerPageProps): Promise<Me
   if (!partner) return {};
   return {
     title: `Recomendado por ${partner.name}`,
-    description: `${partner.name} te recomienda ${brand.displayName}: tu Journey de 6 etapas y tu Roadmap, gratis y en español.`,
+    description: `${partner.name} te recomienda ${brand.displayName}: tu Journey de 6 etapas y tu plan, gratis y en español.`,
     robots: { index: false },
   };
 }
@@ -53,7 +53,7 @@ export default async function PartnerPage({ params }: PartnerPageProps) {
   const signupHref = `/signup?ref=${encodeURIComponent(partner.slug)}`;
   const offers = [
     { icon: Compass, title: "Journey de 6 etapas", body: journeyStages.map((stage) => stage.shortLabel).join(" · ") },
-    { icon: MapIcon, title: "Tu Roadmap personalizado", body: "Respondes unas preguntas y ves tu próximo paso, con fuentes oficiales cuando aplican." },
+    { icon: MapIcon, title: "Tu plan personalizado", body: "Respondes unas preguntas y ves tu próximo paso, con fuentes oficiales cuando aplican." },
     { icon: BookOpen, title: "Guías prácticas", body: "Guías en español para organizar tu día a día y tu negocio." },
     { icon: Users, title: "Profesionales aprobados", body: "En categorías permitidas (hoy marketing y operaciones de negocio en Florida). La verificación de identidad, cuando existe, se indica en cada perfil." },
   ];
