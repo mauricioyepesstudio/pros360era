@@ -23,6 +23,7 @@ import { plannerTimeZoneLabel, type PostPublication } from "@/lib/professional-p
 import type { PlannerNetworks } from "@/lib/professional-planner/persistence";
 import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/actions";
 import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
+import { generatePlannerIdeasAction } from "@/app/(account)/panel-profesional/planner/ai-actions";
 import PlannerImport from "@/components/professional/PlannerImport";
 
 export type PlannerImageOption = { src: string; label: string };
@@ -151,6 +152,25 @@ export default function PublicationPlanner({
   const [showSuggestions, setShowSuggestions] = useState(openSuggestions);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [suggestionDate, setSuggestionDate] = useState(today);
+  const [freshSuggestions, setFreshSuggestions] = useState<PlannerSuggestion[]>([]);
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const suggestionPool = [...suggestions, ...freshSuggestions];
+  async function proposeWithAI() {
+    if (aiLoading || aiTopic.trim().length < 8) return;
+    setAiLoading(true); setAiError("");
+    try {
+      const result = await generatePlannerIdeasAction(aiTopic);
+      if (!result.ok) { setAiError(result.error); return; }
+      const id = crypto.randomUUID();
+      setFreshSuggestions(current => [...current, ...result.posts.map((post, index): PlannerSuggestion => ({
+        id: "ai-" + id + "-" + index, title: post.title, caption: post.caption, imageUrl: null, source: "Plantilla editable",
+      }))]);
+    } catch { setAiError("No pudimos generar el borrador. Tus ideas anteriores siguen disponibles."); }
+    finally { setAiLoading(false); }
+  }
+
 
   const byDate = useMemo(() => {
     const map = new Map<string, PlannerPost[]>();
@@ -289,7 +309,7 @@ export default function PublicationPlanner({
   }
 
   async function saveSuggestions() {
-    const next = addPlannerSuggestions(posts, suggestions, selectedSuggestions, suggestionDate);
+    const next = addPlannerSuggestions(posts, suggestionPool, selectedSuggestions, suggestionDate);
     if (!next) { setNotice({ text: `Revisa la fecha y el límite de ${plannerMaxPosts} publicaciones.`, failed: true }); return; }
     if (await persist(next, "Ideas añadidas al calendario. Revisa cada borrador antes de publicarlo.")) {
       setPosts(next);
@@ -404,8 +424,15 @@ export default function PublicationPlanner({
 
       {showSuggestions && <section id="propuestas" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Propuestas gráficas y textos de la semana</h2>
+        <div className="mt-4 space-y-3">
+          <label className="block text-sm font-semibold">Tema para un borrador con tu voz<input value={aiTopic} maxLength={240} onChange={event => setAiTopic(event.target.value)} className={field} /></label>
+          <button type="button" disabled={aiLoading || aiTopic.trim().length < 8} onClick={() => void proposeWithAI()} className="min-h-11 rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white disabled:opacity-60">{aiLoading ? "Generando borrador…" : "Generar un borrador"}</button>
+          <p className="text-xs text-[var(--muted)]">Usa tu voz y negocio guardados. Revisa el texto antes de añadirlo como Idea. No genera imágenes ni publica.</p>
+          {aiError && <p role="alert" className="text-sm text-red-700">{aiError}</p>}
+        </div>
+
         <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
-        <ul className="mt-4 space-y-3">{suggestions.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>
+        <ul className="mt-4 space-y-3">{suggestionPool.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.id.startsWith("ai-") ? "Borrador con tu voz" : item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>
         <label className="mt-4 block text-sm font-semibold">Fecha para las ideas seleccionadas<input type="date" required value={suggestionDate} onChange={(event) => setSuggestionDate(event.target.value)} className={field} /></label>
         <button type="button" disabled={busy || !selectedSuggestions.length} onClick={() => void saveSuggestions()} className="mt-4 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 font-bold text-white disabled:opacity-60">{busy ? "Guardando…" : "Añadir al calendario"}</button>
       </section>}

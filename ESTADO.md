@@ -292,3 +292,8 @@ PR #46 (Instagram) integrado. Nuevo: conexión de página de Facebook en Redes (
 ## 2026-10-12 — reloj del publicador en Supabase (preparado, sin aplicar)
 
 El horario de GitHub (`*/10`) no se disparó ni una vez en 4 h; la primera pieza de Instagram salió con un lanzamiento manual (run 38256644262, `published: 1`). Nuevo reloj: `supabase/migrations/20261012180000_planner_publish_cron.sql` (pg_cron + pg_net llaman al publicador cada 10 min, leyendo `CRON_SECRET` del Vault como `planner_cron_secret`). GitHub queda solo como botón manual para no tener dos relojes publicando a la vez. **Falta que el dueño guarde el secreto en el Vault y corra la migración.**
+
+
+## 2026-11-06 - PR52 reconciliado: borrador con voz propia
+
+Un borrador privado por intento mediante el motor central, conservando planner e importador actuales. Rechaza contenido bloqueado o pendiente de cumplimiento; solo seleccion y guardado explicitos crean una IDEA. Sin generador Anthropic paralelo, publicaciones, cambios de claves/cuota, roles, esquema o cobros. Pruebas y limites: docs/EVOLUSA-PLANNER-DRAFT-20261106.md. Preparado; CI, integracion, despliegue y aceptacion autenticada se registran separadamente.
