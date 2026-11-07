@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPreparedKit } from "@/data/professional/prepared-kits";
 import { createHash } from "node:crypto";
 import { professionalPlannerId } from "./identity";
+import { evolusaContentBlockedMessage, isEvolusaBrandedPost, isEvolusaHouseAccount } from "./house-content";
 import { parsePublishLog, publicationView, publishLogId, type PostPublication } from "./publishing";
 import { parseProfessionalPlanner, plannerFromKit, professionalPlannerAllowed, professionalPlannerVersion, type ProfessionalPlanner } from "./validation";
 
@@ -76,6 +77,10 @@ export async function saveMyProfessionalPlanner(input: unknown) {
   if (!planner) return { saved: false, message: "Revisa las publicaciones: cada una necesita título, red, formato y estado válidos." };
   const owner = await plannerOwner();
   if (!owner) return { saved: false, message: "Necesitas acceso profesional y un perfil propio para guardar tu planner." };
+  if (!isEvolusaHouseAccount(owner.user.email)) {
+    const branded = planner.posts.find(isEvolusaBrandedPost);
+    if (branded) return { saved: false, message: evolusaContentBlockedMessage(branded.title) };
+  }
   const review = await reviewPlannerSave(planner.posts,async()=>{
     const {data,error}=await owner.db.from("onboarding_responses").select("answers").eq("id",professionalPlannerId(owner.user.id)).eq("user_id",owner.user.id).eq("roadmap_version",professionalPlannerVersion).maybeSingle();
     return {answers:data?.answers,exists:Boolean(data),failed:Boolean(error)};
