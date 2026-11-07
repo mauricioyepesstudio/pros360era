@@ -64,6 +64,14 @@ export default function ProfessionalsDirectory({ professionals }: { professional
       {filtered.length === 0 ? (
         <Card className="mt-8 max-w-xl">
           <p className="text-[var(--muted)]">Ningún profesional coincide con este filtro todavía.</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {(categoryFilter !== "ALL" || stageFilter !== "ALL") && <button
+              type="button"
+              onClick={() => { setCategoryFilter("ALL"); setStageFilter("ALL"); }}
+              className="min-h-11 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-sm font-bold text-white"
+            >Ver todos los profesionales</button>}
+            <Link href="/onboarding" className="inline-flex min-h-11 items-center px-3 text-sm font-bold text-[var(--brand-blue)] underline">Describir mi necesidad</Link>
+          </div>
         </Card>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
