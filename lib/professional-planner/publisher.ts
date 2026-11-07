@@ -6,6 +6,7 @@ import { decryptToken } from "@/lib/social/crypto";
 import { tokenBinding } from "@/lib/social/connections";
 import { FACEBOOK_PUBLISH_SCOPE, FacebookPublishError, publishFacebookPost } from "@/lib/social/facebook";
 import { InstagramPublishError, PUBLIC_APP_URL, publishInstagramMedia } from "@/lib/social/instagram";
+import { evolusaContentPublishError, isEvolusaBrandedPost, isEvolusaHouseAccount } from "@/lib/professional-planner/house-content";
 import { parseProfessionalPlanner, professionalPlannerVersion, type PlannerPost } from "@/lib/professional-planner/validation";
 import {
   duePosts,
@@ -127,6 +128,7 @@ export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: 
     }
 
     const accounts = new Map<AutoPublishPlatform, Account | null>();
+    let houseAccount: boolean | null = null;
     for (const post of duePosts(planner, log, now)) {
       if (!isAutoPublishable(post)) continue;
       // Leave unstarted posts unclaimed for the next cron run.
@@ -134,6 +136,19 @@ export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: 
         if (changed) await saveLog(service, userId, log);
         result.deferred += 1;
         return result;
+      }
+      if (isEvolusaBrandedPost(post)) {
+        // Only EVOLUSA's own planner may send EVOLUSA material; fail closed if we can't tell.
+        if (houseAccount === null) {
+          const { data: owner, error: ownerError } = await service.auth.admin.getUserById(userId);
+          houseAccount = !ownerError && isEvolusaHouseAccount(owner?.user?.email);
+        }
+        if (!houseAccount) {
+          log[post.id] = { scheduledFor: scheduledFor(post)!.toISOString(), at: stamp, mediaId: null, permalink: null, error: evolusaContentPublishError, state: "FAILED" };
+          changed = true;
+          result.failed += 1;
+          continue;
+        }
       }
       if (!accounts.has(post.platform)) accounts.set(post.platform, await publishingAccount(service, tokenKey, userId, post.platform));
       const account = accounts.get(post.platform);
