@@ -31,33 +31,38 @@ export default function ProfessionalApplicationForm() {
     event.preventDefault();
     setPending(true);
     setResult(null);
-    const response = await submitProfessionalApplicationAction({
-      fullName,
-      email,
-      phone,
-      city,
-      categoryOfInterest,
-      credentialInfo,
-      bio,
-      notes,
-      website,
-    });
-    setPending(false);
-    setResult(response.saved ? "success" : "error");
-    if (response.saved) {
-      try {
-        sessionStorage.setItem("evolusa-professional-handoff-v1", JSON.stringify({
-          email: email.trim().toLowerCase(),
-          draft: { displayName: fullName, category: categoryOfInterest, city, headline: "", bio, instagram: "", facebook: "", website: "" },
-        }));
-      } catch { /* Account access remains available when browser storage is blocked. */ }
-      setFullName("");
-      setEmail("");
-      setPhone("");
-      setCity("");
-      setCredentialInfo("");
-      setBio("");
-      setNotes("");
+    try {
+      const response = await submitProfessionalApplicationAction({
+        fullName,
+        email,
+        phone,
+        city,
+        categoryOfInterest,
+        credentialInfo,
+        bio,
+        notes,
+        website,
+      });
+      setResult(response.saved ? "success" : "error");
+      if (response.saved) {
+        try {
+          sessionStorage.setItem("evolusa-professional-handoff-v1", JSON.stringify({
+            email: email.trim().toLowerCase(),
+            draft: { displayName: fullName, category: categoryOfInterest, city, headline: "", bio, instagram: "", facebook: "", website: "" },
+          }));
+        } catch { /* Account access remains available when browser storage is blocked. */ }
+        setFullName("");
+        setEmail("");
+        setPhone("");
+        setCity("");
+        setCredentialInfo("");
+        setBio("");
+        setNotes("");
+      }
+    } catch {
+      setResult("error");
+    } finally {
+      setPending(false);
     }
   }
 

@@ -301,3 +301,8 @@ El horario de GitHub (`*/10`) no se disparó ni una vez en 4 h; la primera pieza
 ## 2026-11-06 - PR52 reconciliado: borrador con voz propia
 
 Un borrador privado por intento mediante el motor central, conservando planner e importador actuales. Rechaza contenido bloqueado o pendiente de cumplimiento; solo seleccion y guardado explicitos crean una IDEA. Sin generador Anthropic paralelo, publicaciones, cambios de claves/cuota, roles, esquema o cobros. Pruebas y limites: docs/EVOLUSA-PLANNER-DRAFT-20261106.md. Preparado; CI, integracion, despliegue y aceptacion autenticada se registran separadamente.
+
+
+## 2026-11-06 - Recuperacion del envio de solicitud profesional
+
+Continuacion de5dfc5b5 reconciliada con main adf05d4. Una accion rechazada conserva los datos, muestra el error existente y libera el boton para reintentar. No cambia aprobacion, roles, esquema, categorias, OAuth ni cobros. Evidencia historica: docs/EVOLUSA-APPLICATION-RECOVERY-20261103.md; pruebas actuales y release en cola central. Preparado, no integrado ni desplegado.
