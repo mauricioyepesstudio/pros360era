@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // Mod «línea»: barra de estado de Claude Code con puntos de color por proyecto.
 //   ● ESTADO al día (verde ≤2 días, amarillo ≤7, rojo más)  ● cambios sin commit  ● agentes
+//   ● cerebro: módulos en producción / total, rojo si hay alguno bloqueado (si el proyecto lo declara)
 // Solo lee; no escribe nada. Generado por equipos-skills; no editar a mano.
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { leerCerebro } from './cerebro.mjs';
 
 let entrada = {};
 try { entrada = JSON.parse(readFileSync(0, 'utf8') || '{}'); } catch {}
@@ -33,5 +35,11 @@ const partes = [
   `${punto(cambios ? 'amarillo' : 'verde')} ${cambios} cambio${cambios === 1 ? '' : 's'}`,
   `${punto(agentes ? 'verde' : 'rojo')} ${agentes} agentes`,
 ];
+// ● cerebro: módulos en producción / total (rojo si alguno está bloqueado).
+const cerebro = leerCerebro(raiz);
+if (cerebro) {
+  const color = cerebro.bloqueados.length ? 'rojo' : cerebro.vivos === cerebro.modulos.length ? 'verde' : 'amarillo';
+  partes.push(`${punto(color)} cerebro ${cerebro.vivos}/${cerebro.modulos.length}${cerebro.bloqueados.length ? ` (${cerebro.bloqueados.length} bloq.)` : ''}`);
+}
 if (entrada.model?.display_name) partes.push(`${C.gris}${entrada.model.display_name}${C.fin}`);
 process.stdout.write(partes.join('  ·  '));
