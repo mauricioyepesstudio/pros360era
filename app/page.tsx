@@ -5,7 +5,7 @@ import HeroArtboard from "@/sections/home/HeroArtboard";
 import TrustStrip from "@/sections/home/TrustStrip";
 import StageJourney from "@/sections/home/StageJourney";
 import ThreeSteps from "@/sections/home/ThreeSteps";
-import BleedQuote from "@/sections/home/BleedQuote";
+import ExplainerVideos from "@/sections/home/ExplainerVideos";
 import ProBand from "@/sections/home/ProBand";
 import Footer from "@/sections/home/Footer";
 
@@ -21,15 +21,9 @@ export default function Home() {
       <main className="bg-white pt-24 text-[var(--foreground)]">
         <HeroArtboard />
         <TrustStrip />
+        <ExplainerVideos />
         <StageJourney />
         <ThreeSteps />
-        <BleedQuote
-          src="/images/journey/arrival.jpg"
-          alt="Un hombre llega a Miami con su maleta"
-          position="center 22%"
-          quote="Llegar es el primer paso. Lo que sigue no lo tienes que hacer solo."
-          cite="EVOLUSA · Tu próximo paso"
-        />
         <ProBand />
       </main>
 

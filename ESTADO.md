@@ -1,6 +1,9 @@
 # 2026-11-03 — Cerebro fase 5 en el repo: mods v2 y agentes unificados
 
 Rama `claude/cerebro-mods-agentes-20261103`. Mods regenerados desde AI-Projects-Control-Plane (PR #32, versión 2026-11-03): punto ● cerebro en la barra (módulos de `lib/admin/jarvis.ts` en producción/total), `parte` resume los módulos bloqueados, `guardia` también frena merge por API, push forzado, `git reset --hard`, variables de Vercel y secretos de Supabase. Agente `ingeniero-cerebro` instalado desde el consejo. Agentes duplicados unificados (29 → 26): `marketing-strategist` → `growth-marketing-strategist`, `social-media-manager` → `social-content-lead`, `brand-taste-lead` → `taste`, `finance-analyst` → `revenue-analyst`; su contenido queda en una sección «También cubre» del agente que se mantiene.
+# 2026-11-06 — Propuestas legibles y publicadores LinkedIn/Threads
+
+Corrección nativa de texto con Poppins TTF incluida y tracing explícito: tres composiciones privadas distintas, sin retratos de otras cuentas. Fixtures de Laura, Miguel y Marie renderizados y revisados. Publicadores de LinkedIn personal y Threads con registro separado y plazos; nueva autorización explícita por pieza evita ejecutar READY antiguos de redes antes manuales. Threads OAuth propio con permisos comprobados; CHECK de proveedor ampliado y verificado en Supabase. Credenciales/callback/consentimiento Threads siguen pendientes; no se afirma publicación social real ni automatización de la página empresarial LinkedIn. Detalles y límites en docs/EVOLUSA-CREATIVE-FONT-FIX.md, EVOLUSA-LINKEDIN-PUBLISHING.md y EVOLUSA-THREADS-PUBLISHING.md. Estado de CI/despliegue se registra al cerrar la entrega.
 
 # 2026-11-03 — Cerebro fase 1: perfil de voz y motor de IA central
 
@@ -296,3 +299,13 @@ PR #46 (Instagram) integrado. Nuevo: conexión de página de Facebook en Redes (
 ## 2026-10-12 — reloj del publicador en Supabase (preparado, sin aplicar)
 
 El horario de GitHub (`*/10`) no se disparó ni una vez en 4 h; la primera pieza de Instagram salió con un lanzamiento manual (run 38256644262, `published: 1`). Nuevo reloj: `supabase/migrations/20261012180000_planner_publish_cron.sql` (pg_cron + pg_net llaman al publicador cada 10 min, leyendo `CRON_SECRET` del Vault como `planner_cron_secret`). GitHub queda solo como botón manual para no tener dos relojes publicando a la vez. **Falta que el dueño guarde el secreto en el Vault y corra la migración.**
+
+
+## 2026-11-06 - PR52 reconciliado: borrador con voz propia
+
+Un borrador privado por intento mediante el motor central, conservando planner e importador actuales. Rechaza contenido bloqueado o pendiente de cumplimiento; solo seleccion y guardado explicitos crean una IDEA. Sin generador Anthropic paralelo, publicaciones, cambios de claves/cuota, roles, esquema o cobros. Pruebas y limites: docs/EVOLUSA-PLANNER-DRAFT-20261106.md. Preparado; CI, integracion, despliegue y aceptacion autenticada se registran separadamente.
+
+
+## 2026-11-06 - Recuperacion del envio de solicitud profesional
+
+Continuacion de5dfc5b5 reconciliada con main adf05d4. Una accion rechazada conserva los datos, muestra el error existente y libera el boton para reintentar. No cambia aprobacion, roles, esquema, categorias, OAuth ni cobros. Evidencia historica: docs/EVOLUSA-APPLICATION-RECOVERY-20261103.md; pruebas actuales y release en cola central. Preparado, no integrado ni desplegado.

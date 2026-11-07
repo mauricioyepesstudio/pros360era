@@ -1,7 +1,7 @@
 import type {PlannerPost} from "./validation.ts";
 import {isPrivateCreativeImage} from "./private-creative-url.ts";
 type Publication={state:string};
-type Networks={instagram:{canPublish:boolean;username?:string}|null;facebook:{canPublish:boolean;username?:string}|null};
+type Networks={instagram:{canPublish:boolean;username?:string}|null;facebook:{canPublish:boolean;username?:string}|null;linkedin?:{canPublish:boolean;username?:string}|null;threads?:{canPublish:boolean;username?:string}|null};
 export function professionalToday(now=new Date()){
  const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(now);
  const part=(key:string)=>parts.find(value=>value.type===key)?.value;
@@ -19,7 +19,7 @@ export function plannerReminders(posts:PlannerPost[],publications:Record<string,
  const ready=posts.filter(post=>post.status==="READY"&&!["PUBLISHED","PUBLISHING"].includes(publications[post.id]?.state));
  const privateImages=ready.filter(post=>isPrivateCreativeImage(post.imageUrl));
  if(privateImages.length)alerts.push({id:"private-images",message:`${privateImages.length} propuestas listas conservan una imagen privada. Descarga, revisa y adjunta la imagen aprobada antes de programar su publicación.`,href:"/panel-profesional/planner"});
- const disconnected=ready.filter(post=>(post.platform==="instagram"||post.platform==="facebook")&&!networks[post.platform]?.canPublish);
+ const disconnected=ready.filter(post=>(post.platform==="instagram"||post.platform==="facebook"||post.platform==="linkedin"||post.platform==="threads")&&!networks[post.platform]?.canPublish);
  if(disconnected.length)alerts.push({id:"networks",message:`${disconnected.length} publicaciones listas requieren conectar o revisar los permisos de su red.`,href:"/panel-profesional/redes"});
  return alerts;
 }
