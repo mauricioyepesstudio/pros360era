@@ -12,8 +12,27 @@ Flujo diario: **Investigación → Producto → Ingeniería → QA → Aprobaci�
 | Ingeniería | `frontend-engineer`, `supabase-architect`, `migration-steward` | Implementa en rama; migraciones solo con plan y revisión |
 | QA y pruebas | `qa-engineer`, `security-reviewer` | Pruebas, build, RLS/grants, recorridos en navegador |
 | Aprobación y cumplimiento | `compliance-reviewer`, `legal-risk-reviewer`, `growth-automation-guard` | Gate antes de pedir merge/publicar: claims, categorías reguladas, 70/30 |
-| Crecimiento y contenido | `growth-marketing-strategist`, `growth-marketing-strategist`, `social-content-lead`, `social-content-lead`, `taste` | Reclutamiento de profesionales, adquisición de miembros, planner del dueño |
+| Crecimiento y contenido | `growth-marketing-strategist`, `social-content-lead`, `taste` | Reclutamiento de profesionales, adquisición de miembros y manejo de cuentas con un equipo por perfil (ver abajo) |
 | Operaciones y datos | `revenue-analyst`, `revenue-analyst` | Métricas de embudo reales, costos; solo lectura de Stripe |
+
+## Manejo de cuentas: un equipo por perfil (dueño, 2026-11-07)
+
+El manejo profesional de cada cuenta **es el servicio que EVOLUSA ofrece**. Por eso cada perfil tiene su propio encargado de branding y su propio community manager, y nadie trabaja "en general" para todos.
+
+| Perfil | Cuentas | Branding (`taste`) | Community manager (`social-content-lead`) |
+|---|---|---|---|
+| EVOLUSA | @evolusa.us, FB Evolusa (planner de hola.evolusa@gmail.com) | Brand book de EVOLUSA (`docs/EVOLUSA-BRAND-BOOK.md`) | Calendario y planner de EVOLUSA |
+| Miguel Acosta / Personal CFO | @personalcfo.me, LinkedIn de Miguel | Línea gráfica de Personal CFO (kit `miguel-acosta`) | Planner de Miguel |
+| Laura / 1MIGRATION | @onemigration | Línea gráfica de 1MIGRATION | Planner de Laura (categoría regulada: solo lo permitido) |
+| Marie Fernandez, Florida Notary Public | @marieferve03 | Navy/dorado de su sitio (kit `marie-fernandez`) | Planner de Marie (aviso legal de F.S. 117.05 en cada pieza) |
+| Real Group / Mauricio | Instagram y Facebook de Real Group Entertainment | Línea gráfica de Real Group | Planner de rgentertainmentmanagement |
+
+Reglas:
+1. Cada pieza se diseña con la línea gráfica y la voz **de ese perfil** y habla solo de su empresa y su profesión.
+2. Ninguna pieza pasa de un perfil a otro, ni se "reutiliza" entre clientes.
+3. **Nunca** contenido de EVOLUSA (nombre, enlaces, videos explicativos) en cuentas que no son de EVOLUSA. El código ya lo bloquea al guardar y al publicar (`lib/professional-planner/house-content.ts`, PR #112).
+4. Un perfil nuevo entra a esta tabla antes de cargar su primera pieza en el planner.
+5. Todo copy sigue pasando por `compliance-reviewer` y luego por `taste`.
 
 ## Tareas recurrentes por departamento
 
