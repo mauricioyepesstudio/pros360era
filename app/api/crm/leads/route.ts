@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCRMAccess } from "@/lib/crm/access";
 import { leadInput, listInput, nullable } from "@/lib/crm/validation";
+import { syncGhlSoon } from "@/lib/crm/gohighlevel-trigger";
 
 const columns = "id,name,email,phone,whatsapp,source,source_url,status,qualification_score,notes,created_at,updated_at";
 
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await access.supabase.from("crm_leads").insert({ source: body.source, source_url: nullable(body.sourceUrl), name: nullable(body.name), email: nullable(body.email), phone: nullable(body.phone), whatsapp: nullable(body.whatsapp), notes: nullable(body.notes) }).select(columns).single();
     if (error?.code === "23505") return NextResponse.json({ error: "Ya tienes un registro con ese correo." }, { status: 409 });
     if (error || !data) return NextResponse.json({ error: "No pudimos guardar los datos. Intenta de nuevo." }, { status: 503 });
+    syncGhlSoon(access.user.id);
     return NextResponse.json(data, { status: 201 });
   } catch {
     return NextResponse.json({ error: "No pudimos guardar los datos. Intenta de nuevo." }, { status: 503 });

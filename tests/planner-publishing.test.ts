@@ -18,11 +18,11 @@ test("planner times are Florida wall-clock times, across daylight saving", () =>
   assert.equal(scheduledFor({ ...post, date: null, time: null }), null);
 });
 
-test("only ready Instagram and Facebook posts whose time arrived are due", () => {
-  const planner = { posts: [post, { ...post, id: "idea", status: "IDEA" as const }, { ...post, id: "fb", platform: "facebook" as const }, { ...post, id: "li", platform: "linkedin" as const }, { ...post, id: "later", time: "18:30" }, { ...post, id: "old", date: "2026-10-01" }] };
+test("only ready posts on supported connected networks whose time arrived are due", () => {
+  const planner = { posts: [post, { ...post, id: "idea", status: "IDEA" as const }, { ...post, id: "fb", platform: "facebook" as const }, { ...post, id: "li", platform: "linkedin" as const, publishViaConnection: true }, { ...post, id: "later", time: "18:30" }, { ...post, id: "old", date: "2026-10-01" }] };
   assert.deepEqual(duePosts(planner, {}, sixPm - 60_000).map((p) => p.id), []);
-  assert.deepEqual(duePosts(planner, {}, sixPm).map((p) => p.id), ["p-1", "fb"]);
-  assert.deepEqual(duePosts(planner, {}, sixPm + 31 * 60_000).map((p) => p.id), ["p-1", "fb", "later"]);
+  assert.deepEqual(duePosts(planner, {}, sixPm).map((p) => p.id), ["p-1", "fb", "li"]);
+  assert.deepEqual(duePosts(planner, {}, sixPm + 31 * 60_000).map((p) => p.id), ["p-1", "fb", "li", "later"]);
 });
 
 test("a logged post never goes out twice; a failed one retries only when rescheduled", () => {
