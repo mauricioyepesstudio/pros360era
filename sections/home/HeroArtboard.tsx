@@ -43,7 +43,7 @@ export default function HeroArtboard() {
               Soy usuario · Empezar gratis <ArrowRight aria-hidden size={18} />
             </Link>
             <Link href="/aplicar-profesional" data-tour="hero-path" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center rounded-full px-5 text-center sm:w-auto font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-              Soy profesional · Crear mi perfil
+              Soy profesional · Solicitar mi perfil
             </Link>
           </div>
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">
