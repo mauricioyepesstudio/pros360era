@@ -39,11 +39,11 @@ export default function HeroArtboard() {
             Te mostramos tu camino en 6 etapas: qué hacer ahora y qué sigue. En cada paso te conectamos con un profesional en Florida que habla tu idioma.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="#como-funciona" data-tour="hero-busco" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-              Empezar gratis <ArrowRight aria-hidden size={18} />
+            <Link href="/onboarding" data-tour="hero-busco" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center gap-2 rounded-full text-center sm:w-auto bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Soy usuario · Empezar gratis <ArrowRight aria-hidden size={18} />
             </Link>
-            <Link href="#journey" data-tour="hero-path" className="inline-flex min-h-14 items-center rounded-full px-7 font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-              Explorar las 6 etapas
+            <Link href="/aplicar-profesional" data-tour="hero-path" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center rounded-full px-5 text-center sm:w-auto font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Soy profesional · Solicitar mi perfil
             </Link>
           </div>
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">

@@ -316,3 +316,6 @@ Continuacion de5dfc5b5 reconciliada con main adf05d4. Una accion rechazada conse
 Boton Ver todos los profesionales restablece profesion y etapa cuando hay filtros activos; enlace Describir mi necesidad abre onboarding. Sin cambios de catalogo, aprobacion, permisos o servicios. Prueba aislada del componente PASS y revision independiente producto/compliance GO. Evidencia: docs/EVOLUSA-DIRECTORY-RECOVERY-20261107.md. Estado preparado; checks completos y release en cola central.
 
 2026-11-07: PR114 QA local 375/1440 con componente real y fixture sintetico PASS; selector movil ajustado al contenedor. Fixture temporal retirada. Checks finales, integracion y produccion se registran en la cola central. No se declara recorrido autenticado ni catalogo vivo validado.
+
+## 2026-11-08 - Inicio separado por intencion (PR107)
+Continuacion del PR existente, reconciliado con main00c9516. Usuario inicia preguntas en /onboarding; profesional solicita perfil por /aplicar-profesional, sin aprobacion automatica. Medicion responsive atomica y clic real en ambos destinos. Evidencia: docs/EVOLUSA-HOME-ROLE-ENTRY-20261108.md. Pruebas, revision, CI, integracion y despliegue se distinguen en cola central al cerrar. No cambia cuentas, permisos ni cobros.
