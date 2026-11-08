@@ -319,3 +319,6 @@ Boton Ver todos los profesionales restablece profesion y etapa cuando hay filtro
 
 ## 2026-11-08 - Inicio separado por intencion (PR107)
 Continuacion del PR existente, reconciliado con main00c9516. Usuario inicia preguntas en /onboarding; profesional solicita perfil por /aplicar-profesional, sin aprobacion automatica. Medicion responsive atomica y clic real en ambos destinos. Evidencia: docs/EVOLUSA-HOME-ROLE-ENTRY-20261108.md. Pruebas, revision, CI, integracion y despliegue se distinguen en cola central al cerrar. No cambia cuentas, permisos ni cobros.
+
+## 2026-11-08 - Acceso al perfil publico guardado
+El editor activo ofrece Ver mi perfil publico solo a perfiles aprobados. Otra pestana conserva las ediciones; el texto aclara que muestra la informacion guardada. No cambia aprobacion ni visibilidad. QA local con componente real aprobado/pendiente a375/1440 PASS; sin cuentas reales ni escrituras. Detalle: docs/EVOLUSA-PROFILE-PUBLIC-LINK-20261108.md. Preparado; checks, PR, integracion, despliegue y limites autenticados en la cola central al cerrar.
