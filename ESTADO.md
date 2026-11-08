@@ -314,3 +314,5 @@ Continuacion de5dfc5b5 reconciliada con main adf05d4. Una accion rechazada conse
 ## 2026-11-07 - Recuperar directorio sin coincidencias
 
 Boton Ver todos los profesionales restablece profesion y etapa cuando hay filtros activos; enlace Describir mi necesidad abre onboarding. Sin cambios de catalogo, aprobacion, permisos o servicios. Prueba aislada del componente PASS y revision independiente producto/compliance GO. Evidencia: docs/EVOLUSA-DIRECTORY-RECOVERY-20261107.md. Estado preparado; checks completos y release en cola central.
+
+2026-11-07: PR114 QA local 375/1440 con componente real y fixture sintetico PASS; selector movil ajustado al contenedor. Fixture temporal retirada. Checks finales, integracion y produccion se registran en la cola central. No se declara recorrido autenticado ni catalogo vivo validado.

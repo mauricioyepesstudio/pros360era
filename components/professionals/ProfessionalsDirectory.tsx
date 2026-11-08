@@ -39,7 +39,7 @@ export default function ProfessionalsDirectory({ professionals }: { professional
           id="filter-category"
           value={categoryFilter}
           onChange={(event) => setCategoryFilter(event.target.value)}
-          className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-semibold text-[var(--brand-navy)]"
+          className="min-h-11 max-w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-semibold text-[var(--brand-navy)]"
         >
           <option value="ALL">Todas las profesiones</option>
           {professionalCategories.map((category) => (
@@ -52,7 +52,7 @@ export default function ProfessionalsDirectory({ professionals }: { professional
           id="filter-stage"
           value={stageFilter}
           onChange={(event) => setStageFilter(event.target.value)}
-          className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-semibold text-[var(--brand-navy)]"
+          className="min-h-11 max-w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-semibold text-[var(--brand-navy)]"
         >
           <option value="ALL">Todas las etapas</option>
           {journeyStageOptions.map((stage) => (
