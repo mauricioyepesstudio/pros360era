@@ -1,0 +1,31 @@
+name: Authenticated read-only acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: evolusa-authenticated-readonly
+  cancel-in-progress: false
+jobs:
+  acceptance:
+    if: github.ref == 'refs/heads/main' && github.repository == 'mauricioyepesstudio/pros360era'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+      - name: Install isolated browser tooling without account secrets
+        run: |
+          npm install --prefix "$RUNNER_TEMP/evolusa-browser" --ignore-scripts --no-package-lock playwright@1.62.1
+          node "$RUNNER_TEMP/evolusa-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Read own member and professional journeys
+        env:
+          E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
+          E2E_MEMBER_PASSWORD: ${{ secrets.E2E_MEMBER_PASSWORD }}
+          E2E_PRO_EMAIL: ${{ secrets.E2E_PRO_EMAIL }}
+          E2E_PRO_PASSWORD: ${{ secrets.E2E_PRO_PASSWORD }}
+        run: NODE_PATH="$RUNNER_TEMP/evolusa-browser/node_modules" node scripts/verify-authenticated-readonly.cjs

@@ -322,3 +322,6 @@ Continuacion del PR existente, reconciliado con main00c9516. Usuario inicia preg
 
 ## 2026-11-08 - Acceso al perfil publico guardado
 El editor activo ofrece Ver mi perfil publico solo a perfiles aprobados. Otra pestana conserva las ediciones; el texto aclara que muestra la informacion guardada. No cambia aprobacion ni visibilidad. QA local con componente real aprobado/pendiente a375/1440 PASS; sin cuentas reales ni escrituras. Detalle: docs/EVOLUSA-PROFILE-PUBLIC-LINK-20261108.md. Preparado; checks, PR, integracion, despliegue y limites autenticados en la cola central al cerrar.
+
+## 2026-11-08 - Aceptacion autenticada manual de lectura
+Se confirmaron por nombre los cuatro secretos E2E documentados en agencia.md. Nuevo workflow manual, solo main, usa esos valores sin leerlos ni imprimirlos para comprobar MEMBER y el PRO canonico propio. Sin cambios de perfil, roles, SMTP, pagos ni publicaciones. Limpieza scope=local, nunca logout global. Preparado; no se declaran cuentas funcionales hasta resultado real. Detalle: docs/EVOLUSA-AUTHENTICATED-ACCEPTANCE-20261109.md; resultado, limites y release en cola central.
