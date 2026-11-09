@@ -89,6 +89,14 @@ test("Meta's error reaches the professional", async () => {
   await assert.rejects(publishInstagramMedia("123", "tok", { image_url: "https://x/a.png" }, fake, async () => {}), /Only photo or video/);
 });
 
+test("a token Meta invalidated (code 190) is flagged so the connection is marked to reconnect", async () => {
+  const invalid = (async () => new Response(JSON.stringify({ error: { message: "Error validating access token: The session has been invalidated because the user changed their password.", code: 190 } }), { status: 400 })) as typeof fetch;
+  await assert.rejects(publishInstagramMedia("123", "tok", { image_url: "https://x/a.jpg" }, invalid, async () => {}), (error: unknown) => (error as { tokenInvalid?: boolean }).tokenInvalid === true);
+  await assert.rejects(publishFacebookPost("p1", "tok", { kind: "TEXT", message: "Hola" }, invalid), (error: unknown) => (error as { tokenInvalid?: boolean }).tokenInvalid === true);
+  const other = (async () => new Response(JSON.stringify({ error: { message: "Only photo or video can be accepted as media type.", code: 9004 } }), { status: 400 })) as typeof fetch;
+  await assert.rejects(publishInstagramMedia("123", "tok", { image_url: "https://x/a.png" }, other, async () => {}), (error: unknown) => (error as { tokenInvalid?: boolean }).tokenInvalid === false);
+});
+
 test("every kit image has the JPEG twin Instagram is sent", async () => {
   const { readdirSync, existsSync } = await import("node:fs");
   const root = new URL("../public/professionals/kits/", import.meta.url);

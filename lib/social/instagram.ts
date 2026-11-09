@@ -1,3 +1,4 @@
+import { isTokenInvalid } from "./meta-errors.ts";
 import { readSocialTokenKey } from "./crypto.ts";
 
 /**
@@ -120,19 +121,21 @@ function toToken(data: Record<string, unknown>, now: number): InstagramToken {
 /** Meta's own explanation, shortened, so the professional can see why a post didn't go out. */
 async function readPublishJson(response: Response): Promise<Record<string, unknown>> {
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  const error = data.error as { message?: unknown; error_user_msg?: unknown } | undefined;
+  const error = data.error as { message?: unknown; error_user_msg?: unknown; code?: unknown } | undefined;
   if (!response.ok || error) {
     const detail = typeof error?.error_user_msg === "string" ? error.error_user_msg : typeof error?.message === "string" ? error.message : `error ${response.status}`;
-    throw new InstagramPublishError(detail.slice(0, 200));
+    throw new InstagramPublishError(detail.slice(0, 200), false, isTokenInvalid(error?.code));
   }
   return data;
 }
 
 export class InstagramPublishError extends Error {
   readonly publicationUncertain: boolean;
-  constructor(message: string, publicationUncertain = false) {
+  readonly tokenInvalid: boolean;
+  constructor(message: string, publicationUncertain = false, tokenInvalid = false) {
     super(message);
     this.publicationUncertain = publicationUncertain;
+    this.tokenInvalid = tokenInvalid;
   }
 }
 

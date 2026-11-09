@@ -325,3 +325,8 @@ El editor activo ofrece Ver mi perfil publico solo a perfiles aprobados. Otra pe
 
 ## 2026-11-08 - Aceptacion autenticada manual de lectura
 Se confirmaron por nombre los cuatro secretos E2E documentados en agencia.md. Nuevo workflow manual, solo main, usa esos valores sin leerlos ni imprimirlos para comprobar MEMBER y el PRO canonico propio. Sin cambios de perfil, roles, SMTP, pagos ni publicaciones. Limpieza scope=local, nunca logout global. Preparado; no se declaran cuentas funcionales hasta resultado real. Detalle: docs/EVOLUSA-AUTHENTICATED-ACCEPTANCE-20261109.md; resultado, limites y release en cola central.
+
+
+## 2026-11-09 — Continuación PR99: conexión Meta vencida
+
+Código190 conserva la distinción de publicación incierta y expira solo la credencial rechazada, sin pisar una reconexión concurrente. Resto de posts de esa red detenido en la corrida; FAILED se conserva antes del cambio de estado. Sin cron ni publicación real. Pruebas/revisión y límites: docs/EVOLUSA-META-TOKEN-EXPIRY-20261109.md. Commit y estado de producción se cierran en PR99 y cola central; no se afirma entrega SMTP, OAuth completo ni recorrido MEMBER. Campañas/planner recientes reutilizados.

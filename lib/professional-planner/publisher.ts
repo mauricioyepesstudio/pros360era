@@ -39,7 +39,7 @@ async function saveLog(service: SupabaseClient, userId: string, log: PublishLog)
   if (error) throw new Error("publish_log_unavailable");
 }
 
-type Account = { accountId: string; token: string };
+type Account = { accountId: string; token: string; ciphertext: string };
 
 /** The professional's active connection for that network, with its token decrypted, or null. */
 async function publishingAccount(service: SupabaseClient, tokenKey: Buffer, userId: string, platform: AutoPublishPlatform): Promise<Account | null> {
@@ -52,10 +52,20 @@ async function publishingAccount(service: SupabaseClient, tokenKey: Buffer, user
   if (data?.token_expires_at && Date.parse(data.token_expires_at) <= Date.now()) return null;
   if (!data || data.status !== "ACTIVE" || !data.token_ciphertext || !Array.isArray(data.scopes) || !data.scopes.includes(publishScopes[platform])) return null;
   const token = decryptToken(data.token_ciphertext, tokenKey, tokenBinding(platform, data.provider_account_id));
-  return token ? { accountId: data.provider_account_id, token } : null;
+  return token ? { accountId: data.provider_account_id, token, ciphertext: data.token_ciphertext } : null;
 }
 
-type Outcome = { ok: true; mediaId: string; permalink: string | null } | { ok: false; error: string; sent: boolean };
+type Outcome = { ok: true; mediaId: string; permalink: string | null } | { ok: false; error: string; sent: boolean; tokenInvalid?: boolean };
+
+const reconnectMessage = (network: string) => `No se publicó: tu conexión con ${network} venció o se cerró. Vuelve a conectarla en Redes.`;
+
+// Only expire the exact rejected credential: a concurrent reconnection must survive.
+async function markConnectionExpired(service: SupabaseClient, userId: string, platform: AutoPublishPlatform, account: Account) {
+  const { error } = await service.from("social_connections").update({ status: "EXPIRED" })
+    .eq("user_id", userId).eq("provider", platform).eq("provider_account_id", account.accountId)
+    .eq("token_ciphertext", account.ciphertext).eq("status", "ACTIVE");
+  if (error) throw new Error("connection_expiry_unavailable");
+}
 
 async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform }, account: Account, deadline: number): Promise<Outcome> {
   const network = networkName[post.platform];
@@ -65,6 +75,7 @@ async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform },
     try {
       return { ok: true, ...(await publishInstagramMedia(account.accountId, account.token, request.params, undefined, undefined, { deadline })) };
     } catch (error) {
+      if (error instanceof InstagramPublishError && error.tokenInvalid) return { ok: false, error: reconnectMessage(network), sent: true, tokenInvalid: true };
       return { ok: false, error: error instanceof InstagramPublishError && error.publicationUncertain
         ? error.message
         : `No se publicó: ${error instanceof InstagramPublishError ? error.message : `${network} no respondió.`}`, sent: true };
@@ -90,6 +101,7 @@ async function publishOne(post: PlannerPost & { platform: AutoPublishPlatform },
   try {
     return { ok: true, ...(await publishFacebookPost(account.accountId, account.token, request.request)) };
   } catch (error) {
+    if (error instanceof FacebookPublishError && error.tokenInvalid) return { ok: false, error: reconnectMessage(network), sent: true, tokenInvalid: true };
     return { ok: false, error: `No se publicó: ${error instanceof FacebookPublishError ? error.message : `${network} no respondió.`}`, sent: true };
   }
 }
@@ -168,6 +180,10 @@ export async function publishDuePlannerPosts(service: SupabaseClient, tokenKey: 
       if (outcome.ok) result.published += 1;
       else result.failed += 1;
       await saveLog(service, userId, log);
+      if (!outcome.ok && outcome.tokenInvalid) {
+        accounts.set(post.platform, null);
+        await markConnectionExpired(service, userId, post.platform, account);
+      }
     }
     if (changed) await saveLog(service, userId, log);
   }

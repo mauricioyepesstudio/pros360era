@@ -1,4 +1,5 @@
 import { readSocialTokenKey } from "./crypto.ts";
+import { isTokenInvalid } from "./meta-errors.ts";
 import { PUBLIC_APP_URL } from "./instagram.ts";
 
 /**
@@ -138,14 +139,21 @@ async function pagesFromGrantedScope(config: FacebookConfig, userToken: string, 
 
 export class FacebookNoPageError extends Error {}
 export class FacebookMultiplePagesError extends Error {}
-export class FacebookPublishError extends Error {}
+/** tokenInvalid: Meta rejected the token itself (OAuth code 190: expired, revoked or password changed). */
+export class FacebookPublishError extends Error {
+  readonly tokenInvalid: boolean;
+  constructor(message: string, tokenInvalid = false) {
+    super(message);
+    this.tokenInvalid = tokenInvalid;
+  }
+}
 
 async function readPublishJson(response: Response): Promise<Record<string, unknown>> {
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  const error = data.error as { message?: unknown; error_user_msg?: unknown } | undefined;
+  const error = data.error as { message?: unknown; error_user_msg?: unknown; code?: unknown } | undefined;
   if (!response.ok || error) {
     const detail = typeof error?.error_user_msg === "string" ? error.error_user_msg : typeof error?.message === "string" ? error.message : `error ${response.status}`;
-    throw new FacebookPublishError(detail.slice(0, 200));
+    throw new FacebookPublishError(detail.slice(0, 200), isTokenInvalid(error?.code));
   }
   return data;
 }
