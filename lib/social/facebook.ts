@@ -161,9 +161,10 @@ async function readPublishJson(response: Response): Promise<Record<string, unkno
 export type FacebookPostRequest =
   | { kind: "TEXT"; message: string }
   | { kind: "PHOTO"; imageUrl: string; caption: string }
-  | { kind: "STORY"; imageUrl: string };
+  | { kind: "STORY"; imageUrl: string }
+  | { kind: "VIDEO"; videoUrl: string; caption: string };
 
-/** Publishes on the Page: a text post, a photo post, or a photo Story. */
+/** Publishes on the Page: a text post, a photo post, a photo Story, or a video. */
 export async function publishFacebookPost(pageId: string, pageToken: string, request: FacebookPostRequest, fetchImpl: Fetch = fetch): Promise<{ mediaId: string; permalink: string | null }> {
   const post = (path: string, params: Record<string, string>) =>
     fetchImpl(`${graph}/${pageId}/${path}`, { method: "POST", body: new URLSearchParams({ ...params, access_token: pageToken }), cache: "no-store" }).then(readPublishJson);
@@ -171,6 +172,9 @@ export async function publishFacebookPost(pageId: string, pageToken: string, req
   let postId: string | null = null;
   if (request.kind === "TEXT") {
     const data = await post("feed", { message: request.message });
+    postId = typeof data.id === "string" ? data.id : null;
+  } else if (request.kind === "VIDEO") {
+    const data = await post("videos", request.caption ? { file_url: request.videoUrl, description: request.caption } : { file_url: request.videoUrl });
     postId = typeof data.id === "string" ? data.id : null;
   } else if (request.kind === "PHOTO") {
     const data = await post("photos", request.caption ? { url: request.imageUrl, caption: request.caption } : { url: request.imageUrl });

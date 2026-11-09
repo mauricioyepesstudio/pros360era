@@ -9,9 +9,18 @@ test('private draft normalizes input and discards identity and approval fields',
  assert.equal('is_approved' in result!, false);
  assert.equal('role' in result!, false);
 });
-test('draft rejects regulated categories, malformed input and unsafe links', () => {
+test('draft rejects unknown categories, malformed input and unsafe links', () => {
  for (const value of [null, [], {}, { ...draft, category: 'IMMIGRATION' }, { ...draft, website: 'javascript:alert(1)' }, { ...draft, bio: 'x'.repeat(1201) }, { ...draft, displayName: 42 }]) assert.equal(parseProfessionalDraft(value), null);
 });
 test('other category remains a private expression of interest', () => {
  assert.equal(parseProfessionalDraft({ ...draft, category: 'OTHER' })?.category, 'OTHER');
+});
+
+test('each authorized specialty survives the private draft handoff without approval', () => {
+ for (const category of ['REAL_ESTATE','TAX','FINANCE','PARALEGAL','NOTARY','HEALTH_INSURANCE','AUTO_INSURANCE']) {
+  const parsed = parseProfessionalDraft({ ...draft, category, role:'PROFESSIONAL', is_approved:true });
+  assert.equal(parsed?.category, category);
+  assert.equal('role' in parsed!,false);
+  assert.equal('is_approved' in parsed!,false);
+ }
 });

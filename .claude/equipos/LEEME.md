@@ -1,6 +1,6 @@
 # Equipos de skills — EVOLUSA
 
-> Generado por `AI-Projects-Control-Plane/equipos-skills` (versión 2026-10-23). No editar a mano: el cambio se hace en el cerebro central y se regenera.
+> Generado por `AI-Projects-Control-Plane/equipos-skills` (versión 2026-11-03). No editar a mano: el cambio se hace en el cerebro central y se regenera.
 
 **Para qué sirve este proyecto:** Reclutar profesionales y crecer miembros (español primero).
 
@@ -14,7 +14,7 @@
 
 | Equipo | Plugin | Qué hace | Fuente · licencia |
 |---|---|---|---|
-| Ingeniería | `ponytail` | Modo ingeniero senior perezoso: obliga a la solución más corta que funcione (YAGNI, librería estándar primero). Menos código, menos tokens y menos prueba y error. *Requiere:* Sus 3 hooks (SessionStart, SubagentStart, UserPromptSubmit) corren node y guardan un archivo de modo en ~/.claude; no hacen llamadas de red. Cuesta ~641 tokens fijos por sesión. | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail/tree/84740e3d344b69b4a133201fa519eb37a62a2b2a) @ `84740e3` · MIT |
+| Ingeniería (código mínimo que funciona) | `ponytail` | Modo ingeniero senior perezoso: obliga a la solución más corta que funcione (YAGNI, librería estándar primero). Menos código, menos tokens y menos prueba y error. *Requiere:* Sus 3 hooks (SessionStart, SubagentStart, UserPromptSubmit) corren node y guardan un archivo de modo en ~/.claude; no hacen llamadas de red. Cuesta ~641 tokens fijos por sesión. | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail/tree/84740e3d344b69b4a133201fa519eb37a62a2b2a) @ `84740e3` · MIT |
 | Marketing (anuncios, copy, SEO, analítica, estrategia) | `marketing-skills` | Equipo de marketing: anuncios (ads, ad-creative), copywriting y copy-editing, SEO (seo-audit, ai-seo, programmatic-seo, schema, site-architecture), analítica y atribución, estrategia (marketing-plan, launch, pricing, offers, cro) y email. | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills/tree/55ff469422c3592dac45bcad08dfb40221981c02) @ `55ff469` · MIT |
 | Redes sociales (LinkedIn, reels, YouTube, analítica, newsletter) | `social-media-skills` | Equipo de redes: LinkedIn (post-writer, hook-generator, post-formatter, post-scorer, profile-optimizer), reels (reels-scripting), YouTube (youtube-thumbnail), analítica (analytics-dashboard), newsletter (newsletter-voice), voz de marca y carruseles. *Requiere:* reels-scripting usa APIFY_API_TOKEN y GOOGLE_AI_API_KEY; las imágenes usan Gemini. Sin esas llaves esos skills no corren; el resto sí. | [charlie947/social-media-skills](https://github.com/charlie947/social-media-skills/tree/8cefb5b6d03757885faa6918bd8bfaef202a83db) @ `8cefb5b` · MIT |
 | Diseño | `taste-skill` | Equipo de diseño: dirección de arte anti-plantilla para landings y sitios (taste-skill v2, redesign, minimalist, soft, brutalist, brandkit, image-to-code). *Requiere:* Su script de imágenes consulta APIs públicas (Openverse, Wikimedia, Met, Art Institute, Internet Archive) y solo trae imágenes CC0/CC-BY con su licencia. | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill/tree/f624f37a8c650b9cc550253104925efe4c8de246) @ `f624f37` · MIT |
@@ -41,9 +41,10 @@ Supabase y Vercel piden iniciar sesión la primera vez (`/mcp` → el conector �
 
 | Mod | Cuándo corre | Qué hace |
 |---|---|---|
-| `guardia` | Antes de cada comando o edición | Frena push directo o forzado a la rama principal, `gh pr merge`, migraciones al Supabase vivo, `vercel --prod`, Stripe Live y edición de `.env`. Explica el motivo y manda a pedírselo al dueño. |
-| `parte` | Al abrir una sesión | Le da al agente el «Siguiente» y el «Bloqueado» de `ESTADO.md` y avisa si lleva más de 3 días sin actualizarse. |
-| `linea` | Siempre, en la barra de estado | Puntos de color: ● ESTADO al día (verde ≤2 días, amarillo ≤7, rojo más), ● cambios sin commit, ● agentes del proyecto. |
+| `guardia` | Antes de cada comando o edición | Frena push directo a la rama principal, cualquier push forzado, integrar PRs (`gh pr merge` o por la API), `git reset --hard`, migraciones al Supabase vivo, `vercel --prod`, variables de Vercel y secretos de Supabase, Stripe Live y edición de `.env`. Explica el motivo y manda a pedírselo al dueño. |
+| `parte` | Al abrir una sesión | Le da al agente el «Siguiente» y el «Bloqueado» de `ESTADO.md`, avisa si lleva más de 3 días sin actualizarse o si «Siguiente» tiene puntos ya HECHOS, y resume los módulos del cerebro (`lib/admin/jarvis.ts`) con lo que bloquea a cada uno. |
+| `linea` | Siempre, en la barra de estado | Puntos de color: ● ESTADO al día (verde ≤2 días, amarillo ≤7, rojo más), ● cambios sin commit, ● agentes del proyecto, ● cerebro: módulos en producción sobre el total (rojo si alguno está bloqueado). |
+| `cerebro` | Lo usan `parte` y `linea` | Lee el estado de los módulos del cerebro del proyecto. Solo lectura. |
 
 ## Reglas de este proyecto (mandan sobre cualquier skill)
 

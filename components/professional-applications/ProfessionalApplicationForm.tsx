@@ -31,33 +31,38 @@ export default function ProfessionalApplicationForm() {
     event.preventDefault();
     setPending(true);
     setResult(null);
-    const response = await submitProfessionalApplicationAction({
-      fullName,
-      email,
-      phone,
-      city,
-      categoryOfInterest,
-      credentialInfo,
-      bio,
-      notes,
-      website,
-    });
-    setPending(false);
-    setResult(response.saved ? "success" : "error");
-    if (response.saved) {
-      try {
-        sessionStorage.setItem("evolusa-professional-handoff-v1", JSON.stringify({
-          email: email.trim().toLowerCase(),
-          draft: { displayName: fullName, category: categoryOfInterest, city, headline: "", bio, instagram: "", facebook: "", website: "" },
-        }));
-      } catch { /* Account access remains available when browser storage is blocked. */ }
-      setFullName("");
-      setEmail("");
-      setPhone("");
-      setCity("");
-      setCredentialInfo("");
-      setBio("");
-      setNotes("");
+    try {
+      const response = await submitProfessionalApplicationAction({
+        fullName,
+        email,
+        phone,
+        city,
+        categoryOfInterest,
+        credentialInfo,
+        bio,
+        notes,
+        website,
+      });
+      setResult(response.saved ? "success" : "error");
+      if (response.saved) {
+        try {
+          sessionStorage.setItem("evolusa-professional-handoff-v1", JSON.stringify({
+            email: email.trim().toLowerCase(),
+            draft: { displayName: fullName, category: categoryOfInterest, city, headline: "", bio, instagram: "", facebook: "", website: "" },
+          }));
+        } catch { /* Account access remains available when browser storage is blocked. */ }
+        setFullName("");
+        setEmail("");
+        setPhone("");
+        setCity("");
+        setCredentialInfo("");
+        setBio("");
+        setNotes("");
+      }
+    } catch {
+      setResult("error");
+    } finally {
+      setPending(false);
     }
   }
 
@@ -100,11 +105,13 @@ export default function ProfessionalApplicationForm() {
             {applicationCategoryOptions.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.label}
-                {!option.live ? " (próximamente)" : ""}
+                {!option.live ? " (sujeto a revisión)" : ""}
               </option>
             ))}
           </Select>
         </FormField>
+
+        <p className="text-sm text-[var(--muted)]">Recibimos solicitudes de distintas especialidades. Enviar tu información no aprueba tu perfil ni acredita licencias; revisamos los requisitos de cada servicio antes de habilitarlo.</p>
 
         <FormField id="credential" label="Credencial o licencia" hint={selectedCategory.credentialHint}>
           <Input id="credential" maxLength={200} value={credentialInfo} onChange={(event) => setCredentialInfo(event.target.value)} placeholder="Ej. Certificación, portafolio o años de experiencia" />

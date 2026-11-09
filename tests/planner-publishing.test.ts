@@ -18,11 +18,11 @@ test("planner times are Florida wall-clock times, across daylight saving", () =>
   assert.equal(scheduledFor({ ...post, date: null, time: null }), null);
 });
 
-test("only ready Instagram and Facebook posts whose time arrived are due", () => {
-  const planner = { posts: [post, { ...post, id: "idea", status: "IDEA" as const }, { ...post, id: "fb", platform: "facebook" as const }, { ...post, id: "li", platform: "linkedin" as const }, { ...post, id: "later", time: "18:30" }, { ...post, id: "old", date: "2026-10-01" }] };
+test("only ready posts on supported connected networks whose time arrived are due", () => {
+  const planner = { posts: [post, { ...post, id: "idea", status: "IDEA" as const }, { ...post, id: "fb", platform: "facebook" as const }, { ...post, id: "li", platform: "linkedin" as const, publishViaConnection: true }, { ...post, id: "later", time: "18:30" }, { ...post, id: "old", date: "2026-10-01" }] };
   assert.deepEqual(duePosts(planner, {}, sixPm - 60_000).map((p) => p.id), []);
-  assert.deepEqual(duePosts(planner, {}, sixPm).map((p) => p.id), ["p-1", "fb"]);
-  assert.deepEqual(duePosts(planner, {}, sixPm + 31 * 60_000).map((p) => p.id), ["p-1", "fb", "later"]);
+  assert.deepEqual(duePosts(planner, {}, sixPm).map((p) => p.id), ["p-1", "fb", "li"]);
+  assert.deepEqual(duePosts(planner, {}, sixPm + 31 * 60_000).map((p) => p.id), ["p-1", "fb", "li", "later"]);
 });
 
 test("a logged post never goes out twice; a failed one retries only when rescheduled", () => {
@@ -195,4 +195,25 @@ test("Facebook still refuses several granted Pages when /me/accounts is empty", 
     return json({});
   }) as typeof fetch;
   await assert.rejects(connectFacebookPage(config, "code", fake), FacebookMultiplePagesError);
+});
+
+test("a Reel sends its MP4 to Instagram as REELS and to Facebook as a video", () => {
+  const site = "https://evolusa.vercel.app";
+  const reel = { ...post, format: "reel" as const, imageUrl: "/videos/usuario-9x16.mp4" };
+  assert.deepEqual(instagramMediaRequest(reel, site), { ok: true, kind: "REEL", params: { media_type: "REELS", video_url: `${site}/videos/usuario-9x16.mp4`, share_to_feed: "true", caption: "Texto" } });
+  assert.deepEqual(facebookRequest({ ...reel, platform: "facebook" }, site), { ok: true, request: { kind: "VIDEO", videoUrl: `${site}/videos/usuario-9x16.mp4`, caption: "Texto" } });
+  assert.equal(instagramMediaRequest({ ...reel, imageUrl: null }, site).ok, false, "a Reel without a video is refused");
+});
+
+test("Facebook videos go to the Page's videos edge with the caption as description", async () => {
+  const calls: string[] = [];
+  const fake = (async (input: string | URL, init?: RequestInit) => {
+    calls.push(`${String(input)} ${init?.body ? String(init.body) : ""}`);
+    if (String(input).endsWith("/99/videos")) return new Response(JSON.stringify({ id: "vid-1" }));
+    return new Response(JSON.stringify({ permalink_url: "https://facebook.com/vid-1" }));
+  }) as typeof fetch;
+  const result = await publishFacebookPost("99", "tok", { kind: "VIDEO", videoUrl: "https://x/a.mp4", caption: "Hola" }, fake);
+  assert.deepEqual(result, { mediaId: "vid-1", permalink: "https://facebook.com/vid-1" });
+  assert.match(calls[0], /file_url=https%3A%2F%2Fx%2Fa\.mp4/);
+  assert.match(calls[0], /description=Hola/);
 });

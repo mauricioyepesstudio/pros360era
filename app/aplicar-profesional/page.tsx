@@ -106,10 +106,10 @@ export default function AplicarProfesionalPage() {
             <div className="mt-10 rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
               <div className="flex items-center gap-2 text-[var(--brand-coral)]">
                 <Sparkles aria-hidden size={18} />
-                <p className="text-xs font-bold uppercase tracking-wider">Todavía en construcción</p>
+                <p className="text-xs font-bold uppercase tracking-wider">Solicitudes por especialidad</p>
               </div>
               <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                Somos honestos: estamos en una etapa temprana. Hoy invitamos a profesionales de Marketing y Operaciones de Negocio en Florida. Si ofreces otro servicio de negocio, cuéntanos y te ubicamos en la categoría correcta.
+                Recibimos solicitudes de marketing, operaciones, bienes raíces, impuestos, finanzas, apoyo documental, notaría y seguros en Florida. Revisamos el perfil y los requisitos de cada especialidad antes de habilitar los servicios correspondientes.
               </p>
             </div>
           </div>
