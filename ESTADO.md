@@ -330,3 +330,8 @@ Se confirmaron por nombre los cuatro secretos E2E documentados en agencia.md. Nu
 ## 2026-11-09 — Continuación PR99: conexión Meta vencida
 
 Código190 conserva la distinción de publicación incierta y expira solo la credencial rechazada, sin pisar una reconexión concurrente. Resto de posts de esa red detenido en la corrida; FAILED se conserva antes del cambio de estado. Sin cron ni publicación real. Pruebas/revisión y límites: docs/EVOLUSA-META-TOKEN-EXPIRY-20261109.md. Commit y estado de producción se cierran en PR99 y cola central; no se afirma entrega SMTP, OAuth completo ni recorrido MEMBER. Campañas/planner recientes reutilizados.
+
+
+## 2026-11-11 — Del resultado inicial al directorio
+
+El diagnóstico completado ofrece el directorio público en otra pestaña, conservando el resultado y los accesos de registro e inicio de sesión. No envía respuestas en la URL ni cambia elegibilidad, filtros, permisos o publicación. Pruebas, revisión y estado de entrega en el PR y la cola central.
