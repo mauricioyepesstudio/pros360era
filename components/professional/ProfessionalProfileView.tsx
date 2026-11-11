@@ -132,6 +132,20 @@ export default function ProfessionalProfileView({
                 {professional.isAcceptingClients ? "Aceptando nuevos clientes" : "No está aceptando nuevos clientes por ahora"}
               </p>
 
+              {professional.isAcceptingClients && (
+                <div className="mt-6 max-w-xl rounded-[var(--radius-lg)] border border-white/25 bg-white/10 p-5">
+                  <p className="text-base font-bold text-white">¿Necesitas este tipo de servicio?</p>
+                  <p className="mt-2 text-sm leading-6 text-white/80">
+                    Registra tu solicitud en EVOLUSA. Te ayudaremos a encontrar una opción compatible
+                    según la especialidad, tu ubicación y la disponibilidad. La solicitud no garantiza
+                    una asignación directa a este profesional.
+                  </p>
+                  <ButtonLink href="/conexiones/nueva" className="mt-4">
+                    Solicitar servicio en EVOLUSA
+                  </ButtonLink>
+                </div>
+              )}
+
               {mailtoHref && professional.isAcceptingClients && (
                 <ButtonLink href={mailtoHref} className="mt-6">
                   <CalendarClock aria-hidden size={18} className="mr-2" />
