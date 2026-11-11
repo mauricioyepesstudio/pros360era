@@ -335,3 +335,8 @@ Código190 conserva la distinción de publicación incierta y expira solo la cre
 ## 2026-11-11 — Del resultado inicial al directorio
 
 El diagnóstico completado ofrece el directorio público en otra pestaña, conservando el resultado y los accesos de registro e inicio de sesión. No envía respuestas en la URL ni cambia elegibilidad, filtros, permisos o publicación. Pruebas, revisión y estado de entrega en el PR y la cola central.
+
+
+## 2026-11-11 — Hub de Crecimiento visible para profesionales
+
+El hub del PR118 ya no queda tapado por el layout de preparación. Mantiene el control profesional y enlaza Conexiones a Redes, la pantalla existente. Las rutas antiguas de conexión, contenido y demo conservan su layout de preparación; no se activa OAuth, publicación ni cobro. Pruebas y estado de entrega en PR y cola central.
