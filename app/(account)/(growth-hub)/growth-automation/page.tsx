@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, CalendarDays, CheckCircle2, MessageSquare, ShieldCheck, Users, Workflow } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
+import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getCurrentProfile } from "@/lib/account/persistence";
 import { getService } from "@/data/services/services";
 
@@ -33,7 +34,7 @@ const existingTools = [
   {
     title: "Conexiones",
     description: "Revisa las cuentas conectadas y los permisos disponibles para cada canal.",
-    href: "/growth-automation/connect",
+    href: "/panel-profesional/redes",
     cta: "Ver conexiones",
     icon: Workflow,
   },
@@ -46,6 +47,7 @@ const proposedServices = [
 ] as const;
 
 export default async function GrowthAutomationPage() {
+  await requireProfessionalArea();
   const profile = await getCurrentProfile();
   const service = getService("growth-automation");
   if (!profile || !service) {
@@ -102,7 +104,7 @@ export default async function GrowthAutomationPage() {
         <ul className="mt-7 grid gap-5 md:grid-cols-3">
           {proposedServices.map(([title,description])=><li key={title} className="border-t-2 border-[var(--brand-navy)] pt-4"><h3 className="font-bold text-[var(--brand-navy)]">{title}</h3><p className="mt-2 text-sm leading-6 text-[var(--muted)]">{description}</p></li>)}
         </ul>
-        <p className="mt-7 flex items-start gap-2 text-sm leading-6 text-[var(--muted)]"><ShieldCheck className="mt-0.5 shrink-0 text-[var(--brand-navy)]" size={18} aria-hidden="true" />Tus datos y contactos son privados de tu cuenta. Una automatización contratada no comparte clientes con otros profesionales ni con otras empresas.</p>
+        <p className="mt-7 flex items-start gap-2 text-sm leading-6 text-[var(--muted)]"><ShieldCheck className="mt-0.5 shrink-0 text-[var(--brand-navy)]" size={18} aria-hidden="true" />Tus contactos se gestionan desde tu perfil. Cualquier integración externa requiere tu autorización.</p>
       </section>
 
       <p className="text-sm leading-6 text-[var(--muted)]">El piloto de profesionales existentes no genera cobros automáticos nuevos. Publicidad, WhatsApp Business y consumo de herramientas externas se cotizan por separado. No garantizamos un número de clientes ni ingresos.</p>
