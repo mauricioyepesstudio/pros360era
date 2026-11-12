@@ -355,3 +355,8 @@ Cada enlace de sector piloto abre su ficha en Servicios Miami. No cambia elegibi
 ## 2026-11-12 — Retomar el destino tras un enlace de acceso fallido
 
 El reintento de login conserva el destino interno de la confirmación o el acceso fallido. Sin destino válido va al inicio de cuenta; el enlace de recuperación vencido sigue volviendo a recuperación. Sin cambios de proveedor, sesiones o envío de correo. Evidencia y estado en PR y cola central.
+
+
+## 2026-11-12 — Reintento de solicitud directa
+
+Si se interrumpe el guardado, el formulario muestra que no pudo confirmar el registro y permite reintentar con los datos y la referencia originales. No cambia el destino, consentimiento, asignación ni correo. Evidencia de pruebas y despliegue en el PR y la cola central.
