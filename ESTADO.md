@@ -345,3 +345,8 @@ El hub del PR118 ya no queda tapado por el layout de preparación. Mantiene el c
 ## 2026-11-11 — Solicitud desde perfiles de negocio
 
 El nuevo acceso al formulario de solicitudes solo se muestra en perfiles de negocio que aceptan clientes. Se conserva el formulario y el consentimiento actuales, sin ampliar la asignación ni activar categorías reguladas. Evidencia de revisión, pruebas y despliegue en el PR y la cola central.
+
+
+## 2026-11-12 — Navegación de Growth Engine por sector
+
+Cada enlace de sector piloto abre su ficha en Servicios Miami. No cambia elegibilidad, disponibilidad ni contacto. Las industrias en incorporación conservan su estado. Evidencia de pruebas y despliegue en PR y cola central.
