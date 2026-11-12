@@ -11,6 +11,13 @@ import type { ProfessionalProfilePublic } from "@/data/professional/types";
 import { safeHttpUrl } from "@/lib/professional/links";
 import ProfessionalPhoto from "@/components/professional/ProfessionalPhoto";
 
+const categoryThemes: Record<string, string> = {
+  IMMIGRATION_DOCUMENT_SUPPORT: "bg-gradient-to-r from-sky-950 via-blue-900 to-cyan-700",
+  NOTARY: "bg-gradient-to-r from-slate-900 via-slate-800 to-rose-800",
+  BUSINESS_OPERATIONS: "bg-gradient-to-r from-emerald-950 via-emerald-800 to-teal-700",
+  BUSINESS_MARKETING: "bg-gradient-to-r from-violet-950 via-indigo-900 to-blue-800",
+};
+
 const categoryHighlights: Record<string, string[]> = {
   IMMIGRATION_DOCUMENT_SUPPORT: ["Residencia", "Asilo", "Ciudadanía"],
   NOTARY: ["Notaría", "Documentos", "Citas"],
@@ -92,7 +99,11 @@ export default function ProfessionalsDirectory({ professionals }: { professional
 
             return (
               <Link key={professional.slug} href={`/profesionales/${professional.slug}`} className="group block h-full">
-                <Card className="flex h-full flex-col transition duration-200 group-hover:-translate-y-1 group-hover:border-[var(--brand-blue)] group-hover:shadow-[var(--shadow-md)]">
+                <Card className="flex h-full flex-col overflow-hidden transition duration-200 group-hover:-translate-y-1 group-hover:border-[var(--brand-blue)] group-hover:shadow-[var(--shadow-md)]">
+                  <div aria-hidden className={`-mx-6 -mt-6 mb-5 flex h-16 items-center justify-between px-6 text-white ${categoryThemes[professional.category] ?? "bg-[var(--brand-navy)]"}`}>
+                    <span className="text-[10px] font-bold uppercase tracking-[.17em] text-white/90">EVOLUSA · {category?.label ?? "Profesional"}</span>
+                    <span className="text-3xl font-black tracking-tighter text-white/20">EV</span>
+                  </div>
                   <div className="flex flex-wrap items-start gap-2">
                     <span className="inline-flex rounded-[var(--radius-pill)] bg-[var(--sky-surface)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[var(--brand-navy)]">
                       {category?.label ?? "Profesional EVOLUSA"}
