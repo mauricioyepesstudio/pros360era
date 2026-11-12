@@ -59,9 +59,9 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
       await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);
       await db.exec(`set role ${role}`);
     };
-    const submit=(slug:string,uuid:string,consent=true,email="synthetic@example.test")=>db.query<{id:string}>(
+    const submit=(slug:string,uuid:string,consent=true,email="synthetic@example.test",summary="Necesito una nueva identidad de marca para mi empresa.")=>db.query<{id:string}>(
       "select public.submit_professional_inquiry($1,$2::uuid,$3,$4,$5,$6,$7,$8) id",
-      [slug,uuid,"Synthetic Buyer",email,null,"Branding","Necesito una nueva identidad de marca para mi empresa.",consent]
+      [slug,uuid,"Synthetic Buyer",email,null,"Branding",summary,consent]
     );
     await as("authenticated",member);
     // A raw RPC call cannot bypass the server-side feature flag:
@@ -79,11 +79,12 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
     await assert.rejects(submit("demo-notary",key(1),true));
     const first=(await submit("demo-marketing",key(1))).rows[0].id;
     assert.equal((await submit("demo-marketing",key(1))).rows[0].id,first);
+    assert.equal((await submit("demo-marketing",key(9))).rows[0].id,first); // new key, same request
     assert.equal((await db.query("select * from crm_leads")).rows.length,0);
     assert.equal((await db.query("select * from crm_profile_inquiries")).rows.length,0);
-    await submit("demo-marketing",key(2));
-    await submit("demo-marketing",key(3));
-    await assert.rejects(submit("demo-marketing",key(4)));
+    await submit("demo-marketing",key(2),true,"synthetic@example.test","Necesito rediseñar la web de la empresa y mejorar la conversión.");
+    await submit("demo-marketing",key(3),true,"synthetic@example.test","Quiero preparar un calendario de contenido para redes sociales.");
+    await assert.rejects(submit("demo-marketing",key(4),true,"synthetic@example.test","Necesito cotización de una campaña pagada para captar clientes."));
     await as("authenticated",otherPro);
     assert.equal((await db.query("select * from crm_profile_inquiries")).rows.length,0);
     assert.equal((await db.query("select * from crm_leads")).rows.length,0);
