@@ -5,6 +5,7 @@ import { leadNextAction, appendActionOnce } from "@/lib/crm/next-action";
 import PageHeader from "@/components/account/PageHeader";
 import { followupInput, leadStatusLabels } from "@/lib/crm/followup";
 
+interface ProfileInquiry { id:string; service:string; summary:string; consent_at:string; notification_status:string; created_at:string; }
 interface Lead {
   id: string; name: string | null; email: string | null; phone: string | null;
   source: string; status: keyof typeof leadStatusLabels; notes: string | null; updated_at: string;
@@ -13,6 +14,7 @@ export default function LeadFollowup({ id }: { id: string }) {
   const [lead, setLead] = useState<Lead | null>(null);
   const [draft, setDraft] = useState<{ id: string; status: Lead["status"]; notes: string } | null>(null);
   const [error, setError] = useState("");
+  const [profileInquiries, setProfileInquiries] = useState<ProfileInquiry[]>([]);
   const [notice, setNotice] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -24,6 +26,10 @@ export default function LeadFollowup({ id }: { id: string }) {
       if (typeof data.updated_at !== "string" || !(data.status in leadStatusLabels)) throw new Error("No pudimos cargar el prospecto.");
       if (!controller.signal.aborted) { setLead(data); setDraft(previous => previous?.id === data.id ? previous : { id: data.id, status: data.status, notes: data.notes || "" }); setError(""); }
     }).catch(error => { if (!controller.signal.aborted) setError(error.message); });
+    fetch("/api/crm/leads/" + encodeURIComponent(id) + "/inquiries", {signal:controller.signal})
+      .then(async response => response.ok ? await response.json() : {data:[]})
+      .then(payload=>{if(!controller.signal.aborted && Array.isArray(payload.data))setProfileInquiries(payload.data);})
+      .catch(()=>{});
     return () => controller.abort();
   }, [id, attempt]);
   async function save(event: React.FormEvent<HTMLFormElement>) {
@@ -64,6 +70,15 @@ export default function LeadFollowup({ id }: { id: string }) {
     {!lead || lead.id !== id || !draft ? <p>{error ? "Reintenta con Recargar prospecto." : "Cargando prospecto…"}</p> : <form onSubmit={save} className="max-w-xl space-y-5 rounded-xl border border-[var(--border)] bg-white p-6">
       <section aria-label="ARM de tu negocio" className="rounded-lg border border-[var(--brand-blue)] p-4"><h2 className="font-bold">ARM de tu negocio</h2><p className="mt-2 text-sm">Prepara y guarda un borrador con tu perfil, servicios y estado del prospecto. WhatsApp automatico no conectado; no se envian mensajes.</p><button type="button" disabled={saving} onClick={prepareArm} className="mt-3 min-h-11 font-bold text-[var(--brand-blue)]">Preparar seguimiento ARM</button><Link href="/panel-profesional/perfil" className="ml-4 underline">Configurar mi negocio</Link></section>
       {action && <section className="rounded-lg border p-4" aria-label="Próxima acción"><h2 className="font-bold">{action.title}</h2><p className="mt-2">{action.draft}</p><p className="mt-2 text-sm">Propuesta del estado guardado. Revisa y guarda para conservarla. No envía mensajes.</p><button type="button" disabled={saving} className="mt-3 min-h-11 font-bold" onClick={() => { const notes = appendActionOnce(draft.notes, action); if (notes === null) {setError("Reduce las notas antes de agregar la acción."); return;} setDraft({...draft, notes}); }}>Agregar borrador a mis notas</button></section>}
+      {profileInquiries.length > 0 && <section className="rounded-xl border border-[var(--border)] bg-[var(--sky-surface)] p-5" aria-label="Solicitudes recibidas desde perfiles">
+        <h2 className="font-bold text-[var(--brand-navy)]">Solicitudes recibidas desde EvolUSA</h2>
+        <p className="mt-2 text-xs text-[var(--muted)]">Registro de consentimiento y contexto. La recepción no implica que se haya entregado un correo al profesional.</p>
+        <div className="mt-4 space-y-4">{profileInquiries.map(item=><article key={item.id} className="rounded-lg border border-[var(--border)] bg-white p-4 text-sm">
+          <p className="font-bold text-[var(--brand-navy)]">{item.service}</p>
+          <p className="mt-2 whitespace-pre-wrap leading-6">{item.summary}</p>
+          <p className="mt-2 text-xs text-[var(--muted)]">Consentimiento: {new Date(item.consent_at).toLocaleString("es-US")} · Notificación: {item.notification_status === "not_configured"?"No configurada":item.notification_status}</p>
+        </article>)}</div>
+      </section>}
       <dl className="space-y-2"><div><dt>Correo</dt><dd className="break-all font-semibold">{lead.email || "Sin correo"}</dd></div><div><dt>Teléfono</dt><dd>{lead.phone || "Sin teléfono"}</dd></div><div><dt>Fuente</dt><dd>{lead.source}</dd></div></dl>
       <label className="block font-semibold">Estado<select disabled={saving} name="status" value={draft.status} onChange={event => setDraft({ ...draft, status: event.target.value as Lead["status"] })} className="mt-2 block w-full rounded-lg border p-3">{Object.entries(leadStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <label className="block font-semibold">Notas de seguimiento<textarea disabled={saving} name="notes" value={draft.notes} onChange={event => setDraft({ ...draft, notes: event.target.value })} maxLength={2000} rows={6} className="mt-2 block w-full rounded-lg border p-3" /></label>
