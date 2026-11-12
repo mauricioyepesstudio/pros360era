@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, ArrowRight, Bot, Check, CircleAlert, Clock3, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, CircleAlert, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import Footer from "@/sections/home/Footer";
 import { demoProfiles, getDemoProfile } from "@/data/professional/demo-templates";
 import DemoNicheVisual from "@/components/professional/DemoNicheVisual";
+import DemoAgentWorkbench from "@/components/professional/DemoAgentWorkbench";
 type Props={params:Promise<{slug:string}>};
 export async function generateStaticParams(){return demoProfiles.map(p=>({slug:p.slug}));}
 export async function generateMetadata({params}:Props):Promise<Metadata>{const p=getDemoProfile((await params).slug);return {title:p?`Demo ${p.category} | EvolUSA`:"Demo no encontrado",robots:{index:false,follow:false}};}
@@ -45,11 +46,7 @@ export default async function DemoProfessionalPage({params}:Props){
       <div className="flex items-center gap-3"><Bot className="text-[var(--brand-blue)]" size={30}/><p className="text-xs font-bold uppercase tracking-widest text-[var(--brand-blue)]">Agent blueprint</p></div>
       <h2 className="mt-4 max-w-3xl text-3xl font-extrabold text-[var(--brand-navy)] sm:text-4xl">Un agente adaptado al negocio</h2>
       <p className="mt-3 max-w-3xl leading-7 text-[var(--muted)]">Diseño de tareas propuestas, aún no activadas. Cada acción futura debe ejecutarse con autorización, límites por perfil y registro de auditoría.</p>
-      <div className="mt-9 grid gap-5 lg:grid-cols-3">{profile.tasks.map((task,i)=><article key={task.title} className="rounded-3xl border border-[var(--border)] bg-white p-6">
-        <div className="mb-5 flex items-center justify-between"><span className="flex size-10 items-center justify-center rounded-xl bg-[var(--sky-surface)] font-extrabold text-[var(--brand-navy)]">{i+1}</span><span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Propuesto · No activo</span></div>
-        <h3 className="text-lg font-bold text-[var(--brand-navy)]">{task.title}</h3>
-        <div className="mt-5 space-y-4 text-sm leading-6"><p><Clock3 size={16} className="mr-2 inline text-[var(--brand-blue)]"/><b>Disparador:</b> {task.trigger}</p><p><Check size={16} className="mr-2 inline text-[var(--brand-blue)]"/><b>Resultado:</b> {task.result}</p><p><ShieldCheck size={16} className="mr-2 inline text-[var(--brand-blue)]"/><b>Control:</b> {task.approval}</p></div>
-      </article>)}</div>
+      <DemoAgentWorkbench profile={profile}/>
       <div className="mt-9 rounded-3xl border border-[var(--border)] bg-white p-7"><div className="flex items-center gap-3"><Sparkles size={24} className="text-[var(--brand-blue)]"/><h3 className="text-xl font-bold text-[var(--brand-navy)]">Cómo se convertiría en un ARM real</h3></div><p className="mt-3 max-w-4xl leading-7 text-[var(--muted)]">Al conectar un profesional auténtico, los módulos tomarían datos de su catálogo y recibirían solicitudes con consentimiento. El ARM asignaría responsable, próxima acción, estado y seguimiento. Las automatizaciones solo se habilitarían tras configurar permisos, fuentes, seguridad y pruebas. Aquí no se generan clientes ni se envían mensajes.</p></div>
       <Link href="/demo/profesionales" className="mt-8 inline-flex items-center gap-2 font-bold text-[var(--brand-blue)]"><ArrowLeft size={17}/> Volver a las plantillas</Link>
     </div></section>
