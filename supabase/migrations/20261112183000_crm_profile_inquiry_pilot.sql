@@ -115,12 +115,6 @@ begin
     where requester_user_id=v_requester and idempotency_key=p_idempotency_key;
   if found then return v_existing; end if;
 
-  -- Conservative abuse control, regardless of client-side validation.
-  if (select count(*) from public.crm_profile_inquiries
-      where requester_user_id=v_requester and created_at > now() - interval '1 hour') >= 3 then
-    raise exception 'RATE_LIMITED' using errcode='22023';
-  end if;
-
   -- Only approved, accepting, non-regulated profiles in the M1 pilot.
   select pp.id, pp.user_id into v_professional, v_owner
     from public.professional_profiles pp
@@ -134,6 +128,26 @@ begin
       );
   if not found or v_owner=v_requester then
     raise exception 'PROFESSIONAL_UNAVAILABLE' using errcode='22023';
+  end if;
+
+  -- Deduplicate accidental resubmissions even if the browser generates a
+  -- different request key after reload. Serialize by requester and professional.
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(v_requester::text || ':' || v_professional::text, 1)
+  );
+  select id into v_existing from public.crm_profile_inquiries
+    where requester_user_id=v_requester
+      and professional_profile_id=v_professional
+      and lower(service)=lower(v_service)
+      and summary=v_summary
+      and created_at >= now()-interval '15 minutes'
+    order by created_at desc limit 1;
+  if found then return v_existing; end if;
+
+  -- Conservative abuse control after identifying harmless retries.
+  if (select count(*) from public.crm_profile_inquiries
+      where requester_user_id=v_requester and created_at > now() - interval '1 hour') >= 3 then
+    raise exception 'RATE_LIMITED' using errcode='22023';
   end if;
 
   -- Serialize lead creation by (owner,email) to respect the existing unique CRM index.
