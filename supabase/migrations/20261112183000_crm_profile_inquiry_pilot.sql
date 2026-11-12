@@ -122,7 +122,7 @@ begin
   if v_lead is null then
     insert into public.crm_leads (user_id, source, source_url, name, email, phone, status)
       values (v_owner,'website',
-        'https://evolusa.vercel.app/profesionales/' || p_professional_slug,
+        'https://evolusa.us/profesionales/' || p_professional_slug,
         v_name,v_email,v_phone,'new')
       returning id into v_lead;
   end if;
