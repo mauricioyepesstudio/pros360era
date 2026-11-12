@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { cleanLocationId, cleanToken, ghlContactFromLead, GHL_VERSION, normalizePhone, upsertGhlContact, verifyGhlCredentials, type GhlLead } from "../lib/crm/gohighlevel.ts";
 import { decryptToken, encryptToken } from "../lib/social/crypto.ts";
-import { isPrivateProfileInquiry } from "../lib/crm/gohighlevel-sync.ts";
+import { isPrivateProfileInquiry } from "../lib/crm/profile-inquiry-export-policy.ts";
 
 const lead: GhlLead = { id: "l1", name: "Ana María López", email: " Ana@Example.com ", phone: "(305) 555-0123", whatsapp: null, source: "website", source_url: "https://evolusa.vercel.app/p/ana", notes: "Quiere una cita" };
 const creds = { locationId: "AbC123xyz789", token: "pit-00000000-0000-0000-0000-000000000000" };
