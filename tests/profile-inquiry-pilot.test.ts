@@ -53,7 +53,13 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
     await db.query("insert into professional_profiles values($1,$2,$3,true,true,$4)",
       [notaryId,otherPro,"demo-notary","NOTARY"]);
     await db.exec(readFileSync(new URL("../supabase/migrations/20261006184204_crm_manual_capture_v1.sql",import.meta.url),"utf8"));
+    await db.exec(`create table public.professional_verifications (
+      id uuid primary key default gen_random_uuid(),
+      professional_profile_id uuid not null references public.professional_profiles(id),
+      verification_type text not null, status text not null
+    );`);
     await db.exec(readFileSync(new URL("../supabase/migrations/20261112183000_crm_profile_inquiry_pilot.sql",import.meta.url),"utf8"));
+    await db.exec(readFileSync(new URL("../supabase/migrations/20261112210000_laura_marie_inquiry_gate.sql",import.meta.url),"utf8"));
     const as=async(role:string,id:string)=>{
       await db.exec("reset role");
       await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);
@@ -74,6 +80,13 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
     await assert.rejects(submit("demo-marketing",key(1))); // enabled but not allowlisted
     await db.exec("reset role");
     await db.query("insert into crm_inquiry_pilot_profiles(professional_profile_id) values($1)",[marketingId]);
+    // Additional protected categories: a generic notary/doc-support profile
+    // must remain blocked even when it is on an allowlist.
+    await db.exec("reset role");
+    await db.query("insert into crm_inquiry_pilot_profiles(professional_profile_id) values($1)",[notaryId]);
+    await as("authenticated",member);
+    await assert.rejects(submit("demo-notary",key(33)));
+
     await as("authenticated",member);
     await assert.rejects(submit("demo-marketing",key(1),false));
     await assert.rejects(submit("demo-notary",key(1),true));
@@ -96,9 +109,30 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
     await as("authenticated",secondMember);
     assert.equal((await db.query("select * from crm_leads")).rows.length,0);
     assert.equal((await db.query("select * from crm_profile_inquiries")).rows.length,0);
+    // Explicit named pilot professionals are allowed, but notary commission
+    // verification must exist and be VERIFIED in the authoritative table.
+    await db.exec("reset role");
+    await db.query("insert into professional_profiles values($1,$2,$3,true,true,$4)",[
+      "00000000-0000-4000-8000-000000000017",owner,"1migration-b2bfe2","IMMIGRATION_DOCUMENT_SUPPORT"]);
+    await db.query("insert into professional_profiles values($1,$2,$3,true,true,$4)",[
+      "00000000-0000-4000-8000-000000000018",otherPro,"marie-fernandez-efff0e","NOTARY"]);
+    await db.query("insert into crm_inquiry_pilot_profiles(professional_profile_id) values($1),($2)",[
+      "00000000-0000-4000-8000-000000000017","00000000-0000-4000-8000-000000000018"]);
+    await as("authenticated",secondMember);
+    await assert.rejects(submit("marie-fernandez-efff0e",key(40),true,"testnotary@example.test"));
+    await db.exec("reset role");
+    await db.query("insert into professional_verifications(professional_profile_id,verification_type,status) values($1,$2,$3)",[
+      "00000000-0000-4000-8000-000000000018","NOTARY_COMMISSION_VERIFIED","VERIFIED"]);
+    await as("authenticated",secondMember);
+    assert.ok((await submit("marie-fernandez-efff0e",key(41),true,"testnotary@example.test")).rows[0].id);
+    assert.ok((await submit("1migration-b2bfe2",key(42),true,"testdocuments@example.test")).rows[0].id);
+    await as("authenticated",otherPro);
+    assert.equal((await db.query("select * from crm_profile_inquiries where professional_user_id=$1",[otherPro])).rows.length,1);
+    await as("authenticated",owner);
+    assert.equal((await db.query("select * from crm_profile_inquiries where professional_user_id=$1",[owner])).rows.length,4);
     await as("anon","");
     await assert.rejects(submit("demo-marketing",key(9)));
     await db.exec("reset role");
-    assert.equal((await db.query<{n:number}>("select count(*)::int n from crm_profile_inquiries")).rows[0].n,3);
+    assert.equal((await db.query<{n:number}>("select count(*)::int n from crm_profile_inquiries")).rows[0].n,5);
   } finally { await db.close(); }
 });
