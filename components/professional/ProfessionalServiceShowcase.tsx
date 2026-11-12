@@ -27,7 +27,7 @@ const offerings: Record<string, Offering[]> = {
     { title: "Marketing y seguimiento", detail: "Explora contenido, campañas y procesos comerciales.", icon: Megaphone },
   ],
 };
-export default function ProfessionalServiceShowcase({ professional }: { professional: ProfessionalProfilePublic }) {
+export default function ProfessionalServiceShowcase({ professional, capturePilotEnabled = false }: { professional: ProfessionalProfilePublic; capturePilotEnabled?: boolean }) {
   const items = offerings[professional.category] ?? [];
   if (!items.length) return null;
   const social = safeSocialLinks(professional.socialLinks);
@@ -57,9 +57,9 @@ export default function ProfessionalServiceShowcase({ professional }: { professi
             </article>;
           })}
         </div>
-        {professional.isAcceptingClients && canSubmitOpportunity && <div className="mt-7 rounded-2xl border border-[var(--border)] bg-white p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
-          <div><h3 className="font-bold text-[var(--brand-navy)]">¿Quieres registrar una solicitud en EvolUSA?</h3><p className="mt-1 text-sm leading-6 text-[var(--muted)]">Inicia sesión, describe tu necesidad y autoriza compartir tus datos antes de recibir una conexión compatible. No garantiza asignación a este perfil.</p></div>
-          <Link href="/conexiones/nueva" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-sm font-bold text-white sm:mt-0">Registrar solicitud <ArrowRight aria-hidden size={16}/></Link>
+        {capturePilotEnabled && professional.isAcceptingClients && canSubmitOpportunity && <div className="mt-7 rounded-2xl border border-[var(--border)] bg-white p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+          <div><h3 className="font-bold text-[var(--brand-navy)]">¿Quieres registrar una solicitud en EvolUSA?</h3><p className="mt-1 text-sm leading-6 text-[var(--muted)]">Inicia sesión, describe tu necesidad y autoriza compartir tus datos solo con este profesional. Piloto restringido, sin notificaciones automáticas.</p></div>
+          <Link href={`/conexiones/solicitar/${professional.slug}`} className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-sm font-bold text-white sm:mt-0">Registrar solicitud <ArrowRight aria-hidden size={16}/></Link>
         </div>}
         {professional.category === "IMMIGRATION_DOCUMENT_SUPPORT" && <p className="mt-6 text-sm leading-6 text-[var(--muted)]">Se ofrece únicamente apoyo de preparación documental; no constituye asesoría legal ni representación ante autoridades migratorias.</p>}
       </div>
