@@ -4,6 +4,7 @@ import { ArrowRight, Bot, BriefcaseBusiness, CircleAlert, FileCheck2, House, Meg
 import SiteHeader from "@/components/layout/SiteHeader";
 import Footer from "@/sections/home/Footer";
 import { demoProfiles } from "@/data/professional/demo-templates";
+import DemoNicheVisual from "@/components/professional/DemoNicheVisual";
 export const metadata: Metadata = { title: "Laboratorio de perfiles | EvolUSA", description: "Demostraciones ficticias de perfiles comerciales y agentes por categoría. No son profesionales activos." };
 const icons = { house:House, file:FileCheck2, stamp:Stamp, chart:ChartColumnIncreasing, megaphone:Megaphone, calculator:Calculator, shield:Shield, hammer:Wrench };
 export default function DemoProfilesPage() {
@@ -16,11 +17,13 @@ export default function DemoProfilesPage() {
       <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {demoProfiles.map((profile) => {
           const Icon=icons[profile.icon];
-          return <Link href={`/demo/profesionales/${profile.slug}`} key={profile.slug} className="group flex flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl">
-            <div className={`relative flex h-48 items-center justify-between overflow-hidden bg-gradient-to-br p-7 text-white ${profile.accent}`}>
-              <span className="absolute right-0 top-0 translate-x-8 -translate-y-7 text-[11rem] font-black opacity-10" aria-hidden>EV</span>
-              <span className="relative rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider">Demo · {profile.category}</span>
-              <Icon className="relative shrink-0" size={54} strokeWidth={1.3} aria-hidden/>
+          return <Link href={`/demo/profesionales/${profile.slug}`} key={profile.slug} className="group flex flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[var(--brand-blue)] hover:shadow-xl">
+            <div className={`relative bg-gradient-to-br p-5 ${profile.accent}`}>
+              <div className="mb-4 flex items-center justify-between gap-2 text-white">
+                <span className="rounded-full border border-white/30 bg-black/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">Template de muestra</span>
+                <Icon size={24} strokeWidth={1.5} aria-hidden/>
+              </div>
+              <DemoNicheVisual profile={profile} compact/>
             </div>
             <div className="flex flex-1 flex-col p-7">
               <h2 className="text-2xl font-extrabold text-[var(--brand-navy)]">{profile.title}</h2>
