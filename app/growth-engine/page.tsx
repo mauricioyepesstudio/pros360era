@@ -117,7 +117,7 @@ export default function GrowthEnginePage() {
                         </a>
                       )}
                       {market.partnerStatus === "pilot" && (
-                        <Link href="/servicios-miami" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold underline underline-offset-4">
+                        <Link href={`/servicios-miami#sector-${market.id}`} className="inline-flex min-h-11 items-center gap-1 text-sm font-bold underline underline-offset-4">
                           Ver profesionales
                         </Link>
                       )}

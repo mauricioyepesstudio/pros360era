@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 const featured = [
   {
+    sector: "immigration",
     slug: "1migration-b2bfe2",
     fallbackName: "1MIGRATION",
     label: "Apoyo documental migratorio",
@@ -28,6 +29,7 @@ const featured = [
     icon: FileText,
   },
   {
+    sector: "notary",
     slug: "marie-fernandez-efff0e",
     fallbackName: "Marie Fernandez",
     label: "Servicios notariales",
@@ -35,6 +37,7 @@ const featured = [
     icon: Stamp,
   },
   {
+    sector: "finance",
     slug: "jose-miguel-acosta-34c676",
     fallbackName: "José Miguel Acosta",
     label: "Análisis financiero y operaciones",
@@ -42,6 +45,7 @@ const featured = [
     icon: Landmark,
   },
   {
+    sector: "marketing",
     slug: "mauricio-yepes-b96cae",
     fallbackName: "Mauricio Yepes Lotero",
     label: "Marketing, branding y digital",
@@ -78,13 +82,13 @@ export default async function ServiciosMiamiPage() {
             <h2 id="services-title" className="text-3xl font-bold sm:text-4xl">Cuatro áreas para avanzar.</h2>
             <p className="mt-4 max-w-2xl text-[var(--muted)]">Conoce el perfil antes de comunicarte. La disponibilidad es individual y puede cambiar.</p>
             <div className="mt-9 grid gap-5 md:grid-cols-2">
-              {featured.map(({ slug, fallbackName, label, description, icon: Icon }) => {
+              {featured.map(({ sector, slug, fallbackName, label, description, icon: Icon }) => {
                 const profile = profiles.get(slug);
                 // A preview environment may not have Supabase read access. Show an
                 // explicitly unverified public-profile link instead of an empty page.
                 const active = profile?.isAcceptingClients === true;
                 return (
-                  <article key={slug} className="flex flex-col rounded-xl border border-[var(--border)] bg-white p-7">
+                  <article key={slug} id={`sector-${sector}`} className="flex scroll-mt-28 flex-col rounded-xl border border-[var(--border)] bg-white p-7">
                     <div className="flex items-start justify-between gap-3">
                       <Icon size={30} className="text-[var(--brand-red)]" aria-hidden="true"/>
                       <span className={`rounded-full px-3 py-1 text-xs font-bold ${active ? "bg-[#e7f6ec] text-[#1d6b3a]" : "bg-[#f0f1f3] text-[#515968]"}`}>
