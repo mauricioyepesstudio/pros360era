@@ -36,6 +36,7 @@ export async function submitProfileInquiryAction(input: ProfileInquiryInput): Pr
   if (error) {
     // No raw SQL messages or PII to the browser/logs.
     const code = String(error.message ?? "");
+    if (code.includes("PILOT_DISABLED")) return { saved: false, reason: "DISABLED" };
     if (code.includes("RATE_LIMITED")) return { saved: false, reason: "RATE_LIMITED" };
     if (code.includes("PROFESSIONAL_UNAVAILABLE") || code.includes("MEMBER_REQUIRED")) return { saved: false, reason: "UNAVAILABLE" };
     return { saved: false, reason: "SERVER_ERROR" };
