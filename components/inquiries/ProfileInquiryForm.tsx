@@ -20,10 +20,10 @@ export default function ProfileInquiryForm({ slug, professionalName }: { slug:st
   const [result, setResult] = useState<{receiptId?:string;error?:string}|null>(null);
   function submit(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if(pending || result?.receiptId) return;
+    if(pending || result?.receiptId || !form.consent) return;
     idempotencyKey.current ??= crypto.randomUUID();
     startTransition(async()=>{
-      const response = await submitProfileInquiryAction({...form, slug, idempotencyKey:idempotencyKey.current!});
+      const response = await submitProfileInquiryAction({...form, consent: true as const, slug, idempotencyKey:idempotencyKey.current!});
       if(response.saved) setResult({receiptId:response.receiptId});
       else setResult({error:friendlyErrors[response.reason]});
     });
