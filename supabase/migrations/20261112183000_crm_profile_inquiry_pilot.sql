@@ -3,6 +3,22 @@
 -- Applies to current EVOLUSA CRM schema. No Resource Living data, no automatic messages.
 begin;
 
+-- Database-level kill switch. The UI feature flag is not an authorization boundary.
+-- A privileged operator must explicitly enable the pilot AND allowlist each
+-- professional before any authenticated member can call the RPC.
+create table public.crm_inquiry_pilot_settings (
+  id smallint primary key default 1 check (id=1),
+  enabled boolean not null default false
+);
+create table public.crm_inquiry_pilot_profiles (
+  professional_profile_id uuid primary key references public.professional_profiles(id)
+);
+alter table public.crm_inquiry_pilot_settings enable row level security;
+alter table public.crm_inquiry_pilot_profiles enable row level security;
+revoke all on public.crm_inquiry_pilot_settings, public.crm_inquiry_pilot_profiles
+  from public, anon, authenticated;
+-- No policies or grants. A privileged operator controls these tables.
+
 create table public.crm_profile_inquiries (
   id uuid primary key default gen_random_uuid(),
   lead_id uuid not null references public.crm_leads(id) on delete cascade,
@@ -69,6 +85,9 @@ begin
      coalesce((auth.jwt()->>'is_anonymous')::boolean,false) then
     raise exception 'AUTH_REQUIRED' using errcode='28000';
   end if;
+  if not coalesce((select enabled from public.crm_inquiry_pilot_settings where id=1),false) then
+    raise exception 'PILOT_DISABLED' using errcode='42501';
+  end if;
   if not exists (
     select 1 from public.profiles where id=v_requester and role='MEMBER'
   ) then
@@ -108,7 +127,11 @@ begin
     join public.profiles pr on pr.id=pp.user_id and pr.role in ('PROFESSIONAL','ADMIN')
     where pp.slug=p_professional_slug
       and pp.is_approved=true and pp.is_accepting_clients=true
-      and pp.category in ('BUSINESS_MARKETING','BUSINESS_OPERATIONS');
+      and pp.category in ('BUSINESS_MARKETING','BUSINESS_OPERATIONS')
+      and exists (
+        select 1 from public.crm_inquiry_pilot_profiles ap
+        where ap.professional_profile_id = pp.id
+      );
   if not found or v_owner=v_requester then
     raise exception 'PROFESSIONAL_UNAVAILABLE' using errcode='22023';
   end if;
