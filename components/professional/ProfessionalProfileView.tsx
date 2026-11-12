@@ -145,12 +145,19 @@ export default function ProfessionalProfileView({
                 <div className="mt-6 max-w-xl rounded-[var(--radius-lg)] border border-white/25 bg-white/10 p-5">
                   <p className="text-base font-bold text-white">¿Necesitas este tipo de servicio?</p>
                   <p className="mt-2 text-sm leading-6 text-white/80">
-                    Registra tu solicitud en EVOLUSA. Te ayudaremos a encontrar una opción compatible
-                    según la especialidad, tu ubicación y la disponibilidad. La solicitud no garantiza
-                    una asignación directa a este profesional.
+                    {capturePilotEnabled && (professional.category === "BUSINESS_MARKETING" || professional.category === "BUSINESS_OPERATIONS")
+                      ? "Envía una solicitud a este profesional. Te mostraremos el destinatario exacto antes de compartir los datos."
+                      : "Registra tu solicitud en EVOLUSA para buscar una opción compatible. No garantiza asignación directa a este profesional."}
                   </p>
-                  <ButtonLink href="/conexiones/nueva" className="mt-4">
-                    Solicitar servicio en EVOLUSA
+                  <ButtonLink
+                    href={capturePilotEnabled && (professional.category === "BUSINESS_MARKETING" || professional.category === "BUSINESS_OPERATIONS")
+                      ? `/conexiones/solicitar/${professional.slug}`
+                      : "/conexiones/nueva"}
+                    className="mt-4"
+                  >
+                    {capturePilotEnabled && (professional.category === "BUSINESS_MARKETING" || professional.category === "BUSINESS_OPERATIONS")
+                      ? "Solicitar información a este profesional"
+                      : "Solicitar servicio en EVOLUSA"}
                   </ButtonLink>
                 </div>
               )}
