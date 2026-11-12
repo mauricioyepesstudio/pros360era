@@ -141,11 +141,11 @@ export default function ProfessionalProfileView({
                 {professional.isAcceptingClients ? "Aceptando nuevos clientes" : "No está aceptando nuevos clientes por ahora"}
               </p>
 
-              {category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && (
+              {(category?.group === "SERVICE_BUSINESS" || ["1migration-b2bfe2", "marie-fernandez-efff0e"].includes(professional.slug)) && professional.isAcceptingClients && (
                 <div className="mt-6 max-w-xl rounded-[var(--radius-lg)] border border-white/25 bg-white/10 p-5">
                   <p className="text-base font-bold text-white">¿Necesitas este tipo de servicio?</p>
                   <p className="mt-2 text-sm leading-6 text-white/80">
-                    {capturePilotEnabled && (professional.category === "BUSINESS_MARKETING" || professional.category === "BUSINESS_OPERATIONS")
+                    {capturePilotEnabled && ["mauricio-yepes-b96cae", "jose-miguel-acosta-34c676", "1migration-b2bfe2", "marie-fernandez-efff0e"].includes(professional.slug)
                       ? "Envía una solicitud a este profesional. Te mostraremos el destinatario exacto antes de compartir los datos."
                       : "Registra tu solicitud en EVOLUSA para buscar una opción compatible. No garantiza asignación directa a este profesional."}
                   </p>

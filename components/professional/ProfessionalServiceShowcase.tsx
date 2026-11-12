@@ -33,7 +33,7 @@ export default function ProfessionalServiceShowcase({ professional, capturePilot
   const social = safeSocialLinks(professional.socialLinks);
   const website = safeHttpUrl(professional.websiteUrl);
   const contact = professional.isAcceptingClients ? (social.whatsapp || website) : null;
-  const canSubmitOpportunity = professional.category === "BUSINESS_OPERATIONS" || professional.category === "BUSINESS_MARKETING";
+  const canSubmitOpportunity = ["mauricio-yepes-b96cae", "jose-miguel-acosta-34c676", "1migration-b2bfe2", "marie-fernandez-efff0e"].includes(professional.slug);
   return (
     <section aria-labelledby="professional-showcase" className="bg-[var(--surface-subtle)] py-14 sm:py-20">
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">

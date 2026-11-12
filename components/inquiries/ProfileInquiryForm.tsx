@@ -50,11 +50,11 @@ export default function ProfileInquiryForm({ slug, professionalName }: { slug:st
         <input type="tel" maxLength={50} autoComplete="tel" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} className="mt-2 w-full rounded-xl border border-[var(--border)] p-3 font-normal" placeholder="Número de contacto"/>
       </label>
       <label className="text-sm font-semibold text-[var(--brand-navy)]">Servicio que necesitas
-        <input required minLength={3} maxLength={120} value={form.service} onChange={e=>setForm({...form,service:e.target.value})} className="mt-2 w-full rounded-xl border border-[var(--border)] p-3 font-normal" placeholder="Ej. Branding o análisis financiero"/>
+        <input required minLength={3} maxLength={120} value={form.service} onChange={e=>setForm({...form,service:e.target.value})} className="mt-2 w-full rounded-xl border border-[var(--border)] p-3 font-normal" placeholder="Ej. Consulta documental o cita notarial"/>
       </label>
     </div>
     <label className="text-sm font-semibold text-[var(--brand-navy)]">Cuéntanos brevemente tu proyecto
-      <textarea required minLength={10} maxLength={1000} rows={4} value={form.summary} onChange={e=>setForm({...form,summary:e.target.value})} className="mt-2 w-full resize-y rounded-xl border border-[var(--border)] p-3 font-normal" placeholder="¿Qué necesitas y qué esperas conseguir? No incluyas documentos personales, datos bancarios ni información sensible." />
+      <textarea required minLength={10} maxLength={1000} rows={4} value={form.summary} onChange={e=>setForm({...form,summary:e.target.value})} className="mt-2 w-full resize-y rounded-xl border border-[var(--border)] p-3 font-normal" placeholder="Describe el servicio sin compartir números de expediente, estatus migratorio, información médica, documentos de identidad ni otros datos sensibles." />
     </label>
     <label className="flex items-start gap-3 rounded-xl bg-[var(--sky-surface)] p-4 text-sm leading-6 text-[var(--brand-navy)]">
       <input required type="checkbox" checked={form.consent} onChange={e=>setForm({...form,consent:e.target.checked})} className="mt-1 size-4 shrink-0"/>
