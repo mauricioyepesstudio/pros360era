@@ -81,8 +81,25 @@ export async function syncGhlConnection(service: SupabaseClient, tokenKey: Buffe
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) throw new Error("ghl_storage_unavailable");
+  // Profile inquiries consent to delivery within the selected professional's
+  // EVOLUSA ARM only. A GoHighLevel connection is a separate data recipient.
+  // Never sync those leads to GHL without a separately recorded authorization.
+  const isPrivateProfileInquiry = (lead: GhlLead) => {
+    if (!lead.source_url) return false;
+    try {
+      const url = new URL(lead.source_url);
+      return (
+        (url.hostname === "evolusa.us" || url.hostname === "www.evolusa.us" ||
+         url.hostname === "evolusa.vercel.app") &&
+        url.pathname.startsWith("/profesionales/")
+      );
+    } catch {
+      return false;
+    }
+  };
+
   // The 200 most recent leads, oldest of them first.
-  const pending = ((leads ?? []) as GhlLead[]).filter((lead) => !skip.has(lead.id)).reverse().slice(0, GHL_BATCH);
+  const pending = ((leads ?? []) as GhlLead[]).filter((lead) => !skip.has(lead.id) && !isPrivateProfileInquiry(lead)).reverse().slice(0, GHL_BATCH);
 
   for (const lead of pending) {
     const upsert = await upsertGhlContact(creds, lead, fetchImpl);
