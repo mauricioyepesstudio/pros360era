@@ -11,6 +11,13 @@ import type { ProfessionalProfilePublic } from "@/data/professional/types";
 import { safeHttpUrl } from "@/lib/professional/links";
 import ProfessionalPhoto from "@/components/professional/ProfessionalPhoto";
 
+const categoryHighlights: Record<string, string[]> = {
+  IMMIGRATION_DOCUMENT_SUPPORT: ["Residencia", "Asilo", "Ciudadanía"],
+  NOTARY: ["Notaría", "Documentos", "Citas"],
+  BUSINESS_OPERATIONS: ["Finanzas", "Proyecciones", "Operaciones"],
+  BUSINESS_MARKETING: ["Branding", "Web", "Marketing"],
+};
+
 const languageLabels: Record<string, string> = {
   es: "Español",
   en: "Inglés",
@@ -93,7 +100,7 @@ export default function ProfessionalsDirectory({ professionals }: { professional
                     <VerifiedBadge verified={professional.identityVerified} />
                   </div>
                   <div className="mt-5 flex items-center gap-4">
-                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-[var(--sky-surface)]"><ProfessionalPhoto src={photoUrl} name={professional.displayName} className="h-full w-full object-cover" /></div>
+                    <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-[var(--sky-surface)]"><ProfessionalPhoto src={photoUrl} name={professional.displayName} className="h-full w-full object-cover" /></div>
                     <h2 className="text-xl font-bold text-[var(--brand-navy)] group-hover:text-[var(--brand-blue)]">
                       {professional.displayName}
                     </h2>
@@ -116,6 +123,11 @@ export default function ProfessionalsDirectory({ professionals }: { professional
                   {!professional.isAcceptingClients && (
                     <p className="mt-4 text-xs font-semibold text-[var(--muted)]">No está aceptando nuevos clientes por ahora</p>
                   )}
+                  <div className="mt-5 flex flex-wrap gap-2" aria-label="Áreas de servicio">
+                    {(categoryHighlights[professional.category] ?? []).map((item) => (
+                      <span key={item} className="rounded-full border border-[var(--border)] bg-[var(--sky-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-navy)]">{item}</span>
+                    ))}
+                  </div>
                   <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-5"><span className="text-sm font-bold text-[var(--brand-blue)]">{professional.isAcceptingClients ? "Conocer servicios y contactar" : "Explorar perfil profesional"}</span><ArrowUpRight aria-hidden size={19} className="text-[var(--brand-blue)]" /></div>
                 </Card>
               </Link>
