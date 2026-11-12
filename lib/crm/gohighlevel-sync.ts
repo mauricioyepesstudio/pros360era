@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decryptToken, encryptToken } from "@/lib/social/crypto";
+import { isPrivateProfileInquiry } from "@/lib/crm/profile-inquiry-export-policy";
 import { addGhlNote, upsertGhlContact, type GhlCredentials, type GhlLead } from "@/lib/crm/gohighlevel";
 
 /**
@@ -81,8 +82,13 @@ export async function syncGhlConnection(service: SupabaseClient, tokenKey: Buffe
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) throw new Error("ghl_storage_unavailable");
+  // Profile inquiries consent to delivery within the selected professional's
+  // EVOLUSA ARM only. A GoHighLevel connection is a separate data recipient.
+  // Never sync those leads to GHL without a separately recorded authorization.
+
+
   // The 200 most recent leads, oldest of them first.
-  const pending = ((leads ?? []) as GhlLead[]).filter((lead) => !skip.has(lead.id)).reverse().slice(0, GHL_BATCH);
+  const pending = ((leads ?? []) as GhlLead[]).filter((lead) => !skip.has(lead.id) && !isPrivateProfileInquiry(lead)).reverse().slice(0, GHL_BATCH);
 
   for (const lead of pending) {
     const upsert = await upsertGhlContact(creds, lead, fetchImpl);
