@@ -72,6 +72,13 @@ export default function ProfessionalProfileView({
   const socialLinks = safeSocialLinks(professional.socialLinks);
   const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
   const directContact = professional.isAcceptingClients ? (socialLinks.whatsapp || websiteHref || mailtoHref) : null;
+  const heroTheme = professional.category === "IMMIGRATION_DOCUMENT_SUPPORT"
+    ? "bg-gradient-to-br from-sky-950 via-blue-950 to-sky-800"
+    : professional.category === "NOTARY"
+      ? "bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950"
+      : professional.category === "BUSINESS_OPERATIONS"
+        ? "bg-gradient-to-br from-emerald-950 via-slate-950 to-teal-900"
+        : "bg-gradient-to-br from-indigo-950 via-slate-950 to-violet-950";
   const externalLinks = [
     category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && socialLinks.whatsapp ? { href: socialLinks.whatsapp, label: "Contactar por WhatsApp", icon: Link2 } : null,
     websiteHref ? { href: websiteHref, label: "Sitio web", icon: Globe } : null,
@@ -84,7 +91,9 @@ export default function ProfessionalProfileView({
 
   return (
     <main className="bg-[var(--background)] text-[var(--foreground)]">
-      <section className="relative bg-[var(--brand-navy)] pb-16 pt-32 sm:pt-40">
+      <section className={cn("relative overflow-hidden pb-20 pt-32 sm:pt-40", heroTheme)}>
+        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full border-[70px] border-white/5" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-36 left-1/3 size-96 rounded-full bg-white/5 blur-3xl" />
         <Container className="relative">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
             <span
