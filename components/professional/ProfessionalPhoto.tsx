@@ -9,7 +9,7 @@ export default function ProfessionalPhoto({ src, name, className = "" }: { src: 
   const initials = name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join("").toUpperCase() || "EV";
   return src && !failed ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={name} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} className={className} style={{ objectFit: "contain", objectPosition: "center top" }} />
+    <img src={src} alt={name} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} className={className} style={{ objectFit: /evolusa/i.test(name) && name.trim().toUpperCase() === "EVOLUSA" ? "contain" : "cover", objectPosition: /evolusa/i.test(name) && name.trim().toUpperCase() === "EVOLUSA" ? "center center" : "center 12%" }} />
   ) : (
     <span role="img" aria-label={name} className="flex h-full w-full items-center justify-center bg-[var(--sky-surface)] text-xl font-bold text-[var(--brand-navy)]">{initials}</span>
   );
