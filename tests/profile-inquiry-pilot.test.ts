@@ -87,6 +87,6 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
     await as("anon","");
     await assert.rejects(submit("demo-marketing",key(9)));
     await db.exec("reset role");
-    assert.equal((await db.query("select count(*)::int n from crm_profile_inquiries")).rows[0].n,3);
+    assert.equal((await db.query<{n:number}>("select count(*)::int n from crm_profile_inquiries")).rows[0].n,3);
   } finally { await db.close(); }
 });
