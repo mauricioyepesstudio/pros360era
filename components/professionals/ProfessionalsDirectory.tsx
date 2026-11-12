@@ -8,6 +8,7 @@ import VerifiedBadge from "@/components/professional/VerifiedBadge";
 import { getProfessionalCategory, professionalCategories } from "@/data/professional/categories";
 import { getStagesForProfessionalCategory, journeyStageOptions } from "@/data/professional/stage-mapping";
 import type { ProfessionalProfilePublic } from "@/data/professional/types";
+import { safeHttpUrl } from "@/lib/professional/links";
 
 const languageLabels: Record<string, string> = {
   es: "Español",
@@ -79,6 +80,8 @@ export default function ProfessionalsDirectory({ professionals }: { professional
             const category = getProfessionalCategory(professional.category);
             const location = [professional.city, professional.state].filter(Boolean).join(", ");
             const languages = professional.languages.map((code) => languageLabels[code] ?? code.toUpperCase());
+            const photoUrl = safeHttpUrl(professional.photoUrl);
+            const initials = professional.displayName.trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase();
 
             return (
               <Link key={professional.slug} href={`/profesionales/${professional.slug}`} className="group block h-full">
@@ -89,9 +92,19 @@ export default function ProfessionalsDirectory({ professionals }: { professional
                     </span>
                     <VerifiedBadge verified={professional.identityVerified} />
                   </div>
-                  <h2 className="mt-4 text-xl font-bold text-[var(--brand-navy)] group-hover:text-[var(--brand-blue)]">
-                    {professional.displayName}
-                  </h2>
+                  <div className="mt-5 flex items-center gap-4">
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[var(--sky-surface)] text-xl font-bold text-[var(--brand-navy)]" aria-label={`Foto de ${professional.displayName}`}>
+                      {photoUrl ? (
+                        /* Profile photos may be hosted on the professional’s own website or social CDN. */
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={photoUrl} alt={professional.displayName} loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.querySelector("[data-photo-fallback]")?.removeAttribute("hidden"); }} />
+                      ) : null}
+                      <span data-photo-fallback hidden={Boolean(photoUrl)} aria-hidden="true">{initials || "EV"}</span>
+                    </div>
+                    <h2 className="text-xl font-bold text-[var(--brand-navy)] group-hover:text-[var(--brand-blue)]">
+                      {professional.displayName}
+                    </h2>
+                  </div>
                   {professional.headline && <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{professional.headline}</p>}
                   <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--muted)]">
                     {location && (
