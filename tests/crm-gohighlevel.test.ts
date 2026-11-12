@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { cleanLocationId, cleanToken, ghlContactFromLead, GHL_VERSION, normalizePhone, upsertGhlContact, verifyGhlCredentials, type GhlLead } from "../lib/crm/gohighlevel.ts";
 import { decryptToken, encryptToken } from "../lib/social/crypto.ts";
+import { isPrivateProfileInquiry } from "../lib/crm/gohighlevel-sync.ts";
 
 const lead: GhlLead = { id: "l1", name: "Ana María López", email: " Ana@Example.com ", phone: "(305) 555-0123", whatsapp: null, source: "website", source_url: "https://evolusa.vercel.app/p/ana", notes: "Quiere una cita" };
 const creds = { locationId: "AbC123xyz789", token: "pit-00000000-0000-0000-0000-000000000000" };
@@ -101,4 +102,18 @@ test("migration keeps the token away from clients", () => {
   assert.ok(!grant[1].includes("token_ciphertext"));
   assert.doesNotMatch(sql, /grant (insert|update)[^;]*crm_ghl/);
   assert.doesNotMatch(sql, /^grant[^;]*\bto anon\b/m);
+});
+
+test("direct profile inquiries must never be copied to GoHighLevel without separate consent", () => {
+  for (const url of [
+    "https://evolusa.us/profesionales/mauricio-yepes-b96cae",
+    "https://www.evolusa.us/profesionales/mauricio-yepes-b96cae",
+    "https://evolusa.vercel.app/profesionales/jose-miguel-acosta-34c676",
+  ]) assert.equal(isPrivateProfileInquiry({ ...lead, source_url: url }), true, url);
+  for (const url of [
+    "https://evolusa.us/p/ana",
+    "https://external.example/profesionales/mauricio",
+    "https://evolusa.us.example.com/profesionales/mauricio",
+    null,
+  ]) assert.equal(isPrivateProfileInquiry({ ...lead, source_url: url }), false, String(url));
 });
