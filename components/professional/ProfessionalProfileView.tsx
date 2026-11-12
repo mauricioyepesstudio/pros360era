@@ -1,4 +1,5 @@
 import ProfessionalPhoto from "@/components/professional/ProfessionalPhoto";
+import ProfessionalServiceShowcase from "@/components/professional/ProfessionalServiceShowcase";
 import ProfessionalCareerView from "@/components/professional/ProfessionalCareerView";
 import { Building2, CalendarClock, ExternalLink, Globe, Link2, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -11,7 +12,7 @@ import { socialLinkPlatformLabels, socialLinkPlatforms, type ConsultationMode, t
 import { cn } from "@/lib/cn";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
 import { safeHttpUrl, safeSocialLinks } from "@/lib/professional/links";
-import { hasCareerContent, parseCareer } from "@/lib/professional/career";
+import { hasCareerContent } from "@/lib/professional/career";
 
 export type ProfessionalWorkSample = {
   title: string;
@@ -70,9 +71,7 @@ export default function ProfessionalProfileView({
   const websiteHref = safeHttpUrl(professional.websiteUrl);
   const socialLinks = safeSocialLinks(professional.socialLinks);
   const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
-  const expertise = parseCareer(professional.bio).skills.split(/[,;\n]/).map(s => s.trim()).filter(s => s.length > 4 && s.length < 90).slice(0, 6);
   const directContact = professional.isAcceptingClients ? (socialLinks.whatsapp || websiteHref || mailtoHref) : null;
-  const intro = professional.category === "IMMIGRATION_DOCUMENT_SUPPORT" ? "Apoyo para organizar tu documentación" : professional.category === "NOTARY" ? "Servicios notariales según tu necesidad" : professional.category === "BUSINESS_OPERATIONS" ? "Finanzas y operaciones con más claridad" : "Haz crecer tu negocio con apoyo profesional";
   const externalLinks = [
     category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && socialLinks.whatsapp ? { href: socialLinks.whatsapp, label: "Contactar por WhatsApp", icon: Link2 } : null,
     websiteHref ? { href: websiteHref, label: "Sitio web", icon: Globe } : null,
@@ -173,21 +172,7 @@ export default function ProfessionalProfileView({
         </Container>
       </section>
 
-      <Section labelledBy="professional-offer-title">
-        <div className="grid items-start gap-8 lg:grid-cols-[1.3fr_0.7fr]">
-          <div>
-            <Heading id="professional-offer-title" eyebrow="Servicios y especialidades">{intro}</Heading>
-            <p className="mt-4 max-w-2xl leading-7 text-[var(--muted)]">Conoce sus servicios, explora su experiencia y solicita información sobre disponibilidad y condiciones.</p>
-            {expertise.length > 0 && <div className="mt-6 grid gap-3 sm:grid-cols-2">{expertise.map(item => <div key={item} className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 font-semibold text-[var(--brand-navy)]">{item}</div>)}</div>}
-          </div>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--sky-surface)] p-7">
-            <h3 className="text-xl font-bold text-[var(--brand-navy)]">Contactar a {professional.displayName}</h3>
-            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Conversa directamente para conocer servicios, tarifas y siguientes pasos. EVOLUSA no garantiza resultados ni disponibilidad.</p>
-            {directContact && <a href={directContact} target={directContact.startsWith("http") ? "_blank" : undefined} rel={directContact.startsWith("http") ? "noopener noreferrer" : undefined} className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[var(--brand-navy)] px-5 py-3 text-sm font-bold text-white">Solicitar información</a>}
-            {websiteHref && <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand-blue)]">Explorar su sitio web <ExternalLink aria-hidden size={15} /></a>}
-          </div>
-        </div>
-      </Section>
+      <ProfessionalServiceShowcase professional={professional} />
 
       {hasCareerContent(professional.bio) && (
         <Section labelledBy="professional-about-title">
