@@ -9,6 +9,20 @@ import { addGhlNote, upsertGhlContact, type GhlCredentials, type GhlLead } from 
  * "new" if it was created after the connection; older leads are not sent.
  */
 
+export function isPrivateProfileInquiry(lead: GhlLead): boolean {
+    if (!lead.source_url) return false;
+    try {
+      const url = new URL(lead.source_url);
+      return (
+        (url.hostname === "evolusa.us" || url.hostname === "www.evolusa.us" ||
+         url.hostname === "evolusa.vercel.app") &&
+        url.pathname.startsWith("/profesionales/")
+      );
+    } catch {
+      return false;
+    }
+}
+
 export const GHL_BATCH = 25;
 export const GHL_MAX_ATTEMPTS = 5;
 const LEAD_COLUMNS = "id,name,email,phone,whatsapp,source,source_url,notes,created_at";
@@ -84,19 +98,7 @@ export async function syncGhlConnection(service: SupabaseClient, tokenKey: Buffe
   // Profile inquiries consent to delivery within the selected professional's
   // EVOLUSA ARM only. A GoHighLevel connection is a separate data recipient.
   // Never sync those leads to GHL without a separately recorded authorization.
-  const isPrivateProfileInquiry = (lead: GhlLead) => {
-    if (!lead.source_url) return false;
-    try {
-      const url = new URL(lead.source_url);
-      return (
-        (url.hostname === "evolusa.us" || url.hostname === "www.evolusa.us" ||
-         url.hostname === "evolusa.vercel.app") &&
-        url.pathname.startsWith("/profesionales/")
-      );
-    } catch {
-      return false;
-    }
-  };
+
 
   // The 200 most recent leads, oldest of them first.
   const pending = ((leads ?? []) as GhlLead[]).filter((lead) => !skip.has(lead.id) && !isPrivateProfileInquiry(lead)).reverse().slice(0, GHL_BATCH);
