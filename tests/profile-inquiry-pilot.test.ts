@@ -64,6 +64,17 @@ test("DB pilot: one approved owner only, dedup, consent, rate limit, RLS, regula
       [slug,uuid,"Synthetic Buyer",email,null,"Branding","Necesito una nueva identidad de marca para mi empresa.",consent]
     );
     await as("authenticated",member);
+    // A raw RPC call cannot bypass the server-side feature flag:
+    // database is also disabled and its allowlist empty by default.
+    await assert.rejects(submit("demo-marketing",key(1)));
+    await assert.rejects(db.query("select * from crm_inquiry_pilot_settings"));
+    await db.exec("reset role");
+    await db.exec("insert into crm_inquiry_pilot_settings(id,enabled) values(1,true)");
+    await as("authenticated",member);
+    await assert.rejects(submit("demo-marketing",key(1))); // enabled but not allowlisted
+    await db.exec("reset role");
+    await db.query("insert into crm_inquiry_pilot_profiles(professional_profile_id) values($1)",[marketingId]);
+    await as("authenticated",member);
     await assert.rejects(submit("demo-marketing",key(1),false));
     await assert.rejects(submit("demo-notary",key(1),true));
     const first=(await submit("demo-marketing",key(1))).rows[0].id;
