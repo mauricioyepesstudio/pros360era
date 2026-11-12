@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { MapPin, Users } from "lucide-react";
+import { ArrowUpRight, MapPin, Users } from "lucide-react";
 import Card from "@/components/ui/Card";
 import VerifiedBadge from "@/components/professional/VerifiedBadge";
 import { getProfessionalCategory, professionalCategories } from "@/data/professional/categories";
@@ -85,7 +85,7 @@ export default function ProfessionalsDirectory({ professionals }: { professional
 
             return (
               <Link key={professional.slug} href={`/profesionales/${professional.slug}`} className="group block h-full">
-                <Card className="flex h-full flex-col transition group-hover:border-[var(--brand-blue)] group-hover:shadow-[var(--shadow-md)]">
+                <Card className="flex h-full flex-col transition duration-200 group-hover:-translate-y-1 group-hover:border-[var(--brand-blue)] group-hover:shadow-[var(--shadow-md)]">
                   <div className="flex flex-wrap items-start gap-2">
                     <span className="inline-flex rounded-[var(--radius-pill)] bg-[var(--sky-surface)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[var(--brand-navy)]">
                       {category?.label ?? "Profesional EVOLUSA"}
@@ -116,6 +116,7 @@ export default function ProfessionalsDirectory({ professionals }: { professional
                   {!professional.isAcceptingClients && (
                     <p className="mt-4 text-xs font-semibold text-[var(--muted)]">No está aceptando nuevos clientes por ahora</p>
                   )}
+                  <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-5"><span className="text-sm font-bold text-[var(--brand-blue)]">{professional.isAcceptingClients ? "Conocer servicios y contactar" : "Explorar perfil profesional"}</span><ArrowUpRight aria-hidden size={19} className="text-[var(--brand-blue)]" /></div>
                 </Card>
               </Link>
             );
