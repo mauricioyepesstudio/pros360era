@@ -340,3 +340,8 @@ El diagnóstico completado ofrece el directorio público en otra pestaña, conse
 ## 2026-11-11 — Hub de Crecimiento visible para profesionales
 
 El hub del PR118 ya no queda tapado por el layout de preparación. Mantiene el control profesional y enlaza Conexiones a Redes, la pantalla existente. Las rutas antiguas de conexión, contenido y demo conservan su layout de preparación; no se activa OAuth, publicación ni cobro. Pruebas y estado de entrega en PR y cola central.
+
+
+## 2026-11-11 — Solicitud desde perfiles de negocio
+
+El nuevo acceso al formulario de solicitudes solo se muestra en perfiles de negocio que aceptan clientes. Se conserva el formulario y el consentimiento actuales, sin ampliar la asignación ni activar categorías reguladas. Evidencia de revisión, pruebas y despliegue en el PR y la cola central.

@@ -132,7 +132,7 @@ export default function ProfessionalProfileView({
                 {professional.isAcceptingClients ? "Aceptando nuevos clientes" : "No está aceptando nuevos clientes por ahora"}
               </p>
 
-              {professional.isAcceptingClients && (
+              {category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && (
                 <div className="mt-6 max-w-xl rounded-[var(--radius-lg)] border border-white/25 bg-white/10 p-5">
                   <p className="text-base font-bold text-white">¿Necesitas este tipo de servicio?</p>
                   <p className="mt-2 text-sm leading-6 text-white/80">
