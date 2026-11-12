@@ -14,6 +14,7 @@ const navigation = [
   { label: "Etapas", href: "/#journey" },
   { label: "Videos", href: "/#video" },
   { label: "Profesionales", href: "/para-profesionales" },
+  { label: "Growth Engine", href: "/growth-engine" },
 ] as const;
 
 /**

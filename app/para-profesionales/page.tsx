@@ -125,6 +125,7 @@ export default function ParaProfesionalesPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="/aplicar-profesional" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]">Aplicar en 5 minutos <ArrowRight aria-hidden size={18} /></Link>
                 <Link href="#lo-que-recibes" className="inline-flex min-h-14 items-center rounded-full px-7 font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10">Ver lo que recibes</Link>
+                <Link href="/growth-engine" className="inline-flex min-h-14 items-center rounded-full px-4 font-bold text-white underline underline-offset-4">Growth Engine por industria</Link>
               </div>
               <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">
                 <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Un nicho definido</li>
