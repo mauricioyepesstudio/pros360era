@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decryptToken, encryptToken } from "@/lib/social/crypto";
+import { isPrivateProfileInquiry } from "@/lib/crm/profile-inquiry-export-policy";
 import { addGhlNote, upsertGhlContact, type GhlCredentials, type GhlLead } from "@/lib/crm/gohighlevel";
 
 /**
@@ -8,20 +9,6 @@ import { addGhlNote, upsertGhlContact, type GhlCredentials, type GhlLead } from 
  * has decided whose connection it is (session owner, or the cron). A lead is
  * "new" if it was created after the connection; older leads are not sent.
  */
-
-export function isPrivateProfileInquiry(lead: GhlLead): boolean {
-    if (!lead.source_url) return false;
-    try {
-      const url = new URL(lead.source_url);
-      return (
-        (url.hostname === "evolusa.us" || url.hostname === "www.evolusa.us" ||
-         url.hostname === "evolusa.vercel.app") &&
-        url.pathname.startsWith("/profesionales/")
-      );
-    } catch {
-      return false;
-    }
-}
 
 export const GHL_BATCH = 25;
 export const GHL_MAX_ATTEMPTS = 5;
