@@ -350,3 +350,8 @@ El nuevo acceso al formulario de solicitudes solo se muestra en perfiles de nego
 ## 2026-11-12 — Navegación de Growth Engine por sector
 
 Cada enlace de sector piloto abre su ficha en Servicios Miami. No cambia elegibilidad, disponibilidad ni contacto. Las industrias en incorporación conservan su estado. Evidencia de pruebas y despliegue en PR y cola central.
+
+
+## 2026-11-12 — Retomar el destino tras un enlace de acceso fallido
+
+El reintento de login conserva el destino interno de la confirmación o el acceso fallido. Sin destino válido va al inicio de cuenta; el enlace de recuperación vencido sigue volviendo a recuperación. Sin cambios de proveedor, sesiones o envío de correo. Evidencia y estado en PR y cola central.

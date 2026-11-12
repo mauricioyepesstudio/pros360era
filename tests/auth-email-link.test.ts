@@ -30,6 +30,13 @@ test("a failed recovery link restarts recovery; other failures go to login", () 
   assert.equal(failedLinkDestination("/reset-password"), "/forgot-password?error=expired");
   assert.equal(failedLinkDestination("/dashboard"), "/login?error=link");
   assert.equal(failedLinkDestination(null), "/login?error=link");
+  assert.equal(failedLinkDestination("https://example.com"), "/login?error=link");
+  const destination = "/conexiones/nueva?view=details#start";
+  const retry = new URL(failedLinkDestination(destination), origin);
+  assert.equal(retry.pathname, "/login");
+  assert.equal(retry.searchParams.get("error"), "link");
+  assert.equal(retry.searchParams.get("next"), destination);
+  assert.equal(failedLinkDestination("/dashboard/professional"), "/login?error=link&next=%2Fdashboard%2Fprofessional");
 });
 
 test("resending confirmation passes the site callback to Supabase", async () => {
