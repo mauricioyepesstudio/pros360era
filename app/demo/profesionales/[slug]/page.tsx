@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Bot, Check, CircleAlert, Clock3, ShieldCheck, Sp
 import SiteHeader from "@/components/layout/SiteHeader";
 import Footer from "@/sections/home/Footer";
 import { demoProfiles, getDemoProfile } from "@/data/professional/demo-templates";
+import DemoNicheVisual from "@/components/professional/DemoNicheVisual";
 type Props={params:Promise<{slug:string}>};
 export async function generateStaticParams(){return demoProfiles.map(p=>({slug:p.slug}));}
 export async function generateMetadata({params}:Props):Promise<Metadata>{const p=getDemoProfile((await params).slug);return {title:p?`Demo ${p.category} | EvolUSA`:"Demo no encontrado",robots:{index:false,follow:false}};}
@@ -16,11 +17,17 @@ export default async function DemoProfessionalPage({params}:Props){
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <Link href="/demo/profesionales" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white"><ArrowLeft size={16}/> Todas las plantillas</Link>
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-wider"><CircleAlert size={16}/> Demostración ficticia · No disponible para contratar</div>
-        <p className="font-bold uppercase tracking-widest text-white/75">{profile.category}</p>
-        <h1 className="mt-4 max-w-4xl text-5xl font-black leading-tight sm:text-7xl">{profile.title}</h1>
-        <p className="mt-6 max-w-2xl text-xl leading-8 text-white/85">{profile.tagline}</p>
-        <div className="mt-8 flex flex-wrap gap-3"><a href="#servicios" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-slate-950">Explorar servicios <ArrowRight size={16}/></a><a href="#agente" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/60 px-6 py-3 text-sm font-bold text-white">Ver tareas del agente <Bot size={16}/></a></div>
-        <p className="mt-5 text-xs text-white/80">Los botones son navegación de demostración. No envían solicitudes ni contactan negocios.</p>
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.87fr]">
+          <div>
+            <p className="font-bold uppercase tracking-widest text-white/75">{profile.category}</p>
+            <h1 className="mt-4 max-w-4xl text-5xl font-black leading-tight sm:text-6xl">{profile.title}</h1>
+            <p className="mt-6 max-w-2xl text-xl leading-8 text-white/85">{profile.tagline}</p>
+            <p className="mt-4 text-sm text-white/70">Diseñado para: {profile.audience}</p>
+            <div className="mt-8 flex flex-wrap gap-3"><a href="#servicios" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-slate-950">Explorar servicios <ArrowRight size={16}/></a><a href="#agente" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/60 px-6 py-3 text-sm font-bold text-white">Tareas del agente <Bot size={16}/></a></div>
+            <p className="mt-5 text-xs text-white/80">Los enlaces navegan por la demo. Ninguno envía solicitudes comerciales.</p>
+          </div>
+          <div className="relative mx-auto w-full max-w-lg"><DemoNicheVisual profile={profile}/></div>
+        </div>
       </div>
     </section>
     <section id="servicios" className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
