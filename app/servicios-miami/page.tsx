@@ -10,6 +10,13 @@ export const metadata: Metadata = {
   description:
     "Conoce opciones de apoyo documental, notaría, finanzas y marketing en Miami. Revisa la disponibilidad y el perfil de cada profesional en EVOLUSA.",
   robots: { index: true, follow: true },
+  openGraph: {
+    title: "Encuentra profesionales en Miami | EVOLUSA",
+    description: "Notaría bilingüe, marketing y branding, finanzas de negocios y apoyo documental. Conoce los perfiles y contacta directamente cuando estén disponibles.",
+    url: "https://evolusa.vercel.app/servicios-miami",
+    siteName: "EVOLUSA",
+    type: "website",
+  },
 };
 
 const featured = [
@@ -57,8 +64,9 @@ export default async function ServiciosMiamiPage() {
             Tu próxima decisión merece al profesional adecuado.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">
-            Encuentra profesionales con perfiles públicos en nuestra red para apoyarte con documentos,
-            notaría, finanzas de negocios y marketing. Cada perfil muestra su propia disponibilidad actual.
+            ¿Necesitas un notario en Florida, mejorar la presencia digital de tu negocio,
+            organizar tus finanzas o preparar documentación? Explora perfiles reales, compara sus servicios
+            y contacta al profesional que mejor se ajuste a tu necesidad.
           </p>
           <Link href="/profesionales" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-6 font-bold text-white hover:bg-[#a90016]">
             Ver directorio completo <ArrowRight size={18} aria-hidden="true" />
@@ -92,6 +100,28 @@ export default async function ServiciosMiamiPage() {
                         className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-[var(--brand-navy)] px-5 font-bold text-[var(--brand-navy)] hover:bg-[var(--brand-navy)] hover:text-white">
                         {active ? "Ver perfil y contacto" : "Ver perfil y disponibilidad"} <ArrowRight size={17} aria-hidden="true"/>
                       </Link>
+                      {active && slug === "marie-fernandez-efff0e" && profile?.socialLinks.whatsapp?.startsWith("https://wa.me/") ? (
+                        <a
+                          href={profile.socialLinks.whatsapp}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Escribir por WhatsApp a Marie Fernandez"
+                          className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-5 font-bold text-white hover:bg-[#a90016]"
+                        >
+                          Solicitar cita notarial <ArrowRight size={17} aria-hidden="true"/>
+                        </a>
+                      ) : null}
+                      {active && slug === "mauricio-yepes-b96cae" && profile?.websiteUrl?.startsWith("https://") ? (
+                        <a
+                          href={profile.websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Visitar la web profesional de Mauricio Yepes"
+                          className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-5 font-bold text-white hover:bg-[#a90016]"
+                        >
+                          Cotizar marketing y diseño <ArrowRight size={17} aria-hidden="true"/>
+                        </a>
+                      ) : null}
                     </div>
                   </article>
                 );
