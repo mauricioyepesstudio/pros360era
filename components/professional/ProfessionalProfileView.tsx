@@ -48,6 +48,7 @@ export default function ProfessionalProfileView({
   photoUrl,
   contactEmail,
   workSamples,
+  capturePilotEnabled = false,
 }: {
   professional: ProfessionalProfilePublic;
   /** Overrides professional.photoUrl (0017) — pass explicitly only for a fixture/preview that has no database row at all. */
@@ -56,6 +57,7 @@ export default function ProfessionalProfileView({
   contactEmail?: string;
   /** Overrides the work samples fetched from professional_work_samples_public (0017) — pass explicitly only for a fixture/preview. */
   workSamples?: readonly ProfessionalWorkSample[];
+  capturePilotEnabled?: boolean;
 }) {
   const category = getProfessionalCategory(professional.category);
   const categoryLabel = category?.label ?? "Profesional EVOLUSA";
@@ -181,7 +183,7 @@ export default function ProfessionalProfileView({
         </Container>
       </section>
 
-      <ProfessionalServiceShowcase professional={professional} />
+      <ProfessionalServiceShowcase professional={professional} capturePilotEnabled={capturePilotEnabled} />
 
       {hasCareerContent(professional.bio) && (
         <Section labelledBy="professional-about-title">
