@@ -25,7 +25,7 @@ export const brand = {
     number: "+17866041733",
     href: "https://wa.me/17866041733",
   },
-  email: "rgentertainmentmanagement@gmail.com",
+  email: "hola.evolusa@gmail.com",
   website: "https://evolusa.vercel.app",
   address: null,
   businessHours: "Lunes a viernes, 9am-6pm",
@@ -36,7 +36,7 @@ export const brand = {
     phoneHref: "tel:+17866041733",
     whatsappNumber: "+17866041733",
     whatsappLink: "https://wa.me/17866041733",
-    email: "rgentertainmentmanagement@gmail.com",
+    email: "hola.evolusa@gmail.com",
   },
 
   social: {
