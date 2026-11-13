@@ -68,7 +68,7 @@ test("config is null until every secret is set, and the redirect is the register
   assert.equal(getInstagramConfig({ ...env, SOCIAL_TOKEN_KEY: "" }), null);
   assert.equal(getInstagramConfig({ ...env, INSTAGRAM_APP_ID: "abc" }), null);
   const config = getInstagramConfig(env)!;
-  assert.equal(config.redirectUri, "https://evolusa.vercel.app/api/social/instagram/callback");
+  assert.equal(config.redirectUri, "https://www.evolusa.us/api/social/instagram/callback");
   const url = new URL(instagramAuthorizeUrl(config, "STATE"));
   assert.equal(url.origin + url.pathname, "https://www.instagram.com/oauth/authorize");
   assert.equal(url.searchParams.get("client_id"), "1234567890");

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Encuentra profesionales en Miami | EVOLUSA",
     description: "Notaría bilingüe, marketing y branding, finanzas de negocios y apoyo documental. Conoce los perfiles y contacta directamente cuando estén disponibles.",
-    url: "https://evolusa.vercel.app/servicios-miami",
+    url: "https://www.evolusa.us/servicios-miami",
     siteName: "EVOLUSA",
     type: "website",
   },
