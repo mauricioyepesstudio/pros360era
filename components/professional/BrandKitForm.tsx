@@ -162,10 +162,10 @@ export default function BrandKitForm({ initial, websiteUrl, ownerName }: { initi
 
             <div className="space-y-3">
               <p className="font-semibold text-[var(--brand-navy)]">Imágenes de tu brandbook</p>
-              <p className="text-sm text-[var(--muted)]">Logo, fotos de tu negocio y piezas propias o con licencia. No subas diseños de otras marcas ni documentos privados (identificaciones, contratos, formularios, datos de clientes). Cada imagen queda en un enlace público para poder usarla en tus publicaciones del planner. Hasta {brandKitMaxImages}.</p>
+              <p className="text-sm text-[var(--muted)]">Solo tu logo, fotos tuyas y de tu negocio, y piezas propias o con licencia. No subas fotos de clientes, familiares u otras personas, diseños de otras marcas ni documentos privados (identificaciones, contratos, formularios, datos de clientes). Cada imagen queda en un enlace público para poder usarla en tus publicaciones del planner. Hasta {brandKitMaxImages}.</p>
               <label className="flex min-h-11 items-start gap-3 text-sm">
                 <input type="checkbox" checked={fields.imagesConsent} onChange={(e) => update("imagesConsent", e.target.checked)} className="mt-0.5 h-5 w-5" />
-                Confirmo que soy dueño de estas imágenes o tengo permiso para usarlas en publicaciones públicas. Si aparece una persona, tiene mi permiso por escrito, o el de su madre, padre o tutor si es menor, para mostrar su imagen. Entiendo que cada imagen subida queda en un enlace público.
+                Confirmo que soy dueño de estas imágenes o tengo licencia para usarlas en publicaciones públicas, que solo muestran mi logo, a mí o mi negocio (sin clientes, familiares ni otras personas), y que cada imagen subida queda en un enlace público.
               </label>
               {fields.imageUrls.length > 0 && (
                 <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
