@@ -11,26 +11,12 @@ import ExplainerVideo from "@/sections/home/ExplainerVideos";
 import UserBenefits from "@/sections/home/UserBenefits";
 import ProBand from "@/sections/home/ProBand";
 import Footer from "@/sections/home/Footer";
-import { getCurrentAccountIdentity } from "@/lib/account/persistence";
-import { getAdminView } from "@/lib/account/role-gate";
-import { getAuthReadiness } from "@/lib/auth/config";
-import { PROFESSIONAL_PUBLIC_HOME, publicSideFor, type PublicSide } from "@/lib/account/navigation";
+import AccountRoleProvider from "@/components/layout/AccountRoleProvider";
+import { getPublicAccount } from "@/lib/account/public-account";
+import { PROFESSIONAL_PUBLIC_HOME, publicSideFor } from "@/lib/account/navigation";
 
 // Per request: the page depends on who is signed in.
 export const dynamic = "force-dynamic";
-
-/**
- * Which side of the site the signed-in account belongs to (owner, 13-nov):
- * a profesional's home is the professional page, a usuario's home shows only
- * the usuario system. Signed out (or preview without Supabase), null: the
- * visitor sees both sides and chooses.
- */
-async function signedInSide(): Promise<PublicSide | null> {
-  if (!getAuthReadiness().configured) return null;
-  const identity = await getCurrentAccountIdentity();
-  if (identity.status !== "ready") return null;
-  return publicSideFor(identity.role, identity.role === "ADMIN" ? await getAdminView() : undefined);
-}
 
 /**
  * The usuario home (owner, 13-nov): only what a usuario gets. Hero, one card
@@ -39,10 +25,14 @@ async function signedInSide(): Promise<PublicSide | null> {
  * gets a small door to it at the end.
  */
 export default async function Home() {
-  const side = await signedInSide();
+  // A profesional's home is the professional page; a usuario's shows only
+  // the usuario system. Signed out, side is null: both doors stay open.
+  const account = await getPublicAccount();
+  const side = publicSideFor(account.role, account.view);
   if (side === "professional") redirect(PROFESSIONAL_PUBLIC_HOME);
 
   return (
+    <AccountRoleProvider account={account}>
     <MotionConfig reducedMotion="user">
       <SiteHeader />
 
@@ -60,5 +50,6 @@ export default async function Home() {
       <Footer />
       <GuidedTour />
     </MotionConfig>
+    </AccountRoleProvider>
   );
 }

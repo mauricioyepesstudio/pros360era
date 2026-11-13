@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AccountRoleContext } from "@/components/layout/AccountRoleProvider";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import type { AccountRole, AdminView } from "@/lib/account/navigation";
@@ -23,7 +24,10 @@ function fetchRole(): Promise<RolePayload> {
 }
 
 export function useAccountRole(): HomeAccount {
-  const [account, setAccount] = useState<HomeAccount>({ signedIn: false, role: null });
+  // Pages that read the account on the server pass it down, so the first
+  // paint is already right; elsewhere it starts as a visitor and fills in.
+  const initial = useContext(AccountRoleContext);
+  const [account, setAccount] = useState<HomeAccount>(initial ?? { signedIn: false, role: null });
   useEffect(() => {
     if (!getSupabaseEnv()) return;
     let cancelled = false;
@@ -34,16 +38,22 @@ export function useAccountRole(): HomeAccount {
       } catch { /* Keep "signed in" without a role: the header still links to /dashboard. */ }
     }
     const supabase = createSupabaseBrowserClient();
-    void supabase.auth.getSession().then(({ data }) => {
-      if (cancelled) return;
-      if (data.session) { setAccount({ signedIn: true, role: null }); void refresh(); }
-    });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Signed in but the server could not read the role: ask again here.
+    if (initial?.signedIn && !initial.role) void refresh();
+    if (!initial) {
+      void supabase.auth.getSession().then(({ data }) => {
+        if (cancelled) return;
+        if (data.session) { setAccount({ signedIn: true, role: null }); void refresh(); }
+      });
+    }
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      // The server already answered for the session this page loaded with.
+      if (initial && event === "INITIAL_SESSION") return;
       rolePromise = null;
       if (!session) setAccount({ signedIn: false, role: null });
       else void refresh();
     });
     return () => { cancelled = true; data.subscription.unsubscribe(); };
-  }, []);
+  }, [initial]);
   return account;
 }

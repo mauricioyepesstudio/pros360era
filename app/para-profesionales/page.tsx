@@ -8,10 +8,15 @@ import ApplyOrPanelLink from "@/components/layout/ApplyOrPanelLink";
 import ExplainerVideo from "@/sections/home/ExplainerVideos";
 import ProBenefits from "@/sections/pro/ProBenefits";
 import ProApply from "@/sections/pro/ProApply";
+import AccountRoleProvider from "@/components/layout/AccountRoleProvider";
+import { getPublicAccount } from "@/lib/account/public-account";
+
+// Per request: header, role bar and buttons depend on who is signed in.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "EVOLUSA para profesionales",
-  description: "Tu página profesional, tus redes, un CRM para tus clientes y solicitudes de hispanos en Florida que buscan tu servicio.",
+  description: "Tu página profesional, tus redes, un CRM para tus clientes y la posibilidad de recibir solicitudes de hispanos en Florida.",
 };
 
 /**
@@ -21,9 +26,10 @@ export const metadata: Metadata = {
  * not here. No promised number of clients; "perfil aprobado", never
  * "verificado".
  */
-export default function ParaProfesionalesPage() {
+export default async function ParaProfesionalesPage() {
+  const account = await getPublicAccount();
   return (
-    <>
+    <AccountRoleProvider account={account}>
       <SiteHeader />
       <main className="pt-24">
         <HomeRoleBar />
@@ -38,7 +44,7 @@ export default function ParaProfesionalesPage() {
               <h1 id="pro-hero-title" className="mt-4 text-[2.2rem] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[2.75rem] xl:text-[3.25rem]">
                 Tú atiendes.<br />Nosotros te ayudamos a que te encuentren.
               </h1>
-              <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-white/90">Al registrarte recibes tu página profesional, tus redes planeadas, un CRM para tus clientes y solicitudes de tu nicho cuando alguien busca lo que tú haces.</p>
+              <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-white/90">Al registrarte recibes tu página profesional, tus redes planeadas, un CRM para tus clientes y, cuando alguien de tu nicho pide ayuda, puedes recibir su solicitud.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <ApplyOrPanelLink label="Aplicar en 5 minutos" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]" />
                 <Link href="#lo-que-recibes" className="inline-flex min-h-14 items-center rounded-full px-7 font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10">Ver lo que recibes</Link>
@@ -58,6 +64,6 @@ export default function ParaProfesionalesPage() {
         <ProApply />
       </main>
       <Footer />
-    </>
+    </AccountRoleProvider>
   );
 }
