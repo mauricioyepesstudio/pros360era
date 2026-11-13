@@ -26,7 +26,7 @@ export const brand = {
     href: "https://wa.me/17866041733",
   },
   email: "rgentertainmentmanagement@gmail.com",
-  website: "https://evolusa.vercel.app",
+  website: "https://www.evolusa.us",
   address: null,
   businessHours: "Lunes a viernes, 9am-6pm",
 
