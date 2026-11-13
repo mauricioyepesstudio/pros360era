@@ -7,14 +7,7 @@ import BrandMark from "@/components/evolusa/BrandMark";
 import Container from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 import { useAccountRole } from "@/components/layout/useAccountRole";
-
-const navigation = [
-  { label: "Inicio", href: "/#home" },
-  { label: "Etapas", href: "/#journey" },
-  { label: "Videos", href: "/#video" },
-  { label: "Profesionales", href: "/para-profesionales" },
-  { label: "Growth Engine", href: "/growth-engine" },
-] as const;
+import { PROFESSIONAL_PUBLIC_HOME, publicNavFor, publicSideFor } from "@/lib/account/navigation";
 
 /**
  * Floating overlay nav over the Hero photograph (fixed, not sticky — sticky
@@ -36,7 +29,11 @@ export default function SiteHeader() {
   // Signed in → one button named after the account ("Mi panel de usuario" /
   // "Mi panel profesional") in that role's color; /dashboard routes by role.
   // Signed out → "Ingresar".
-  const { signedIn, role } = useAccountRole();
+  // Signed in, the nav shows only that account's side of the site (owner,
+  // 13-nov): usuario → journey; profesional → the professional pages.
+  const { signedIn, role, view } = useAccountRole();
+  const side = publicSideFor(role, view);
+  const navigation = publicNavFor(side);
   const accountHref = signedIn ? "/dashboard" : "/login?next=%2Fdashboard";
   const panelLabel = role === "PROFESSIONAL" ? "Mi panel profesional" : role === "MEMBER" ? "Mi panel de usuario" : "Ir a mi panel";
   const panelColor = role === "PROFESSIONAL" ? "bg-[var(--role-pro)] hover:brightness-110" : role === "MEMBER" ? "bg-[var(--role-member)] hover:bg-[var(--role-member-strong)]" : role === "ADMIN" ? "bg-[var(--brand-navy)] hover:bg-[#0b1f3d]" : "bg-[var(--brand-red-strong)] hover:bg-[#a90016]";
@@ -79,7 +76,7 @@ export default function SiteHeader() {
       )}
     >
       <Container className="flex min-h-24 max-w-none items-center justify-between gap-2 sm:gap-4 xl:px-[clamp(2rem,4vw,5rem)]">
-        <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
+        <Link href={side === "professional" ? PROFESSIONAL_PUBLIC_HOME : "/#home"} aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
           <BrandMark size="lg" theme={!menuOpen ? "light" : "dark"} className="[&_img]:!h-auto [&_img]:!w-24 xl:[&_img]:!h-10 xl:[&_img]:!w-auto" />
         </Link>
         <nav className="hidden items-center gap-5 xl:flex 2xl:gap-9" aria-label="Navegación principal">
@@ -93,9 +90,9 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto hidden min-h-11 shrink-0 items-center justify-center rounded-full px-3 text-sm font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-red-strong)] focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>
+        {side !== "professional" && <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto hidden min-h-11 shrink-0 items-center justify-center rounded-full px-3 text-sm font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-red-strong)] focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>}
         {!signedIn && <Link href={accountHref} className="relative z-10 hidden min-h-11 shrink-0 items-center justify-center rounded-full border-2 border-[var(--brand-navy)] px-5 text-sm font-bold text-[var(--brand-navy)] hover:bg-[var(--brand-navy)] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex">{accountLabel}</Link>}
-        <Link href={signedIn ? "/dashboard" : "/para-profesionales"} data-tour="hero-pro" className={cn("relative z-10 inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-5 text-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 max-sm:ml-auto", signedIn ? panelColor : "bg-[var(--brand-red-strong)] hover:bg-[#a90016]")}>{signedIn ? panelLabel : "Soy profesional"}</Link>
+        <Link href={signedIn ? "/dashboard" : "/para-profesionales"} data-tour="hero-pro" className={cn("relative z-10 inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-5 text-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 max-sm:ml-auto", side === "professional" && "ml-auto", signedIn ? panelColor : "bg-[var(--brand-red-strong)] hover:bg-[#a90016]")}>{signedIn ? panelLabel : "Soy profesional"}</Link>
 
         <button
           ref={menuToggleRef}

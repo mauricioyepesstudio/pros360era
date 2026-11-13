@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import Footer from "@/sections/home/Footer";
+import HomeRoleBar from "@/sections/home/HomeRoleBar";
+import ApplyOrPanelLink from "@/components/layout/ApplyOrPanelLink";
 
 export const metadata: Metadata = {
   title: "EVOLUSA para profesionales",
@@ -110,6 +111,7 @@ export default function ParaProfesionalesPage() {
     <>
       <SiteHeader />
       <main className="pt-24">
+        <HomeRoleBar />
         <section aria-labelledby="pro-hero-title" className="relative bg-[var(--brand-navy)] text-white">
           <div className="relative aspect-[1456/1088] w-full">
             <Image src="/images/professionals/pro-hero.jpg" alt="Un profesional hispano sonríe mientras atiende a una clienta en su oficina frente a la bahía de Miami" fill priority sizes="100vw" className="object-cover" />
@@ -123,7 +125,7 @@ export default function ParaProfesionalesPage() {
               </h1>
               <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-white/90">Al registrarte recibes tu página profesional, tus redes planeadas, un CRM para tus clientes y solicitudes de hispanos que ya buscan lo que tú haces.</p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/aplicar-profesional" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]">Aplicar en 5 minutos <ArrowRight aria-hidden size={18} /></Link>
+                <ApplyOrPanelLink label="Aplicar en 5 minutos" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]" />
                 <Link href="#lo-que-recibes" className="inline-flex min-h-14 items-center rounded-full px-7 font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10">Ver lo que recibes</Link>
                 <Link href="/growth-engine" className="inline-flex min-h-14 items-center rounded-full px-4 font-bold text-white underline underline-offset-4">Growth Engine por industria</Link>
               </div>
@@ -181,7 +183,7 @@ export default function ParaProfesionalesPage() {
               <Eyebrow>Aplica hoy</Eyebrow>
               <h2 id="apply-title" className="mt-3 text-4xl font-bold tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">Aplica en <span className="text-[var(--brand-red)]">5 minutos</span>.</h2>
               <p className="mt-4 text-lg text-[var(--muted)]">Revisamos tu perfil y te avisamos por correo.</p>
-              <Link href="/aplicar-profesional" className="mt-10 inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]">Aplicar como profesional <ArrowRight aria-hidden size={18} /></Link>
+              <ApplyOrPanelLink label="Aplicar como profesional" className="mt-10 inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]" />
             </div>
             <ol className="border-t-2 border-[var(--brand-navy)] text-[var(--brand-navy)]">
               {["Llenas tu solicitud", "Revisamos tu perfil", "Publicamos tu perfil aprobado"].map((item, index) => (
