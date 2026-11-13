@@ -1,6 +1,6 @@
 import PlannerAlerts from "@/components/professional/PlannerAlerts";
 import {professionalToday} from "@/lib/professional-planner/reminders";
-import {getMyProfessionalBusiness} from "@/lib/professional-business/persistence";
+import { getMyBrandFile } from "@/lib/cerebro/persistence";
 import { weeklyPlannerSuggestions } from "@/lib/professional-planner/weekly-review";
 import PageHeader from "@/components/account/PageHeader";
 import PublicationPlanner, { type PlannerImageOption } from "@/components/professional/PublicationPlanner";
@@ -20,12 +20,15 @@ export default async function ProfessionalPlannerPage({ searchParams }: { search
   await requireProfessionalArea();
   const openSuggestions = (await searchParams).review === "weekly";
   const today = professionalToday();
-  const [result, kit, profile, business] = await Promise.all([getMyProfessionalPlanner(today), getMyPreparedKit(), getMyProfessionalProfile(), getMyProfessionalBusiness()]);
-  const imageOptions: PlannerImageOption[] = kit
+  const [result, kit, profile, file] = await Promise.all([getMyProfessionalPlanner(today), getMyPreparedKit(), getMyProfessionalProfile(), getMyBrandFile()]);
+  const business = file.business;
+  const brandImages: PlannerImageOption[] = (file.brand.brand?.imageUrls ?? []).map((src, index) => ({ src, label: `Mi brandbook · imagen ${index + 1}` }));
+  const kitImages: PlannerImageOption[] = kit
     ? kit.creatives.concepts.flatMap((concept) =>
         kit.creatives.formats.map((format) => ({ src: creativeSrc(kit, concept.id, format), label: `${concept.title} · ${creativeFormatLabels[format]}` })),
       )
     : [];
+  const imageOptions = [...brandImages, ...kitImages];
 
   return (
     <div className="space-y-8">
@@ -36,7 +39,7 @@ export default async function ProfessionalPlannerPage({ searchParams }: { search
       />
       <PlannerAlerts planner={result} today={today} instagram={profile?.socialLinks.instagram} />
       {result.available ? (
-        <PublicationPlanner key={openSuggestions ? "weekly-review" : "calendar"} openSuggestions={openSuggestions} initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} suggestions={[...weeklyPlannerSuggestions(profile?{...profile,business:business.business}:null, today), ...plannerSuggestions(kit, profile?.displayName ?? null)]} />
+        <PublicationPlanner key={openSuggestions ? "weekly-review" : "calendar"} openSuggestions={openSuggestions} initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} brandFile={{ ready: file.ready, missing: file.missing }} suggestions={[...weeklyPlannerSuggestions(profile?{...profile,business:business.business}:null, today), ...plannerSuggestions(kit, profile?.displayName ?? null)]} />
       ) : (
         <p role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
           No pudimos abrir tu planner. Necesitas un perfil profesional propio; reintenta más tarde.

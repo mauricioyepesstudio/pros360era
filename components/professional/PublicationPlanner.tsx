@@ -25,6 +25,7 @@ import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/act
 import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
 import { generatePlannerIdeasAction } from "@/app/(account)/panel-profesional/planner/ai-actions";
 import PlannerImport from "@/components/professional/PlannerImport";
+import ButtonLink from "@/components/ui/ButtonLink";
 
 export type PlannerImageOption = { src: string; label: string };
 
@@ -83,6 +84,7 @@ export default function PublicationPlanner({
   proposedFromKit,
   today,
   imageOptions,
+  brandFile = { ready: true, missing: [] },
   networks,
   publications,
   suggestions,
@@ -93,6 +95,8 @@ export default function PublicationPlanner({
   proposedFromKit: boolean;
   today: string;
   imageOptions: PlannerImageOption[];
+  /** Expediente de marca: sin él no se generan borradores con IA. */
+  brandFile?: { ready: boolean; missing: string[] };
   networks: PlannerNetworks;
   publications: Record<string, PostPublication>;
   suggestions: PlannerSuggestion[];
@@ -425,12 +429,16 @@ export default function PublicationPlanner({
 
       {showSuggestions && <section id="propuestas" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5">
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Propuestas gráficas y textos de la semana</h2>
-        <div className="mt-4 space-y-3">
+        {!brandFile.ready ? <div className="mt-4 space-y-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--sky-surface)] p-4">
+          <p className="font-semibold text-[var(--brand-navy)]">Completa tu expediente de marca para generar borradores con IA</p>
+          <p className="text-sm">Te falta: {brandFile.missing.join(", ")}. Puedes empezar tu brandbook desde tu web y tu Instagram conectado.</p>
+          <ButtonLink href="/panel-profesional/marca">Completar mi expediente</ButtonLink>
+        </div> : <div className="mt-4 space-y-3">
           <label className="block text-sm font-semibold">Tema para un borrador con tu voz<input value={aiTopic} maxLength={240} onChange={event => setAiTopic(event.target.value)} className={field} /></label>
           <button type="button" disabled={aiLoading || aiTopic.trim().length < 8} onClick={() => void proposeWithAI()} className="min-h-11 rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white disabled:opacity-60">{aiLoading ? "Generando borrador…" : "Generar un borrador"}</button>
-          <p className="text-xs text-[var(--muted)]">Usa tu voz y negocio guardados. Revisa el texto antes de añadirlo como Idea. No genera imágenes ni publica.</p>
+          <p className="text-xs text-[var(--muted)]">Usa tu voz, tu negocio y tu brandbook guardados. Revisa el texto antes de añadirlo como Idea. No genera imágenes ni publica. Es un borrador generado con IA: tú eres responsable de revisarlo.</p>
           {aiError && <p role="alert" className="text-sm text-red-700">{aiError}</p>}
-        </div>
+        </div>}
 
         <p className="mt-2 text-sm text-[var(--muted)]">Propuestas de tu kit y plantillas editables. Selecciona las que te gusten: se guardan como Ideas, sin publicarse.</p>
         <ul className="mt-4 space-y-3">{suggestionPool.filter((item) => !posts.some((post) => post.id === item.id)).map((item) => <li key={item.id}><label className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-3"><input type="checkbox" checked={selectedSuggestions.includes(item.id)} onChange={(event) => setSelectedSuggestions(event.target.checked ? [...selectedSuggestions, item.id] : selectedSuggestions.filter((id) => id !== item.id))} className="mt-1 size-5" /><span className="min-w-0"><strong className="block">{item.title}</strong>{item.imageUrl && <Image unoptimized src={item.imageUrl} alt={item.title} width={1080} height={item.format === "9x16" ? 1920 : 1350} className="my-3 h-auto w-full max-w-64 rounded-[var(--radius-md)] border border-[var(--border)]" />}<span className="block text-xs text-[var(--muted)]">{item.id.startsWith("ai-") ? "Borrador con tu voz" : item.source}</span>{item.caption && <span className="mt-1 block text-sm">{item.caption}</span>}</span></label>{item.imageUrl?.startsWith("/api/professional/creative-proposal?") && <a href={item.imageUrl+"&download=1"} className="mt-2 inline-flex min-h-11 items-center font-semibold underline">Descargar propuesta PNG</a>}</li>)}</ul>

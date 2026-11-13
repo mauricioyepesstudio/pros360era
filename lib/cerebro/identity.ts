@@ -4,3 +4,8 @@ export function voiceProfileId(userId: string) {
   const hash = createHash("sha256").update("evolusa:" + "voice-profile-v1:" + userId).digest("hex");
   return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
 }
+/** Id estable del expediente de marca (brandbook) dentro de onboarding_responses. */
+export function brandKitId(userId: string) {
+  const hash = createHash("sha256").update("evolusa:" + "brand-kit-v1:" + userId).digest("hex");
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
