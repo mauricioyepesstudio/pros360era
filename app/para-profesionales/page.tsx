@@ -8,6 +8,11 @@ import ApplyOrPanelLink from "@/components/layout/ApplyOrPanelLink";
 import ExplainerVideo from "@/sections/home/ExplainerVideos";
 import ProBenefits from "@/sections/pro/ProBenefits";
 import ProApply from "@/sections/pro/ProApply";
+import AccountRoleProvider from "@/components/layout/AccountRoleProvider";
+import { getPublicAccount } from "@/lib/account/public-account";
+
+// Per request: header, role bar and buttons depend on who is signed in.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "EVOLUSA para profesionales",
@@ -21,9 +26,10 @@ export const metadata: Metadata = {
  * not here. No promised number of clients; "perfil aprobado", never
  * "verificado".
  */
-export default function ParaProfesionalesPage() {
+export default async function ParaProfesionalesPage() {
+  const account = await getPublicAccount();
   return (
-    <>
+    <AccountRoleProvider account={account}>
       <SiteHeader />
       <main className="pt-24">
         <HomeRoleBar />
@@ -58,6 +64,6 @@ export default function ParaProfesionalesPage() {
         <ProApply />
       </main>
       <Footer />
-    </>
+    </AccountRoleProvider>
   );
 }
