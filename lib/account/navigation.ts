@@ -138,17 +138,18 @@ export type PublicNavItem = { label: string; href: string };
 
 const visitorPublicNav: readonly PublicNavItem[] = [
   { label: "Inicio", href: "/#home" },
+  { label: "Beneficios", href: "/#beneficios" },
   { label: "Etapas", href: "/#journey" },
-  { label: "Videos", href: "/#video" },
+  { label: "Video", href: "/#video" },
   { label: "Profesionales", href: PROFESSIONAL_PUBLIC_HOME },
-  { label: "Growth Engine", href: "/growth-engine" },
 ];
 
-const memberPublicNav: readonly PublicNavItem[] = visitorPublicNav.slice(0, 3);
+const memberPublicNav: readonly PublicNavItem[] = visitorPublicNav.slice(0, 4);
 
 const professionalPublicNav: readonly PublicNavItem[] = [
   { label: "Inicio", href: PROFESSIONAL_PUBLIC_HOME },
   { label: "Lo que recibes", href: `${PROFESSIONAL_PUBLIC_HOME}#lo-que-recibes` },
+  { label: "Video", href: `${PROFESSIONAL_PUBLIC_HOME}#video` },
   { label: "Growth Engine", href: "/growth-engine" },
 ];
 
