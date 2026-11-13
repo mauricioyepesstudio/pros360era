@@ -58,7 +58,9 @@ const fs = require('node:fs');
         await page.evaluate(() => { document.documentElement.style.overflow = ''; window.scrollTo({ top: 0, behavior: 'instant' }); });
         navigationChecks++;
       }
-      const explore = page.getByRole('link', { name: 'Soy profesional · Solicitar mi perfil', exact: true }).filter({ visible: true });
+      // Usuario home (13-nov): the hero talks to usuarios; professionals get a small door to their own page.
+      const hero = page.locator('section#home');
+      const explore = hero.getByRole('link', { name: '¿Eres profesional? Tu espacio está aparte', exact: true }).filter({ visible: true });
       assert.equal(await explore.count(), 1);
       // Read both rectangles in one frame so scrolling cannot mix coordinate systems.
       const { entryBox, heroBox } = await explore.evaluate(element => ({
@@ -69,15 +71,19 @@ const fs = require('node:fs');
       await page.locator('section#home').filter({ visible: true }).screenshot({ path: `browser-evidence/hero-${width}-${reducedMotion}.png` });
       // Hero CTAs stay inside the hero and fit the viewport horizontally.
       assert.ok(entryBox && heroBox && entryBox.x >= 0 && entryBox.x + entryBox.width <= width + 1 && entryBox.y >= heroBox.y - 1 && entryBox.y + entryBox.height <= heroBox.y + heroBox.height + 1, `hero controls clipped ${width}`);
-      assert.ok(await page.getByRole('link', { name: 'Soy usuario · Empezar gratis', exact: true }).filter({ visible: true }).isVisible());
-      assert.equal(await explore.getAttribute('href'), '/aplicar-profesional');
-      const userEntry = page.getByRole('link', { name: 'Soy usuario · Empezar gratis', exact: true }).filter({ visible: true });
+      assert.ok(await hero.getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true }).isVisible());
+      assert.equal(await explore.getAttribute('href'), '/para-profesionales');
+      const userEntry = hero.getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true });
       assert.equal(await userEntry.getAttribute('href'), '/onboarding');
       await explore.click();
-      await page.waitForURL('**/aplicar-profesional', { waitUntil: 'domcontentloaded' });
-      await page.locator('#full-name').waitFor();
+      await page.waitForURL('**/para-profesionales', { waitUntil: 'domcontentloaded' });
+      await page.locator('#lo-que-recibes').waitFor();
+      // The professional page never shows the usuario journey or the usuario video.
+      assert.equal(await page.locator('#journey').count(), 0);
+      assert.equal(await page.locator('[data-video="usuario"]').count(), 0);
+      assert.equal(await page.locator('[data-video="profesional"]').count(), 1);
       await page.goto('http://localhost:3002', { waitUntil: 'domcontentloaded' });
-      await page.getByRole('link', { name: 'Soy usuario · Empezar gratis', exact: true }).filter({ visible: true }).click();
+      await page.locator('section#home').getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true }).click();
       await page.waitForURL('**/onboarding', { waitUntil: 'domcontentloaded' });
       assert.ok(!page.url().includes('signup'));
       await page.goto('http://localhost:3002', { waitUntil: 'domcontentloaded' });
