@@ -168,7 +168,7 @@ export default function GrowthEnginePage() {
           <div className="mx-auto mt-10 flex max-w-6xl flex-wrap gap-5 text-sm text-white/75">
             <span className="inline-flex items-center gap-2"><LockKeyhole size={16} aria-hidden="true" /> Datos por negocio</span>
             <span className="inline-flex items-center gap-2"><Handshake size={16} aria-hidden="true" /> Aliados autorizados</span>
-            <span className="inline-flex items-center gap-2"><CircleDollarSign size={16} aria-hidden="true" /> Ingresos verificados</span>
+            <span className="inline-flex items-center gap-2"><CircleDollarSign size={16} aria-hidden="true" /> Cobros con registro claro</span>
             <span className="inline-flex items-center gap-2"><Bot size={16} aria-hidden="true" /> IA supervisada</span>
           </div>
         </section>
