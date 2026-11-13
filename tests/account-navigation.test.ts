@@ -71,3 +71,19 @@ test("admin professional pages expose professional tools and retain Admin", () =
   assert.equal(accountContextFor("ADMIN", "/dashboard"), "member");
   assert.equal(accountContextFor("ADMIN", "/crmx"), "member");
 });
+
+test("the owner's panel switch defaults to the professional panel", async () => {
+  const { adminViewHome, parseAdminView } = await import("../lib/account/navigation.ts");
+  assert.equal(parseAdminView(undefined), "professional");
+  assert.equal(parseAdminView("member"), "member");
+  assert.equal(parseAdminView("anything"), "professional");
+  assert.equal(adminViewHome("member"), "/dashboard");
+  assert.equal(adminViewHome("professional"), "/panel-profesional");
+});
+
+test("each role is named in plain words", async () => {
+  const { roleLabels } = await import("../lib/account/navigation.ts");
+  assert.equal(roleLabels("MEMBER").account, "Cuenta de usuario");
+  assert.equal(roleLabels("PROFESSIONAL").account, "Cuenta de profesional");
+  assert.equal(roleLabels("ADMIN").account, "Cuenta de administrador");
+});

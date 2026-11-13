@@ -1,6 +1,7 @@
 import { MotionConfig } from "framer-motion";
 import GuidedTour from "@/components/layout/GuidedTour";
 import SiteHeader from "@/components/layout/SiteHeader";
+import HomeRoleBar from "@/sections/home/HomeRoleBar";
 import HeroArtboard from "@/sections/home/HeroArtboard";
 import TrustStrip from "@/sections/home/TrustStrip";
 import StageJourney from "@/sections/home/StageJourney";
@@ -19,6 +20,7 @@ export default function Home() {
       <SiteHeader />
 
       <main className="bg-white pt-24 text-[var(--foreground)]">
+        <HomeRoleBar />
         <HeroArtboard />
         <TrustStrip />
         <ExplainerVideos />
