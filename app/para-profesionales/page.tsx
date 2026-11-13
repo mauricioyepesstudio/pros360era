@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import Footer from "@/sections/home/Footer";
+import HomeRoleBar from "@/sections/home/HomeRoleBar";
 
 export const metadata: Metadata = {
   title: "EVOLUSA para profesionales",
@@ -110,6 +111,7 @@ export default function ParaProfesionalesPage() {
     <>
       <SiteHeader />
       <main className="pt-24">
+        <HomeRoleBar />
         <section aria-labelledby="pro-hero-title" className="relative bg-[var(--brand-navy)] text-white">
           <div className="relative aspect-[1456/1088] w-full">
             <Image src="/images/professionals/pro-hero.jpg" alt="Un profesional hispano sonríe mientras atiende a una clienta en su oficina frente a la bahía de Miami" fill priority sizes="100vw" className="object-cover" />

@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSupabaseEnv } from "@/lib/supabase/env";
-import type { AccountRole } from "@/lib/account/navigation";
+import type { AccountRole, AdminView } from "@/lib/account/navigation";
 
-export type HomeAccount = { signedIn: boolean; role: AccountRole | null };
+export type HomeAccount = { signedIn: boolean; role: AccountRole | null; view?: AdminView };
 
 /**
  * Who is signed in, for the public pages (home header and role bar). The
@@ -20,8 +20,8 @@ export function useAccountRole(): HomeAccount {
     async function refresh() {
       try {
         const response = await fetch("/api/account/role", { cache: "no-store" });
-        const data = (await response.json()) as { signedIn?: boolean; role?: AccountRole };
-        if (!cancelled) setAccount({ signedIn: Boolean(data.signedIn), role: data.role ?? null });
+        const data = (await response.json()) as { signedIn?: boolean; role?: AccountRole; view?: AdminView };
+        if (!cancelled) setAccount({ signedIn: Boolean(data.signedIn), role: data.role ?? null, view: data.view });
       } catch { /* Keep "signed in" without a role: the header still links to /dashboard. */ }
     }
     const supabase = createSupabaseBrowserClient();

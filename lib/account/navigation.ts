@@ -116,3 +116,44 @@ export function isProfessionalArea(pathname: string): boolean {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
+
+/**
+ * The public site (home, /para-profesionales) also splits by account
+ * (owner, 13-nov): a signed-in usuario sees only the usuario side (journey,
+ * etapas, videos) and a signed-in profesional sees only the professional
+ * side. Signed out, a visitor sees both and chooses. The ADMIN follows the
+ * panel chosen in the switch (cookie), professional by default.
+ */
+export type PublicSide = "member" | "professional";
+export const PROFESSIONAL_PUBLIC_HOME = "/para-profesionales";
+
+export function publicSideFor(role: AccountRole | null | undefined, adminView: AdminView = "professional"): PublicSide | null {
+  if (!role) return null;
+  if (role === "PROFESSIONAL") return "professional";
+  if (role === "ADMIN") return adminView;
+  return "member";
+}
+
+export type PublicNavItem = { label: string; href: string };
+
+const visitorPublicNav: readonly PublicNavItem[] = [
+  { label: "Inicio", href: "/#home" },
+  { label: "Etapas", href: "/#journey" },
+  { label: "Videos", href: "/#video" },
+  { label: "Profesionales", href: PROFESSIONAL_PUBLIC_HOME },
+  { label: "Growth Engine", href: "/growth-engine" },
+];
+
+const memberPublicNav: readonly PublicNavItem[] = visitorPublicNav.slice(0, 3);
+
+const professionalPublicNav: readonly PublicNavItem[] = [
+  { label: "Inicio", href: PROFESSIONAL_PUBLIC_HOME },
+  { label: "Lo que recibes", href: `${PROFESSIONAL_PUBLIC_HOME}#lo-que-recibes` },
+  { label: "Growth Engine", href: "/growth-engine" },
+];
+
+export function publicNavFor(side: PublicSide | null): readonly PublicNavItem[] {
+  if (side === "professional") return professionalPublicNav;
+  if (side === "member") return memberPublicNav;
+  return visitorPublicNav;
+}
