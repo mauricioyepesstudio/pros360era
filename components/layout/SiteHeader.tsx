@@ -7,8 +7,7 @@ import BrandMark from "@/components/evolusa/BrandMark";
 import Container from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 import { useAccountRole } from "@/components/layout/useAccountRole";
-import { publicNavFor, publicSideFor } from "@/lib/account/navigation";
-
+import { PROFESSIONAL_PUBLIC_HOME, publicNavFor, publicSideFor } from "@/lib/account/navigation";
 
 /**
  * Floating overlay nav over the Hero photograph (fixed, not sticky — sticky
@@ -77,7 +76,7 @@ export default function SiteHeader() {
       )}
     >
       <Container className="flex min-h-24 max-w-none items-center justify-between gap-2 sm:gap-4 xl:px-[clamp(2rem,4vw,5rem)]">
-        <Link href="/#home" aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
+        <Link href={side === "professional" ? PROFESSIONAL_PUBLIC_HOME : "/#home"} aria-label="EVOLUSA — Ir al inicio" className="relative z-10 shrink-0">
           <BrandMark size="lg" theme={!menuOpen ? "light" : "dark"} className="[&_img]:!h-auto [&_img]:!w-24 xl:[&_img]:!h-10 xl:[&_img]:!w-auto" />
         </Link>
         <nav className="hidden items-center gap-5 xl:flex 2xl:gap-9" aria-label="Navegación principal">
