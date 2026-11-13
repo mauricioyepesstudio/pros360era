@@ -8,7 +8,7 @@
  * 6 s y 1,5 MB de HTML. No se envían cookies ni tokens.
  */
 import { lookup as dnsLookup } from "node:dns/promises";
-import { isIP } from "node:net";
+import { BlockList, isIP } from "node:net";
 import { normalizeHexColor } from "./brand-kit.ts";
 
 export type WebsiteSignals = {
@@ -21,6 +21,8 @@ export type WebsiteSignals = {
 };
 
 const maxHtml = 1_500_000;
+/** Solo se analiza el principio de la página (allí están head, estilos y menú). */
+const maxParse = 400_000;
 const socialHosts: Record<string, WebsiteSignals["socials"][number]["platform"]> = {
   "instagram.com": "instagram",
   "facebook.com": "facebook",
@@ -41,7 +43,7 @@ function decodeEntities(text: string): string {
 }
 
 function metaContent(html: string, attr: "name" | "property", key: string): string | null {
-  const tags = html.match(/<meta\b[^>]*>/gi) ?? [];
+  const tags = html.match(/<meta\b[^<>]{0,1000}>/gi) ?? [];
   for (const tag of tags) {
     const keyMatch = tag.match(new RegExp(`${attr}\\s*=\\s*["']([^"']+)["']`, "i"));
     if (keyMatch?.[1].toLowerCase() !== key) continue;
@@ -62,15 +64,15 @@ function isNeutral(hex: string): boolean {
 
 /** Puro: HTML → señales de marca. Se prueba sin red. */
 export function extractBrandSignals(html: string, pageUrl: string): WebsiteSignals {
-  const head = html.slice(0, maxHtml);
-  const title = head.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const head = html.slice(0, maxParse);
+  const title = head.match(/<title[^<>]{0,200}>([^<]{0,300})<\/title>/i);
   const name = metaContent(head, "property", "og:site_name") ?? (title ? decodeEntities(title[1]).split(/\s[|\-–·]\s/)[0] : null);
   const description = metaContent(head, "name", "description") ?? metaContent(head, "property", "og:description");
 
   const colorCount = new Map<string, number>();
   const bump = (value: string | null, weight: number) => { if (value && !isNeutral(value)) colorCount.set(value, (colorCount.get(value) ?? 0) + weight); };
   bump(normalizeHexColor(metaContent(head, "name", "theme-color")), 50);
-  const styles = [...head.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join("\n") + "\n" + [...head.matchAll(/\sstyle\s*=\s*"([^"]*)"/gi)].map((m) => m[1]).join(";");
+  const styles = [...head.matchAll(/<style[^<>]{0,200}>([^<]{0,100000})<\/style>/gi)].map((m) => m[1]).join("\n") + "\n" + [...head.matchAll(/\sstyle\s*=\s*"([^"]{0,2000})"/gi)].map((m) => m[1]).join(";");
   for (const match of styles.matchAll(/#([0-9a-f]{6}|[0-9a-f]{3})\b/gi)) bump(normalizeHexColor("#" + match[1]), 1);
   const colors = [...colorCount.entries()].sort((a, b) => b[1] - a[1]).map(([color]) => color).slice(0, 5);
 
@@ -79,13 +81,13 @@ export function extractBrandSignals(html: string, pageUrl: string): WebsiteSigna
     const font = decodeEntities(raw).replace(/^["']|["']$/g, "").replace(/\+/g, " ").trim();
     if (font && font.length <= 40 && !genericFonts.has(font.toLowerCase()) && !font.startsWith("var(") && !fonts.some((f) => f.toLowerCase() === font.toLowerCase())) fonts.push(font);
   };
-  for (const link of head.matchAll(/https:\/\/fonts\.googleapis\.com\/css2?\?[^"'\s>]+/gi)) {
+  for (const link of head.matchAll(/https:\/\/fonts\.googleapis\.com\/css2?\?[^"'\s>]{1,1000}/gi)) {
     for (const family of link[0].replace(/&amp;/g, "&").matchAll(/family=([^:&]+)/g)) addFont(decodeURIComponent(family[1]));
   }
-  for (const decl of styles.matchAll(/font-family\s*:\s*([^;}]+)/gi)) addFont(decl[1].split(",")[0]);
+  for (const decl of styles.matchAll(/font-family\s*:\s*([^;}]{1,200})/gi)) addFont(decl[1].split(",")[0]);
 
   const socials: WebsiteSignals["socials"] = [];
-  for (const href of head.matchAll(/href\s*=\s*["'](https?:\/\/[^"']+)["']/gi)) {
+  for (const href of head.matchAll(/href\s*=\s*["'](https?:\/\/[^"']{1,500})["']/gi)) {
     try {
       const url = new URL(decodeEntities(href[1]));
       const host = url.hostname.replace(/^www\.|^m\./, "");
@@ -100,16 +102,18 @@ export function extractBrandSignals(html: string, pageUrl: string): WebsiteSigna
   return { url: pageUrl, name: name?.slice(0, 120) || null, description: description?.slice(0, 600) || null, colors, fonts: fonts.slice(0, 4), socials };
 }
 
-/** IPs a las que nunca se conecta el servidor (red local, loopback, metadatos de nube…). */
+/** Redes a las que nunca se conecta el servidor (local, privadas, metadatos, IPv6 que envuelven IPv4…). */
+const blocked4 = new BlockList();
+/** Lista aparte: BlockList compara IPv4 contra subredes IPv4-mapeadas, y ::ffff:0:0/96 bloquearía todo IPv4. */
+const blocked6 = new BlockList();
+for (const [net, prefix] of [["0.0.0.0", 8], ["10.0.0.0", 8], ["100.64.0.0", 10], ["127.0.0.0", 8], ["169.254.0.0", 16], ["172.16.0.0", 12], ["192.0.0.0", 24], ["192.0.2.0", 24], ["192.88.99.0", 24], ["192.168.0.0", 16], ["198.18.0.0", 15], ["198.51.100.0", 24], ["203.0.113.0", 24], ["224.0.0.0", 3]] as const) blocked4.addSubnet(net, prefix, "ipv4");
+for (const [net, prefix] of [["::", 96], ["::ffff:0:0", 96], ["64:ff9b::", 96], ["64:ff9b:1::", 48], ["100::", 64], ["2001::", 32], ["2001:db8::", 32], ["2002::", 16], ["fc00::", 7], ["fe80::", 10], ["fec0::", 10], ["ff00::", 8]] as const) blocked6.addSubnet(net, prefix, "ipv6");
+
 export function isPrivateAddress(address: string): boolean {
-  const mapped = address.toLowerCase().match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-  const ip = mapped ? mapped[1] : address.toLowerCase();
-  if (isIP(ip) === 4) {
-    const [a, b] = ip.split(".").map(Number);
-    return a === 0 || a === 10 || a === 127 || a >= 224 || (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 198 && (b === 18 || b === 19));
-  }
-  if (isIP(ip) === 6) return ip === "::" || ip === "::1" || /^f[cd]/.test(ip) || /^fe[89ab]/.test(ip) || ip.startsWith("ff");
-  return true;
+  const type = isIP(address);
+  if (type === 0) return true;
+  // IPv6 que envuelven IPv4 (::ffff:a.b.c.d, ::a.b.c.d, NAT64, 6to4) se bloquean completas: ninguna web pública las necesita.
+  return type === 4 ? blocked4.check(address, "ipv4") : blocked6.check(address, "ipv6");
 }
 
 export function publicWebsiteUrl(value: unknown): URL | null {
@@ -130,13 +134,15 @@ type Deps = { fetcher?: typeof fetch; lookup?: (host: string) => Promise<{ addre
 export async function readWebsiteSignals(input: unknown, deps: Deps = {}): Promise<{ ok: true; signals: WebsiteSignals } | { ok: false; message: string }> {
   const fetcher = deps.fetcher ?? fetch;
   const lookup = deps.lookup ?? ((host: string) => dnsLookup(host, { all: true, verbatim: true }));
+  const deadline = AbortSignal.timeout(10_000);
+  const withDeadline = <T,>(work: Promise<T>) => Promise.race([work, new Promise<never>((_, reject) => { deadline.addEventListener("abort", () => reject(new Error("deadline")), { once: true }); if (deadline.aborted) reject(new Error("deadline")); })]);
   let url = publicWebsiteUrl(input);
   if (!url) return { ok: false, message: "Escribe la dirección pública de tu web, por ejemplo https://tunegocio.com." };
   try {
     for (let hop = 0; hop < 4; hop++) {
-      const addresses = await lookup(url.hostname);
+      const addresses = await withDeadline(lookup(url.hostname));
       if (!addresses.length || addresses.some((entry) => isPrivateAddress(entry.address))) return { ok: false, message: "No podemos leer esa dirección. Usa la web pública de tu negocio." };
-      const response = await fetcher(url.href, { redirect: "manual", cache: "no-store", signal: AbortSignal.timeout(6000), headers: { Accept: "text/html", "User-Agent": "EVOLUSA-brandbook/1.0" } });
+      const response = await fetcher(url.href, { redirect: "manual", cache: "no-store", signal: AbortSignal.any([AbortSignal.timeout(6000), deadline]), headers: { Accept: "text/html", "User-Agent": "EVOLUSA-brandbook/1.0" } });
       if (response.status >= 300 && response.status < 400) {
         const next = publicWebsiteUrl(new URL(response.headers.get("location") ?? "", url).href);
         await response.body?.cancel();
@@ -152,7 +158,7 @@ export async function readWebsiteSignals(input: unknown, deps: Deps = {}): Promi
       const chunks: Uint8Array[] = [];
       let size = 0;
       while (size < maxHtml) {
-        const part = await reader.read();
+        const part = await withDeadline(reader.read());
         if (part.done) break;
         size += part.value.byteLength;
         chunks.push(part.value);

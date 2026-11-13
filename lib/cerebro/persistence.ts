@@ -4,6 +4,7 @@ import { businessOwnerAllowed } from "@/lib/professional-business/validation";
 import { generateDraft, type DraftResult } from "./engine";
 import { brandKitId, voiceProfileId } from "./identity";
 import { brandFileSteps, brandImageAllowed, brandKitVersion, normalizeHexColor, parseBrandKit, type BrandKit } from "./brand-kit";
+import { checkDraft } from "./compliance";
 import { readWebsiteSignals, type WebsiteSignals } from "./website-absorb";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { loadOwnerBrandReference } from "@/lib/professional-planner/owner-brand-source";
@@ -52,7 +53,8 @@ export async function getMyBrandKit(): Promise<{ available: boolean; brand: Bran
   if (!context) return { available: false, brand: null };
   const { data, error } = await context.db.from("onboarding_responses").select("answers").eq("id", brandKitId(context.user.id)).eq("user_id", context.user.id).eq("roadmap_version", brandKitVersion).maybeSingle();
   const brand = brandParser(context.user.id)(data?.answers);
-  return { available: !error && (!data || Boolean(brand)), brand };
+  // Una fila ilegible no bloquea la página: se puede volver a guardar encima.
+  return { available: !error, brand };
 }
 
 export async function saveMyBrandKit(input: unknown) {
@@ -60,6 +62,8 @@ export async function saveMyBrandKit(input: unknown) {
   if (!context) return { saved: false, message: "Necesitas tu sesión profesional y un perfil propio para guardar." };
   const brand = brandParser(context.user.id)(input);
   if (!brand) return { saved: false, message: "Revisa el brandbook: al menos un color, el nombre del encargado y, si subiste imágenes, la confirmación de que puedes usarlas." };
+  const review = checkDraft([brand.about, brand.visualRules].join("\n"));
+  if (review.status === "blocked") return { saved: false, message: `Tu descripción o tus reglas tienen un texto que EVOLUSA no permite publicar (${review.issues.filter((issue) => issue.level === "block").map((issue) => issue.message).join(" ")}). Quítalo antes de guardar.` };
   const { data, error } = await context.db.from("onboarding_responses").upsert({ id: brandKitId(context.user.id), user_id: context.user.id, answers: brand, selected_needs: [], roadmap_version: brandKitVersion }, { onConflict: "id" }).select("answers,user_id").single();
   const stored = brandParser(context.user.id)(data?.answers);
   if (error || data?.user_id !== context.user.id || JSON.stringify(stored) !== JSON.stringify(brand)) return { saved: false, message: "No pudimos confirmar el guardado. Tus cambios siguen en el formulario." };

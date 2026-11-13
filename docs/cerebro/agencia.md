@@ -80,3 +80,11 @@ Sacadas de `ESTADO.md` (Siguiente y Bloqueado, 2026-10-20). Al cerrar una, `esta
 - Dominio remitente verificado en Resend (el registro falla con SMTP 550 en modo pruebas).
 - Merge de PRs, Stripe Live (en pausa hasta definir la entidad legal) y migraciones al Supabase vivo.
 - Laura / 1MIGRATION: inmigración es categoría **regulada**. Su perfil público y cualquier conexión del reparto 70/30 siguen bloqueados hasta que el dueño lo confirme con un asesor (`docs/cerebro/decisiones.md`). Mientras tanto solo se permite enlazar a páginas públicas existentes (p. ej. `/profesionales`), sin presentarla como profesional verificada.
+
+## Fase 0 de la agencia por profesional: «Mi marca» (13-nov-2026, PR #140)
+- Ruta canónica del expediente: `/panel-profesional/marca` (negocio + voz + brandbook con encargado). `/panel-profesional/perfil` solo enlaza a ella.
+- Cada perfil ajusta y aprueba su propio brandbook; el encargado por defecto es el propio profesional. El dueño de EVOLUSA no aprueba por otros perfiles.
+- «Generar borrador desde mis cuentas» lee la web pública (con guardas SSRF) y el Instagram conectado; solo propone, no guarda.
+- Los borradores con IA (planner, prueba de voz, Growth Automation) exigen el expediente completo.
+- Temporal: el brandbook vive en `onboarding_responses` (`brand-kit-v1`). Pasará a tabla propia con RLS cuando haya versiones o más de un brandbook por perfil.
+- Pendiente: límite de uso por profesional de la lectura de la web y cierre de la ventana de DNS rebinding con un agente HTTP propio (riesgo bajo en Vercel).

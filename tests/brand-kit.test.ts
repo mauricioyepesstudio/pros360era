@@ -67,8 +67,9 @@ test("website signals: name, description, colors, fonts and socials", () => {
 });
 
 test("website reader refuses private hosts and odd URLs", async () => {
-  for (const ip of ["127.0.0.1", "10.0.0.5", "169.254.169.254", "192.168.1.1", "172.20.0.1", "::1", "fd00::1", "::ffff:10.0.0.1", "100.64.0.1"]) assert.ok(isPrivateAddress(ip), ip);
+  for (const ip of ["127.0.0.1", "10.0.0.5", "169.254.169.254", "192.168.1.1", "172.20.0.1", "0.0.0.0", "::", "::1", "fd00::1", "::ffff:10.0.0.1", "::ffff:7f00:1", "::ffff:a9fe:a9fe", "64:ff9b::7f00:1", "::7f00:1", "2002:7f00:1::", "100.64.0.1", "not-an-ip"]) assert.ok(isPrivateAddress(ip), ip);
   assert.equal(isPrivateAddress("93.184.216.34"), false);
+  assert.equal(isPrivateAddress("2606:4700::1111"), false);
   assert.equal(publicWebsiteUrl("http://user:pw@site.com"), null);
   assert.equal(publicWebsiteUrl("https://site.com:8080"), null);
   assert.equal(publicWebsiteUrl("https://127.0.0.1"), null);
@@ -89,4 +90,13 @@ test("website reader re-checks every redirect hop", async () => {
   const result = await readWebsiteSignals("https://site.com", { fetcher, lookup });
   assert.equal(result.ok, false);
   assert.deepEqual(calls, ["https://site.com/"]);
+});
+
+test("hostile HTML (unclosed tags) is parsed fast", () => {
+  const started = Date.now();
+  extractBrandSignals("<style>" + "a".repeat(1_500_000), "https://site.com/");
+  extractBrandSignals("<title".repeat(200_000), "https://site.com/");
+  extractBrandSignals("<meta ".repeat(200_000), "https://site.com/");
+  extractBrandSignals(' href="https://'.repeat(100_000), "https://site.com/");
+  assert.ok(Date.now() - started < 1500, `took ${Date.now() - started} ms`);
 });

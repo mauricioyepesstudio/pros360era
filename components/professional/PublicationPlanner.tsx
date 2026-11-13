@@ -25,6 +25,7 @@ import { savePlannerAction } from "@/app/(account)/panel-profesional/planner/act
 import { addPlannerSuggestions, type PlannerSuggestion } from "@/lib/professional-planner/suggestions";
 import { generatePlannerIdeasAction } from "@/app/(account)/panel-profesional/planner/ai-actions";
 import PlannerImport from "@/components/professional/PlannerImport";
+import ButtonLink from "@/components/ui/ButtonLink";
 
 export type PlannerImageOption = { src: string; label: string };
 
@@ -431,11 +432,11 @@ export default function PublicationPlanner({
         {!brandFile.ready ? <div className="mt-4 space-y-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--sky-surface)] p-4">
           <p className="font-semibold text-[var(--brand-navy)]">Completa tu expediente de marca para generar borradores con IA</p>
           <p className="text-sm">Te falta: {brandFile.missing.join(", ")}. Puedes empezar tu brandbook desde tu web y tu Instagram conectado.</p>
-          <Link href="/panel-profesional/marca" className="inline-flex min-h-11 items-center rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white">Completar mi expediente</Link>
+          <ButtonLink href="/panel-profesional/marca">Completar mi expediente</ButtonLink>
         </div> : <div className="mt-4 space-y-3">
           <label className="block text-sm font-semibold">Tema para un borrador con tu voz<input value={aiTopic} maxLength={240} onChange={event => setAiTopic(event.target.value)} className={field} /></label>
           <button type="button" disabled={aiLoading || aiTopic.trim().length < 8} onClick={() => void proposeWithAI()} className="min-h-11 rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white disabled:opacity-60">{aiLoading ? "Generando borrador…" : "Generar un borrador"}</button>
-          <p className="text-xs text-[var(--muted)]">Usa tu voz, tu negocio y tu brandbook guardados. Revisa el texto antes de añadirlo como Idea. No genera imágenes ni publica.</p>
+          <p className="text-xs text-[var(--muted)]">Usa tu voz, tu negocio y tu brandbook guardados. Revisa el texto antes de añadirlo como Idea. No genera imágenes ni publica. Es un borrador generado con IA: tú eres responsable de revisarlo.</p>
           {aiError && <p role="alert" className="text-sm text-red-700">{aiError}</p>}
         </div>}
 

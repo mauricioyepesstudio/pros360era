@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -46,11 +47,17 @@ export default function BrandKitForm({ initial, websiteUrl, ownerName }: { initi
           fonts: current.fonts || result.proposal.fonts,
           about: current.about || result.proposal.about.slice(0, 600),
         }));
-          } catch {
+      } catch {
         setProposalError("No pudimos leer tus cuentas ahora. Inténtalo de nuevo.");
       }
     });
   }
+
+  const missing = [
+    !fields.colors.length && "al menos un color",
+    !fields.manager.trim() && "el encargado de tu marca",
+    fields.imageUrls.length > 0 && !fields.imagesConsent && "confirmar el permiso de las imágenes (para quitar el permiso, primero quita las imágenes)",
+  ].filter(Boolean) as string[];
 
   function addColor(value: string) {
     const color = normalizeHexColor(value);
@@ -59,7 +66,7 @@ export default function BrandKitForm({ initial, websiteUrl, ownerName }: { initi
   }
 
   async function upload(file: File) {
-    if (!fields.imagesConsent) { setMessage("Primero confirma que puedes usar estas imágenes en tus publicaciones."); return; }
+    if (!fields.imagesConsent) { setMessage("Primero confirma que tienes permiso para usar estas imágenes y que quedarán en un enlace público."); return; }
     if (fields.imageUrls.length >= brandKitMaxImages) { setMessage(`Tu brandbook admite hasta ${brandKitMaxImages} imágenes.`); return; }
     setUploading(true);
     setMessage("");
@@ -99,27 +106,27 @@ export default function BrandKitForm({ initial, websiteUrl, ownerName }: { initi
       <div className="space-y-6">
         <div>
           <h2 id="brandbook-heading" className="text-lg font-bold text-[var(--brand-navy)]">Mi brandbook</h2>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Los colores, letras e imágenes de tu marca. El cerebro los usa para proponerte piezas solo con tu línea gráfica; nunca mezcla otra marca.</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Los colores, letras e imágenes de tu marca. La IA los usa como guía para proponerte piezas con tu línea gráfica. Revisa siempre cada pieza antes de usarla.</p>
         </div>
 
         <section aria-labelledby="from-accounts" className="space-y-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--sky-surface)] p-4">
           <h3 id="from-accounts" className="font-bold text-[var(--brand-navy)]">Empezar desde mis cuentas</h3>
-          <p className="text-sm leading-6">Leemos tu web pública y tu Instagram conectado y te proponemos un borrador. Es un borrador: tú lo ajustas y lo apruebas al guardar. Nadie más lo aprueba por ti.</p>
-          <FormField id="brand-site" label="Tu web" hint="Si la dejas vacía usamos la de «Mi perfil».">
+          <p className="text-sm leading-6">Leemos tu web pública y, si conectaste Instagram, el color de tus publicaciones, solo para sugerirte un borrador de colores, tipografías y descripción. Tú lo ajustas y lo apruebas al guardar; nadie más lo aprueba por ti y no guardamos nada antes. Más detalles en la <Link href="/privacidad" className="font-semibold underline">política de privacidad</Link>.</p>
+          <FormField id="brand-site" label="Tu web" hint="Usa la web de tu propio negocio. Si la dejas vacía usamos la de «Mi perfil».">
             <Input id="brand-site" inputMode="url" maxLength={500} value={site} onChange={(e) => setSite(e.target.value)} placeholder="https://tunegocio.com" />
           </FormField>
           <Button type="button" variant="secondary" disabled={pending} onClick={generateFromAccounts}>{pending ? "Leyendo tus cuentas…" : "Generar borrador desde mis cuentas"}</Button>
-          {proposalError && <p role="alert" className="text-sm text-[var(--danger)]">{proposalError}</p>}
+          <div role="alert" className="text-sm text-[var(--danger)]">{proposalError}</div>
           {proposal && (
             <div aria-live="polite" className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-white p-3 text-sm">
-              <p className="font-semibold">Encontramos:</p>
+              <p className="font-semibold">Esto leímos:</p>
               <ul className="list-disc space-y-1 pl-5">
                 {proposal.sources.map((source) => <li key={source}>{source}</li>)}
                 {proposal.website?.name && <li>Nombre en tu web: {proposal.website.name}</li>}
                 {proposal.website?.socials.map((social) => <li key={social.url}>{socialLabel[social.platform]} enlazado en tu web: {social.url}</li>)}
               </ul>
               {proposal.websiteError && <p className="text-[var(--danger)]">{proposal.websiteError}</p>}
-              <p className="text-[var(--muted)]">Completamos los campos vacíos de abajo. Revísalos: es solo un borrador.</p>
+              <p className="text-[var(--muted)]">Completamos los campos vacíos de abajo con lo que dice tu web. Revísalos: si hay cifras, promesas o la palabra «verificado», quítalas.</p>
             </div>
           )}
         </section>
@@ -129,16 +136,16 @@ export default function BrandKitForm({ initial, websiteUrl, ownerName }: { initi
             <FormField id="brand-colors" label="Colores de marca" hint={`El primero es el principal. Hasta ${brandKitMaxColors}.`} required>
               <div className="flex flex-wrap items-center gap-2">
                 {fields.colors.map((color, index) => (
-                  <span key={color} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--border)] bg-white py-1 pl-1 pr-3 text-sm">
+                  <span key={color} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--border)] bg-white py-1 pl-1 pr-1 text-sm">
                     <span aria-hidden className="size-8 rounded-full border border-[var(--border)]" style={{ background: color }} />
                     {color}{index === 0 && " · principal"}
-                    <button type="button" aria-label={`Quitar ${color}`} onClick={() => update("colors", fields.colors.filter((c) => c !== color))} className="ml-1 rounded-full p-1 hover:bg-[var(--sky-surface)]"><Trash2 aria-hidden size={14} /></button>
+                    <button type="button" aria-label={`Quitar ${color}`} onClick={() => update("colors", fields.colors.filter((c) => c !== color))} className="inline-flex size-11 items-center justify-center rounded-full hover:bg-[var(--sky-surface)]"><Trash2 aria-hidden size={14} /></button>
                   </span>
                 ))}
                 {fields.colors.length < brandKitMaxColors && (
                   <span className="inline-flex items-center gap-2">
-                    <input id="brand-colors" type="color" aria-label="Elegir color" value={newColor} onChange={(e) => setNewColor(e.target.value)} className="size-11 cursor-pointer rounded-full border border-[var(--border)]" />
-                    <Button type="button" variant="ghost" onClick={() => addColor(newColor)}>Añadir color</Button>
+                    <input id="brand-colors" type="color" aria-label="Elegir un color nuevo" value={newColor} onChange={(e) => setNewColor(e.target.value)} className="size-11 cursor-pointer rounded-full border border-[var(--border)]" />
+                    <Button type="button" variant="secondary" onClick={() => addColor(newColor)}>Añadir color</Button>
                   </span>
                 )}
               </div>
@@ -155,35 +162,40 @@ export default function BrandKitForm({ initial, websiteUrl, ownerName }: { initi
 
             <div className="space-y-3">
               <p className="font-semibold text-[var(--brand-navy)]">Imágenes de tu brandbook</p>
-              <p className="text-sm text-[var(--muted)]">Logo, fotos tuyas o de tu negocio, piezas que te gustan. Aparecen en tu planner para usarlas en publicaciones. Hasta {brandKitMaxImages}.</p>
+              <p className="text-sm text-[var(--muted)]">Logo, fotos de tu negocio y piezas propias o con licencia. No subas diseños de otras marcas ni documentos privados (identificaciones, contratos, formularios, datos de clientes). Cada imagen queda en un enlace público para poder usarla en tus publicaciones del planner. Hasta {brandKitMaxImages}.</p>
               <label className="flex min-h-11 items-start gap-3 text-sm">
                 <input type="checkbox" checked={fields.imagesConsent} onChange={(e) => update("imagesConsent", e.target.checked)} className="mt-0.5 h-5 w-5" />
-                Confirmo que estas imágenes son mías o tengo permiso para usarlas en publicaciones públicas, y que las personas que aparecen están de acuerdo.
+                Confirmo que soy dueño de estas imágenes o tengo permiso para usarlas en publicaciones públicas. Si aparece una persona, tiene mi permiso por escrito, o el de su madre, padre o tutor si es menor, para mostrar su imagen. Entiendo que cada imagen subida queda en un enlace público.
               </label>
               {fields.imageUrls.length > 0 && (
                 <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                   {fields.imageUrls.map((url, index) => (
                     <li key={url} className="relative">
                       <Image unoptimized src={url} alt={`Imagen ${index + 1} del brandbook`} width={300} height={300} className="aspect-square w-full rounded-[var(--radius-md)] border border-[var(--border)] object-cover" />
-                      <button type="button" aria-label={`Quitar imagen ${index + 1}`} onClick={() => update("imageUrls", fields.imageUrls.filter((u) => u !== url))} className="absolute right-1 top-1 rounded-full bg-white p-2 shadow"><Trash2 aria-hidden size={14} /></button>
+                      <button type="button" aria-label={`Quitar imagen ${index + 1}`} onClick={() => update("imageUrls", fields.imageUrls.filter((u) => u !== url))} className="absolute right-0 top-0 inline-flex size-11 items-center justify-center rounded-full bg-white shadow"><Trash2 aria-hidden size={14} /></button>
                     </li>
                   ))}
                 </ul>
               )}
               {fields.imageUrls.length < brandKitMaxImages && (
-                <label className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-[var(--border)] bg-white px-4 font-semibold">
-                  {uploading ? "Subiendo…" : "Subir imagen (JPG, PNG o WebP, menos de 4 MB)"}
-                  <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading || !fields.imagesConsent} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void upload(file); }} />
-                </label>
+                <div className="space-y-1">
+                  <label aria-disabled={!fields.imagesConsent || uploading} className={`inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-white px-4 font-semibold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--brand-blue)] ${fields.imagesConsent && !uploading ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
+                    {uploading ? "Subiendo…" : "Subir imagen (JPG, PNG o WebP, menos de 4 MB)"}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading || !fields.imagesConsent} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void upload(file); }} />
+                  </label>
+                  {!fields.imagesConsent && <p className="text-sm text-[var(--muted)]">Marca la casilla de arriba para subir imágenes.</p>}
+                </div>
               )}
             </div>
 
-            <FormField id="brand-manager" label="Encargado de branding y community manager de este perfil" hint="Quien revisa y aprueba cada pieza de este perfil antes de publicarse. Por defecto eres tú; cámbialo solo si alguien de tu equipo lo hace por ti." required>
+            <FormField id="brand-manager" label="Encargado de tu marca" hint="Quien hace el branding y el community management de este perfil y aprueba cada pieza antes de publicarse. Por defecto eres tú; cámbialo solo si alguien de tu equipo lo hace por ti." required>
               <Input id="brand-manager" required maxLength={120} value={fields.manager} onChange={(e) => update("manager", e.target.value)} placeholder="Nombre de la persona" />
             </FormField>
-            <Button type="submit" disabled={pending || uploading || !fields.colors.length || !fields.manager.trim()}>{pending ? "Guardando…" : "Guardar mi brandbook"}</Button>
+            {missing.length > 0 && <p id="brand-missing" className="text-sm text-[var(--muted)]">Para guardar falta: {missing.join(", ")}.</p>}
+            <Button type="submit" aria-describedby={missing.length ? "brand-missing" : undefined} disabled={pending || uploading || missing.length > 0}>{pending ? "Guardando…" : "Guardar mi brandbook"}</Button>
           </fieldset>
-          {message && <p role="status" aria-live="polite" className={messageOk ? "text-sm font-semibold text-[var(--success)]" : "text-sm text-[var(--danger)]"}>{message}</p>}
+          <div role="status" aria-live="polite" className="text-sm font-semibold text-[var(--success-text)]">{messageOk ? message : ""}</div>
+          <div role="alert" className="text-sm text-[var(--danger)]">{!messageOk ? message : ""}</div>
         </form>
       </div>
     </Card>

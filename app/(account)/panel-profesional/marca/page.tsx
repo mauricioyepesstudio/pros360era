@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ButtonLink from "@/components/ui/ButtonLink";
 import { CheckCircle2, Circle } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 import BrandKitForm from "@/components/professional/BrandKitForm";
@@ -21,8 +22,8 @@ export default async function BrandFilePage() {
     <div className="space-y-8">
       <PageHeader
         eyebrow="Panel profesional"
-        title="Mi expediente de marca"
-        description="Tu agencia trabaja con lo que guardes aquí: tu negocio, cómo hablas y tu línea gráfica. Con los tres pasos listos se desbloquean los borradores con IA del planner. Nada se publica sin tu aprobación."
+        title="Mi marca"
+        description="Tu expediente de marca. Los borradores con IA de EVOLUSA usan lo que guardes aquí: tu negocio, cómo hablas y tu línea gráfica. Con los tres pasos listos se desbloquean en el planner. Tú revisas y apruebas todo; nada se publica sin tu aprobación."
       />
       {!profile ? (
         <p role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">Todavía no encontramos tu perfil profesional.</p>
@@ -33,7 +34,7 @@ export default async function BrandFilePage() {
             <ol className="mt-4 grid gap-3 sm:grid-cols-3">
               {file.steps.map((step, index) => (
                 <li key={step.id}>
-                  <Link href={step.href} className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2 font-semibold hover:bg-[var(--sky-surface)]">
+                  <Link href={step.href} className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2 font-semibold hover:bg-[var(--sky-surface)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-blue)]">
                     {step.done ? <CheckCircle2 aria-hidden className="text-[var(--success)]" size={20} /> : <Circle aria-hidden className="text-[var(--muted)]" size={20} />}
                     <span>{index + 1}. {step.label}</span>
                     <span className="sr-only">{step.done ? "(listo)" : "(pendiente)"}</span>
@@ -41,7 +42,7 @@ export default async function BrandFilePage() {
                 </li>
               ))}
             </ol>
-            {file.ready && <Link href="/panel-profesional/planner?review=weekly" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-[var(--brand-navy)] px-5 font-semibold text-white">Ir al planner</Link>}
+            {file.ready && <ButtonLink href="/panel-profesional/planner?review=weekly" className="mt-4">Ir al planner</ButtonLink>}
           </nav>
           <section id="mi-negocio" className="scroll-mt-24">
             {file.business.available ? <ProfessionalBusinessForm initial={file.business.business} displayName={profile.displayName} location={[profile.city, profile.state].filter(Boolean).join(", ")} /> : <p role="alert">No pudimos cargar tu negocio. Reintenta antes de cambiarlo.</p>}

@@ -62,6 +62,7 @@
   --muted: #64748b;
   --border: #e2e8f0;
   --success: #2e8b57;
+  --success-text: #1f7a4a;
   --warning: #9a6500;
   --danger: var(--brand-red);
   --focus: #2563eb;
