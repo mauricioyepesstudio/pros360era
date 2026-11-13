@@ -25,7 +25,7 @@ export function HomeRoleBarView({ role }: { role: AccountRole }) {
   const detail = admin
     ? "Puedes abrir el panel de usuario o el panel profesional."
     : pro
-      ? "Tu panel tiene Clientes, Oportunidades, Planner y Redes."
+      ? "Tu panel tiene Clientes, Oportunidades, Planner y Crecimiento."
       : "Tu panel tiene tu plan, tus conexiones y tu siguiente paso.";
 
   return (

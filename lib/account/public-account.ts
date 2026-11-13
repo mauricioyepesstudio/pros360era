@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { getCurrentAccountIdentity } from "@/lib/account/persistence";
 import { getAdminView } from "@/lib/account/role-gate";
 import { getAuthReadiness } from "@/lib/auth/config";
@@ -13,7 +14,8 @@ export type PublicAccount = { signedIn: boolean; role: AccountRole | null; view?
  */
 export async function getPublicAccount(): Promise<PublicAccount> {
   if (!getAuthReadiness().configured) return { signedIn: false, role: null };
-  const identity = await getCurrentAccountIdentity();
+  let identity: Awaited<ReturnType<typeof getCurrentAccountIdentity>>;
+  try { identity = await getCurrentAccountIdentity(); } catch (error) { unstable_rethrow(error); return { signedIn: false, role: null }; }
   if (identity.status === "signed_out") return { signedIn: false, role: null };
   if (identity.status !== "ready") return { signedIn: true, role: null };
   return { signedIn: true, role: identity.role, view: identity.role === "ADMIN" ? await getAdminView() : undefined };

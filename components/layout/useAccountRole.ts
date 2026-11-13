@@ -38,6 +38,8 @@ export function useAccountRole(): HomeAccount {
       } catch { /* Keep "signed in" without a role: the header still links to /dashboard. */ }
     }
     const supabase = createSupabaseBrowserClient();
+    // Signed in but the server could not read the role: ask again here.
+    if (initial?.signedIn && !initial.role) void refresh();
     if (!initial) {
       void supabase.auth.getSession().then(({ data }) => {
         if (cancelled) return;
