@@ -2,6 +2,7 @@
  * Instrucciones del cerebro para redactar. Un solo lugar para el tono, las
  * reglas de EVOLUSA y el perfil de voz, en español. Puro, sin red.
  */
+import type { BrandKit } from "./brand-kit.ts";
 import { voiceLanguages, voiceTones, wordList, type VoiceProfile } from "./voice-profile.ts";
 
 export const draftPlatforms = ["instagram", "facebook", "linkedin"] as const;
@@ -18,7 +19,7 @@ const platformGuide: Record<DraftPlatform, string> = {
   linkedin: "LinkedIn: entre 600 y 1.500 caracteres, tono profesional, aporta una idea útil, de 0 a 3 hashtags.",
 };
 
-export function buildSystemPrompt(voice: VoiceProfile, business: DraftBusiness): string {
+export function buildSystemPrompt(voice: VoiceProfile, business: DraftBusiness, brand?: BrandKit | null): string {
   const tone = voiceTones.find((t) => t.id === voice.tone)?.label ?? voice.tone;
   const language = voiceLanguages.find((l) => l.id === voice.language)?.label ?? voice.language;
   const useWords = wordList(voice.useWords);
@@ -48,6 +49,12 @@ export function buildSystemPrompt(voice: VoiceProfile, business: DraftBusiness):
     `- Servicios: ${business.services}`,
     `- Oferta: ${business.offer}`,
     `- Zona: ${business.location}`,
+    brand ? "" : null,
+    brand ? "Marca visual (úsala para describir la idea de la imagen o el video; nunca mezcles otra marca):" : null,
+    brand ? `- Colores: ${brand.colors.join(", ")}.` : null,
+    brand?.fonts ? `- Tipografías: ${brand.fonts}` : null,
+    brand?.about ? `- Sobre la marca: ${brand.about}` : null,
+    brand?.visualRules ? `- Reglas visuales: ${brand.visualRules}` : null,
     "",
     "El aviso legal del perfil lo agrega el sistema al final; no lo repitas ni lo cambies.",
     "Responde solo con JSON válido, sin texto antes ni después, con esta forma:",

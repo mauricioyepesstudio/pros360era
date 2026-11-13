@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bot, Briefcase, CalendarDays, Handshake, IdCard, LayoutDashboard, LogOut, Map, Rocket, ShieldCheck, UserRound, Users, type LucideIcon } from "lucide-react";
+import { Bot, Briefcase, CalendarDays, Handshake, IdCard, LayoutDashboard, LogOut, Map, Palette, Rocket, ShieldCheck, UserRound, Users, type LucideIcon } from "lucide-react";
 import BrandMark from "@/components/evolusa/BrandMark";
 import { cn } from "@/lib/cn";
 import { getAuthReadiness } from "@/lib/auth/config";
@@ -22,6 +22,7 @@ const navIcons: Record<AccountNavIcon, LucideIcon> = {
   users: Users,
   rocket: Rocket,
   calendar: CalendarDays,
+  palette: Palette,
   shield: ShieldCheck,
 };
 
