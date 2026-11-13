@@ -61,6 +61,30 @@ export function homeForRole(role: AccountRole): string {
   return role === "PROFESSIONAL" || role === "ADMIN" ? PROFESSIONAL_HOME : MEMBER_HOME;
 }
 
+/**
+ * Which panel the ADMIN (owner) is looking at. The owner is the only account
+ * that can open both panels, so the choice is remembered in a cookie and a
+ * visible switch flips it. Only a preference: every query stays scoped to
+ * the signed-in user by RLS, and MEMBER/PROFESSIONAL ignore it entirely.
+ */
+export type AdminView = "member" | "professional";
+export const ADMIN_VIEW_COOKIE = "evolusa_admin_view";
+
+export function parseAdminView(value: string | null | undefined): AdminView {
+  return value === "member" ? "member" : "professional";
+}
+
+export function adminViewHome(view: AdminView): string {
+  return view === "member" ? MEMBER_HOME : PROFESSIONAL_HOME;
+}
+
+/** Plain words shown on the home and in the panel so nobody has to guess. */
+export function roleLabels(role: AccountRole): { account: string; panel: string; short: string } {
+  if (role === "PROFESSIONAL") return { account: "Cuenta de profesional", panel: "Ir a mi panel profesional", short: "Profesional" };
+  if (role === "ADMIN") return { account: "Cuenta de administrador", panel: "Ir a mi panel", short: "Administrador" };
+  return { account: "Cuenta de usuario", panel: "Ir a mi panel de usuario", short: "Usuario" };
+}
+
 export function accountContextFor(role: AccountRole, pathname: string): AccountContext {
   if (role === "PROFESSIONAL" || (role === "ADMIN" && isProfessionalArea(pathname))) return "professional";
   if (
