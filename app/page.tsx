@@ -7,7 +7,8 @@ import HeroArtboard from "@/sections/home/HeroArtboard";
 import TrustStrip from "@/sections/home/TrustStrip";
 import StageJourney from "@/sections/home/StageJourney";
 import ThreeSteps from "@/sections/home/ThreeSteps";
-import ExplainerVideos from "@/sections/home/ExplainerVideos";
+import ExplainerVideo from "@/sections/home/ExplainerVideos";
+import UserBenefits from "@/sections/home/UserBenefits";
 import ProBand from "@/sections/home/ProBand";
 import Footer from "@/sections/home/Footer";
 import { getCurrentAccountIdentity } from "@/lib/account/persistence";
@@ -32,8 +33,10 @@ async function signedInSide(): Promise<PublicSide | null> {
 }
 
 /**
- * Home (owner-approved mockup v6, 3-nov): full-bleed photos, no framed
- * cards, sections told apart by the three brand colors (white, red, navy).
+ * The usuario home (owner, 13-nov): only what a usuario gets. Hero, one card
+ * per benefit, the usuario video, the 6 etapas and how to start. The
+ * profesional side lives at /para-profesionales; a signed-out visitor only
+ * gets a small door to it at the end.
  */
 export default async function Home() {
   const side = await signedInSide();
@@ -45,12 +48,13 @@ export default async function Home() {
 
       <main className="bg-white pt-24 text-[var(--foreground)]">
         <HomeRoleBar />
-        <HeroArtboard />
+        <HeroArtboard showProLink={side === null} />
         <TrustStrip />
-        <ExplainerVideos />
+        <UserBenefits />
+        <ExplainerVideo kind="usuario" />
         <StageJourney />
         <ThreeSteps />
-        {side !== "member" && <ProBand />}
+        {side === null && <ProBand />}
       </main>
 
       <Footer />
