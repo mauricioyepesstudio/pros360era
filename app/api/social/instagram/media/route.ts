@@ -26,7 +26,7 @@ export async function GET() {
   if (!token) return reply({ error: "Vuelve a conectar Instagram en Redes." }, 409);
   try {
     const url = new URL(`https://graph.instagram.com/${INSTAGRAM_GRAPH_VERSION}/${data.provider_account_id}/media`);
-    url.searchParams.set("fields", "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp");
+    url.searchParams.set("fields", "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count");
     url.searchParams.set("limit", "100");
     const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(8000) });
     const body = await response.json();
