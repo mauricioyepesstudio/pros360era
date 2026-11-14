@@ -3,6 +3,12 @@ import type { PostPublication } from "./publishing.ts";
 
 export type InstagramHistory = { posts: PlannerPost[]; publications: Record<string, PostPublication> };
 
+export function instagramEngagementLabel(likes: unknown, comments: unknown): string {
+  const metrics = [[likes, "Me gusta"], [comments, "Comentarios"]] as const;
+  return metrics.filter(([count]) => typeof count === "number" && Number.isSafeInteger(count) && count >= 0)
+    .map(([count, label]) => `${label}: ${count}`).join(" · ");
+}
+
 function https(value: unknown, instagramOnly = false): string | null {
   if (typeof value !== "string" || value.length > 2048) return null;
   try {
@@ -32,7 +38,7 @@ export function instagramHistory(value: unknown): InstagramHistory {
       platform: "instagram", format: permalink?.includes("/reel/") ? "9x16" : "1x1",
       title: caption.trim().split("\n")[0].slice(0, 140) || "Publicación de Instagram",
       caption, imageUrl: https(row.media_type === "VIDEO" ? row.thumbnail_url : row.media_url),
-      status: "PUBLISHED", note: "Publicación existente en tu Instagram. Importada al historial; no se vuelve a publicar.",
+      status: "PUBLISHED", note: [instagramEngagementLabel(row.like_count, row.comments_count), "Publicación existente en tu Instagram. Importada al historial; no se vuelve a publicar."].filter(Boolean).join(" · "),
     };
     if (!parseProfessionalPlanner({ posts: [post] })) continue;
     result.posts.push(post);
