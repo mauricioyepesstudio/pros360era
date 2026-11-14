@@ -39,6 +39,6 @@ test("Instagram engagement preserves zero and omits unavailable counts", () => {
     { ...media, like_count: 0, comments_count: 4 },
     { ...media, id: "456", like_count: null, comments_count: -1 },
   ] });
-  assert.match(history.posts[0].note, /Me gusta: 0 · Comentarios: 4/);
-  assert.doesNotMatch(history.posts[1].note, /Me gusta:|Comentarios:/);
+  assert.match(history.posts[0].note ?? "", /Me gusta: 0 · Comentarios: 4/);
+  assert.doesNotMatch(history.posts[1].note ?? "", /Me gusta:|Comentarios:/);
 });
