@@ -10,6 +10,9 @@ export function plannerSuggestions(kit: PreparedKit | null, displayName: string 
     { id: "suggest-presentation", title: displayName ? `Conoce a ${displayName}`.slice(0, 140) : "Presenta tu trabajo", caption: "Cuenta a quién ayudas, qué servicio ofreces y cómo pueden contactarte." },
     { id: "suggest-process", title: "Así es mi proceso de trabajo", caption: "Describe los pasos reales de tu servicio y qué necesita preparar la persona antes de empezar." },
     { id: "suggest-question", title: "Responde una pregunta frecuente", caption: "Elige una pregunta que recibas a menudo y escribe una respuesta útil, sin prometer resultados." },
+    { id: "suggest-ig-reel-demo", title: "Reel: demuestra un paso de tu servicio", caption: "Abre con la pregunta que resuelve el video. Muestra el paso con material propio y explica qué debe observar la audiencia. Cierra invitando a guardar la guía.", format: "reel" as const, note: "Prepara el guion y adjunta un video vertical antes de solicitar aprobación." },
+    { id: "suggest-ig-carousel-checklist", title: "Guía antes de contratar un servicio", caption: "Elige tres preguntas que un cliente debería hacer antes de contratar. Resume las preguntas en una pieza y añade criterios que el cliente pueda comprobar." },
+    { id: "suggest-ig-reel-myth", title: "Reel: aclara una duda común", caption: "Abre con una duda real, explica en qué casos aplica la respuesta y termina con una acción concreta. Revisa que el consejo corresponda a tu categoría profesional.", format: "reel" as const, note: "Usa ejemplos propios con permiso y revisa el guion antes de grabar." },
   ].map((item): PlannerSuggestion => ({ ...item, imageUrl: null, source: "Plantilla editable" }))];
 }
 
