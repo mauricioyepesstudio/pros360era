@@ -1,4 +1,4 @@
-const APP_ORIGIN = "https://evolusa.vercel.app";
+const APP_ORIGIN = "https://www.evolusa.us";
 const AUTH_ORIGIN = "https://ovialqdazxkekvqqgdiu.supabase.co";
 function allowedRequest(value, method) {
   let url;

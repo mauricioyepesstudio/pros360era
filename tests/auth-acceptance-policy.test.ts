@@ -4,7 +4,9 @@ import { createRequire } from "node:module";
 const { APP_ORIGIN, AUTH_ORIGIN, allowedRequest } = createRequire(import.meta.url)("../scripts/auth-acceptance-policy.cjs");
 
 test("acceptance allows own page and asset reads but blocks API side effects", () => {
+  assert.equal(APP_ORIGIN, "https://www.evolusa.us");
   assert.equal(allowedRequest(APP_ORIGIN + "/panel-profesional/perfil", "GET"), true);
+  assert.equal(allowedRequest("https://evolusa.vercel.app/login", "GET"), false);
   assert.equal(allowedRequest(APP_ORIGIN + "/_next/static/example.js", "GET"), true);
   for (const path of ["/api/social/threads/connect", "/api/crm/leads", "/auth/callback", "/auth/signout"]) {
     assert.equal(allowedRequest(APP_ORIGIN + path, "GET"), false);
