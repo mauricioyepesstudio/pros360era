@@ -23,3 +23,14 @@ export function pilotEnabled(): boolean {
   // Server-only switch: default OFF. Never expose on public pages unintentionally.
   return process.env.EVOLUSA_INQUIRY_PILOT_ENABLED === "true";
 }
+
+const directInquiryProfiles = new Set([
+  "mauricio-yepes-b96cae",
+  "jose-miguel-acosta-34c676",
+  "1migration-b2bfe2",
+  "marie-fernandez-efff0e",
+]);
+
+export function supportsDirectInquiry(slug: string): boolean {
+  return directInquiryProfiles.has(slug);
+}
