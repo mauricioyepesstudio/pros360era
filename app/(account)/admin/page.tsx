@@ -4,6 +4,8 @@ import PageHeader from "@/components/account/PageHeader";
 import InitialCallInbox from "@/components/initial-call/InitialCallInbox";
 import ApplicationsTable from "@/components/admin/ApplicationsTable";
 import ExistingProfilesTable from "@/components/admin/ExistingProfilesTable";
+import IdentityVerificationQueue from "@/components/admin/IdentityVerificationQueue";
+import { getIdentityVerificationQueue } from "@/lib/professional/identity-verification-server";
 import { getCurrentRole } from "@/lib/account/persistence";
 import { getAdminDashboardStats, getProfessionalApplications, getUnappliedProfessionalProfiles } from "@/lib/admin/persistence";
 
@@ -19,11 +21,13 @@ export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "ADMIN") redirect("/dashboard");
 
-  const [stats, applications, existingProfiles] = await Promise.all([
+  const [stats, applications, existingProfiles, identityQueue] = await Promise.all([
     getAdminDashboardStats(),
     getProfessionalApplications(),
     getUnappliedProfessionalProfiles(),
+    getIdentityVerificationQueue(),
   ]);
+  const identityVerified = identityQueue.filter((row) => row.status === "VERIFIED").length;
 
   const pending = applications.filter((application) => application.status === "PENDING");
   const reviewed = applications.filter((application) => application.status !== "PENDING");
@@ -72,6 +76,12 @@ export default async function AdminPage() {
         <h2 className="text-lg font-bold text-[var(--brand-navy)]">Perfiles sin solicitud ({existingProfiles.length})</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">Perfiles existentes sin una solicitud asociada. Requieren motivo y confirmación del administrador.</p>
         <div className="mt-4"><ExistingProfilesTable profiles={existingProfiles} /></div>
+      </div>
+
+      <div id="verificacion">
+        <h2 className="text-lg font-bold text-[var(--brand-navy)]">Verificación de identidad ({identityVerified} de {identityQueue.length} aprobados verificados)</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">Aprobado no es verificado. Marca la identidad solo después de revisar el documento; el archivo se borra al decidir.</p>
+        <div className="mt-4"><IdentityVerificationQueue rows={identityQueue} /></div>
       </div>
 
       {reviewed.length > 0 && (
