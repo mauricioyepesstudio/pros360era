@@ -33,6 +33,7 @@ test("approved -> verified requires submitted evidence and an ADMIN decision",as
  create function storage.foldername(name text) returns text[] language sql as $$ select string_to_array(name,'/') $$;
  grant usage on schema auth, storage to authenticated;
  create table public.profiles(id uuid primary key,role text not null);
+ grant select on public.profiles to authenticated; -- como en Supabase: las políticas de Storage consultan profiles
  create table public.professional_profiles(id uuid primary key,user_id uuid unique,slug text,display_name text,category text,is_approved boolean default false);
  create table public.professional_verifications(id uuid primary key default gen_random_uuid(),professional_profile_id uuid,verification_type text,
    status text default 'PENDING',verified_at timestamptz,internal_notes text,reviewed_by uuid,
