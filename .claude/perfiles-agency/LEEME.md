@@ -12,7 +12,6 @@ Esta carpeta **no** está dentro de `.claude/agents/`, así que Claude Code no l
 | `estado-keeper` | Jefe de gabinete | `specialized-chief-of-staff.md` |
 | `analista-metricas` | Analista de reportes | `support-analytics-reporter.md` |
 | `revenue-analyst` | Analista de embudo | `sales-pipeline-analyst.md` |
-| `finance-analyst` | Analista financiero | `finance-financial-analyst.md` |
 | `research-analyst` | Investigador de tendencias | `product-trend-researcher.md` |
 | `alianzas-canales` | Estratega de prospección y alianzas | `sales-outbound-strategist.md` |
 | `finanzas-unitarias` | Analista FP&A | `finance-fpa-analyst.md` |
@@ -27,15 +26,14 @@ Esta carpeta **no** está dentro de `.claude/agents/`, así que Claude Code no l
 | `growth-automation-guard` | Arquitecto de gobierno de automatizaciones | `automation-governance-architect.md` |
 | `taste` | Revisor final de acabado UI | `design-ui-finish-gate-reviewer.md` |
 | `growth-marketing-strategist` | Growth hacker | `marketing-growth-hacker.md` |
-| `marketing-strategist` | Estratega de negocio | `business-strategist.md` |
 | `social-content-lead` | Creador de contenido | `marketing-content-creator.md` |
-| `social-media-manager` | Estratega de redes sociales | `marketing-social-media-strategist.md` |
 | `seo-contenido-es` | Especialista SEO | `marketing-seo-specialist.md` |
 | `ventas-entrada` | Estratega de oferta y captación | `sales-offer-lead-gen-strategist.md` |
-| `brand-taste-lead` | Guardián de marca | `design-brand-guardian.md` |
 | `cerrador-evolusa` | Pastor de proyecto | `project-management-project-shepherd.md` |
 | `analitica-web` | Analista de reportes | `support-analytics-reporter.md` |
 | `respuesta-solicitudes` | Responsable de atención | `support-support-responder.md` |
 | `ingeniero-cerebro` | Ingeniero de IA | `engineering-ai-engineer.md` |
+
+Los agentes unificados el 3-nov-2026 (marketing-strategist, social-media-manager, brand-taste-lead y finance-analyst) no se recrean: sus funciones las cubren growth-marketing-strategist, social-content-lead, taste y revenue-analyst.
 
 Fuente del mapa: `orquestador/agentes.json` del portafolio (18-nov-2026).
