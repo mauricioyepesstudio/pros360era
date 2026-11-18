@@ -5,7 +5,8 @@
 -- era SQL manual con service role, por eso hoy hay 7 perfiles aprobados y 0 verificados.
 -- Esta migración añade lo mínimo:
 --   1. Bucket privado `verification-evidence`: el profesional sube su documento a
---      `<auth.uid()>/...`; solo un ADMIN puede leerlo o borrarlo. Nadie lista ni lee lo ajeno.
+--      `<auth.uid()>/...`; solo él (su propia carpeta) y un ADMIN pueden leerlo o borrarlo.
+--      Nadie lista ni lee lo ajeno.
 --   2. evidence_path / evidence_submitted_at en professional_verifications (tabla
 --      que sigue sin ningún grant para anon/authenticated).
 --   3. RPC del profesional: enviar evidencia (solo con perfil APROBADO) y leer su estado.
@@ -22,6 +23,11 @@ on conflict (id) do nothing;
 create policy "evidence_owner_insert" on storage.objects for insert to authenticated
   with check (bucket_id = 'verification-evidence' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "evidence_owner_delete" on storage.objects for delete to authenticated
+  using (bucket_id = 'verification-evidence' and (storage.foldername(name))[1] = auth.uid()::text);
+-- Borrar exige también SELECT: el DELETE de Storage filtra por bucket_id/name y Postgres
+-- aplica la política SELECT a esas filas. Sin esta política el profesional "borraba" 0 filas
+-- y su documento anterior (o el rechazado) se quedaba guardado. Solo ve su propia carpeta.
+create policy "evidence_owner_select" on storage.objects for select to authenticated
   using (bucket_id = 'verification-evidence' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "evidence_admin_select" on storage.objects for select to authenticated
   using (bucket_id = 'verification-evidence'
