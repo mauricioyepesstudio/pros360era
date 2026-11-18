@@ -94,8 +94,26 @@ export default function CRMPage() {
       <PageHeader
         eyebrow="CRM"
         title="Panel de ventas"
-        description="Registra prospectos y revisa tus datos. Los comentarios y mensajes de tu Instagram llegan a Conversaciones. Tareas y pipeline están en preparación."
+        description="Gestiona prospectos y conversaciones aquí. Las oportunidades que los miembros de EVOLUSA autorizaron compartir contigo se consultan en tu panel profesional; no se suman como leads del CRM hasta estar registradas."
       />
+
+      <section className="rounded-lg border border-[var(--brand-blue)] bg-white p-6" aria-labelledby="evolusa-assignments-title">
+        <p className="text-xs font-bold uppercase tracking-widest text-[var(--brand-blue)]">EVOLUSA · Solicitudes asignadas</p>
+        <h2 id="evolusa-assignments-title" className="mt-2 text-xl font-bold text-[var(--brand-navy)]">
+          Revisa tus oportunidades con consentimiento
+        </h2>
+        <p className="mt-3 max-w-3xl leading-7 text-[var(--muted)]">
+          Cada solicitud se consulta mediante la cuenta del profesional al que fue asignada.
+          Solo verás la información que el cliente autorizó compartir. Las solicitudes no se
+          convierten automáticamente en prospectos del CRM, y todavía no se envían alertas por correo.
+        </p>
+        <Link
+          href="/panel-profesional/oportunidades"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--brand-navy)] px-5 font-bold text-white hover:bg-[var(--brand-blue)]"
+        >
+          Ver oportunidades asignadas →
+        </Link>
+      </section>
 
       {/* KPI Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

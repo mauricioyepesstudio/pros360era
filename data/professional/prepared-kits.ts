@@ -33,8 +33,12 @@ export type CreativeConcept = {
 export type PreparedKit = {
   id: string;
   firstName: string;
-  /** Default category when the admin doesn't pass one. Only non-regulated categories. */
-  category: "BUSINESS_MARKETING" | "BUSINESS_OPERATIONS";
+  /**
+   * Default category when the admin doesn't pass one. NOTARY (REGULATED) is
+   * only reachable through a kit the owner approved: the profile stays
+   * unapproved and unmatched until a NOTARY_COMMISSION_VERIFIED row exists.
+   */
+  category: "BUSINESS_MARKETING" | "BUSINESS_OPERATIONS" | "NOTARY";
   profile: {
     displayName: string;
     headline: string;
@@ -118,7 +122,59 @@ const miguelAcosta: PreparedKit = {
   ],
 };
 
-const kits: Record<string, PreparedKit> = { [miguelAcosta.id]: miguelAcosta };
+/**
+ * Marie Fernandez (Janet Marie Fernandez en su HV), Notary Public en Miami.
+ * Aprobado por el dueño el 3-nov-2026 como NOTARY. Florida 117.05(10)-(11):
+ * en español nunca "Notaria/Notario Público" ni "notario" (se dice "Notary
+ * Public"), y todo anuncio en español lleva el aviso de no abogada en inglés
+ * y en español (incluido en cada creativo). Preparación de impuestos (TAX,
+ * regulada) queda fuera de su perfil de EVOLUSA: solo está en su sitio propio.
+ */
+const marieFernandez: PreparedKit = {
+  id: "marie-fernandez",
+  firstName: "Marie",
+  category: "NOTARY",
+  profile: {
+    displayName: "Marie Fernandez",
+    headline: "Notary Public en Florida · Atención bilingüe, 24/7 con cita previa",
+    career: {
+      summary:
+        "Soy Marie Fernandez, Notary Public comisionada en Florida desde hace más de cuatro años. Tengo más de 20 años de trayectoria laboral en Estados Unidos, con experiencia en contabilidad, servicios de notarización, preparación de impuestos, educación preescolar y apoyo conductual. Atiendo en español y en inglés, con un servicio confiable, organizado, discreto y atento, y coordino citas las 24 horas, los 7 días, con cita previa.\n\nNo soy abogada autorizada para ejercer la abogacía en el Estado de Florida, y no puedo dar asesoría legal ni aceptar honorarios por asesoría legal.",
+      experience:
+        "Notary Public comisionada en Florida · Miami · más de 4 años\nNotarización de firmas, juramentos y afirmaciones, acknowledgments y affidavits; autorizaciones de viaje para menores, consentimientos y documentos comerciales presentados por el cliente; ceremonias de matrimonio en Florida; servicio móvil con cita previa; orientación y coordinación de apostillas ante la autoridad competente.\n\nTrayectoria en Estados Unidos · más de 20 años\nContabilidad y tareas administrativas y financieras, preparación de impuestos, educación preescolar y apoyo conductual.",
+      education: "Estudios en Contabilidad.",
+      skills:
+        "Atención al cliente, comunicación bilingüe, organización documental, confidencialidad, atención al detalle, ética profesional, gestión de citas, flexibilidad horaria, coordinación de servicios móviles, verificación de identidad conforme a los procedimientos aplicables y trabajo con familias y comunidades diversas.\nIdiomas: español e inglés.",
+      credentials: "",
+    },
+    city: "Miami",
+    state: "FL",
+    languages: ["es", "en"],
+    consultationMode: "IN_PERSON",
+    websiteUrl: null,
+    socialLinks: {},
+  },
+  project: null,
+  creatives: {
+    basePath: "/professionals/kits/marie-fernandez",
+    formats: ["1x1", "4x5", "9x16"],
+    concepts: [
+      { id: "01-disponible-24-7", title: "Disponible 24/7, con cita previa.", topic: "Notarización de documentos", status: "READY_FOR_REVIEW" },
+      { id: "02-viaje-menores", title: "¿Tu hijo viaja sin ti?", topic: "Autorizaciones de viaje para menores", status: "READY_FOR_REVIEW" },
+      { id: "03-matrimonio", title: "Celebramos tu matrimonio.", topic: "Ceremonias de matrimonio", status: "READY_FOR_REVIEW" },
+    ],
+  },
+  pendingConfirmations: [
+    "Sube tu foto de perfil (por ahora mostramos un avatar).",
+    "Envía tu número de comisión de Notary Public para verificarla: hasta entonces tu perfil no recibe solicitudes.",
+    "Confirma en Credenciales qué quieres mostrar (comisión, PTIN, RBT) y con su nombre oficial.",
+    "Confirma si ofreces poderes (power of attorney) y documentos de bienes raíces, que aparecen en tu post pero no en tu hoja de vida.",
+    "Revisa tus 3 creativos: cada uno lleva el aviso de no abogada que exige la ley de Florida.",
+    "Conecta tu Instagram en Redes cuando te llegue la invitación de tester.",
+  ],
+};
+
+const kits: Record<string, PreparedKit> = { [miguelAcosta.id]: miguelAcosta, [marieFernandez.id]: marieFernandez };
 
 export function getPreparedKit(id: unknown): PreparedKit | null {
   return typeof id === "string" && Object.hasOwn(kits, id) ? kits[id] : null;

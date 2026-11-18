@@ -1,44 +1,55 @@
 import { MotionConfig } from "framer-motion";
+import { redirect } from "next/navigation";
 import GuidedTour from "@/components/layout/GuidedTour";
 import SiteHeader from "@/components/layout/SiteHeader";
-import RoadmapScrollFix from "@/components/layout/RoadmapScrollFix";
-import Hero from "@/sections/home/Hero";
+import HomeRoleBar from "@/sections/home/HomeRoleBar";
 import HeroArtboard from "@/sections/home/HeroArtboard";
-import ExplainerInteractive from "@/sections/home/ExplainerInteractive";
-import ProductReveal from "@/sections/home/ProductReveal";
-import JourneyOverview from "@/sections/home/JourneyOverview";
-import LifeStory from "@/sections/home/LifeStory";
-import StageSelector from "@/sections/home/StageSelector";
-import StageServices from "@/sections/home/StageServices";
-import HowItWorks from "@/sections/home/HowItWorks";
-import TrustAndTransparency from "@/sections/home/TrustAndTransparency";
-import FAQ from "@/sections/home/FAQ";
-import CTA from "@/sections/home/CTA";
+import TrustStrip from "@/sections/home/TrustStrip";
+import StageJourney from "@/sections/home/StageJourney";
+import ThreeSteps from "@/sections/home/ThreeSteps";
+import ExplainerVideo from "@/sections/home/ExplainerVideos";
+import UserBenefits from "@/sections/home/UserBenefits";
+import ProBand from "@/sections/home/ProBand";
 import Footer from "@/sections/home/Footer";
+import AccountRoleProvider from "@/components/layout/AccountRoleProvider";
+import { getPublicAccount } from "@/lib/account/public-account";
+import { PROFESSIONAL_PUBLIC_HOME, publicSideFor } from "@/lib/account/navigation";
 
-export default function Home() {
+// Per request: the page depends on who is signed in.
+export const dynamic = "force-dynamic";
+
+/**
+ * The usuario home (owner, 13-nov): only what a usuario gets. Hero, one card
+ * per benefit, the usuario video, the 6 etapas and how to start. The
+ * profesional side lives at /para-profesionales; a signed-out visitor only
+ * gets a small door to it at the end.
+ */
+export default async function Home() {
+  // A profesional's home is the professional page; a usuario's shows only
+  // the usuario system. Signed out, side is null: both doors stay open.
+  const account = await getPublicAccount();
+  const side = publicSideFor(account.role, account.view);
+  if (side === "professional") redirect(PROFESSIONAL_PUBLIC_HOME);
+
   return (
+    <AccountRoleProvider account={account}>
     <MotionConfig reducedMotion="user">
       <SiteHeader />
-      <RoadmapScrollFix />
 
-      <main className="bg-[var(--background)] text-[var(--foreground)]">
-        <HeroArtboard />
-        <Hero />
-        <JourneyOverview />
-        <ProductReveal />
-        <ExplainerInteractive />
-        <LifeStory />
-        <StageSelector />
-        <StageServices />
-        <HowItWorks />
-        <TrustAndTransparency />
-        <FAQ />
-        <CTA />
+      <main className="bg-white pt-24 text-[var(--foreground)]">
+        <HomeRoleBar />
+        <HeroArtboard showProLink={side === null} />
+        <TrustStrip />
+        <UserBenefits />
+        <ExplainerVideo kind="usuario" />
+        <StageJourney />
+        <ThreeSteps />
+        {side === null && <ProBand />}
       </main>
 
       <Footer />
       <GuidedTour />
     </MotionConfig>
+    </AccountRoleProvider>
   );
 }

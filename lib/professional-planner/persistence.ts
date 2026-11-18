@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPreparedKit } from "@/data/professional/prepared-kits";
 import { createHash } from "node:crypto";
 import { professionalPlannerId } from "./identity";
+import { evolusaContentBlockedMessage, isEvolusaBrandedPost, isEvolusaHouseAccount } from "./house-content";
 import { parsePublishLog, publicationView, publishLogId, type PostPublication } from "./publishing";
 import { parseProfessionalPlanner, plannerFromKit, professionalPlannerAllowed, professionalPlannerVersion, type ProfessionalPlanner } from "./validation";
 
@@ -21,7 +22,7 @@ async function plannerOwner() {
 
 export type PlannerAccount = { username: string; canPublish: boolean } | null;
 /** The Meta accounts that publish this planner's ready posts. */
-export type PlannerNetworks = { instagram: PlannerAccount; facebook: PlannerAccount };
+export type PlannerNetworks = { instagram: PlannerAccount; facebook: PlannerAccount; linkedin?: PlannerAccount; threads?: PlannerAccount };
 export type PlannerResult = {
   available: boolean;
   planner: ProfessionalPlanner;
@@ -36,15 +37,15 @@ const unavailable: PlannerResult = { available: false, planner: { posts: [] }, s
 async function publishingState(owner: NonNullable<Awaited<ReturnType<typeof plannerOwner>>>, planner: ProfessionalPlanner) {
   const logId = publishLogId(owner.user.id, (input) => createHash("sha256").update(input).digest("hex"));
   const [{ data: connections }, { data: log }] = await Promise.all([
-    owner.db.from("social_connections").select("provider, username, status, scopes").eq("user_id", owner.user.id).in("provider", ["instagram", "facebook"]),
+    owner.db.from("social_connections").select("provider, username, status, scopes, token_expires_at").eq("user_id", owner.user.id).in("provider", ["instagram", "facebook", "linkedin", "threads"]),
     owner.db.from("onboarding_responses").select("answers").eq("id", logId).eq("user_id", owner.user.id).maybeSingle(),
   ]);
   const account = (provider: string, scope: string): PlannerAccount => {
     const row = (connections ?? []).find((c) => c.provider === provider);
-    return row ? { username: row.username, canPublish: row.status === "ACTIVE" && Array.isArray(row.scopes) && row.scopes.includes(scope) } : null;
+    return row ? { username: row.username, canPublish: row.status === "ACTIVE" && (!row.token_expires_at || Date.parse(row.token_expires_at) > Date.now()) && Array.isArray(row.scopes) && row.scopes.includes(scope) } : null;
   };
   return {
-    networks: { instagram: account("instagram", "instagram_business_content_publish"), facebook: account("facebook", "pages_manage_posts") },
+    networks: { instagram: account("instagram", "instagram_business_content_publish"), facebook: account("facebook", "pages_manage_posts"), linkedin: account("linkedin", "w_member_social"), threads: account("threads", "threads_content_publish") },
     publications: publicationView(planner, parsePublishLog(log?.answers), Date.now()),
   };
 }
@@ -76,6 +77,10 @@ export async function saveMyProfessionalPlanner(input: unknown) {
   if (!planner) return { saved: false, message: "Revisa las publicaciones: cada una necesita título, red, formato y estado válidos." };
   const owner = await plannerOwner();
   if (!owner) return { saved: false, message: "Necesitas acceso profesional y un perfil propio para guardar tu planner." };
+  if (!isEvolusaHouseAccount(owner.user.email)) {
+    const branded = planner.posts.find(isEvolusaBrandedPost);
+    if (branded) return { saved: false, message: evolusaContentBlockedMessage(branded.title) };
+  }
   const review = await reviewPlannerSave(planner.posts,async()=>{
     const {data,error}=await owner.db.from("onboarding_responses").select("answers").eq("id",professionalPlannerId(owner.user.id)).eq("user_id",owner.user.id).eq("roadmap_version",professionalPlannerVersion).maybeSingle();
     return {answers:data?.answers,exists:Boolean(data),failed:Boolean(error)};

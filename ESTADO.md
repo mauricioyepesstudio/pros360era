@@ -1,3 +1,14 @@
+# 2026-11-03 — Cerebro fase 5 en el repo: mods v2 y agentes unificados
+
+Rama `claude/cerebro-mods-agentes-20261103`. Mods regenerados desde AI-Projects-Control-Plane (PR #32, versión 2026-11-03): punto ● cerebro en la barra (módulos de `lib/admin/jarvis.ts` en producción/total), `parte` resume los módulos bloqueados, `guardia` también frena merge por API, push forzado, `git reset --hard`, variables de Vercel y secretos de Supabase. Agente `ingeniero-cerebro` instalado desde el consejo. Agentes duplicados unificados (29 → 26): `marketing-strategist` → `growth-marketing-strategist`, `social-media-manager` → `social-content-lead`, `brand-taste-lead` → `taste`, `finance-analyst` → `revenue-analyst`; su contenido queda en una sección «También cubre» del agente que se mantiene.
+# 2026-11-06 — Propuestas legibles y publicadores LinkedIn/Threads
+
+Corrección nativa de texto con Poppins TTF incluida y tracing explícito: tres composiciones privadas distintas, sin retratos de otras cuentas. Fixtures de Laura, Miguel y Marie renderizados y revisados. Publicadores de LinkedIn personal y Threads con registro separado y plazos; nueva autorización explícita por pieza evita ejecutar READY antiguos de redes antes manuales. Threads OAuth propio con permisos comprobados; CHECK de proveedor ampliado y verificado en Supabase. Credenciales/callback/consentimiento Threads siguen pendientes; no se afirma publicación social real ni automatización de la página empresarial LinkedIn. Detalles y límites en docs/EVOLUSA-CREATIVE-FONT-FIX.md, EVOLUSA-LINKEDIN-PUBLISHING.md y EVOLUSA-THREADS-PUBLISHING.md. Estado de CI/despliegue se registra al cerrar la entrega.
+
+# 2026-11-03 — Cerebro fase 1: perfil de voz y motor de IA central
+
+Rama `claude/cerebro-voz-motor-ia-20261103`. Nuevo `lib/cerebro/`: perfil de voz por profesional (tono, idioma, cómo habla, palabras sí/no, llamado a la acción, aviso obligatorio, emojis) guardado por propietario en `onboarding_responses` (sin migración), y un solo motor de IA que arma el prompt en español con la voz y el negocio, valida el JSON con zod, agrega el aviso y pasa el filtro de cumplimiento (cifras, «verificado», «notario», categorías reguladas, claims de `claims.ts`, palabras a evitar). Sin texto de respaldo inventado: si falta la clave o falla, error claro. Formulario «Mi voz» con «Probar mi voz» en /panel-profesional/perfil (borrador de prueba, no se guarda ni publica). Growth Automation usa el motor; se borra el generador viejo. Jarvis: módulo «ia» bloqueado hasta `ANTHROPIC_API_KEY` en Vercel. Plan completo: https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU
+
 # 2026-10-29 - WhatsApp de contacto y seguimiento por prospecto
 
 Implementado en rama local existente: el propietario puede guardar su enlace publico https://wa.me/numero internacional usando social_links y la accion de perfil con user_id autenticado. Lectura y escritura filtran host, protocolo, credenciales, ruta numerica, query y fragmento. En el perfil publico se muestra solo para SERVICE_BUSINESS y aceptando clientes; no altera aprobacion ni categorias reguladas.
@@ -101,13 +112,13 @@ _Actualizado: 2026-10-06 (formulario de profesionales en producción; resto desd
 **Reclutar profesionales y crecer miembros** en las próximas semanas (respuesta del dueño, 2026-09-30). Stripe Live **no** es prioridad.
 
 ## Siguiente (máx. 5; una tarea = un PR)
-1. **Kit de reclutamiento de profesionales**: pulir `docs/marketing/professional-recruitment-outreach.md` y la página `/aplicar-profesional` (copy alineado a `claims.ts`; solo categorías no reguladas: marketing y operaciones de negocio en Florida). Pasa por `compliance-reviewer`.
-2. **Captación en `/aplicar-profesional`: HECHO 2026-10-06** (PR #19). Siguiente paso: revisar cada semana las solicitudes `PENDING` (runbook en `supabase/migrations/0014_…`) y contactar a quien aplique.
-3. **Adquisición de miembros**: plan de 4 semanas (canales, guías SEO, calendario social) con `growth-marketing-strategist` + `social-content-lead`; ampliar `app/guias` con 1–2 guías nuevas en español.
-4. **Métricas de embudo**: definir y medir registro → diagnóstico → Roadmap → oportunidad (`docs/EVOLUSA-LAUNCH-METRICS.md`, `lib/opportunities/analytics.ts`), con datos reales.
-5. **Actualizar README, `ci.yml` y `docs/CURRENT-STATE.md`** (desfasados) para que un profesional nuevo o un colaborador entienda el proyecto.
+1. **Dueño**: poner `ANTHROPIC_API_KEY` en Vercel (Production) para encender el motor del cerebro.
+2. **Cerebro fase 2**: bitácora de corridas de automatizaciones (tabla con RLS) y Jarvis leyendo estados reales. Migración con `security-reviewer` + OK del dueño.
+3. **Cerebro fase 3**: agentes del producto sobre `lib/cerebro` (redactor del planner, clasificador de prospectos del CRM). Solo borradores.
+4. **Cerebro fase 4**: planner en tabla propia y primera publicación real programada de punta a punta.
+5. **Correo**: dominio propio verificado en Resend y remitente en Supabase SMTP (bloquea registros reales).
 
-_Plan de migraciones (0015/0017) y revisión de Growth Automation están documentados abajo y en `docs/cerebro/decisiones.md`; no se ejecutan aún._
+_Plan por fases (3-nov-2026): https://claude.ai/artifact/WhdFyCQnzzrDYS2XQEuTbU. El «Siguiente» anterior (septiembre) quedó superado por el cerebro._
 
 ## En curso / Bloqueado
 - **Bloqueado — verificar datos**: confirmar que producción (Vercel) usa el proyecto `ovialqdazxkekvqqgdiu` (ver sección abajo).
@@ -288,3 +299,68 @@ PR #46 (Instagram) integrado. Nuevo: conexión de página de Facebook en Redes (
 ## 2026-10-12 — reloj del publicador en Supabase (preparado, sin aplicar)
 
 El horario de GitHub (`*/10`) no se disparó ni una vez en 4 h; la primera pieza de Instagram salió con un lanzamiento manual (run 38256644262, `published: 1`). Nuevo reloj: `supabase/migrations/20261012180000_planner_publish_cron.sql` (pg_cron + pg_net llaman al publicador cada 10 min, leyendo `CRON_SECRET` del Vault como `planner_cron_secret`). GitHub queda solo como botón manual para no tener dos relojes publicando a la vez. **Falta que el dueño guarde el secreto en el Vault y corra la migración.**
+
+
+## 2026-11-06 - PR52 reconciliado: borrador con voz propia
+
+Un borrador privado por intento mediante el motor central, conservando planner e importador actuales. Rechaza contenido bloqueado o pendiente de cumplimiento; solo seleccion y guardado explicitos crean una IDEA. Sin generador Anthropic paralelo, publicaciones, cambios de claves/cuota, roles, esquema o cobros. Pruebas y limites: docs/EVOLUSA-PLANNER-DRAFT-20261106.md. Preparado; CI, integracion, despliegue y aceptacion autenticada se registran separadamente.
+
+
+## 2026-11-06 - Recuperacion del envio de solicitud profesional
+
+Continuacion de5dfc5b5 reconciliada con main adf05d4. Una accion rechazada conserva los datos, muestra el error existente y libera el boton para reintentar. No cambia aprobacion, roles, esquema, categorias, OAuth ni cobros. Evidencia historica: docs/EVOLUSA-APPLICATION-RECOVERY-20261103.md; pruebas actuales y release en cola central. Preparado, no integrado ni desplegado.
+
+
+## 2026-11-07 - Recuperar directorio sin coincidencias
+
+Boton Ver todos los profesionales restablece profesion y etapa cuando hay filtros activos; enlace Describir mi necesidad abre onboarding. Sin cambios de catalogo, aprobacion, permisos o servicios. Prueba aislada del componente PASS y revision independiente producto/compliance GO. Evidencia: docs/EVOLUSA-DIRECTORY-RECOVERY-20261107.md. Estado preparado; checks completos y release en cola central.
+
+2026-11-07: PR114 QA local 375/1440 con componente real y fixture sintetico PASS; selector movil ajustado al contenedor. Fixture temporal retirada. Checks finales, integracion y produccion se registran en la cola central. No se declara recorrido autenticado ni catalogo vivo validado.
+
+## 2026-11-08 - Inicio separado por intencion (PR107)
+Continuacion del PR existente, reconciliado con main00c9516. Usuario inicia preguntas en /onboarding; profesional solicita perfil por /aplicar-profesional, sin aprobacion automatica. Medicion responsive atomica y clic real en ambos destinos. Evidencia: docs/EVOLUSA-HOME-ROLE-ENTRY-20261108.md. Pruebas, revision, CI, integracion y despliegue se distinguen en cola central al cerrar. No cambia cuentas, permisos ni cobros.
+
+## 2026-11-08 - Acceso al perfil publico guardado
+El editor activo ofrece Ver mi perfil publico solo a perfiles aprobados. Otra pestana conserva las ediciones; el texto aclara que muestra la informacion guardada. No cambia aprobacion ni visibilidad. QA local con componente real aprobado/pendiente a375/1440 PASS; sin cuentas reales ni escrituras. Detalle: docs/EVOLUSA-PROFILE-PUBLIC-LINK-20261108.md. Preparado; checks, PR, integracion, despliegue y limites autenticados en la cola central al cerrar.
+
+## 2026-11-08 - Aceptacion autenticada manual de lectura
+Se confirmaron por nombre los cuatro secretos E2E documentados en agencia.md. Nuevo workflow manual, solo main, usa esos valores sin leerlos ni imprimirlos para comprobar MEMBER y el PRO canonico propio. Sin cambios de perfil, roles, SMTP, pagos ni publicaciones. Limpieza scope=local, nunca logout global. Preparado; no se declaran cuentas funcionales hasta resultado real. Detalle: docs/EVOLUSA-AUTHENTICATED-ACCEPTANCE-20261109.md; resultado, limites y release en cola central.
+
+
+## 2026-11-09 — Continuación PR99: conexión Meta vencida
+
+Código190 conserva la distinción de publicación incierta y expira solo la credencial rechazada, sin pisar una reconexión concurrente. Resto de posts de esa red detenido en la corrida; FAILED se conserva antes del cambio de estado. Sin cron ni publicación real. Pruebas/revisión y límites: docs/EVOLUSA-META-TOKEN-EXPIRY-20261109.md. Commit y estado de producción se cierran en PR99 y cola central; no se afirma entrega SMTP, OAuth completo ni recorrido MEMBER. Campañas/planner recientes reutilizados.
+
+
+## 2026-11-11 — Del resultado inicial al directorio
+
+El diagnóstico completado ofrece el directorio público en otra pestaña, conservando el resultado y los accesos de registro e inicio de sesión. No envía respuestas en la URL ni cambia elegibilidad, filtros, permisos o publicación. Pruebas, revisión y estado de entrega en el PR y la cola central.
+
+
+## 2026-11-11 — Hub de Crecimiento visible para profesionales
+
+El hub del PR118 ya no queda tapado por el layout de preparación. Mantiene el control profesional y enlaza Conexiones a Redes, la pantalla existente. Las rutas antiguas de conexión, contenido y demo conservan su layout de preparación; no se activa OAuth, publicación ni cobro. Pruebas y estado de entrega en PR y cola central.
+
+
+## 2026-11-11 — Solicitud desde perfiles de negocio
+
+El nuevo acceso al formulario de solicitudes solo se muestra en perfiles de negocio que aceptan clientes. Se conserva el formulario y el consentimiento actuales, sin ampliar la asignación ni activar categorías reguladas. Evidencia de revisión, pruebas y despliegue en el PR y la cola central.
+
+
+## 2026-11-12 — Navegación de Growth Engine por sector
+
+Cada enlace de sector piloto abre su ficha en Servicios Miami. No cambia elegibilidad, disponibilidad ni contacto. Las industrias en incorporación conservan su estado. Evidencia de pruebas y despliegue en PR y cola central.
+
+
+## 2026-11-12 — Retomar el destino tras un enlace de acceso fallido
+
+El reintento de login conserva el destino interno de la confirmación o el acceso fallido. Sin destino válido va al inicio de cuenta; el enlace de recuperación vencido sigue volviendo a recuperación. Sin cambios de proveedor, sesiones o envío de correo. Evidencia y estado en PR y cola central.
+
+
+## 2026-11-12 — Reintento de solicitud directa
+
+Si se interrumpe el guardado, el formulario muestra que no pudo confirmar el registro y permite reintentar con los datos y la referencia originales. No cambia el destino, consentimiento, asignación ni correo. Evidencia de pruebas y despliegue en el PR y la cola central.
+
+## 2026-11-15 — Aceptación en el dominio canónico
+
+La prueba autenticada de solo lectura usa www.evolusa.us y verifica el rol de la cuenta sin depender del texto visible. Conserva la separación MEMBER/PROFESSIONAL y las restricciones de red; no ejecuta Google OAuth ni envíos de correo. Falta ejecutar con cuentas de prueba autorizadas.

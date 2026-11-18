@@ -1,3 +1,4 @@
 {
-  "nombre": "EVOLUSA"
+  "nombre": "EVOLUSA",
+  "cerebro": "lib/admin/jarvis.ts"
 }

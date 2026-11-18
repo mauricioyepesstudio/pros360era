@@ -56,3 +56,12 @@ test("the kit proposal is a valid planner on a Tuesday/Thursday cadence", () => 
   assert.ok(planner.posts.every((p) => p.status === "IDEA"));
   assert.equal(plannerFromKit(kit, "2026-10-13").posts[0].date, "2026-10-20", "on a Tuesday the proposal starts next week");
 });
+
+test("Reels carry a video and only Reels may carry one", () => {
+  const base = { id: "r-1", date: "2026-11-10", time: "12:00", platform: "instagram", title: "Video", caption: "", status: "IDEA", note: null };
+  assert.ok(parseProfessionalPlanner({ posts: [{ ...base, format: "reel", imageUrl: "/videos/usuario-9x16.mp4" }] }));
+  assert.ok(parseProfessionalPlanner({ posts: [{ ...base, format: "reel", imageUrl: null }] }), "an idea can wait for its video");
+  assert.equal(parseProfessionalPlanner({ posts: [{ ...base, format: "4x5", imageUrl: "/videos/usuario-9x16.mp4" }] }), null);
+  assert.equal(parseProfessionalPlanner({ posts: [{ ...base, format: "reel", imageUrl: "/professionals/kits/a/b-4x5.png" }] }), null);
+  assert.equal(parseProfessionalPlanner({ posts: [{ ...base, format: "reel", imageUrl: "/videos/../x.mp4" }] }), null);
+});

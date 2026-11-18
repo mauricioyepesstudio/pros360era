@@ -6,6 +6,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { leerCerebro } from './cerebro.mjs';
 
 const raiz = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const estadoRuta = join(raiz, 'ESTADO.md');
@@ -32,6 +33,14 @@ const bloqueado = seccion('Bloquead', 4);
 const lineas = [`Parte del proyecto (ESTADO.md${dias === null ? '' : `, actualizado hace ${dias} día${dias === 1 ? '' : 's'}`}):`];
 if (siguiente.length) lineas.push('Siguiente:', ...siguiente);
 if (bloqueado.length) lineas.push('Bloqueado (solo el dueño lo destraba):', ...bloqueado);
+const hechos = siguiente.filter((l) => /\bHECHO\b/.test(l)).length;
+if (hechos) lineas.push(`Aviso: ${hechos} punto${hechos === 1 ? '' : 's'} de «Siguiente» ya dice${hechos === 1 ? '' : 'n'} HECHO; estado-keeper debe reemplazarlo${hechos === 1 ? '' : 's'}.`);
+const cerebro = leerCerebro(raiz);
+if (cerebro) {
+  lineas.push(`Cerebro (${cerebro.archivo}): ${cerebro.vivos} de ${cerebro.modulos.length} módulos en producción.`);
+  for (const m of cerebro.bloqueados) lineas.push(`- Bloqueado «${m.nombre}»: ${m.siguiente}`);
+  lineas.push(`Si tu PR cambia un módulo, actualiza su estado en ${cerebro.archivo}.`);
+}
 if (dias !== null && dias > 3) lineas.push(`Aviso: ESTADO.md lleva ${dias} días sin cambios; estado-keeper debe ponerlo al día en el PR de hoy.`);
 lineas.push('Reglas: un PR pequeño por tarea, nada se integra, publica ni cobra sin el «sí» del dueño. Ver docs/cerebro/agencia.md.');
 console.log(lineas.join('\n'));

@@ -39,7 +39,10 @@ const fs = require('node:fs');
         await toggle.click();
         await mobileNav.waitFor({ state: 'visible' });
         await page.setViewportSize({ width: 1280, height: 1000 });
-        await mobileNav.waitFor({ state: 'detached' });
+        // getByRole stops matching the xl:hidden menu as soon as the layout is
+        // desktop, before the matchMedia "change" event closes it. Wait for the
+        // real close (menu removed and scroll lock released), not just hidden.
+        await page.waitForFunction(() => !document.querySelector('nav[aria-label="Navegación móvil"]') && document.documentElement.style.overflow === 'auto', null, { timeout: 5000 });
         assert.equal(await page.evaluate(() => document.documentElement.style.overflow), 'auto');
         await page.setViewportSize({ width, height: 1000 });
         assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
@@ -55,24 +58,48 @@ const fs = require('node:fs');
         await page.evaluate(() => { document.documentElement.style.overflow = ''; window.scrollTo({ top: 0, behavior: 'instant' }); });
         navigationChecks++;
       }
-      const explore = page.getByRole('link', { name: 'Explorar las 6 etapas', exact: true }).filter({ visible: true });
+      // Usuario home (13-nov): the hero talks to usuarios; professionals get a small door to their own page.
+      const hero = page.locator('section#home');
+      const explore = hero.getByRole('link', { name: '¿Eres profesional? Tu espacio está aparte', exact: true }).filter({ visible: true });
       assert.equal(await explore.count(), 1);
-      const entryBox = await explore.boundingBox();
-      const pathBox = await page.locator('[data-tour="hero-path"]').filter({ visible: true }).boundingBox();
-      console.log(JSON.stringify({ width, reducedMotion, entryBox, pathBox }));
+      // Read both rectangles in one frame so scrolling cannot mix coordinate systems.
+      const { entryBox, heroBox } = await explore.evaluate(element => ({
+        entryBox: element.getBoundingClientRect().toJSON(),
+        heroBox: element.closest('section#home').getBoundingClientRect().toJSON(),
+      }));
+      console.log(JSON.stringify({ width, reducedMotion, entryBox, heroBox }));
       await page.locator('section#home').filter({ visible: true }).screenshot({ path: `browser-evidence/hero-${width}-${reducedMotion}.png` });
-      assert.ok(entryBox && pathBox && entryBox.y + entryBox.height <= pathBox.y + 1, `hero controls overlap path ${width}`);
+      // Hero CTAs stay inside the hero and fit the viewport horizontally.
+      assert.ok(entryBox && heroBox && entryBox.x >= 0 && entryBox.x + entryBox.width <= width + 1 && entryBox.y >= heroBox.y - 1 && entryBox.y + entryBox.height <= heroBox.y + heroBox.height + 1, `hero controls clipped ${width}`);
+      assert.ok(await hero.getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true }).isVisible());
+      assert.equal(await explore.getAttribute('href'), '/para-profesionales');
+      const userEntry = hero.getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true });
+      assert.equal(await userEntry.getAttribute('href'), '/onboarding');
       await explore.click();
+      await page.waitForURL('**/para-profesionales', { waitUntil: 'domcontentloaded' });
+      await page.locator('#lo-que-recibes').waitFor();
+      // The professional page never shows the usuario journey or the usuario video.
+      assert.equal(await page.locator('#journey').count(), 0);
+      assert.equal(await page.locator('[data-video="usuario"]').count(), 0);
+      assert.equal(await page.locator('[data-video="profesional"]').count(), 1);
+      await page.goto('http://localhost:3002', { waitUntil: 'domcontentloaded' });
+      await page.locator('section#home').getByRole('link', { name: 'Empezar gratis', exact: true }).filter({ visible: true }).click();
+      await page.waitForURL('**/onboarding', { waitUntil: 'domcontentloaded' });
+      assert.ok(!page.url().includes('signup'));
+      await page.goto('http://localhost:3002', { waitUntil: 'domcontentloaded' });
       await page.locator('#journey').waitFor({ state: 'visible' });
-      assert.deepEqual(await page.locator('#journey li h3').allTextContents(), ['Llega', 'Establécete', 'Emprende', 'Protégete', 'Crece', 'Evoluciona']);
-      assert.equal(await page.locator('#journey ol > li').count(), 6);
-      assert.equal(await page.locator('#journey ol > li > a[href="/onboarding"]').count(), 6);
+      // Las 6 etapas aparecen una sola vez, como pestañas, con una sola acción.
+      assert.deepEqual(await page.locator('#journey [role="tab"]').evaluateAll(tabs => tabs.map(tab => tab.getAttribute('aria-label'))), ['Llega', 'Establécete', 'Emprende', 'Protégete', 'Crece', 'Evoluciona']);
+      // Una sola acción hacia las preguntas iniciales, en "Así empiezas".
+      assert.equal(await page.locator('#como-funciona a[href="/onboarding"]').count(), 1);
+      await page.locator('#journey [role="tab"]').nth(2).click();
+      assert.equal(await page.locator('#journey [role="tab"]').nth(2).getAttribute('aria-selected'), 'true');
       assert.ok(await page.locator('#journey').getByText('Guía educativa EVOLUSA').isVisible());
       assert.ok(await page.locator('#journey').getByText(/no constituye asesoría legal/).isVisible());
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `overflow ${width}`);
       await page.locator('#journey').screenshot({ path: `browser-evidence/roadmap-${width}-${reducedMotion}.png` });
-      await page.getByRole('link', { name: 'Crear mi roadmap', exact: true }).click();
-      await page.waitForURL('**/onboarding');
+      await page.locator('#como-funciona').getByRole('link', { name: 'Empezar las preguntas', exact: true }).click();
+      await page.waitForURL('**/onboarding', { waitUntil: 'domcontentloaded' });
       assert.ok(!page.url().includes('signup'));
       checks++;
       await context.close();

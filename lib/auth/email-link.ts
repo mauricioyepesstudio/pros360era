@@ -30,5 +30,8 @@ export function emailLinkDestination(type: EmailLinkType, next: string | null | 
 
 /** Where to send someone whose link failed or expired: recovery restarts the request, others go to login. */
 export function failedLinkDestination(next: string | null | undefined): string {
-  return safeReturnPath(next) === resetPasswordPath ? "/forgot-password?error=expired" : "/login?error=link";
+  const destination = safeReturnPath(next);
+  if (destination === resetPasswordPath) return "/forgot-password?error=expired";
+  if (destination === "/dashboard" || destination.startsWith("//")) return "/login?error=link";
+  return `/login?error=link&next=${encodeURIComponent(destination)}`;
 }

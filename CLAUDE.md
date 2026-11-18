@@ -38,12 +38,13 @@ Comandos: `npm run dev | lint | test | build`, `npx tsc --noEmit`.
 
 ## Equipo (subagentes en `.claude/agents/`)
 Producto/ingeniería: `orchestrator` (primero en tareas ambiguas), `evolusa-product-architect`, `frontend-engineer`, `supabase-architect`, `security-reviewer`, `qa-engineer`, `ui-ux-designer`.
-Cumplimiento/negocio: `compliance-reviewer` (última revisión), `legal-risk-reviewer`, `finance-analyst`, `revenue-analyst` (solo lectura; nunca toca Stripe).
-Marketing (nunca tocan código de app ni `claims.ts`): `growth-marketing-strategist`, `marketing-strategist`, `social-content-lead`, `social-media-manager`, `brand-taste-lead`, `taste`.
+Cumplimiento/negocio: `compliance-reviewer` (última revisión), `legal-risk-reviewer`, `revenue-analyst` (precios, modelo de negocio y salud de ingresos; solo lectura, nunca toca Stripe), `finanzas-unitarias`.
+Marketing (nunca tocan código de app ni `claims.ts`): `growth-marketing-strategist` (estrategia y campañas), `social-content-lead` (contenido de redes), `taste` (marca y gusto visual, última puerta tras compliance).
+Unificados el 3-nov-2026: `marketing-strategist` → `growth-marketing-strategist`, `social-media-manager` → `social-content-lead`, `brand-taste-lead` → `taste`, `finance-analyst` → `revenue-analyst`.
 Investigación: `research-analyst` (solo lectura, fuentes con fecha).
 Agencia por departamentos y tareas recurrentes: `docs/cerebro/agencia.md`.
 Ventas y datos (24-oct): `respuesta-solicitudes` (cada solicitud de profesional con respuesta en borrador antes de 48 h) y `analitica-web` (visitas y conversión de la página; activar Web Analytics en Vercel lo hace el owner).
-Nuevos del cerebro: `migration-steward` (numeración/estado de migraciones), `estado-keeper` (mantiene ESTADO.md vs git log), `growth-automation-guard` (revisa el módulo Growth Automation/CRM contra las reglas de cumplimiento).
+Cerebro de EVOLUSA: `ingeniero-cerebro` (toda IA por `lib/cerebro`, solo borradores, cada automatización actualiza Jarvis; viene del consejo central), `migration-steward` (numeración/estado de migraciones), `estado-keeper` (mantiene ESTADO.md vs git log), `growth-automation-guard` (revisa el módulo Growth Automation/CRM contra las reglas de cumplimiento).
 
 Todo claim, testimonio o estadística de marketing → `compliance-reviewer` antes de salir.
 

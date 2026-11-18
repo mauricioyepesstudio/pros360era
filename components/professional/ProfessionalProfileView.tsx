@@ -1,11 +1,13 @@
-import Image from "next/image";
+import { supportsDirectInquiry } from "@/lib/inquiries/validation";
+import ProfessionalPhoto from "@/components/professional/ProfessionalPhoto";
+import ProfessionalServiceShowcase from "@/components/professional/ProfessionalServiceShowcase";
 import ProfessionalCareerView from "@/components/professional/ProfessionalCareerView";
 import { Building2, CalendarClock, ExternalLink, Globe, Link2, MapPin, Users, Video } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import Heading from "@/components/ui/Heading";
 import ButtonLink from "@/components/ui/ButtonLink";
-import EvolusaIsotype from "@/components/brand/EvolusaIsotype";
+
 import { getProfessionalCategory } from "@/data/professional/categories";
 import { socialLinkPlatformLabels, socialLinkPlatforms, type ConsultationMode, type ProfessionalProfilePublic } from "@/data/professional/types";
 import { cn } from "@/lib/cn";
@@ -47,6 +49,7 @@ export default function ProfessionalProfileView({
   photoUrl,
   contactEmail,
   workSamples,
+  capturePilotEnabled = false,
 }: {
   professional: ProfessionalProfilePublic;
   /** Overrides professional.photoUrl (0017) — pass explicitly only for a fixture/preview that has no database row at all. */
@@ -55,7 +58,9 @@ export default function ProfessionalProfileView({
   contactEmail?: string;
   /** Overrides the work samples fetched from professional_work_samples_public (0017) — pass explicitly only for a fixture/preview. */
   workSamples?: readonly ProfessionalWorkSample[];
+  capturePilotEnabled?: boolean;
 }) {
+  const canRequestDirectly = capturePilotEnabled && supportsDirectInquiry(professional.slug);
   const category = getProfessionalCategory(professional.category);
   const categoryLabel = category?.label ?? "Profesional EVOLUSA";
   const location = [professional.city, professional.state].filter(Boolean).join(", ");
@@ -70,6 +75,14 @@ export default function ProfessionalProfileView({
   const websiteHref = safeHttpUrl(professional.websiteUrl);
   const socialLinks = safeSocialLinks(professional.socialLinks);
   const hasLinks = Boolean(portfolioHref || websiteHref || Object.keys(socialLinks).length > 0);
+  const directContact = professional.isAcceptingClients ? (socialLinks.whatsapp || websiteHref || mailtoHref) : null;
+  const heroTheme = professional.category === "IMMIGRATION_DOCUMENT_SUPPORT"
+    ? "bg-gradient-to-br from-sky-950 via-blue-950 to-sky-800"
+    : professional.category === "NOTARY"
+      ? "bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950"
+      : professional.category === "BUSINESS_OPERATIONS"
+        ? "bg-gradient-to-br from-emerald-950 via-slate-950 to-teal-900"
+        : "bg-gradient-to-br from-indigo-950 via-slate-950 to-violet-950";
   const externalLinks = [
     category?.group === "SERVICE_BUSINESS" && professional.isAcceptingClients && socialLinks.whatsapp ? { href: socialLinks.whatsapp, label: "Contactar por WhatsApp", icon: Link2 } : null,
     websiteHref ? { href: websiteHref, label: "Sitio web", icon: Globe } : null,
@@ -82,18 +95,16 @@ export default function ProfessionalProfileView({
 
   return (
     <main className="bg-[var(--background)] text-[var(--foreground)]">
-      <section className="relative bg-[var(--brand-navy)] pb-16 pt-32 sm:pt-40">
+      <section className={cn("relative overflow-hidden pb-20 pt-32 sm:pt-40", heroTheme)}>
+        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full border-[70px] border-white/5" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-36 left-1/3 size-96 rounded-full bg-white/5 blur-3xl" />
         <Container className="relative">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
             <span
               aria-hidden
               className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15 sm:size-28"
             >
-              {resolvedPhotoUrl ? (
-                <Image src={resolvedPhotoUrl} alt="" fill sizes="112px" className="object-cover" />
-              ) : (
-                <EvolusaIsotype variant="reverse" size="app" />
-              )}
+              <ProfessionalPhoto src={resolvedPhotoUrl} name={professional.displayName} className="h-full w-full object-cover" />
             </span>
             <div className="text-white">
               <div className="flex flex-wrap items-start gap-2">
@@ -132,6 +143,27 @@ export default function ProfessionalProfileView({
                 {professional.isAcceptingClients ? "Aceptando nuevos clientes" : "No está aceptando nuevos clientes por ahora"}
               </p>
 
+              {(category?.group === "SERVICE_BUSINESS" || ["1migration-b2bfe2", "marie-fernandez-efff0e"].includes(professional.slug)) && professional.isAcceptingClients && (
+                <div className="mt-6 max-w-xl rounded-[var(--radius-lg)] border border-white/25 bg-white/10 p-5">
+                  <p className="text-base font-bold text-white">¿Necesitas este tipo de servicio?</p>
+                  <p className="mt-2 text-sm leading-6 text-white/80">
+                    {canRequestDirectly
+                      ? "Envía una solicitud a este profesional. Te mostraremos el destinatario exacto antes de compartir los datos."
+                      : "Registra tu solicitud en EVOLUSA para buscar una opción compatible. No garantiza asignación directa a este profesional."}
+                  </p>
+                  <ButtonLink
+                    href={canRequestDirectly
+                      ? `/conexiones/solicitar/${professional.slug}`
+                      : "/conexiones/nueva"}
+                    className="mt-4"
+                  >
+                    {canRequestDirectly
+                      ? "Solicitar información a este profesional"
+                      : "Solicitar servicio en EVOLUSA"}
+                  </ButtonLink>
+                </div>
+              )}
+
               {mailtoHref && professional.isAcceptingClients && (
                 <ButtonLink href={mailtoHref} className="mt-6">
                   <CalendarClock aria-hidden size={18} className="mr-2" />
@@ -160,6 +192,8 @@ export default function ProfessionalProfileView({
         </Container>
       </section>
 
+      <ProfessionalServiceShowcase professional={professional} capturePilotEnabled={capturePilotEnabled} />
+
       {hasCareerContent(professional.bio) && (
         <Section labelledBy="professional-about-title">
           <Heading id="professional-about-title" eyebrow="Sobre este profesional">
@@ -169,11 +203,20 @@ export default function ProfessionalProfileView({
         </Section>
       )}
 
+      {professional.category === "IMMIGRATION_DOCUMENT_SUPPORT" && (
+        <Section labelledBy="immigration-document-notice">
+          <div id="immigration-document-notice" className="max-w-3xl rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--sky-surface)] p-6 text-sm leading-6 text-[var(--brand-navy)]">
+            Este profesional ofrece apoyo documental. EVOLUSA no da asesoría migratoria ni es una agencia de inmigración. Para orientación legal o migratoria, consulta a un profesional debidamente autorizado.
+          </div>
+        </Section>
+      )}
+
       {hasLinks && (
         <Section className="bg-[var(--surface-subtle)]" labelledBy="professional-links-title">
           <Heading id="professional-links-title" eyebrow="Más de este profesional">
-            Enlaces
+            Publicaciones, redes y sitio web
           </Heading>
+          <p className="mt-3 text-sm text-[var(--muted)]">Accede al contenido publicado en los canales oficiales del profesional. La sincronización automática de posts dentro de EVOLUSA aún no está habilitada.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             {portfolioHref && (
               <a
@@ -225,11 +268,12 @@ export default function ProfessionalProfileView({
             {workSamples.map((sample) => (
               <div key={sample.title} className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-white">
                 <div className="relative aspect-[4/3] w-full">
-                  <Image src={sample.image} alt={sample.title} fill sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
+                  <ProfessionalPhoto src={safeHttpUrl(sample.image)} name={sample.title} className="h-full w-full object-cover" />
                 </div>
                 <div className="p-4">
                   <p className="font-bold text-[var(--brand-navy)]">{sample.title}</p>
                   {sample.description && <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{sample.description}</p>}
+                  {directContact && <a href={directContact} target={directContact.startsWith("http") ? "_blank" : undefined} rel={directContact.startsWith("http") ? "noopener noreferrer" : undefined} className="mt-4 inline-block text-sm font-bold text-[var(--brand-blue)]">Solicitar información →</a>}
                 </div>
               </div>
             ))}
@@ -261,9 +305,9 @@ export default function ProfessionalProfileView({
       <Section className="bg-[var(--brand-navy)]">
         <div className="mx-auto max-w-xl text-center">
           <p className="text-balance text-2xl font-bold text-white sm:text-3xl">¿Quieres seguir explorando tu camino?</p>
-          <p className="mt-3 leading-7 text-white/70">Tu Roadmap te ayuda a identificar el próximo paso adecuado para ti.</p>
+          <p className="mt-3 leading-7 text-white/70">Tu plan te ayuda a identificar el próximo paso adecuado para ti.</p>
           <ButtonLink href="/roadmap" className="mt-6">
-            Volver al Roadmap
+            Volver al plan
           </ButtonLink>
         </div>
       </Section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { CheckCircle2, Clock3 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -149,6 +150,14 @@ export default function ProfessionalProfileEditor({ profile }: { profile: Profes
             </dd>
           </div>
         </dl>
+        {profile.isApproved && (
+          <div className="mt-5">
+            <Link href={`/profesionales/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-bold text-[var(--brand-blue)] underline">
+              Ver mi perfil público
+            </Link>
+            <p className="text-sm text-[var(--muted)]">Se abre en otra pestaña con la información guardada.</p>
+          </div>
+        )}
       </Card>
 
       <Card className="space-y-6">

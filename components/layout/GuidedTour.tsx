@@ -21,12 +21,12 @@ const steps: TourStep[] = [
   {
     target: "hero-pro",
     title: "¿Ofreces un servicio?",
-    body: "Toca “Soy profesional” para enviar tu solicitud. La solicitud, la preparación del perfil y su publicación son pasos separados.",
+    body: "En “Soy profesional” ves qué te da EVOLUSA y cómo aplicar. La solicitud, la preparación del perfil y su publicación son pasos separados.",
   },
   {
     target: "hero-busco",
     title: "¿Buscas ayuda?",
-    body: "En “Busco un profesional” ves los perfiles aprobados y eliges con quién hablar.",
+    body: "En “Empezar gratis” ves cómo funciona: tus pasos en orden y un profesional aprobado para cada uno.",
   },
   {
     target: "hero-login",
@@ -46,7 +46,7 @@ const steps: TourStep[] = [
   {
     target: "hero-como-funciona",
     title: "¿Lo quieres ver paso a paso?",
-    body: "Aquí te explicamos cómo funciona, tanto si buscas asesoría como si eres profesional.",
+    body: "Aquí te explicamos cómo funciona EVOLUSA, paso a paso.",
   },
 ];
 

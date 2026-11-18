@@ -71,3 +71,33 @@ test("admin professional pages expose professional tools and retain Admin", () =
   assert.equal(accountContextFor("ADMIN", "/dashboard"), "member");
   assert.equal(accountContextFor("ADMIN", "/crmx"), "member");
 });
+
+test("the owner's panel switch defaults to the professional panel", async () => {
+  const { adminViewHome, parseAdminView } = await import("../lib/account/navigation.ts");
+  assert.equal(parseAdminView(undefined), "professional");
+  assert.equal(parseAdminView("member"), "member");
+  assert.equal(parseAdminView("anything"), "professional");
+  assert.equal(adminViewHome("member"), "/dashboard");
+  assert.equal(adminViewHome("professional"), "/panel-profesional");
+});
+
+test("each role is named in plain words", async () => {
+  const { roleLabels } = await import("../lib/account/navigation.ts");
+  assert.equal(roleLabels("MEMBER").account, "Cuenta de usuario");
+  assert.equal(roleLabels("PROFESSIONAL").account, "Cuenta de profesional");
+  assert.equal(roleLabels("ADMIN").account, "Cuenta de administrador");
+});
+
+test("the public site splits by account: usuario side vs profesional side", async () => {
+  const { publicNavFor, publicSideFor } = await import("../lib/account/navigation.ts");
+  assert.equal(publicSideFor(null), null);
+  assert.equal(publicSideFor("MEMBER"), "member");
+  assert.equal(publicSideFor("PROFESSIONAL"), "professional");
+  assert.equal(publicSideFor("ADMIN"), "professional");
+  assert.equal(publicSideFor("ADMIN", "member"), "member");
+  const member = publicNavFor("member").map((item) => item.href);
+  assert.ok(!member.includes("/para-profesionales") && !member.includes("/growth-engine"));
+  const pro = publicNavFor("professional").map((item) => item.href);
+  assert.ok(pro.every((href) => !href.startsWith("/#")));
+  assert.equal(publicNavFor(null).length, 5);
+});

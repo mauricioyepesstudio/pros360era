@@ -71,3 +71,37 @@ test("every creative file referenced by the kit exists", () => {
     }
   }
 });
+
+test("the Marie kit provisions a NOTARY profile only through the kit", () => {
+  const parsed = parseCreateProfessionalInput({ email: "marie@example.com", password: "temporal-123", preparedKit: "marie-fernandez" });
+  assert.ok(parsed.ok);
+  assert.equal(parsed.input.category, "NOTARY");
+  assert.equal(parsed.input.fullName, "Marie Fernandez");
+  const row = buildProfessionalProfileInsert(parsed.input, userId);
+  assert.equal(row.category, "NOTARY");
+  assert.ok(validateCareerBio(row.bio));
+  assert.ok(!("is_approved" in row), "approval stays with the operator");
+  assert.deepEqual(buildAppMetadata(parsed.input), { prepared_kit: "marie-fernandez" });
+});
+
+test("NOTARY is rejected without the owner-approved kit", () => {
+  assert.equal(parseCreateProfessionalInput({ email: "x@example.com", password: "x", fullName: "X", category: "NOTARY" }).ok, false);
+  assert.equal(parseCreateProfessionalInput({ email: "x@example.com", password: "x", preparedKit: "miguel-acosta", category: "NOTARY" }).ok, false);
+});
+
+test("Marie kit follows Florida notary advertising rules (F.S. 117.05)", () => {
+  const kit = getPreparedKit("marie-fernandez");
+  assert.ok(kit);
+  const text = JSON.stringify(kit).toLowerCase();
+  assert.ok(!/notari[ao] p[uú]blic[ao]/.test(text), "no literal translation of Notary Public");
+  assert.ok(!/\bnotario\b/.test(text), "no 'notario'");
+  assert.ok(!text.includes("verificad"));
+  assert.match(kit.profile.career.summary, /no puedo dar asesoría legal/);
+  for (const concept of kit.creatives.concepts) {
+    for (const format of kit.creatives.formats) {
+      const src = creativeSrc(kit, concept.id, format);
+      assert.ok(existsSync(new URL(`../public${src}`, import.meta.url)), src);
+      assert.ok(existsSync(new URL(`../public${src.replace(/\.png$/, ".jpg")}`, import.meta.url)), `${src} jpg`);
+    }
+  }
+});

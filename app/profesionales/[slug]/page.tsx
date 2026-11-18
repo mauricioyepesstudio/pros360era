@@ -5,6 +5,7 @@ import Footer from "@/sections/home/Footer";
 import ProfessionalProfileView from "@/components/professional/ProfessionalProfileView";
 import { getPublicProfessionalBySlug, getPublicWorkSamples } from "@/lib/professional/public-profile";
 import { brand } from "@/config/brand";
+import { pilotEnabled } from "@/lib/inquiries/validation";
 
 /**
  * Public EVOLUSA professional trust profile — reads ONLY
@@ -43,6 +44,7 @@ export default async function ProfessionalProfilePage({ params }: ProfessionalPa
       <SiteHeader />
       <ProfessionalProfileView
         professional={professional}
+        capturePilotEnabled={pilotEnabled()}
         workSamples={workSamples.map((sample) => ({
           title: sample.title,
           image: sample.imageUrl,

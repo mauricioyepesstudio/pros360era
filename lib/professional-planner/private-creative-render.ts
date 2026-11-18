@@ -1,35 +1,72 @@
 import {businessActivity} from "../../data/professional/business-activities.ts";
-import sharp from "sharp";
+import sharp, {type OverlayOptions} from "sharp";
+import path from "node:path";
+import {readFile} from "node:fs/promises";
 import type {CreativeOwner} from "./private-creative-handler.ts";
-import {loadCreativeMedia} from "./creative-media.ts";
 type Palette={background:string;ink:string;accent:string};
 export function paletteFromCss(css:string):Palette{
  const get=(key:string)=>{const m=css.match(new RegExp("--"+key+":\\s*(#[0-9a-fA-F]{6})\\s*;"));if(!m)throw Error("Missing brand token");return m[1];};
  return{background:get("warm-canvas"),ink:get("evolusa-navy"),accent:get("evolusa-red")};
 }
 const escape=(v:string)=>v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]!));
-const wrap=(text:string,max:number)=>{const rows:string[]=[];let line="";for(const word of text.split(/\s+/)){if(word.length>max)throw Error("Copy width");if((line+" "+word).trim().length>max){rows.push(line);line=word;}else line=(line+" "+word).trim();}if(line)rows.push(line);return rows;};
-export function creativeSvg(owner:CreativeOwner,concept:number,format:"4x5"|"9x16",p:Palette){
+const clean=(value:string,max:number)=>Array.from(value.replace(/[\u0000-\u001f]/g," ")).slice(0,max).join("");
+type TextLayer={text:string;left:number;top:number;width:number;size:number;color:string;bold?:boolean};
+/** Same content model powers both formats; owner identity never comes from another account or stock portrait. */
+export function creativeLayout(owner:CreativeOwner,concept:number,format:"4x5"|"9x16",p:Palette){
  if(!["4x5","9x16"].includes(format)||![1,2,3].includes(concept)||!Object.values(p).every(v=>/^#[a-fA-F0-9]{6}$/.test(v)))throw Error("Invalid render");
- const own=owner.reference;
- const name=(owner.business?.businessName||owner.displayName).replace(/[\u0000-\u001f]/g," ").slice(0,42);
- const document=["IMMIGRATION_DOCUMENT_SUPPORT","NOTARY"].includes(owner.category);
+ const h=format==="4x5"?1350:1920;
  const activity=owner.business?businessActivity(owner.business.activity):null;
- const headlines=activity?[activity.headline,"Prepara tus preguntas",`Conoce nuestro proceso`]:["Prepara tu próximo paso","Organiza tu conversación","Una pregunta para empezar"];
- const body=activity?"Organiza tus preguntas para "+activity.topic+". Confirma el alcance antes de comenzar.":document?"Organiza tus documentos y prepara tus preguntas. Confirma el alcance del servicio antes de comenzar.":"Define tu proyecto, organiza tus ideas y prepara las preguntas para tu próxima conversación.";
- const h=format==="4x5"?1350:1920,photoEnd=format==="4x5"?720:1120;
- const title=wrap(headlines[concept-1],25),lines=wrap(body,43);
- const text=(rows:string[],y:number,size:number,gap:number)=>rows.map((s,i)=>'<text x="88" y="'+(y+i*gap)+'" font-size="'+size+'" fill="'+p.background+'">'+escape(s)+'</text>').join("");
- return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="'+h+'"><rect width="1080" height="250" fill="'+p.background+'"/><rect y="'+photoEnd+'" width="1080" height="'+(h-photoEnd)+'" fill="'+p.ink+'"/><g font-family="Poppins, sans-serif"><text x="'+(own?270:88)+'" y="'+(own?115:202)+'" font-size="'+Math.min(own?32:38,Math.floor((own?500:850)/(Math.max(name.length,1)*0.7)))+'" font-weight="700" fill="'+p.ink+'">'+escape(name)+'</text>'+(own?'<text x="270" y="172" font-size="18" fill="'+p.ink+'">'+escape(own.label.slice(0,58))+'</text>':'')+'<rect x="68" y="'+(photoEnd-67)+'" width="490" height="47" rx="8" fill="'+p.ink+'"/><text x="88" y="'+(photoEnd-35)+'" font-size="21" fill="'+p.background+'">'+(own?"REFERENCIA DE TU CONTENIDO":"IMAGEN ILUSTRATIVA")+'</text><rect x="88" y="'+(photoEnd+45)+'" width="100" height="8" fill="'+p.accent+'"/><g font-weight="700">'+text(title,photoEnd+130,64,78)+'</g>'+text(lines,photoEnd+130+title.length*78+40,32,46)+'<rect x="88" y="'+(h-140)+'" width="904" height="2" fill="'+p.accent+'"/><text x="88" y="'+(h-88)+'" font-size="24" fill="'+p.background+'">TU PRÓXIMO PASO · EVOLUSA</text><text x="88" y="'+(h-46)+'" font-size="20" fill="'+p.background+'">BORRADOR PRIVADO · REVISIÓN PENDIENTE</text></g></svg>';
+ const name=clean(owner.business?.businessName||owner.displayName,54);
+ const document=["IMMIGRATION_DOCUMENT_SUPPORT","NOTARY"].includes(owner.category);
+ const title=concept===1?(activity?.headline??"Prepara tu próximo paso"):concept===2?"Tres pasos antes de comenzar":"Conversemos sobre tu próximo paso";
+ const topic=activity?.topic??(document?"organizar tus documentos y preguntas":"definir tu proyecto y organizar tus ideas");
+ const layers:TextLayer[]=[
+  {text:name,left:72,top:75,width:650,size:name.length>30?25:32,color:p.ink,bold:true},
+  {text:activity?.label??"Tu espacio profesional",left:72,top:155,width:900,size:22,color:p.ink},
+  {text:["UNA IDEA PARA EMPEZAR","GUÍA PARA TU CONVERSACIÓN","PREPARA TU CONSULTA"][concept-1],left:72,top:260,width:900,size:22,color:p.accent,bold:true},
+  {text:title,left:72,top:320,width:900,size:title.length>44?52:concept===3?58:64,color:p.ink,bold:true},
+  {text:"BORRADOR PRIVADO · REVISIÓN PENDIENTE",left:72,top:h-70,width:920,size:20,color:p.ink},
+ ];
+ const footer=h-205;
+ layers.push({text:"TU PRÓXIMO PASO",left:72,top:footer+40,width:900,size:28,color:p.background,bold:true});
+ if(concept===2){
+  ["Define lo que necesitas","Reúne tus preguntas y documentos","Confirma el alcance antes de comenzar"].forEach((text,i)=>{
+   const top=580+i*(format==="4x5"?150:280);
+   layers.push({text:`0${i+1}`,left:92,top:top+22,width:100,size:36,color:p.accent,bold:true},{text,left:220,top:top+25,width:710,size:32,color:p.ink,bold:true});
+  });
+ }else{
+  layers.push({text:`Antes de comenzar: ${topic.charAt(0).toUpperCase()+topic.slice(1)}.`,left:72,top:550,width:900,size:34,color:p.ink});
+  if(concept===1)layers.push({text:"Antes de decidir",left:108,top:820,width:830,size:40,color:p.background,bold:true},{text:"Confirma los requisitos y el alcance del servicio con el profesional.",left:108,top:905,width:800,size:30,color:p.background});
+  else layers.push({text:owner.reference?"Referencia visual de tu propia cuenta":"Organiza tus ideas. Prepara tus preguntas.",left:72,top:footer-70,width:900,size:22,color:p.ink});
+ }
+ let shapes=`<rect width="1080" height="${h}" fill="${p.background}"/><rect x="72" y="220" width="936" height="4" fill="${p.accent}"/><rect y="${footer}" width="1080" height="120" fill="${p.ink}"/>`;
+ if(concept===1)shapes+=`<rect x="72" y="770" width="936" height="${format==="4x5"?320:650}" rx="24" fill="${p.ink}"/><circle cx="890" cy="${format==="4x5"?1040:1330}" r="46" fill="${p.accent}"/>`;
+ if(concept===2)for(let i=0;i<3;i++)shapes+=`<rect x="72" y="${580+i*(format==="4x5"?150:280)}" width="936" height="${format==="4x5"?130:240}" rx="16" fill="none" stroke="${p.ink}" stroke-width="2"/>`;
+ if(concept===3&&!owner.reference)shapes+=`<rect x="72" y="740" width="936" height="${format==="4x5"?260:750}" rx="24" fill="${p.ink}"/><path d="M140 860h600m-80-65 80 65-80 65" stroke="${p.accent}" stroke-width="20" fill="none"/>`;
+ return {h,layers,shapes,usesReference:concept===3&&Boolean(owner.reference)};
+}
+/** Debug/inspection SVG. PNG text is rendered separately with an explicit bundled font file. */
+export function creativeSvg(owner:CreativeOwner,concept:number,format:"4x5"|"9x16",p:Palette){
+ const {h,layers,shapes}=creativeLayout(owner,concept,format,p);
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="${h}">${shapes}${layers.map(layer=>`<text x="${layer.left}" y="${layer.top}" fill="${layer.color}">${escape(layer.text)}</text>`).join("")}</svg>`;
+}
+/** Native text must never depend on web next/font CSS or OS font discovery (serverless has no font guarantee). */
+export async function renderCreativeText(layer:TextLayer){
+ const fontfile=path.join(process.cwd(),"assets/fonts/poppins",layer.bold?"Poppins-SemiBold.ttf":"Poppins-Regular.ttf");
+ await readFile(fontfile); // Fail closed if a deployment omitted the required bundled font.
+ return sharp({text:{text:`<span foreground="${layer.color}">${escape(layer.text)}</span>`,font:`Poppins ${layer.bold?"SemiBold ":""}${layer.size}`,fontfile,width:layer.width,dpi:72,rgba:true,wrap:"word"}}).png().toBuffer();
 }
 export async function renderPrivateCreative(owner:CreativeOwner,concept:number,format:"4x5"|"9x16",p:Palette){
- if(owner.reference?.accent)p={...p,accent:owner.reference.accent};
- const svg=creativeSvg(owner,concept,format,p);
- const media=await loadCreativeMedia(owner.category);
- const h=format==="4x5"?1350:1920,photoHeight=format==="4x5"?470:870;
- const photo=await sharp(owner.reference?.image??media.photo,{limitInputPixels:20_000_000}).rotate().resize(1080,photoHeight,{fit:owner.reference?"contain":"cover",position:"centre",background:p.background}).png().toBuffer();
- const avatar=owner.reference?.avatar?await sharp(owner.reference.avatar,{limitInputPixels:20_000_000}).resize(140,140,{fit:"contain",background:p.background}).png().toBuffer():null;
- const logo=await sharp(media.logo,{limitInputPixels:20_000_000}).resize({width:owner.reference?180:390,height:100,fit:"inside"}).png().toBuffer();
- return new Uint8Array(await sharp({create:{width:1080,height:h,channels:4,background:p.background}})
- .composite([{input:photo,top:250,left:0},{input:Buffer.from(svg),top:0,left:0},{input:logo,top:50,left:owner.reference?800:88},...(avatar?[{input:avatar,top:50,left:88}]:[])]).png().toBuffer());
+ // Keep the canonical brand palette: an arbitrary photo's dominant color can make text inaccessible.
+ const {h,layers,shapes,usesReference}=creativeLayout(owner,concept,format,p);
+ const composites:OverlayOptions[]=[{input:Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="${h}">${shapes}</svg>`),top:0,left:0}];
+ if(usesReference&&owner.reference){
+  const photoHeight=format==="4x5"?300:780;
+  const photo=await sharp(owner.reference.image,{limitInputPixels:20_000_000}).rotate().resize(936,photoHeight,{fit:"contain",background:p.background}).png().toBuffer();
+  composites.push({input:photo,top:735,left:72});
+ }
+ const logo=await sharp(await readFile(path.join(process.cwd(),"public/brand/evolusa-primary.png")),{limitInputPixels:20_000_000}).resize({width:230,height:80,fit:"inside"}).png().toBuffer();
+ composites.push({input:logo,top:62,left:778});
+ for(const layer of layers)composites.push({input:await renderCreativeText(layer),top:layer.top,left:layer.left});
+ return new Uint8Array(await sharp({create:{width:1080,height:h,channels:4,background:p.background}}).composite(composites).png().toBuffer());
 }

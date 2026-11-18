@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { socialConnectionOwner } from "@/lib/social/connections";
 import { syncInstagramInboxForOwner } from "@/lib/social/inbox-sync";
-import { getInstagramConfig, PUBLIC_APP_URL } from "@/lib/social/instagram";
+import { getInstagramConfig, isAppOrigin } from "@/lib/social/instagram";
+import { syncGhlSoon } from "@/lib/crm/gohighlevel-trigger";
 
 const CONVERSATIONS_PAGE = "/crm/conversations";
 
@@ -14,7 +15,7 @@ const CONVERSATIONS_PAGE = "/crm/conversations";
 export async function POST(request: Request) {
   const back = (query: string) => NextResponse.redirect(new URL(`${CONVERSATIONS_PAGE}?${query}`, request.url), 303);
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin && origin !== PUBLIC_APP_URL) return new Response("Forbidden", { status: 403 });
+  if (origin && origin !== new URL(request.url).origin && !isAppOrigin(origin)) return new Response("Forbidden", { status: 403 });
 
   const owner = await socialConnectionOwner();
   if (!owner) return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(CONVERSATIONS_PAGE)}`, request.url), 303);
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
   try {
     const result = await syncInstagramInboxForOwner(service, config.tokenKey, owner.user.id);
     if ("skipped" in result) return back(result.skipped === "cooldown" ? "aviso=espera" : "error=sin_conexion");
+    if (result.leadsCreated > 0) syncGhlSoon(owner.user.id);
     return back(`traidos=${result.imported}&nuevos=${result.leadsCreated}${result.partial ? "&parcial=1" : ""}`);
   } catch (error) {
     console.error("instagram_inbox_failed", error instanceof Error ? error.message : "unknown");

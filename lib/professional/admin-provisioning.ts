@@ -24,7 +24,13 @@ import type { PreparedKit } from "../../data/professional/prepared-kits.ts";
  * row before it can be matched, which this route doesn't create.
  */
 export const adminProvisionableCategories = ["BUSINESS_MARKETING", "BUSINESS_OPERATIONS"] as const;
-export type AdminProvisionableCategory = (typeof adminProvisionableCategories)[number];
+/**
+ * NOTARY is accepted only when it comes from a prepared kit the owner
+ * approved for that person (data/professional/prepared-kits.ts). The profile
+ * still starts unapproved and opportunities stay blocked by migration 0013
+ * until an operator records a NOTARY_COMMISSION_VERIFIED verification.
+ */
+export type AdminProvisionableCategory = (typeof adminProvisionableCategories)[number] | "NOTARY";
 
 export type CreateProfessionalInput = {
   email: string;
@@ -65,7 +71,8 @@ export function parseCreateProfessionalInput(
   }
 
   const category = raw.category ?? preparedKit?.category ?? "BUSINESS_MARKETING";
-  if (!adminProvisionableCategories.includes(category as AdminProvisionableCategory)) {
+  const kitNotary = category === "NOTARY" && preparedKit?.category === "NOTARY";
+  if (!kitNotary && !(adminProvisionableCategories as readonly unknown[]).includes(category)) {
     return { ok: false, error: `Categoría no permitida: ${String(category)}` };
   }
 

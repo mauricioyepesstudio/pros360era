@@ -24,7 +24,7 @@ export function pendingWeeklySuggestions(suggestions:PlannerSuggestion[],posts:P
 }
 /** Changing a previously approved payload requires a separate approval, never an inherited READY. */
 export function invalidateEditedApprovals(previous:PlannerPost[],next:PlannerPost[]):PlannerPost[]{
- const fields=["title","caption","imageUrl","platform","format","date","time"] as const;
+ const fields=["title","caption","imageUrl","platform","format","date","time","publishViaConnection"] as const;
  return next.map(post=>{const before=previous.find(p=>p.id===post.id);return before?.status==="READY"&&post.status==="READY"&&fields.some(k=>before[k]!==post[k])?{...post,status:"DRAFT" as const}:post;});
 }
 
