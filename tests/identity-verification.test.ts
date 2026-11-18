@@ -29,9 +29,11 @@ test("approved -> verified requires submitted evidence and an ADMIN decision",as
  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
  create table storage.objects(bucket_id text,name text);
+ alter table storage.objects enable row level security; grant select,insert,delete on storage.objects to authenticated;
  create function storage.foldername(name text) returns text[] language sql as $$ select string_to_array(name,'/') $$;
  grant usage on schema auth, storage to authenticated;
  create table public.profiles(id uuid primary key,role text not null);
+ grant select on public.profiles to authenticated; -- como en Supabase: las políticas de Storage consultan profiles
  create table public.professional_profiles(id uuid primary key,user_id uuid unique,slug text,display_name text,category text,is_approved boolean default false);
  create table public.professional_verifications(id uuid primary key default gen_random_uuid(),professional_profile_id uuid,verification_type text,
    status text default 'PENDING',verified_at timestamptz,internal_notes text,reviewed_by uuid,
@@ -64,4 +66,14 @@ test("approved -> verified requires submitted evidence and an ADMIN decision",as
  await as(2,async()=>assert.equal((await submit(`${uid(2)}/3.png`)).submit_state,"ALREADY_VERIFIED"));
  const row=(await db.query<{p:string|null;by:string}>(`select evidence_path p,reviewed_by by from public.professional_verifications where professional_profile_id='${pid(2)}'`)).rows[0];
  assert.deepEqual(row,{p:null,by:uid(1)});
+ // Storage borra con DELETE ... WHERE bucket_id/name: sin política SELECT propia el dueño borraba 0 filas.
+ const del=(name:string)=>db.query(`delete from storage.objects where bucket_id='verification-evidence' and name='${name}' returning name`).then(r=>r.rows.length);
+ await as(3,async()=>{await db.exec(`insert into storage.objects values ('verification-evidence','${uid(3)}/1.png')`);});
+ await as(2,async()=>{
+  await db.exec(`insert into storage.objects values ('verification-evidence','${uid(2)}/9.png')`);
+  assert.equal((await db.query("select name from storage.objects")).rows.length,1);
+  assert.equal(await del(`${uid(3)}/1.png`),0);
+  assert.equal(await del(`${uid(2)}/9.png`),1);
+ });
+ await as(1,async()=>assert.equal(await del(`${uid(3)}/1.png`),1));
 });
