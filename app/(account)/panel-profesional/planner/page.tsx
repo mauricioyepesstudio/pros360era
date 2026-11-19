@@ -39,7 +39,7 @@ export default async function ProfessionalPlannerPage({ searchParams }: { search
       />
       <PlannerAlerts planner={result} today={today} instagram={profile?.socialLinks.instagram} />
       {result.available ? (
-        <PublicationPlanner key={openSuggestions ? "weekly-review" : "calendar"} openSuggestions={openSuggestions} initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} brandFile={{ ready: file.ready, missing: file.missing }} suggestions={[...weeklyPlannerSuggestions(profile?{...profile,business:business.business}:null, today), ...plannerSuggestions(kit, profile?.displayName ?? null)]} />
+        <PublicationPlanner key={openSuggestions ? "weekly-review" : "calendar"} openSuggestions={openSuggestions} initial={result.planner} networks={result.networks} publications={result.publications} saved={result.saved} proposedFromKit={result.proposedFromKit} today={today} imageOptions={imageOptions} creativeBrand={{ name: business.business?.businessName || profile?.displayName || "EVOLUSA", colors: file.brand.brand?.colors ?? [] }} brandFile={{ ready: file.ready, missing: file.missing }} suggestions={[...weeklyPlannerSuggestions(profile?{...profile,business:business.business}:null, today), ...plannerSuggestions(kit, profile?.displayName ?? null)]} />
       ) : (
         <p role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-6">
           No pudimos abrir tu planner. Necesitas un perfil profesional propio; reintenta más tarde.

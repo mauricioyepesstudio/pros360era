@@ -84,6 +84,7 @@ export default function PublicationPlanner({
   proposedFromKit,
   today,
   imageOptions,
+  creativeBrand,
   brandFile = { ready: true, missing: [] },
   networks,
   publications,
@@ -95,6 +96,7 @@ export default function PublicationPlanner({
   proposedFromKit: boolean;
   today: string;
   imageOptions: PlannerImageOption[];
+  creativeBrand: { name: string; colors: string[] };
   /** Expediente de marca: sin él no se generan borradores con IA. */
   brandFile?: { ready: boolean; missing: string[] };
   networks: PlannerNetworks;
@@ -151,6 +153,7 @@ export default function PublicationPlanner({
   const [editing, setEditing] = useState<PlannerPost | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
+  const [generatedPostId, setGeneratedPostId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [publicImageConsent, setPublicImageConsent] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(openSuggestions);
@@ -227,9 +230,13 @@ export default function PublicationPlanner({
     }
     const clean = { ...editing, title: editing.title.trim(), time: editing.date ? editing.time : null, note: editing.note?.trim() ? editing.note : null };
     const next = sortPosts(invalidateEditedApprovals(posts, [...posts.filter((post) => post.id !== clean.id), clean]));
-    setPosts(next);
     const reset = clean.status === "READY" && next.find(p => p.id === clean.id)?.status === "DRAFT";
-    if (await persist(next, reset ? "Guardado como borrador: revisa y aprueba nuevamente el contenido editado." : "Publicación guardada.")) setEditing(null);
+    if (await persist(next, reset || generatedPostId === clean.id ? "Borrador guardado. Ábrelo para revisarlo y aprobarlo." : "Publicación guardada.")) {
+      setPosts(next);
+      setGeneratedPostId(null);
+      setPublicImageConsent(false);
+      setEditing(null);
+    }
   }
 
   async function removeEditing() {
@@ -247,49 +254,81 @@ export default function PublicationPlanner({
     setEditing(blankPost(date));
   }
 
-  async function createDesignedPost() {
-    if (!editing) return;
-    if (!publicImageConsent) {
-      setNotice({ text: "Confirma el uso público de la imagen para crearla y guardarla.", failed: true });
+  async function createDesignedPost(photo?: File) {
+    if (!editing || !publicImageConsent) return;
+    const title = editing.title.trim();
+    if (!title) {
+      setNotice({ text: "Escribe el título antes de crear la pieza.", failed: true });
       return;
     }
-    const title = editing.title.trim() || "Descubre lo que podemos construir juntos";
-    const canvas = document.createElement("canvas");
-    canvas.width = 1080;
-    canvas.height = editing.format === "9x16" ? 1920 : 1350;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) { setNotice({ text: "Este navegador no permite crear la imagen.", failed: true }); return; }
-    const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    bg.addColorStop(0, "#071e3d");
-    bg.addColorStop(1, "#086d91");
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgba(255,255,255,.08)";
-    ctx.beginPath(); ctx.arc(900, 230, 390, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#54d4ef"; ctx.fillRect(86, 160, 140, 12);
-    ctx.fillStyle = "#ffffff"; ctx.font = "bold 44px sans-serif";
-    ctx.fillText("EVOLUSA  /  PROFESIONALES", 86, 115);
-    ctx.font = "bold 88px sans-serif";
-    const words = title.split(/\s+/);
-    let line = "", y = 380;
-    for (const word of words) {
-      const next = line ? line + " " + word : word;
-      if (ctx.measureText(next).width > 890 && line) {
-        ctx.fillText(line, 86, y); y += 110; line = word;
-      } else line = next;
-      if (y > canvas.height - 360) break;
+    setUploading(true);
+    setNotice(null);
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = editing.format === "9x16" ? 1920 : editing.format === "1x1" ? 1080 : 1350;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Este navegador no permite crear la imagen.");
+
+      const [primary = "#071e3d", accent = creativeBrand.colors[0] ?? "#54d4ef"] = creativeBrand.colors;
+      ctx.fillStyle = primary;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (photo) {
+        const bitmap = await createImageBitmap(photo);
+        try {
+          const photoHeight = Math.round(canvas.height * .62);
+          const scale = Math.max(canvas.width / bitmap.width, photoHeight / bitmap.height);
+          const width = bitmap.width * scale;
+          const height = bitmap.height * scale;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, canvas.width, photoHeight);
+          ctx.clip();
+          ctx.drawImage(bitmap, (canvas.width - width) / 2, (photoHeight - height) / 2, width, height);
+          ctx.restore();
+        } finally {
+          bitmap.close();
+        }
+      }
+
+      const panelY = Math.round(canvas.height * .62);
+      ctx.fillStyle = "#101828";
+      ctx.fillRect(0, panelY, canvas.width, canvas.height - panelY);
+      ctx.fillStyle = accent;
+      ctx.fillRect(64, panelY + 48, 104, 10);
+      ctx.fillStyle = primary;
+      ctx.fillRect(0, panelY, canvas.width, 12);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 64px sans-serif";
+      const words = title.split(/\s+/);
+      const lines: string[] = [];
+      let line = "";
+      for (const word of words) {
+        const candidate = line ? line + " " + word : word;
+        if (line && ctx.measureText(candidate).width > 952) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = candidate;
+        }
+      }
+      lines.push(line);
+      const lineHeight = Math.min(76, (canvas.height - panelY - 176) / lines.length);
+      ctx.font = `bold ${Math.min(64, lineHeight * .85)}px sans-serif`;
+      lines.forEach((text, index) => ctx.fillText(text, 64, panelY + 72 + lineHeight * (index + 1), 952));
+      ctx.font = "bold 38px sans-serif";
+      ctx.fillText(creativeBrand.name, 64, canvas.height - 52, 952);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", .87));
+      if (!blob) throw new Error("No se pudo exportar la imagen.");
+      await uploadImage(new File([blob], "pieza-profesional.jpg", { type: "image/jpeg" }), true);
+    } catch {
+      setNotice({ text: "No pudimos crear la pieza. Intenta con una foto JPG, PNG o WebP.", failed: true });
+    } finally {
+      setUploading(false);
     }
-    if (line && y < canvas.height - 260) ctx.fillText(line, 86, y);
-    ctx.fillStyle = "#a6e9f7"; ctx.font = "38px sans-serif";
-    ctx.fillText("Conecta. Descubre. Crece.", 86, canvas.height - 165);
-    ctx.fillStyle = "#ffffff"; ctx.font = "bold 38px sans-serif";
-    ctx.fillText("EVOLUSA", 86, canvas.height - 90);
-    canvas.toBlob(async (blob) => {
-      if (!blob) { setNotice({ text: "No se pudo exportar la imagen.", failed: true }); return; }
-      await uploadImage(new File([blob], "evolusa-publicacion.jpg", { type: "image/jpeg" }));
-    }, "image/jpeg", .87);
   }
 
-  async function uploadImage(file: File) {
+  async function uploadImage(file: File, generated = false) {
     if (!editing) return;
     const postId = editing.id;
     if (!publicImageConsent || file.size >= 4 * 1024 * 1024) {
@@ -305,8 +344,9 @@ export default function PublicationPlanner({
       const response = await fetch("/api/professional/planner/image", { method: "POST", body: form });
       const result = await response.json() as { imageUrl?: string; error?: string };
       if (!response.ok || !result.imageUrl) throw new Error(result.error || "No pudimos subir la imagen.");
-      setEditing((current) => current?.id === postId ? { ...current, imageUrl: result.imageUrl!, status: "IDEA" } : current);
-      setNotice({ text: "Imagen subida. La publicación queda como Idea; guarda los cambios y revísala antes de marcarla lista.", failed: false });
+      setEditing((current) => current?.id === postId ? { ...current, imageUrl: result.imageUrl!, status: generated || generatedPostId === postId ? "DRAFT" : "IDEA" } : current);
+      if (generated) setGeneratedPostId(postId);
+      setNotice({ text: generated ? "Pieza creada. Guarda el borrador para revisarlo." : "Imagen subida. Guarda los cambios y revísala antes de marcarla lista.", failed: false });
     } catch (error) {
       setNotice({ text: error instanceof Error ? error.message : "No pudimos subirla. La imagen anterior sigue intacta.", failed: true });
     } finally { setUploading(false); }
@@ -456,7 +496,7 @@ export default function PublicationPlanner({
 
       <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <button type="button" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Mes anterior" className="rounded-full p-2 hover:bg-[var(--sky-surface)]">
+          <button type="button" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Mes anterior" className="grid size-11 place-items-center rounded-full hover:bg-[var(--sky-surface)]">
             <ChevronLeft aria-hidden size={20} />
           </button>
           <h2 className="text-lg font-bold text-[var(--brand-navy)]">{monthLabel(month)}</h2>
@@ -521,12 +561,12 @@ export default function PublicationPlanner({
               <h2 id="planner-editor-title" className="text-xl font-bold text-[var(--brand-navy)]">
                 {posts.some((post) => post.id === editing.id) ? "Editar publicación" : "Nueva publicación"}
               </h2>
-              <button type="button" onClick={() => { setEditing(null); setNotice(null); }} aria-label="Cerrar" className="rounded-full p-2 hover:bg-[var(--sky-surface)]">
+              <button type="button" disabled={busy || uploading} onClick={() => { setEditing(null); setGeneratedPostId(null); setPublicImageConsent(false); setNotice(null); }} aria-label="Cerrar" className="rounded-full p-2 hover:bg-[var(--sky-surface)]">
                 <X aria-hidden size={20} />
               </button>
             </div>
 
-            <fieldset disabled={busy || uploading} className="mt-4 space-y-4 disabled:opacity-60">
+            <fieldset disabled={busy || uploading} className="mt-4 min-w-0 space-y-4 disabled:opacity-60">
               <label className="block text-sm font-semibold">
                 Título
                 <input required maxLength={140} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} className={field} />
@@ -541,7 +581,7 @@ export default function PublicationPlanner({
                   <input type="time" disabled={!editing.date} value={editing.time ?? ""} onChange={(e) => setEditing({ ...editing, time: e.target.value || null })} className={field} />
                 </label>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
                 <label className="block text-sm font-semibold">
                   Red
                   <select value={editing.platform} onChange={(e) => setEditing({ ...editing, platform: e.target.value as PlannerPost["platform"], publishViaConnection: false })} className={field}>
@@ -556,7 +596,7 @@ export default function PublicationPlanner({
                 </label>
                 <label className="block text-sm font-semibold">
                   Estado
-                  <select disabled={editing.id.startsWith("ig-")} value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value as PlannerStatus })} className={field}>
+                  <select disabled={editing.id.startsWith("ig-") || generatedPostId === editing.id} value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value as PlannerStatus })} className={field}>
                     {Object.entries(plannerStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
                 </label>
@@ -568,27 +608,27 @@ export default function PublicationPlanner({
                 {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
                   <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={publicImageConsent} onChange={(event) => setPublicImageConsent(event.target.checked)} className="mt-0.5 size-4 shrink-0" />Esta imagen será accesible públicamente para compartirla en redes. Tengo permiso para usarla. No subiré documentos privados.</label>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2" aria-busy={uploading}>
-                    {[{ label: "Tomar foto", camera: true }, { label: "Elegir archivo", camera: false }].map(({ label, camera }) => (
+                    {[{ label: "Tomar foto y crear pieza", camera: true }, { label: "Elegir archivo", camera: false }].map(({ label, camera }) => (
                       <label key={label} className="block min-w-0 text-sm font-semibold">
                         {label}
                         <input
                           type="file"
                           accept="image/jpeg,image/png,image/webp"
                           capture={camera ? "environment" : undefined}
-                          disabled={!publicImageConsent || uploading}
+                          disabled={!publicImageConsent || uploading || (camera && (!editing.title.trim() || editing.format === "reel" || editing.format === "text"))}
                           onChange={(event) => {
                             const file = event.target.files?.[0];
                             event.target.value = "";
-                            if (file) void uploadImage(file);
+                            if (file) void (camera ? createDesignedPost(file) : uploadImage(file));
                           }}
                           className="mt-2 block min-h-11 w-full text-xs file:mr-2 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-3 file:font-semibold file:text-white focus-visible:outline-2 disabled:opacity-60"
                         />
                       </label>
                     ))}
                   </div>
-                  <p className="mt-2 text-xs" role="status">{uploading ? "Subiendo imagen…" : ""}</p>
-                  <button type="button" disabled={uploading || !publicImageConsent} onClick={() => void createDesignedPost()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 text-sm font-bold text-white disabled:opacity-50">Crear diseño con el título del post</button>
-                  <p className="mt-2 text-xs text-[var(--muted)]">Genera una pieza original EVOLUSA en tu navegador, sin subir un archivo externo. Puedes editar el título y volver a generarla.</p>
+                  <p className="mt-2 text-xs" role="status">{uploading ? "Procesando imagen…" : ""}</p>
+                  <button type="button" disabled={uploading || !publicImageConsent || !editing.title.trim() || editing.format === "reel" || editing.format === "text"} onClick={() => void createDesignedPost()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 text-sm font-bold text-white disabled:opacity-50">Crear pieza sin foto</button>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Escribe un título y elige un formato de imagen para crear una pieza con la marca de tu perfil.</p>
                   <p className="mt-2 text-xs text-[var(--muted)]">JPG, PNG o WebP de menos de 4 MB. Se convierte a JPG y se eliminan metadatos. Hasta 200 imágenes por cuenta.</p>
                 </div>}
                 {editing.imageUrl ? (
@@ -655,12 +695,12 @@ export default function PublicationPlanner({
 
             <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
               {posts.some((post) => post.id === editing.id) ? (
-                <button type="button" disabled={busy} onClick={() => void removeEditing()} className="inline-flex min-h-11 items-center gap-1 rounded-full px-4 font-semibold text-[var(--danger)] disabled:opacity-60">
+                <button type="button" disabled={busy || uploading} onClick={() => void removeEditing()} className="inline-flex min-h-11 items-center gap-1 rounded-full px-4 font-semibold text-[var(--danger)] disabled:opacity-60">
                   <Trash2 aria-hidden size={16} /> Eliminar
                 </button>
               ) : <span />}
               <button type="submit" disabled={busy || uploading} className="min-h-11 rounded-full bg-[var(--brand-blue)] px-6 font-bold text-white disabled:opacity-60">
-                {busy ? "Guardando…" : "Guardar"}
+                {busy ? "Guardando…" : generatedPostId === editing.id ? "Guardar borrador" : "Guardar"}
               </button>
             </div>
           </form>
