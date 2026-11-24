@@ -14,7 +14,15 @@ const PAUSED_DEMO_ROUTES: { source: string; destination: string }[] = [
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {"/api/professional/creative-proposal": ["./app/globals.css","./assets/fonts/poppins/*.ttf","./public/brand/evolusa-primary.png","./public/images/journey/entrepreneurship.jpg","./public/images/journey/growth.jpg","./public/images/journey/stability.jpg"]},
   async redirects() {
-    return PAUSED_DEMO_ROUTES.map((route) => ({ ...route, permanent: false }));
+    return [
+      {
+        source: "/",
+        has: [{ type: "host", value: "pro.evolusa.us" }],
+        destination: "/para-profesionales",
+        permanent: false,
+      },
+      ...PAUSED_DEMO_ROUTES.map((route) => ({ ...route, permanent: false })),
+    ];
   },
 };
 
