@@ -18,7 +18,7 @@ const benefits = [
   {
     icon: Inbox,
     title: "Solicitudes de tu nicho",
-    body: "Personas que buscan lo que tú haces. Llegan con lo que necesitan, su zona y su idioma.",
+    body: "Puedes recibir solicitudes que coincidan con tu especialidad, zona e idioma. Revisa qué necesita la persona y decide si puedes atenderla.",
     panel: "/panel-profesional/oportunidades",
     preview: (
       <div className="border-t-2 border-[var(--brand-navy)]">
@@ -30,7 +30,7 @@ const benefits = [
   {
     icon: UserRoundCheck,
     title: "Tu perfil profesional",
-    body: "Una página con tus servicios, tu zona y tus idiomas. La revisamos antes de publicarla como perfil aprobado.",
+    body: "Presenta tus servicios, tu experiencia y la zona donde atiendes en un perfil público que puedes compartir con prospectos. Revisamos tu perfil antes de publicarlo.",
     panel: "/panel-profesional/perfil",
     preview: (
       <div className="flex items-center gap-3 border-t-2 border-[var(--brand-navy)] pt-3">
@@ -43,7 +43,7 @@ const benefits = [
   {
     icon: Users,
     title: "Tu CRM de clientes",
-    body: "Cada contacto y en qué va. Los comentarios y mensajes de tus redes entran como prospectos.",
+    body: "Organiza en el CRM a quién debes responder, con quién estás conversando y quién ya se convirtió en cliente.",
     panel: "/crm",
     preview: (
       <div className="grid grid-cols-3 gap-3 border-t-2 border-[var(--brand-navy)] pt-3 text-[13px]">
@@ -58,8 +58,8 @@ const benefits = [
   },
   {
     icon: CalendarDays,
-    title: "Tus redes, planeadas y publicadas",
-    body: "Planeamos tu semana y, con tus cuentas conectadas, tus publicaciones salen en Instagram, Facebook y LinkedIn.",
+    title: "Un calendario de contenido con intención",
+    body: "Planea publicaciones que resuelvan dudas frecuentes y dirijan a una consulta, cotización o cita. La publicación depende de la conexión y los permisos de cada cuenta.",
     panel: "/panel-profesional/planner",
     preview: (
       <div className="grid grid-cols-5 gap-2 border-t-2 border-[var(--brand-navy)] pt-3 text-center text-[11px] font-semibold">
@@ -72,7 +72,7 @@ const benefits = [
   {
     icon: MessageSquareQuote,
     title: "Contenido con tu voz y tu marca",
-    body: "Defines tu tono, tus palabras y tu llamado a la acción. Lo que sale en tus cuentas habla de tu negocio, no de EVOLUSA.",
+    body: "Define tu tono, tus mensajes y el siguiente paso que quieres que tome quien ve tu contenido. Las piezas para tus cuentas llevan tu marca y se publican con tu autorización.",
     panel: "/panel-profesional/perfil",
     preview: (
       <div className="flex flex-wrap gap-2 border-t-2 border-[var(--brand-navy)] pt-3 text-[12px] font-semibold">
@@ -84,8 +84,8 @@ const benefits = [
   },
   {
     icon: BarChart3,
-    title: "Tus números en el CRM",
-    body: "Leads totales, leads del mes y conversaciones abiertas, en un vistazo.",
+    title: "Visibilidad sobre tus oportunidades",
+    body: "Consulta cuántos prospectos tienes, cuántos llegaron este mes y qué conversaciones siguen abiertas para priorizar tu seguimiento.",
     panel: "/crm",
     preview: (
       <div className="border-t-2 border-[var(--brand-navy)] pt-3">
@@ -105,13 +105,13 @@ export default function ProBenefits() {
     <section id="lo-que-recibes" aria-labelledby="kit-title" className="scroll-mt-24 bg-[var(--role-pro-soft)] py-20 sm:py-24">
       <div className="mx-auto max-w-[1200px] px-5">
         <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--brand-red-strong)]">
-          <span aria-hidden className="h-[3px] w-7 rounded-full bg-current" />{inside ? "Tu panel profesional" : "Lo que recibes al registrarte"}
+          <span aria-hidden className="h-[3px] w-7 rounded-full bg-current" />{inside ? "Tu panel profesional" : "Lo que recibes al ingresar"}
         </p>
         <h2 id="kit-title" className="mt-3 text-balance text-4xl font-bold leading-[1.1] tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">
-          {inside ? "Todo esto ya es tuyo." : "Tu oficina digital, completa."}
+          {inside ? "Las herramientas de tu negocio" : "Posiciona tu marca, genera interés y da seguimiento"}
         </h2>
         <p className="mt-4 max-w-[58ch] text-lg text-slate-600">
-          {inside ? "Cada tarjeta te lleva directo a esa parte de tu panel." : "Seis herramientas que hoy buscarías por separado, en un solo panel y pensadas para atender a la comunidad hispana."}
+          {inside ? "Cada tarjeta te lleva directo a esa parte de tu panel." : "Presenta tus servicios, planea contenido que invite a contactarte y organiza las consultas de personas interesadas en un solo panel."}
         </p>
         <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {benefits.map(({ icon, title, body, panel, preview }) => (
