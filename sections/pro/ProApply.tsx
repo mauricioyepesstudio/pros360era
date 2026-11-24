@@ -33,10 +33,10 @@ export default function ProApply() {
     <section aria-labelledby="apply-title" className="border-t-[6px] border-[var(--brand-red)] bg-white py-20 sm:py-24">
       <div className="mx-auto grid max-w-[1200px] items-end gap-10 px-5 md:grid-cols-[1.2fr_1fr] md:gap-14">
         <div>
-          <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--brand-red-strong)]"><span aria-hidden className="h-[3px] w-7 rounded-full bg-current" />Aplica hoy</p>
-          <h2 id="apply-title" className="mt-3 text-4xl font-bold tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">Aplica en <span className="text-[var(--brand-red)]">5 minutos</span>.</h2>
-          <p className="mt-4 text-lg text-[var(--muted)]">Revisamos tu perfil y te avisamos por correo.</p>
-          <Link href="/aplicar-profesional" className={`mt-10 ${cta}`}>Aplicar como profesional <ArrowRight aria-hidden size={18} /></Link>
+          <p className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--brand-red-strong)]"><span aria-hidden className="h-[3px] w-7 rounded-full bg-current" />Únete a EVOLUSA</p>
+          <h2 id="apply-title" className="mt-3 text-4xl font-bold tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">Muéstranos lo que haces.</h2>
+          <p className="mt-4 text-lg text-[var(--muted)]">Cuéntanos qué servicios ofreces y a quién atiendes. Revisamos tu solicitud y te avisamos por correo.</p>
+          <Link href="/aplicar-profesional" className={`mt-10 ${cta}`}>Solicitar mi ingreso <ArrowRight aria-hidden size={18} /></Link>
         </div>
         <ol className="border-t-2 border-[var(--brand-navy)] text-[var(--brand-navy)]">
           {["Llenas tu solicitud", "Revisamos tu perfil", "Publicamos tu perfil aprobado"].map((item, index) => (
