@@ -46,7 +46,7 @@ export default function ProApply() {
             </li>
           ))}
         </ol>
-        <p className="max-w-[84ch] text-[12.5px] leading-5 text-[var(--muted)] md:col-span-2">No prometemos un número de clientes. Revisamos cada perfil antes de publicarlo como perfil aprobado; eso no es una verificación de identidad. Ningún pago cambia tu posición ni tu aprobación. Hoy recibimos marketing, operaciones de negocio, notaría y preparación documental, en Florida; en notaría y preparación documental revisamos tu licencia o comisión vigente antes de aprobar el perfil.</p>
+        <p className="max-w-[84ch] text-[12.5px] leading-5 text-[var(--muted)] md:col-span-2">No prometemos un número de clientes. Revisamos cada perfil antes de publicarlo como perfil aprobado; eso no es una verificación de identidad. Ningún pago cambia tu posición ni tu aprobación. Consulta las especialidades disponibles para Florida en el formulario. Revisamos los requisitos de tu categoría antes de habilitar los servicios correspondientes.</p>
       </div>
     </section>
   );
