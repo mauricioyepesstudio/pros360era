@@ -567,18 +567,37 @@ export default function PublicationPlanner({
                 <p className="text-sm font-semibold">Imagen</p>
                 {!editing.id.startsWith("ig-") && <div className="mt-2 rounded-[var(--radius-md)] bg-[var(--sky-surface)] p-3">
                   <label className="flex items-start gap-2 text-xs"><input type="checkbox" checked={publicImageConsent} onChange={(event) => setPublicImageConsent(event.target.checked)} className="mt-0.5 size-4 shrink-0" />Esta imagen será accesible públicamente para compartirla en redes. Tengo permiso para usarla. No subiré documentos privados.</label>
-                  <label className="mt-3 block text-sm font-semibold">{uploading ? "Subiendo imagen…" : "Subir imagen desde tu dispositivo"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={!publicImageConsent || uploading} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void uploadImage(file); }} className="mt-2 block w-full text-xs file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-4 file:font-semibold file:text-white disabled:opacity-60" /></label>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2" aria-busy={uploading}>
+                    {[{ label: "Tomar foto", camera: true }, { label: "Elegir archivo", camera: false }].map(({ label, camera }) => (
+                      <label key={label} className="block min-w-0 text-sm font-semibold">
+                        {label}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          capture={camera ? "environment" : undefined}
+                          disabled={!publicImageConsent || uploading}
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            event.target.value = "";
+                            if (file) void uploadImage(file);
+                          }}
+                          className="mt-2 block min-h-11 w-full text-xs file:mr-2 file:min-h-11 file:rounded-full file:border-0 file:bg-[var(--brand-blue)] file:px-3 file:font-semibold file:text-white focus-visible:outline-2 disabled:opacity-60"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs" role="status">{uploading ? "Subiendo imagen…" : ""}</p>
                   <button type="button" disabled={uploading || !publicImageConsent} onClick={() => void createDesignedPost()} className="mt-3 min-h-11 rounded-full bg-[var(--brand-blue)] px-5 text-sm font-bold text-white disabled:opacity-50">Crear diseño con el título del post</button>
                   <p className="mt-2 text-xs text-[var(--muted)]">Genera una pieza original EVOLUSA en tu navegador, sin subir un archivo externo. Puedes editar el título y volver a generarla.</p>
                   <p className="mt-2 text-xs text-[var(--muted)]">JPG, PNG o WebP de menos de 4 MB. Se convierte a JPG y se eliminan metadatos. Hasta 200 imágenes por cuenta.</p>
                 </div>}
                 {editing.imageUrl ? (
-                  <div className="mt-2 flex items-start gap-3">
+                  <div className="mt-3 flex flex-col items-start gap-3 sm:flex-row">
                     {isPlannerVideo(editing.imageUrl) ? (
-                      <video src={editing.imageUrl} controls muted playsInline preload="metadata" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                      <video src={editing.imageUrl} controls muted playsInline preload="metadata" className="max-h-80 w-full max-w-xs rounded-[var(--radius-sm)] border border-[var(--border)] object-contain" />
                     ) : (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={editing.imageUrl} alt="" className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)]" />
+                      <img src={editing.imageUrl} alt="" className="max-h-80 w-full max-w-xs rounded-[var(--radius-sm)] border border-[var(--border)] object-contain" />
                     )}
                     <div className="flex flex-col gap-2 text-sm">
                       <a href={editing.imageUrl} download className="inline-flex items-center gap-1 font-semibold text-[var(--brand-blue)] hover:underline">

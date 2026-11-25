@@ -8,7 +8,7 @@ import BrandMark from "@/components/evolusa/BrandMark";
 import Container from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 import { useAccountRole } from "@/components/layout/useAccountRole";
-import { PROFESSIONAL_PUBLIC_HOME, publicNavFor, publicSideFor } from "@/lib/account/navigation";
+import { PROFESSIONAL_HOME, PROFESSIONAL_PUBLIC_HOME, publicNavFor, publicSideFor } from "@/lib/account/navigation";
 
 /**
  * Floating overlay nav over the Hero photograph (fixed, not sticky — sticky
@@ -38,8 +38,9 @@ export default function SiteHeader() {
   // menu too (owner, 13-nov: each side only talks to its own audience).
   const onProPage = pathname.startsWith(PROFESSIONAL_PUBLIC_HOME);
   const side = publicSideFor(role, view) ?? (onProPage ? "professional" : null);
-  const navigation = signedIn || !onProPage ? publicNavFor(side) : [...publicNavFor("professional"), { label: "Soy usuario", href: "/" }];
-  const accountHref = signedIn ? "/dashboard" : "/login?next=%2Fdashboard";
+  const navigation = signedIn || !onProPage ? publicNavFor(side) : [...publicNavFor("professional"), { label: "Soy usuario", href: "https://www.evolusa.us/" }];
+  const panelHref = onProPage && (role === "PROFESSIONAL" || role === "ADMIN") ? PROFESSIONAL_HOME : "/dashboard";
+  const accountHref = signedIn ? panelHref : `/login?next=${encodeURIComponent(onProPage ? PROFESSIONAL_HOME : "/dashboard")}`;
   const panelLabel = role === "PROFESSIONAL" ? "Mi panel profesional" : role === "MEMBER" ? "Mi panel de usuario" : "Ir a mi panel";
   const panelColor = role === "PROFESSIONAL" ? "bg-[var(--role-pro)] hover:brightness-110" : role === "MEMBER" ? "bg-[var(--role-member)] hover:bg-[var(--role-member-strong)]" : role === "ADMIN" ? "bg-[var(--brand-navy)] hover:bg-[#0b1f3d]" : "bg-[var(--brand-red-strong)] hover:bg-[#a90016]";
   const accountLabel = signedIn ? "Mi panel" : "Ingresar";
@@ -97,7 +98,7 @@ export default function SiteHeader() {
         </nav>
         {side !== "professional" && <Link aria-label="¿Cómo funciona?" href="/?tour=start" data-tour="hero-como-funciona" onClick={(event) => { if (window.location.pathname === "/") { event.preventDefault(); setMenuOpen(false); window.dispatchEvent(new Event("evolusa:start-tour")); } }} className="relative z-10 ml-auto hidden min-h-11 shrink-0 items-center justify-center rounded-full px-3 text-sm font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-red-strong)] focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex"><span className="sm:hidden">Cómo funciona</span><span className="hidden sm:inline">¿Cómo funciona?</span></Link>}
         {!signedIn && <Link href={accountHref} className="relative z-10 hidden min-h-11 shrink-0 items-center justify-center rounded-full border-2 border-[var(--brand-navy)] px-5 text-sm font-bold text-[var(--brand-navy)] hover:bg-[var(--brand-navy)] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 sm:inline-flex">{accountLabel}</Link>}
-        <Link href={signedIn ? "/dashboard" : onProPage ? "/aplicar-profesional" : "/para-profesionales"} data-tour="hero-pro" className={cn("relative z-10 inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-5 text-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 max-sm:ml-auto", side === "professional" && "ml-auto", signedIn ? panelColor : "bg-[var(--brand-red-strong)] hover:bg-[#a90016]")}>{signedIn ? panelLabel : onProPage ? "Aplicar" : "Soy profesional"}</Link>
+        <Link href={signedIn ? panelHref : onProPage ? "/aplicar-profesional" : "https://pro.evolusa.us/"} data-tour="hero-pro" className={cn("relative z-10 inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-5 text-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 max-sm:ml-auto", side === "professional" && "ml-auto", signedIn ? panelColor : "bg-[var(--brand-red-strong)] hover:bg-[#a90016]")}>{signedIn ? panelLabel : onProPage ? "Aplicar" : "Soy profesional"}</Link>
 
         <button
           ref={menuToggleRef}
@@ -130,10 +131,10 @@ export default function SiteHeader() {
           </ul>
           <div className="mt-6 border-t border-white/10 pt-6">
             {signedIn ? (
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">{panelLabel}</Link>
+              <Link href={panelHref} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">{panelLabel}</Link>
             ) : (
               <>
-                <Link href="/login?next=%2Fdashboard" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">Ingresar</Link>
+                <Link href={accountHref} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--brand-navy)]">Ingresar</Link>
               </>
             )}
           </div>

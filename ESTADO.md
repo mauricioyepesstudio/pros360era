@@ -360,3 +360,7 @@ El reintento de login conserva el destino interno de la confirmación o el acces
 ## 2026-11-12 — Reintento de solicitud directa
 
 Si se interrumpe el guardado, el formulario muestra que no pudo confirmar el registro y permite reintentar con los datos y la referencia originales. No cambia el destino, consentimiento, asignación ni correo. Evidencia de pruebas y despliegue en el PR y la cola central.
+
+## 2026-11-15 — Aceptación en el dominio canónico
+
+La prueba autenticada de solo lectura usa www.evolusa.us y verifica el rol de la cuenta sin depender del texto visible. Conserva la separación MEMBER/PROFESSIONAL y las restricciones de red; no ejecuta Google OAuth ni envíos de correo. Falta ejecutar con cuentas de prueba autorizadas.

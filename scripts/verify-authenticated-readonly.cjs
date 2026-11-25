@@ -43,13 +43,11 @@ async function accountCase(browser, role) {
     result.login = true;
     stage = "role_badge";
     await page.waitForURL((url) => url.origin === APP_ORIGIN && url.pathname !== "/login", { waitUntil: "domcontentloaded", timeout: 20000 });
-    await page.locator("header").getByText(/^(Miembro|Profesional|Administrador · Profesional)$/).waitFor({ timeout: 20000 });
-    const roles = [["MEMBER", "Miembro"], ["PRO", "Profesional"], ["ADMIN", "Administrador · Profesional"]];
-    result.actualRole = "UNKNOWN";
-    for (const [value, label] of roles) {
-      if (await page.locator("header").getByText(label, { exact: true }).count() === 1) result.actualRole = value;
-    }
-    requireCheck(result.actualRole === role);
+    const roleHeader = page.locator("header[data-account-role]");
+    await roleHeader.waitFor({ timeout: 20000 });
+    const renderedRole = await roleHeader.getAttribute("data-account-role");
+    result.actualRole = ["MEMBER", "PROFESSIONAL", "ADMIN"].includes(renderedRole) ? renderedRole : "UNKNOWN";
+    requireCheck(result.actualRole === (role === "PRO" ? "PROFESSIONAL" : "MEMBER"));
     result.roleVerified = true;
     if (role === "MEMBER") {
       stage = "member_profile";
@@ -92,7 +90,7 @@ async function accountCase(browser, role) {
       stage = "professional_role_gate";
       await page.goto(`${APP_ORIGIN}/dashboard`, { waitUntil: "domcontentloaded" });
       await page.waitForURL(`${APP_ORIGIN}/panel-profesional`, { waitUntil: "domcontentloaded" });
-      await page.locator("header").getByText("Profesional", { exact: true }).waitFor();
+      await page.locator('header[data-account-role="PROFESSIONAL"]').waitFor();
       result.memberHomeRedirected = true;
     }
     stage = "mutation_guard";

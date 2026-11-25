@@ -6,6 +6,8 @@ import PageHeader from "@/components/account/PageHeader";
 import ProfessionalProfileEditor from "@/components/professional/ProfessionalProfileEditor";
 import { requireProfessionalArea } from "@/lib/account/role-gate";
 import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
+import IdentityEvidenceUpload from "@/components/professional/IdentityEvidenceUpload";
+import { getMyIdentityStatus } from "@/lib/professional/identity-verification-server";
 
 /**
  * Page-level role gate — same UX-nicety-not-security-boundary pattern as
@@ -17,7 +19,7 @@ import { getMyProfessionalProfile } from "@/lib/professional/self-profile";
 export default async function ProfessionalSelfProfilePage() {
   await requireProfessionalArea();
 
-  const [profile, file, accountAccess] = await Promise.all([getMyProfessionalProfile(), getMyBrandFile(), getOwnGoogleLinkState()]);
+  const [profile, file, accountAccess, identityStatus] = await Promise.all([getMyProfessionalProfile(), getMyBrandFile(), getOwnGoogleLinkState(), getMyIdentityStatus()]);
 
   return (
     <div className="space-y-8">
@@ -27,7 +29,7 @@ export default async function ProfessionalSelfProfilePage() {
         description="Esta es la información que ven los miembros de EVOLUSA emparejados contigo y, una vez aprobada, tu perfil público."
       />
       {profile ? (
-        <><section id="mi-marca" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-bold text-[var(--brand-navy)]">Mi marca</h2><p className="mt-2 text-sm leading-6 text-[var(--muted)]">Tu negocio, tu voz y tu brandbook ahora están en «Mi marca». {file.ready ? "Tu expediente está completo." : `Te falta: ${file.missing.join(", ")}.`}</p><ButtonLink href="/panel-profesional/marca" className="mt-4">{file.ready ? "Ver mi marca" : "Completar mi marca"}</ButtonLink></section><ProfessionalProfileEditor profile={profile} /><GoogleAccountLink state={accountAccess} /></>
+        <><section id="mi-marca" className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-bold text-[var(--brand-navy)]">Mi marca</h2><p className="mt-2 text-sm leading-6 text-[var(--muted)]">Tu negocio, tu voz y tu brandbook ahora están en «Mi marca». {file.ready ? "Tu expediente está completo." : `Te falta: ${file.missing.join(", ")}.`}</p><ButtonLink href="/panel-profesional/marca" className="mt-4">{file.ready ? "Ver mi marca" : "Completar mi marca"}</ButtonLink></section>{profile.isApproved && <IdentityEvidenceUpload status={identityStatus} />}<ProfessionalProfileEditor profile={profile} /><GoogleAccountLink state={accountAccess} /></>
       ) : (
         <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-8 text-center">
           <p className="text-lg font-bold text-[var(--brand-navy)]">Todavía no encontramos tu perfil profesional.</p>
