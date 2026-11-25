@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { checkDraft, withDisclaimer, type ComplianceResult } from "./compliance.ts";
 import { buildSystemPrompt, buildUserPrompt, type DraftBusiness, type DraftRequest } from "./prompt.ts";
+import type { BrandKit } from "./brand-kit.ts";
 import { wordList, type VoiceProfile } from "./voice-profile.ts";
 
 export const CEREBRO_DEFAULT_MODEL = "claude-sonnet-5-5";
@@ -50,7 +51,7 @@ export function parseModelJson(text: string): z.infer<typeof responseSchema> | n
 }
 
 export async function generateDraft(
-  input: { voice: VoiceProfile; business: DraftBusiness; request: DraftRequest },
+  input: { voice: VoiceProfile; business: DraftBusiness; brand?: BrandKit | null; request: DraftRequest },
   deps: { client?: CerebroClient | null; model?: string } = {},
 ): Promise<DraftResult> {
   const client = deps.client === undefined ? await defaultClient() : deps.client;
@@ -61,7 +62,7 @@ export async function generateDraft(
     const message = await client.messages.create({
       model,
       max_tokens: 1500,
-      system: buildSystemPrompt(input.voice, input.business),
+      system: buildSystemPrompt(input.voice, input.business, input.brand),
       messages: [{ role: "user", content: buildUserPrompt(input.request) }],
     });
     text = message.content.filter((block) => block.type === "text").map((block) => block.text ?? "").join("");

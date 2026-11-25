@@ -17,7 +17,11 @@ export const INSTAGRAM_SCOPES = [
 ] as const;
 
 export const INSTAGRAM_GRAPH_VERSION = "v23.0";
-export const PUBLIC_APP_URL = "https://evolusa.vercel.app";
+/** Dominio oficial de EVOLUSA: las redes regresan aquí después de conectar y descargan de aquí las imágenes. */
+export const PUBLIC_APP_URL = "https://www.evolusa.us";
+/** Orígenes propios que se siguen aceptando (dominio sin www y el de Vercel) mientras quedan enlaces viejos. */
+export const APP_ORIGINS: readonly string[] = [PUBLIC_APP_URL, "https://evolusa.us", "https://evolusa.vercel.app"];
+export function isAppOrigin(origin: string): boolean { return APP_ORIGINS.includes(origin); }
 export const INSTAGRAM_CALLBACK_PATH = "/api/social/instagram/callback";
 export const INSTAGRAM_STATE_COOKIE = "evolusa_ig_state";
 export const SOCIAL_PAGE = "/panel-profesional/redes";

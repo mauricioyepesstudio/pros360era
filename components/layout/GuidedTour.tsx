@@ -46,7 +46,7 @@ const steps: TourStep[] = [
   {
     target: "hero-como-funciona",
     title: "¿Lo quieres ver paso a paso?",
-    body: "Aquí te explicamos cómo funciona, tanto si buscas asesoría como si eres profesional.",
+    body: "Aquí te explicamos cómo funciona EVOLUSA, paso a paso.",
   },
 ];
 

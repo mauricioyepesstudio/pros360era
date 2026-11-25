@@ -1,4 +1,4 @@
-import { PUBLIC_APP_URL } from "./instagram.ts";
+import { isAppOrigin, PUBLIC_APP_URL } from "./instagram.ts";
 
 export const LINKEDIN_PUBLISH_SCOPE = "w_member_social";
 const api = "https://api.linkedin.com/rest";
@@ -13,10 +13,10 @@ export class LinkedInPublishError extends Error {
 /** Downloads are restricted to this deployment's public media; never fetch arbitrary planner URLs server-side. */
 export function linkedInMediaUrl(raw: string): URL {
   const url = new URL(raw, PUBLIC_APP_URL);
-  if (url.origin !== PUBLIC_APP_URL || url.username || url.password || !/^\/(videos\/[a-z0-9-]+\.mp4|professionals\/kits\/[a-z0-9-]+\/[a-z0-9-]+\.(png|jpe?g|webp))$/.test(url.pathname) || url.search || url.hash) {
+  if (!isAppOrigin(url.origin) || url.username || url.password || !/^\/(videos\/[a-z0-9-]+\.mp4|professionals\/kits\/[a-z0-9-]+\/[a-z0-9-]+\.(png|jpe?g|webp))$/.test(url.pathname) || url.search || url.hash) {
     throw new LinkedInPublishError("LinkedIn necesita un archivo público del kit o un video alojado en EvolUSA.");
   }
-  return url;
+  return new URL(url.pathname, PUBLIC_APP_URL);
 }
 function uploadUrl(raw: unknown): string {
   if (typeof raw !== "string") throw new LinkedInPublishError("LinkedIn no devolvió una dirección de carga válida.");

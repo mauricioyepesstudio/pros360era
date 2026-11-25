@@ -34,7 +34,7 @@ export default function ThreeSteps() {
           ))}
         </ol>
         <div className="mt-12 flex flex-wrap items-center gap-4">
-          <Link href="/onboarding" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016]">
+          <Link href="/onboarding" className="inline-flex min-h-14 items-center gap-2 rounded-full bg-[var(--role-member)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[var(--role-member-strong)]">
             Empezar las preguntas <ArrowRight aria-hidden size={18} />
           </Link>
           <span className="text-sm text-[var(--muted)]">Toma unos 3 minutos</span>

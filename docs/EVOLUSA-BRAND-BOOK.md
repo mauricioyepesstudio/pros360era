@@ -88,7 +88,7 @@ Set up 2026-09-05. Assets in `public/brand/social/`:
 | Category | Servicio de consultoría / Business consulting |
 | Website | evolusa.vercel.app |
 | Phone / WhatsApp | +1 (786) 604-1733 |
-| Contact email | rgentertainmentmanagement@gmail.com |
+| Contact email | hola.evolusa@gmail.com |
 
 **Bio (short, IG/TikTok/X):**
 > Tu próximo paso. 🇺🇸 Conectamos inmigrantes hispanohablantes con profesionales verificados en EE.UU. Aplica como profesional 👇

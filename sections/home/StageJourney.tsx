@@ -37,7 +37,7 @@ export default function StageJourney() {
         <h2 id="journey-title" className="mt-3 text-balance text-4xl font-bold leading-[1.1] tracking-[-0.02em] text-[var(--brand-navy)] sm:text-5xl">6 etapas. Tú decides en cuál estás.</h2>
         <p className="mt-4 max-w-[58ch] text-lg text-[var(--muted)]">Toca una etapa y mira qué se hace ahí y quién te puede ayudar.</p>
 
-        <div role="tablist" aria-label="Etapas del camino EVOLUSA" className="relative mt-14 grid grid-cols-3 gap-y-7 sm:grid-cols-6 sm:gap-y-0">
+        <div role="tablist" data-tour="hero-path" aria-label="Etapas del camino EVOLUSA" className="relative mt-14 grid grid-cols-3 gap-y-7 sm:grid-cols-6 sm:gap-y-0">
           <span aria-hidden className="absolute left-[8.33%] right-[8.33%] top-[33px] hidden h-1 bg-[var(--border)] sm:block" />
           <span aria-hidden className="absolute left-[8.33%] top-[33px] hidden h-1 bg-[var(--brand-red)] transition-[width] duration-500 sm:block" style={{ width: `calc(83.33% * ${current / 5})` }} />
           {stages.map((item, index) => {
@@ -57,12 +57,12 @@ export default function StageJourney() {
                 <span
                   aria-hidden
                   className={cn(
-                    "grid size-14 place-items-center rounded-full border-[3px] bg-white text-lg font-extrabold transition sm:size-[70px] sm:text-xl",
+                    "grid size-14 place-items-center rounded-full border-[3px] text-lg font-extrabold transition sm:size-[70px] sm:text-xl",
                     selected
                       ? "scale-110 border-[var(--brand-red)] bg-[var(--brand-red)] text-white shadow-[0_12px_28px_rgba(242,13,36,0.35)]"
                       : index < current
-                        ? "border-[var(--brand-red)] text-[var(--brand-red-strong)]"
-                        : "border-[var(--border)] text-[var(--brand-navy)] group-hover:border-[var(--brand-red)]",
+                        ? "border-[var(--brand-red)] bg-white text-[var(--brand-red-strong)]"
+                        : "border-[var(--border)] bg-white text-[var(--brand-navy)] group-hover:border-[var(--brand-red)]",
                   )}
                 >
                   {index + 1}

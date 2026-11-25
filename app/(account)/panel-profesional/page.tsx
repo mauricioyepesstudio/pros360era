@@ -93,7 +93,7 @@ export default async function ProfessionalPanelPage() {
     : waitingForContact > 0
       ? { title: `Tienes ${waitingForContact} ${waitingForContact === 1 ? "persona" : "personas"} por contactar`, body: "Miembros emparejados contigo que autorizaron compartir su información.", href: "/panel-profesional/oportunidades", cta: "Contactar ahora" }
       : business.available && !business.business
-        ? { title: "Completa tu negocio", body: "Público, servicios y oferta. Tus propuestas de contenido usarán ese contexto.", href: "/panel-profesional/perfil#mi-negocio", cta: "Completar mi negocio" }
+        ? { title: "Completa tu negocio", body: "Público, servicios y oferta. Tus propuestas de contenido usarán ese contexto.", href: "/panel-profesional/marca#mi-negocio", cta: "Completar mi negocio" }
         : weeklyPending > 0
           ? { title: `Revisa ${weeklyPending} propuestas de contenido`, body: "Textos, carrusel y guion para reel de esta semana. No se publican al seleccionarlos.", href: "/panel-profesional/planner?review=weekly#propuestas", cta: "Revisar propuestas" }
           : !igActive

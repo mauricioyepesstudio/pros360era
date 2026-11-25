@@ -1,24 +1,20 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowRight, CreditCard, MapPinned, Target } from "lucide-react";
 import PageHeader from "@/components/account/PageHeader";
 import RoadmapBoard from "@/components/account/RoadmapBoard";
 import LifeEvents from "@/components/account/LifeEvents";
-import { getCurrentProfile, getCurrentRole } from "@/lib/account/persistence";
+import { getCurrentProfile } from "@/lib/account/persistence";
 import { journeyStages } from "@/data/journey/stages";
 import { generateAccountRoadmap } from "@/lib/account/roadmap-engine";
-import { PROFESSIONAL_HOME } from "@/lib/account/navigation";
+import { requireMemberArea } from "@/lib/account/role-gate";
 
 export default async function DashboardPage(){
-const role = await getCurrentRole();
-if (role === "PROFESSIONAL" || role === "ADMIN") {
-  redirect(PROFESSIONAL_HOME);
-}
+await requireMemberArea();
 const profile=await getCurrentProfile();const roadmap=generateAccountRoadmap(profile);const stage=journeyStages.find(s=>s.id===profile.currentStage)!;const next=roadmap.now[0];
 // Una sola acción principal: la siguiente del roadmap. Lo que ya está en el
 // menú (Roadmap, Asistente, Perfil) no se repite aquí como tarjeta.
 return <div className="space-y-8">
-<PageHeader eyebrow="Tu cuenta" title={profile.name?`Hola, ${profile.name}`:"Hola, este es tu camino"} description="Tu etapa, tu siguiente paso y lo que sigue."/>
+<PageHeader eyebrow="Cuenta de usuario" title={profile.name?`Hola, ${profile.name}`:"Hola, este es tu camino"} description="Tu etapa, tu siguiente paso y lo que sigue."/>
 <section className="rounded-[var(--radius-lg)] bg-[var(--role-member)] p-6 text-white sm:p-8">
 <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
 <div><p className="flex items-center gap-2 text-sm font-bold text-white/80"><MapPinned aria-hidden size={18}/>Etapa actual</p><h2 className="mt-2 text-3xl font-extrabold">{stage.shortLabel}</h2><div className="mt-5 max-w-md"><div className="flex justify-between text-sm"><span>Progreso general</span><strong>{profile.progress}%</strong></div><div className="mt-2 h-3 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white" style={{width:`${profile.progress}%`}}/></div></div></div>

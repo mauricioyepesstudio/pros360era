@@ -17,7 +17,7 @@ test("LinkedIn stays off until every secret is set", () => {
   assert.equal(getLinkedInConfig({} as NodeJS.ProcessEnv), null);
   assert.equal(getLinkedInConfig({ ...env, LINKEDIN_CLIENT_SECRET: "" }), null);
   assert.equal(getLinkedInConfig({ ...env, LINKEDIN_CLIENT_ID: "bad id!" }), null);
-  assert.equal(getLinkedInConfig(env)?.redirectUri, "https://evolusa.vercel.app/api/social/linkedin/callback");
+  assert.equal(getLinkedInConfig(env)?.redirectUri, "https://www.evolusa.us/api/social/linkedin/callback");
 });
 
 test("the authorize URL asks only for sign-in and posting on the member's own profile", () => {
@@ -48,7 +48,7 @@ test("code exchange and profile lookup", async () => {
   assert.equal(token.expiresAt.getTime(), 5184000 * 1000);
   assert.deepEqual(token.grantedScopes, ["openid", "profile", "w_member_social"]);
   assert.match(seen[0].body ?? "", /grant_type=authorization_code/);
-  assert.match(seen[0].body ?? "", /redirect_uri=https%3A%2F%2Fevolusa\.vercel\.app/);
+  assert.match(seen[0].body ?? "", /redirect_uri=https%3A%2F%2Fwww\.evolusa\.us/);
   assert.deepEqual(await fetchLinkedInAccount("li-token", fake), { id: "abc123XYZ", name: "José Miguel Acosta" });
 });
 

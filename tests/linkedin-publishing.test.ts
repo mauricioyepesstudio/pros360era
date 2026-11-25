@@ -14,7 +14,7 @@ test("both additional networks participate in scheduling and retain duplicate su
   assert.equal(linkedInRequest({...post,imageUrl:null}, "https://evolusa.vercel.app").ok, false);
 });
 test("LinkedIn downloads only trusted public assets and rejects credential URLs", () => {
-  assert.equal(linkedInMediaUrl(post.imageUrl!).origin, "https://evolusa.vercel.app");
+  assert.equal(linkedInMediaUrl(post.imageUrl!).origin, "https://www.evolusa.us");
   for (const bad of ["https://127.0.0.1/a.mp4", "https://x.com/a.mp4", "https://user:pass@evolusa.vercel.app/videos/a.mp4", "/api/private", "/videos/a.mp4?x=1"]) assert.throws(() => linkedInMediaUrl(bad));
 });
 test("LinkedIn uploads every instructed part, finalizes, checks processing, then creates exactly one post", async () => {
@@ -55,4 +55,11 @@ test("image uploads authenticate to LinkedIn while video uploads stay token-free
   }) as typeof fetch;
   await publishLinkedInPost("member","secret",{kind:"IMAGE",caption:"Hola",title:"",mediaUrl:"/professionals/kits/test/image.jpg"},fake);
   assert.equal(uploaded,true);
+});
+
+test("LinkedIn accepts EVOLUSA's old domains but always downloads from www.evolusa.us", () => {
+  for (const old of ["https://evolusa.vercel.app/videos/a.mp4", "https://evolusa.us/videos/a.mp4", "/videos/a.mp4"]) {
+    assert.equal(linkedInMediaUrl(old).href, "https://www.evolusa.us/videos/a.mp4");
+  }
+  assert.throws(() => linkedInMediaUrl("https://evolusa.us.evil.example/videos/a.mp4"));
 });

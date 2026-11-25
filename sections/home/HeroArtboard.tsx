@@ -11,7 +11,7 @@ import { ArrowRight } from "lucide-react";
  * Copy rules: no regulated services in the subline, "perfil aprobado por
  * EVOLUSA" (never "verificado"), no promised outcomes.
  */
-export default function HeroArtboard() {
+export default function HeroArtboard({ showProLink = true }: { showProLink?: boolean }) {
   return (
     <section id="home" aria-labelledby="hero-title" className="relative bg-[var(--brand-navy)] text-white">
       <div className="relative aspect-[3/2] w-full">
@@ -39,13 +39,16 @@ export default function HeroArtboard() {
             Te mostramos tu camino en 6 etapas: qué hacer ahora y qué sigue. En cada paso te conectamos con un profesional en Florida que habla tu idioma.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/onboarding" data-tour="hero-busco" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center gap-2 rounded-full text-center sm:w-auto bg-[var(--brand-red-strong)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#a90016] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-              Soy usuario · Empezar gratis <ArrowRight aria-hidden size={18} />
+            <Link href="/onboarding" data-tour="hero-busco" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center gap-2 rounded-full text-center sm:w-auto bg-[var(--role-member)] px-7 font-bold text-white transition hover:-translate-y-0.5 hover:bg-[var(--role-member-strong)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Empezar gratis <ArrowRight aria-hidden size={18} />
             </Link>
-            <Link href="/aplicar-profesional" data-tour="hero-path" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center rounded-full px-5 text-center sm:w-auto font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-              Soy profesional · Solicitar mi perfil
+            <Link href="#beneficios" className="inline-flex min-h-14 w-full min-w-0 items-center justify-center rounded-full px-7 text-center font-bold text-white ring-2 ring-inset ring-white/70 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto">
+              Ver lo que tienes
             </Link>
           </div>
+          {showProLink ? <Link href="/para-profesionales" className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white/85 underline underline-offset-4 hover:text-white">
+            ¿Eres profesional? Tu espacio está aparte <ArrowRight aria-hidden size={15} />
+          </Link> : null}
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90">
             <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Empiezas gratis</li>
             <li><span aria-hidden className="mr-1.5 font-black text-[#ff7a87]">✓</span>Cada profesional con perfil aprobado por EVOLUSA</li>

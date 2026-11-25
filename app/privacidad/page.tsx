@@ -32,6 +32,7 @@ const sections: readonly LegalSection[] = [
         <li>Datos de tu cuenta: correo, nombre y la contraseña cifrada que gestiona nuestro proveedor de autenticación.</li>
         <li>Lo que nos cuentas en el Journey y el plan: tus respuestas, tus metas y el progreso de cada paso.</li>
         <li>Si eres profesional: tu perfil, tu trayectoria, tu agenda, tu planner de publicaciones y los contactos que registras en tu CRM.</li>
+        <li>Si eres profesional: tu brandbook (colores, tipografías, descripción de tu marca, reglas visuales y el nombre de quien aprueba tus piezas) y las imágenes que subas a él. Esas imágenes quedan en un enlace público para que puedas usarlas en tus publicaciones.</li>
         <li>Si pagas una tarifa de conexión: el resultado del pago. Los datos de tu tarjeta los procesa Stripe y nunca llegan a EVOLUSA.</li>
         <li>Si conectas Instagram: lo que se describe en la sección siguiente.</li>
         <li>Cookies esenciales para mantener tu sesión iniciada. No usamos cookies de publicidad ni de analítica.</li>
@@ -49,7 +50,7 @@ const sections: readonly LegalSection[] = [
           <li>la llave de acceso que entrega Instagram, cifrada. Solo la usa nuestro servidor y nunca se muestra en la plataforma.</li>
         </ul>
         <p>
-          La usamos únicamente para lo que el profesional pide desde su panel: publicar las piezas que marca como listas en su planner y traer los comentarios y mensajes directos de su cuenta a su CRM (una vez al día o cuando lo pide). Ese contenido (nombre de usuario de quien escribe, texto, fecha y enlace a la publicación) se guarda en el CRM del profesional, y cada persona que escribe queda como prospecto con su nombre de usuario de Instagram. No vendemos estos datos, no los usamos para publicidad y no publicamos nada que el profesional no haya aprobado.
+          La usamos únicamente para lo que el profesional pide desde su panel: publicar las piezas que marca como listas en su planner, traer los comentarios y mensajes directos de su cuenta a su CRM (una vez al día o cuando lo pide) y, si pulsa «Generar borrador desde mis cuentas», leer su foto de perfil y sus publicaciones recientes para sugerir un color de marca. De esa lectura solo conservamos el color sugerido, y solo si el profesional lo guarda en su brandbook. El contenido de comentarios y mensajes (nombre de usuario de quien escribe, texto, fecha y enlace a la publicación) se guarda en el CRM del profesional, y cada persona que escribe queda como prospecto con su nombre de usuario de Instagram. No vendemos estos datos, no los usamos para publicidad y no publicamos nada que el profesional no haya aprobado.
         </p>
         <p>
           Puedes desconectar tu cuenta en cualquier momento desde tu panel (Redes) o desde Instagram, en Configuración → Apps y sitios web. Al desconectarla borramos de EVOLUSA la llave de acceso, los datos de la cuenta conectada y los comentarios y mensajes traídos. Los prospectos que ya estaban en el CRM del profesional se conservan como parte de su lista de clientes. Meta trata tus datos según su propia <a href="https://privacycenter.instagram.com/policy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
@@ -64,6 +65,12 @@ const sections: readonly LegalSection[] = [
         <p>Si un profesional conecta su perfil personal de LinkedIn guardamos su identificador de LinkedIn, su nombre y la llave de acceso, cifrada. La usamos solo para publicar en su perfil lo que marca como listo en su planner. No leemos sus contactos ni sus mensajes.</p>
         <p>LinkedIn pide volver a conectar cada 60 días. Al desconectar, o cuando la conexión vence, borramos la llave de acceso.</p>
       </>
+    ),
+  },
+  {
+    title: "Lectura de tu web pública",
+    body: (
+      <p>Si un profesional pulsa «Generar borrador desde mis cuentas», nuestro servidor abre la dirección web pública que indica y lee solo los datos de marca visibles en ella: nombre, descripción, colores, tipografías y enlaces a redes. No iniciamos sesión ni enviamos cookies. El resultado es un borrador que el profesional revisa; no se guarda hasta que él lo guarda. Indica solo la web de tu propio negocio.</p>
     ),
   },
   {
@@ -85,7 +92,7 @@ const sections: readonly LegalSection[] = [
         <ul>
           <li>Supabase (base de datos y autenticación).</li>
           <li>Vercel (alojamiento del sitio).</li>
-          <li>Anthropic (redacta borradores de texto con IA cuando un profesional usa esa función).</li>
+          <li>Anthropic (redacta borradores de texto con IA cuando un profesional usa esa función; recibe el texto de su voz, su negocio y su brandbook, pero no sus imágenes).</li>
           <li>Stripe (pagos), con su propia <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.</li>
           <li>Meta (Instagram), solo si un profesional conecta su cuenta.</li>
           <li>LinkedIn, solo si un profesional conecta su perfil, con su propia <a href="https://www.linkedin.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.</li>
@@ -123,7 +130,7 @@ export default function PrivacidadPage() {
     <LegalDocument
       eyebrow="Legal"
       title="Política de privacidad"
-      updated="9 de octubre de 2026"
+      updated="13 de noviembre de 2026"
       intro={<p>Aquí explicamos qué datos guarda EVOLUSA, para qué y cómo puedes pedir que se borren.</p>}
       sections={sections}
     />
