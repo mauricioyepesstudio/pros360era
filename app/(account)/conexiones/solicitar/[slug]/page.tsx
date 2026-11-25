@@ -2,12 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getPublicProfessionalBySlug } from "@/lib/professional/public-profile";
-import { pilotEnabled } from "@/lib/inquiries/validation";
+import { pilotEnabled, supportsDirectInquiry } from "@/lib/inquiries/validation";
 import { requireMemberArea } from "@/lib/account/role-gate";
 import ProfileInquiryForm from "@/components/inquiries/ProfileInquiryForm";
 
 type Props = {params:Promise<{slug:string}>};
-const pilotProfiles = new Set(["mauricio-yepes-b96cae", "jose-miguel-acosta-34c676", "1migration-b2bfe2", "marie-fernandez-efff0e"]);
 
 export default async function SolicitarProfesionalPage({params}:Props) {
   // Feature gate before reads or access to submission UI; off unless explicitly enabled.
@@ -15,7 +14,7 @@ export default async function SolicitarProfesionalPage({params}:Props) {
   await requireMemberArea();
   const {slug}=await params;
   const profile=await getPublicProfessionalBySlug(slug);
-  if(!profile || !profile.isAcceptingClients || !pilotProfiles.has(profile.slug)) notFound();
+  if(!profile || !profile.isAcceptingClients || !supportsDirectInquiry(profile.slug)) notFound();
 
   return <main className="mx-auto max-w-3xl px-5 py-10">
     <Link href={`/profesionales/${profile.slug}`} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-blue)]"><ArrowLeft size={16}/> Regresar al perfil</Link>

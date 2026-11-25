@@ -1,3 +1,4 @@
+import { supportsDirectInquiry } from "@/lib/inquiries/validation";
 import ProfessionalPhoto from "@/components/professional/ProfessionalPhoto";
 import ProfessionalServiceShowcase from "@/components/professional/ProfessionalServiceShowcase";
 import ProfessionalCareerView from "@/components/professional/ProfessionalCareerView";
@@ -59,6 +60,7 @@ export default function ProfessionalProfileView({
   workSamples?: readonly ProfessionalWorkSample[];
   capturePilotEnabled?: boolean;
 }) {
+  const canRequestDirectly = capturePilotEnabled && supportsDirectInquiry(professional.slug);
   const category = getProfessionalCategory(professional.category);
   const categoryLabel = category?.label ?? "Profesional EVOLUSA";
   const location = [professional.city, professional.state].filter(Boolean).join(", ");
@@ -145,17 +147,17 @@ export default function ProfessionalProfileView({
                 <div className="mt-6 max-w-xl rounded-[var(--radius-lg)] border border-white/25 bg-white/10 p-5">
                   <p className="text-base font-bold text-white">¿Necesitas este tipo de servicio?</p>
                   <p className="mt-2 text-sm leading-6 text-white/80">
-                    {capturePilotEnabled && ["mauricio-yepes-b96cae", "jose-miguel-acosta-34c676", "1migration-b2bfe2", "marie-fernandez-efff0e"].includes(professional.slug)
+                    {canRequestDirectly
                       ? "Envía una solicitud a este profesional. Te mostraremos el destinatario exacto antes de compartir los datos."
                       : "Registra tu solicitud en EVOLUSA para buscar una opción compatible. No garantiza asignación directa a este profesional."}
                   </p>
                   <ButtonLink
-                    href={capturePilotEnabled && (professional.category === "BUSINESS_MARKETING" || professional.category === "BUSINESS_OPERATIONS")
+                    href={canRequestDirectly
                       ? `/conexiones/solicitar/${professional.slug}`
                       : "/conexiones/nueva"}
                     className="mt-4"
                   >
-                    {capturePilotEnabled && (professional.category === "BUSINESS_MARKETING" || professional.category === "BUSINESS_OPERATIONS")
+                    {canRequestDirectly
                       ? "Solicitar información a este profesional"
                       : "Solicitar servicio en EVOLUSA"}
                   </ButtonLink>
