@@ -21,8 +21,8 @@ export default function PreparedKitCreatives({ kit }: { kit: PreparedKit }) {
     <section aria-labelledby="agency-studio-title" className="space-y-6">
       <div className="overflow-hidden rounded-3xl bg-[#111827] p-6 text-white shadow-sm sm:p-9">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c7c6ff]">EvolUSA · Estudio creativo privado</p>
-          <span className="rounded-full border border-white/25 px-3 py-1 text-xs text-white/85">Un equipo dedicado a cada marca</span>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c7c6ff]">EVOLUSA · Estudio creativo privado</p>
+          <span className="rounded-full border border-white/25 px-3 py-1 text-xs text-white/85">Borradores para tu marca</span>
         </div>
         <h2 id="agency-studio-title" className="mt-4 max-w-3xl text-2xl font-semibold tracking-tight sm:text-4xl">
           Creatividad que representa tu profesión.
@@ -48,6 +48,7 @@ export default function PreparedKitCreatives({ kit }: { kit: PreparedKit }) {
         <ShieldAlert aria-hidden="true" className="mt-0.5 shrink-0" size={22} />
         <div className="space-y-2">
           <p className="font-bold">Borradores privados. No son piezas aprobadas para publicar.</p>
+          <p>Las cifras de las piezas educativas son ejemplos ilustrativos, no resultados de clientes. Confirma los datos marcados antes de compartir.</p>
           <p>La descarga permite revisar el material, no acredita calidad de agencia ni derechos de imagen. El titular debe validar marca, texto, fotografía y recortes en los tres tamaños.</p>
           {isNotary ? <p className="font-medium">Para servicios de Notary Public en Florida, revisa el aviso legal íntegro y su legibilidad en cada formato. No presentes servicios de asesoría legal.</p> : null}
         </div>
