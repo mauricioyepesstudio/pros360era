@@ -79,6 +79,12 @@ export const applicationCategoryOptions: readonly ApplicationCategoryOption[] = 
     credentialHint: "Indica tu licencia, jurisdicción y líneas de seguros autorizadas para su revisión.",
   },
   {
+    id: "AUTO_SALES",
+    label: "Venta de vehículos",
+    live: false,
+    credentialHint: "Indica tu concesionario, mercado, idiomas y tipo de inventario para revisión.",
+  },
+  {
     id: "AUTO_INSURANCE",
     label: "Seguros de auto y accidentes de tránsito",
     live: false,
